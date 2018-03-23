@@ -291,6 +291,14 @@ BEGIN
     EDITTEXT        IDC_EDIT_PARAM,171,311,57,14,ES_AUTOHSCROLL
 END
 
+IDD_DIALOG_DO DIALOGEX 0, 0, 131, 98
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,18,60,50,14
+    PUSHBUTTON      "取消",IDCANCEL,74,60,50,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -370,6 +378,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 500
     END
+
+    IDD_DIALOG_DO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 124
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 91
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -388,6 +404,11 @@ IDR_RIBBON              RT_RIBBON_XML           "res\\ribbon.mfcribbon-ms"
 //
 
 IDD_DIALOG_MAIN AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_DO AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

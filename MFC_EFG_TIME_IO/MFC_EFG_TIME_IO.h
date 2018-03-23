@@ -19,6 +19,8 @@
 
 #include "resource.h"       // 主符号
 
+#include "TimeIOCtrl.h"
+
 
 // CMFC_EFG_TIME_IOApp:
 // 有关此类的实现，请参阅 MFC_EFG_TIME_IO.cpp

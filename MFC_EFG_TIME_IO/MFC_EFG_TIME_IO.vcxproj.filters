@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="PCI1780U">
+      <UniqueIdentifier>{0890ee0e-6467-4f43-beb3-d17c2d6ae52d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -52,6 +55,7 @@
     <None Include="res\Toolbar256.bmp">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MFC_EFG_TIME_IO.h">
@@ -78,6 +82,24 @@
     <ClInclude Include="TimeIOCtrl.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DlgDI.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgDO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgT0.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgT1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CtrlBase.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerPulse.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -97,6 +119,24 @@
     </ClCompile>
     <ClCompile Include="TimeIOCtrl.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CtrlBase.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgDI.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgDO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgT0.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgT1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerPulse.cpp">
+      <Filter>PCI1780U</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

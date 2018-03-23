@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "TimeIOCtrl.h"
 
+
 void CTimeIOCtrl::OnDiSnapEvent(void * sender, DiSnapEventArgs * args, void * userParam)
 {
   CTimeIOCtrl * uParam = (CTimeIOCtrl *)userParam;
@@ -15,6 +16,8 @@ CTimeIOCtrl::CTimeIOCtrl(void)
   m_pwModulatorCtrl = PwModulatorCtrl::Create();
   m_instantDiCtrl = InstantDiCtrl::Create();
   m_instantDiCtrl->addInterruptHandler(OnDiSnapEvent, this);//di中断回调
+  m_selectedDeviceNumber = -1;
+  devices.RemoveAll();
 }
 
 
@@ -23,6 +26,48 @@ CTimeIOCtrl::~CTimeIOCtrl(void)
   m_oneShotCtrl->Dispose();
   m_eventCounterCtrl->Dispose();
   m_pwModulatorCtrl->Dispose();
+}
+int CTimeIOCtrl::CreateT0(int no, int type)
+{
+  return 0;
+}
+//返回设备数量
+int CTimeIOCtrl::getDevices()
+{
+ 
+
+  devices.RemoveAll();
+  Array<DeviceTreeNode>* sptedDevices = DeviceCtrl::getInstalledDevices();
+  int count = sptedDevices->getCount();
+  if (count == 0)
+  {
+    AfxMessageBox(_T("No device to support the currently demonstrated function!"));
+    sptedDevices->Dispose();
+    return -1;
+  }
+  else {
+    for (int i = 0; i < count; ++i)
+    {
+      DeviceTreeNode const & node = sptedDevices->getItem(i);
+      TRACE("%d, %s\n", node.DeviceNumber, node.Description);
+      DevInf dev = { node.DeviceNumber, node.Description };
+      devices.Add(dev);
+    }
+    sptedDevices->Dispose();
+    return count;
+  }
+}
+
+int CTimeIOCtrl::getDevice(int no, DevInf& devInf)
+{
+  int count = devices.GetCount();
+  if (no < count) {
+    devInf = devices.GetAt(no);
+    return 1;
+  }
+  else {
+    return -1;
+  }
 }
 
 //参考官方例程的Counter_DelayedPulseGeneration、

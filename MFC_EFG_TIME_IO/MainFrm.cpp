@@ -14,7 +14,10 @@
 
 #include "stdafx.h"
 #include "MFC_EFG_TIME_IO.h"
-
+#include "DlgDI.h"
+#include "DlgDO.h"
+#include "DlgT0.h"
+#include "DlgT1.h"
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -33,6 +36,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CMainFrame::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnFilePrintPreview)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnUpdateFilePrintPreview)
+  ON_COMMAND(ID_COMBO_TIMEIO, &CMainFrame::OnComboTimeio)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -78,6 +82,16 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CDockingManager::SetDockingMode(DT_SMART);
 	// 启用 Visual Studio 2005 样式停靠窗口自动隐藏行为
 	EnableAutoHidePanes(CBRS_ALIGN_ANY);
+
+  int count = m_timeIOCtrl.getDevices();
+  DevInf dev;
+  //combo init
+  CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
+  for (int i = 0; i < count; i++) {
+    int ret = m_timeIOCtrl.getDevice(i, dev);
+    int nIndex = pComboBox->AddItem(dev.description);
+    //pComboBox->SetEditText(m_capControl.m_capName);
+  }
 
 	return 0;
 }
@@ -211,4 +225,63 @@ void CMainFrame::OnFilePrintPreview()
 void CMainFrame::OnUpdateFilePrintPreview(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetCheck(IsPrintPreview());
+}
+
+
+void CMainFrame::OnComboTimeio()
+{
+  // TODO: 在此添加命令处理程序代码
+  //TEST
+  CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
+  
+  DevInf dev;
+  int sel = pComboBox->GetCurSel();
+  int ret = m_timeIOCtrl.getDevice(sel, dev);
+  DeviceCtrl *obj = DeviceCtrl::Create(dev.deviceNumber, dev.description.GetBuffer(), ModeWriteWithReset);
+  dev.description.ReleaseBuffer();
+  int scenarios = DeviceCtrl_getSupportedScenarios(obj);
+
+  return;
+}
+
+
+BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
+{
+  // TODO: 在此添加专用代码和/或调用基类
+  CRect rect;
+  GetClientRect(&rect);
+  int nwidth(rect.right);
+  int nheight(rect.bottom);   //获取客户区窗口大小  
+
+  if (!m_splitwnd.CreateStatic(this, 4, 8))   //窗口分割  
+  {
+    MessageBox(_T("分割窗口错误"), _T("Error"), MB_OK | MB_ICONERROR);
+    return false;
+  }
+  
+  //关联相关的View类  
+  for (int i = 0; i < 8; i++) {
+    m_splitwnd.CreateView(0, i, RUNTIME_CLASS(CDlgDI), CSize((nwidth - 50) / 8, (nheight - 50) / 4), pContext);
+    m_splitwnd.CreateView(1, i, RUNTIME_CLASS(CDlgDO), CSize((nwidth - 50) / 8, (nheight - 50) / 4), pContext);
+    m_splitwnd.CreateView(2, i, RUNTIME_CLASS(CDlgT0), CSize((nwidth - 50) / 8, (nheight - 50) / 4), pContext);
+    m_splitwnd.CreateView(3, i, RUNTIME_CLASS(CDlgT1), CSize((nwidth - 50) / 8, (nheight - 50) / 4), pContext);
+    CString str;
+    str.Format(L"%d", i);
+    ((CDlgDI*)m_splitwnd.GetPane(0, i))->SetDlgItemText(IDC_STATIC, L"DI" + str);
+    ((CDlgDO*)m_splitwnd.GetPane(1, i))->SetDlgItemText(IDC_STATIC, L"DO" + str);
+    ((CDlgT0*)m_splitwnd.GetPane(2, i))->SetDlgItemText(IDC_STATIC, L"T0" + str);
+    ((CDlgT1*)m_splitwnd.GetPane(3, i))->SetDlgItemText(IDC_STATIC, L"T1" + str);
+
+    ((CDlgDI*)m_splitwnd.GetPane(0, i))->index = i;
+    ((CDlgDO*)m_splitwnd.GetPane(1, i))->index = i;
+    ((CDlgT0*)m_splitwnd.GetPane(2, i))->index = i;
+    ((CDlgT1*)m_splitwnd.GetPane(3, i))->index = i;
+
+    ((CDlgT0*)m_splitwnd.GetPane(2, i))->InitDlg();
+  }
+ 
+  m_splitwnd.SetActivePane(0, 0);
+
+  return true;
+  //return CFrameWndEx::OnCreateClient(lpcs, pContext);
 }

@@ -205,6 +205,7 @@
     <ClInclude Include="AVerCapAPI_Basic.h" />
     <ClInclude Include="CapControl.h" />
     <ClInclude Include="CvvImage.h" />
+    <ClInclude Include="DlgDO.h" />
     <ClInclude Include="DlgView.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFC_CountCircle.h" />
@@ -219,6 +220,7 @@
     <ClCompile Include="AVerCapAPI_Basic.cpp" />
     <ClCompile Include="CapControl.cpp" />
     <ClCompile Include="CvvImage.cpp" />
+    <ClCompile Include="DlgDO.cpp" />
     <ClCompile Include="DlgView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFC_CountCircle.cpp" />

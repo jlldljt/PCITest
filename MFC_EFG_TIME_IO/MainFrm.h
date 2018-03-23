@@ -14,6 +14,9 @@
 
 #pragma once
 
+
+
+
 class CMainFrame : public CFrameWndEx
 {
 	
@@ -23,7 +26,13 @@ protected: // 仅从序列化创建
 
 // 特性
 public:
-
+  CTimeIOCtrl m_timeIOCtrl;
+  
+  CSplitterWnd m_splitwnd;
+  CSplitterWnd m_splitwndDi;
+  CSplitterWnd m_splitwndDo;
+  CSplitterWnd m_splitwndT0;
+  CSplitterWnd m_splitwndT1;
 // 操作
 public:
 
@@ -55,6 +64,9 @@ protected:
 	afx_msg void OnUpdateFilePrintPreview(CCmdUI* pCmdUI);
 	DECLARE_MESSAGE_MAP()
 
+public:
+  afx_msg void OnComboTimeio();
+  virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 };
 
 
