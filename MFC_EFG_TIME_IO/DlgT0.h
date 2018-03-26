@@ -23,10 +23,14 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 #endif
-
 public:
-  int index;
+  CBrush m_brushBack;
+  COLORREF m_color;
+public:
+  int m_index;
+  int m_device;
   void InitDlg(void);
+  void SetDlg(TimeIOType type);
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 
@@ -35,6 +39,9 @@ public:
   afx_msg void OnBnClickedButtonCreate();
   CComboBox m_comboType;
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+  afx_msg void OnBnClickedButtonStart();
+  afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+  afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 

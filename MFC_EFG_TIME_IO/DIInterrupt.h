@@ -1,17 +1,16 @@
 #pragma once
 #include "CtrlBase.h"
-
-
-class CTimerPulse :
+class CDIInterrupt :
   public CCtrlBase
 {
 public:
-  CTimerPulse();
-  ~CTimerPulse();
+  CDIInterrupt();
+  ~CDIInterrupt();
+  static void  BDAQCALL OnDiSnapEvent(void * sender, DiSnapEventArgs * args, void * userParam);
   //×Ö¶Î
 private:
-  TimerPulseCtrl*    m_timePulseCtrl;//time pulse
-public:
+  InstantDiCtrl*    m_instantDiCtrl;//di interrupt
+
   //·½·¨
 public:
   BOOL Init(int device, int module = 0);
@@ -19,7 +18,5 @@ public:
   BOOL Config(tagCtrlParam* param);
   BOOL Start(tagCtrlParam* param);
   BOOL Stop();
-
-  //
 };
 

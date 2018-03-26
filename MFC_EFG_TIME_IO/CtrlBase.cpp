@@ -32,6 +32,7 @@ WCHAR const * TCHAR_TO_WCHAR(TCHAR const * in, WCHAR* out)
 
 CCtrlBase::CCtrlBase()
 {
+  m_callback = NULL;
 }
 
 
@@ -53,3 +54,22 @@ void CCtrlBase::CheckError(ErrorCode errorCode)
   }
 }
 
+int CCtrlBase::GetModuleCount()
+{
+  return m_modules.GetCount();
+}
+
+int CCtrlBase::GetModule(int no)
+{
+  return m_modules.GetAt(no);
+}
+
+int CCtrlBase::GetChannelCount()
+{
+  return m_channels.GetCount();
+}
+
+int CCtrlBase::GetChannel(int no)
+{
+  return m_channels.GetAt(no);
+}

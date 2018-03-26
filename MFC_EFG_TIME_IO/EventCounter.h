@@ -1,25 +1,23 @@
 #pragma once
 #include "CtrlBase.h"
-
-
-class CTimerPulse :
+class CEventCounter :
   public CCtrlBase
 {
 public:
-  CTimerPulse();
-  ~CTimerPulse();
-  //字段
+  CEventCounter();
+  ~CEventCounter();
+
+//字段
 private:
-  TimerPulseCtrl*    m_timePulseCtrl;//time pulse
-public:
-  //方法
+  EventCounterCtrl*    m_eventCounterCtrl;//event counter
+
+//方法
 public:
   BOOL Init(int device, int module = 0);
   void DeInit();
   BOOL Config(tagCtrlParam* param);
   BOOL Start(tagCtrlParam* param);
   BOOL Stop();
-
-  //
+  BOOL Read(tagCtrlParam* param);
 };
 

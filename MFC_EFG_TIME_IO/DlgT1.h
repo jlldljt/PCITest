@@ -22,12 +22,25 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 #endif
-public:
-  int index;
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
-	DECLARE_MESSAGE_MAP()
+public:
+  CBrush m_brushBack;
+  COLORREF m_color;
+public:
+  int m_index;
+  int m_device;
+  void InitDlg(void);
+  void SetDlg(TimeIOType type);
+protected:
+  virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+
+  DECLARE_MESSAGE_MAP()
+public:
+  afx_msg void OnBnClickedButtonCreate();
+  CComboBox m_comboType;
+  afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+  afx_msg void OnBnClickedButtonStart();
+  afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
 
 

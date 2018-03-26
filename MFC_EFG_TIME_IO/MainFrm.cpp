@@ -20,6 +20,12 @@
 #include "DlgT1.h"
 #include "MainFrm.h"
 
+
+CMainFrame* GetMainFrame() {
+  CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
+  return ((CMainFrame*)pMain);
+};
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -237,9 +243,17 @@ void CMainFrame::OnComboTimeio()
   DevInf dev;
   int sel = pComboBox->GetCurSel();
   int ret = m_timeIOCtrl.getDevice(sel, dev);
-  DeviceCtrl *obj = DeviceCtrl::Create(dev.deviceNumber, dev.description.GetBuffer(), ModeWriteWithReset);
+  /*DeviceCtrl *obj = DeviceCtrl::Create(dev.deviceNumber, dev.description.GetBuffer(), ModeWriteWithReset);
   dev.description.ReleaseBuffer();
-  int scenarios = DeviceCtrl_getSupportedScenarios(obj);
+  int scenarios = DeviceCtrl_getSupportedScenarios(obj);*/
+  for (int i = 0; i < 8; i++) {
+    
+    ((CDlgDI*)m_splitwnd.GetPane(0, i))->m_device = dev.deviceNumber;
+    ((CDlgDO*)m_splitwnd.GetPane(1, i))->m_device = dev.deviceNumber;
+    ((CDlgT0*)m_splitwnd.GetPane(2, i))->m_device = dev.deviceNumber;
+    ((CDlgT1*)m_splitwnd.GetPane(3, i))->m_device = dev.deviceNumber;
+
+  }
 
   return;
 }
@@ -248,6 +262,7 @@ void CMainFrame::OnComboTimeio()
 BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 {
   // TODO: 在此添加专用代码和/或调用基类
+
   CRect rect;
   GetClientRect(&rect);
   int nwidth(rect.right);
@@ -272,12 +287,13 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
     ((CDlgT0*)m_splitwnd.GetPane(2, i))->SetDlgItemText(IDC_STATIC, L"T0" + str);
     ((CDlgT1*)m_splitwnd.GetPane(3, i))->SetDlgItemText(IDC_STATIC, L"T1" + str);
 
-    ((CDlgDI*)m_splitwnd.GetPane(0, i))->index = i;
-    ((CDlgDO*)m_splitwnd.GetPane(1, i))->index = i;
-    ((CDlgT0*)m_splitwnd.GetPane(2, i))->index = i;
-    ((CDlgT1*)m_splitwnd.GetPane(3, i))->index = i;
+    ((CDlgDI*)m_splitwnd.GetPane(0, i))->m_index = i;
+    ((CDlgDO*)m_splitwnd.GetPane(1, i))->m_index = i;
+    ((CDlgT0*)m_splitwnd.GetPane(2, i))->m_index = i;
+    ((CDlgT1*)m_splitwnd.GetPane(3, i))->m_index = i;
 
     ((CDlgT0*)m_splitwnd.GetPane(2, i))->InitDlg();
+    ((CDlgT1*)m_splitwnd.GetPane(3, i))->InitDlg();
   }
  
   m_splitwnd.SetActivePane(0, 0);

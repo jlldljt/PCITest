@@ -24,7 +24,8 @@ public:
 #endif
 
 public:
-  int index;
+  int m_index;
+  int m_device;
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 

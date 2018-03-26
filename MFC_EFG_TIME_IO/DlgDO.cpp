@@ -13,7 +13,7 @@ IMPLEMENT_DYNCREATE(CDlgDO, CFormView)
 CDlgDO::CDlgDO()
 	: CFormView(IDD_DIALOG_DO)
 {
-
+  m_device = -1;
 }
 
 CDlgDO::~CDlgDO()

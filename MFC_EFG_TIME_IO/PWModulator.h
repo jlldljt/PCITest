@@ -1,18 +1,17 @@
 #pragma once
 #include "CtrlBase.h"
-
-
-class CTimerPulse :
+class CPWModulator :
   public CCtrlBase
 {
 public:
-  CTimerPulse();
-  ~CTimerPulse();
-  //字段
+  CPWModulator();
+  ~CPWModulator();
+
+//字段
 private:
-  TimerPulseCtrl*    m_timePulseCtrl;//time pulse
-public:
-  //方法
+  PwModulatorCtrl*    m_pwModulatorCtrl;//pwm
+
+//方法
 public:
   BOOL Init(int device, int module = 0);
   void DeInit();
@@ -20,6 +19,5 @@ public:
   BOOL Start(tagCtrlParam* param);
   BOOL Stop();
 
-  //
 };
 
