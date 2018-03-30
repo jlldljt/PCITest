@@ -1,12 +1,11 @@
 #pragma once
 #include "CtrlBase.h"
-class CDIInterrupt :
+class CStaticDI :
   public CCtrlBase
 {
 public:
-  CDIInterrupt();
-  ~CDIInterrupt();
-  static void  BDAQCALL OnDiSnapEvent(void * sender, DiSnapEventArgs * args, void * userParam);
+  CStaticDI();
+  ~CStaticDI();
   //×Ö¶Î
 private:
   InstantDiCtrl*    m_instantDiCtrl;//di interrupt
@@ -18,6 +17,5 @@ public:
   BOOL Config(tagCtrlParam* param);
   BOOL Start(tagCtrlParam* param);
   BOOL Stop();
-  BOOL Read(tagCtrlParam* param);
 };
 

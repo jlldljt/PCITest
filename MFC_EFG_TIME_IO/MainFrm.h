@@ -33,6 +33,9 @@ public:
   CSplitterWnd m_splitwndDo;
   CSplitterWnd m_splitwndT0;
   CSplitterWnd m_splitwndT1;
+
+
+  CParamConfig m_config;
 // ²Ù×÷
 public:
 

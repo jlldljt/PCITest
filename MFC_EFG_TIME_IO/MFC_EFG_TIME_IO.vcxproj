@@ -108,6 +108,7 @@
     <None Include="res\Toolbar256.bmp" />
     <None Include="res\writelarge.bmp" />
     <None Include="res\writesmall.bmp" />
+    <None Include="说明.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CtrlBase.h" />
@@ -121,12 +122,16 @@
     <ClInclude Include="MFC_EFG_TIME_IO.h" />
     <ClInclude Include="MFC_EFG_TIME_IODoc.h" />
     <ClInclude Include="MFC_EFG_TIME_IOView.h" />
+    <ClInclude Include="OneShot.h" />
+    <ClInclude Include="ParamConfig.h" />
     <ClInclude Include="PWModulator.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="StaticDI.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TimeIOCtrl.h" />
     <ClInclude Include="TimerPulse.h" />
+    <ClInclude Include="tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CtrlBase.cpp" />
@@ -140,13 +145,19 @@
     <ClCompile Include="MFC_EFG_TIME_IO.cpp" />
     <ClCompile Include="MFC_EFG_TIME_IODoc.cpp" />
     <ClCompile Include="MFC_EFG_TIME_IOView.cpp" />
+    <ClCompile Include="OneShot.cpp" />
+    <ClCompile Include="ParamConfig.cpp" />
     <ClCompile Include="PWModulator.cpp" />
+    <ClCompile Include="StaticDI.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TimeIOCtrl.cpp" />
     <ClCompile Include="TimerPulse.cpp" />
+    <ClCompile Include="tinyxml2.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MFC_EFG_TIME_IO.rc" />

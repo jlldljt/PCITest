@@ -5,7 +5,6 @@
 #include "MFC_EFG_TIME_IO.h"
 #include "DlgT0.h"
 #include "MainFrm.h"
-
 // CDlgT0
 
 IMPLEMENT_DYNCREATE(CDlgT0, CFormView)
@@ -20,8 +19,10 @@ CDlgT0::~CDlgT0()
 {
 }
 
-void CDlgT0::InitDlg(void)
+void CDlgT0::InitDlg(int index)
 {
+  m_index = index;
+
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"TimerPulse");
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(0, TIME_PULSE);
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"OneShot");
@@ -34,6 +35,7 @@ void CDlgT0::InitDlg(void)
   GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(FALSE);
   GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(FALSE);
   GetDlgItem(IDC_BUTTON_START)->EnableWindow(FALSE);
+
 }
 
 void CDlgT0::SetDlg(TimeIOType type)
@@ -55,10 +57,17 @@ void CDlgT0::SetDlg(TimeIOType type)
     break;
   case EVENT_COUNTER:
     SetDlgItemText(IDC_STATIC_PARAM0, L"数值    ");//多个空格以填满static
-    //GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
     GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
     GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
     SetTimer(0, 40, NULL);
+    break;
+
+  case ONE_SHOT:
+    SetDlgItemText(IDC_STATIC_PARAM0, L"延时cnt");
+    GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
+    GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
     break;
   default:
     SetDlgItemText(IDC_STATIC_PARAM0, L"param0");
@@ -74,6 +83,73 @@ void CDlgT0::SetDlg(TimeIOType type)
   }
 
 
+}
+
+void CDlgT0::SaveParam()
+{
+  CString str;
+  str.Format(L"T0%d.xml", m_index);
+  CString path = L"config/" + str;
+  char  ppath[50], pstr[50];
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);
+  if (0 == m_config.Create(ppath, pstr))
+  {
+    ConfigParam param;
+
+    int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->GetCurSel();
+    CString param0, param1;
+    GetDlgItemText(IDC_EDIT_PARAM0, param0);
+    GetDlgItemText(IDC_EDIT_PARAM1, param1);
+    double fparam0 = _wtof(param0);
+    double fparam1 = _wtof(param1);
+    bool start;
+    CString str;
+    GetDlgItemText(IDC_BUTTON_START, str);
+    if ("开始" == str)
+      start = false;
+    else
+      start = true;
+    param.device = m_device;
+    param.comboData = index;
+    param.param0 = fparam0;
+    param.param1 = fparam1;
+    param.start = start;
+    m_config.SaveParam(param);
+  }
+
+}
+
+void CDlgT0::LoadParam()
+{
+  CString str;
+  str.Format(L"T0%d.xml", m_index);
+  CString path = L"config/" + str;
+  char  ppath[50], pstr[50];
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);
+  if (0 == m_config.Create(ppath, pstr))
+  {
+    ConfigParam* param = m_config.ReadParam();
+    if (!param)
+      return;
+    int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetCurSel(param->comboData);
+    CString param0, param1;
+    param0.Format(L"%.0lf", param->param0);
+    param1.Format(L"%.0lf", param->param1);
+    SetDlgItemText(IDC_EDIT_PARAM0, param0);
+    SetDlgItemText(IDC_EDIT_PARAM1, param1);
+    if (param->start && param->device == m_device) //启动状态
+    {
+      CString str;
+      GetDlgItemText(IDC_BUTTON_CREATE, str);
+      if ("创建" == str) {
+        OnBnClickedButtonCreate();
+        OnBnClickedButtonStart();
+      }
+    }
+    delete param;
+  }
 }
 
 void CDlgT0::DoDataExchange(CDataExchange* pDX)
@@ -191,6 +267,7 @@ void CDlgT0::OnBnClickedButtonStart()
       m_brushBack.CreateSolidBrush(m_color);
 
       GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(FALSE);
+
     }
   }
   else {
@@ -204,6 +281,8 @@ void CDlgT0::OnBnClickedButtonStart()
       GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
     }
   }
+  SaveParam();
+
   Invalidate();
 }
 

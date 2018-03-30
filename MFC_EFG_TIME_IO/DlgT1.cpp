@@ -21,11 +21,14 @@ CDlgT1::~CDlgT1()
 {
 }
 
-void CDlgT1::InitDlg(void)
+void CDlgT1::InitDlg(int index)
 {
+  m_index = index;
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"TimerPulse");
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(0, TIME_PULSE);
 
+  
+	GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(FALSE);
   GetDlgItem(IDC_BUTTON_START)->EnableWindow(FALSE);
 }
 
@@ -34,17 +37,84 @@ void CDlgT1::SetDlg(TimeIOType type)
   switch (type) {
   case TIME_PULSE:
     SetDlgItemText(IDC_STATIC_PARAM0, L"频率Hz");
+	GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
     GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
     GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
     break;
   default:
     SetDlgItemText(IDC_STATIC_PARAM0, L"param0");
+	GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(FALSE);
     GetDlgItem(IDC_BUTTON_START)->EnableWindow(FALSE);
     GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(TRUE);
+    SetDlgItemText(IDC_EDIT_PARAM0, L"");
+    SetDlgItemText(IDC_EDIT_PARAM1, L"");
     break;
   }
 
 
+}
+
+void CDlgT1::SaveParam()
+{
+  CString str;
+  str.Format(L"T1%d.xml", m_index);
+  CString path = L"config/" + str;
+  char  ppath[50], pstr[50];
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);
+  if (0 == m_config.Create(ppath, pstr))
+  {
+    ConfigParam param;
+
+    int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->GetCurSel();
+    CString param0;
+    GetDlgItemText(IDC_EDIT_PARAM0, param0);
+    double fparam0 = _wtof(param0);
+    bool start;
+    CString str;
+    GetDlgItemText(IDC_BUTTON_START, str);
+    if ("开始" == str)
+      start = false;
+    else
+      start = true;
+    param.device = m_device;
+    param.comboData = index;
+    param.param0 = fparam0;
+    param.param1 = 0;
+    param.start = start;
+    m_config.SaveParam(param);
+  }
+
+}
+
+void CDlgT1::LoadParam()
+{
+  CString str;
+  str.Format(L"T1%d.xml", m_index);
+  CString path = L"config/" + str;
+  char  ppath[50], pstr[50];
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);
+  if (0 == m_config.Create(ppath, pstr))
+  {
+    ConfigParam* param = m_config.ReadParam();
+    if (!param)
+      return;
+    int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetCurSel(param->comboData);
+    CString param0;
+    param0.Format(L"%.0lf", param->param0);
+    SetDlgItemText(IDC_EDIT_PARAM0, param0);
+    if (param->start && param->device == m_device) //启动状态
+    {
+      CString str;
+      GetDlgItemText(IDC_BUTTON_CREATE, str);
+      if ("创建" == str) {
+        OnBnClickedButtonCreate();
+        OnBnClickedButtonStart();
+      }
+    }
+    delete param;
+  }
 }
 
 void CDlgT1::DoDataExchange(CDataExchange* pDX)
@@ -167,6 +237,7 @@ void CDlgT1::OnBnClickedButtonStart()
       GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
     }
   }
+  SaveParam();
   Invalidate();
 }
 

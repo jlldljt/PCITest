@@ -7,6 +7,7 @@ void CDIInterrupt::OnDiSnapEvent(void * sender, DiSnapEventArgs * args, void * u
   if (uParam->m_callback) {
     uParam->m_callback(userParam);
   }
+  uParam->m_cnt++;
 }
 
 CDIInterrupt::CDIInterrupt()
@@ -50,12 +51,7 @@ BOOL CDIInterrupt::Init(int device, int module)
         }
 
         DeviceInformation devInfo(device, ModeWriteWithReset);
-        Array<DiintChannel>* interruptChans = instantDiCtrl->getDiintChannels();//查看此设备是否支持int
-        if (interruptChans == NULL)
-        {
-          continue;
-        }
-        ErrorCode errorCode = instantDiCtrl->setSelectedDevice(devInfo);
+        ErrorCode errorCode = instantDiCtrl->setSelectedDevice(devInfo);//绑定设备
         if (errorCode != 0) {
           CString str;
           TCHAR des[MAX_DEVICE_DESC_LEN];
@@ -63,9 +59,14 @@ BOOL CDIInterrupt::Init(int device, int module)
               Select other device please!", errorCode, WCHAR_TO_TCHAR(devNote.Description, des));
           break;
         }
-        else {
-          ret = TRUE;
+
+        Array<DiintChannel>* interruptChans = instantDiCtrl->getDiintChannels();//查看此设备是否支持int
+        if (interruptChans == NULL)
+        {
+          break;
         }
+          
+        ret = TRUE;
 
         int portsCount = instantDiCtrl->getPortCount();
        
@@ -101,7 +102,7 @@ void CDIInterrupt::DeInit()
 BOOL CDIInterrupt::Config(tagCtrlParam * param)
 {
   tagCtrlParam* tpParam = param;
-  ASSERT(tpParam->proc);
+  //ASSERT(tpParam->proc);
   ErrorCode	errorCode;
   DeviceInformation devInfo(tpParam->deviceNumber);//设备号
   errorCode = m_instantDiCtrl->setSelectedDevice(devInfo);
@@ -124,11 +125,15 @@ BOOL CDIInterrupt::Config(tagCtrlParam * param)
       if (BioFailed(errorCode)) {
         return FALSE;
       }
-      break;
+      m_callback = tpParam->proc;
+      return TRUE;
+      //break;
     }
   }
-  m_callback = tpParam->proc;
-  return TRUE;
+  //默认配置
+  m_instantDiCtrl->getDiintChannels()->getItem(tpParam->channel).setGated(false);
+  m_instantDiCtrl->getDiintChannels()->getItem(tpParam->channel).setTrigEdge(RisingEdge);
+  return FALSE;
 }
 
 BOOL CDIInterrupt::Start(tagCtrlParam * param)
@@ -137,6 +142,7 @@ BOOL CDIInterrupt::Start(tagCtrlParam * param)
   if (BioFailed(errorCode)) {
     return FALSE;
   }
+  m_cnt = 0;
   return TRUE;
 }
 
@@ -149,3 +155,13 @@ BOOL CDIInterrupt::Stop()
   return TRUE;
 }
 
+
+BOOL CDIInterrupt::Read(tagCtrlParam* param)
+{
+  ASSERT(param);
+  ErrorCode errorCode;
+  int32 value = 0;
+  param->param0 = m_cnt;
+  param->param1 = 0;
+  return TRUE;
+}

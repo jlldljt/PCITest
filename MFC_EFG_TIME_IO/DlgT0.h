@@ -26,11 +26,14 @@ public:
 public:
   CBrush m_brushBack;
   COLORREF m_color;
+  CParamConfig m_config;
 public:
   int m_index;
   int m_device;
-  void InitDlg(void);
+  void InitDlg(int index);
   void SetDlg(TimeIOType type);
+  void SaveParam();
+  void LoadParam();
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 

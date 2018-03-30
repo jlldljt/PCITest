@@ -16,6 +16,9 @@
     <Filter Include="PCI1780U">
       <UniqueIdentifier>{0890ee0e-6467-4f43-beb3-d17c2d6ae52d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="XML">
+      <UniqueIdentifier>{f8d6dcce-9283-4561-9dde-7d248845c704}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -56,6 +59,9 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+    <None Include="说明.txt">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MFC_EFG_TIME_IO.h">
@@ -77,9 +83,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeIOCtrl.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="DlgDI.h">
@@ -109,6 +112,21 @@
     <ClInclude Include="DIInterrupt.h">
       <Filter>PCI1780U</Filter>
     </ClInclude>
+    <ClInclude Include="StaticDI.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="OneShot.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml2.h">
+      <Filter>XML</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeIOCtrl.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="ParamConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -124,9 +142,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MFC_EFG_TIME_IOView.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TimeIOCtrl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CtrlBase.cpp">
@@ -155,6 +170,21 @@
     </ClCompile>
     <ClCompile Include="DIInterrupt.cpp">
       <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticDI.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="OneShot.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml2.cpp">
+      <Filter>XML</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeIOCtrl.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="ParamConfig.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

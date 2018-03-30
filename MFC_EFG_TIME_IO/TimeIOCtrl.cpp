@@ -19,6 +19,8 @@ CTimeIOCtrl::CTimeIOCtrl(void)
   m_selectedDeviceNumber = -1;
   devices.RemoveAll();
 
+  memset(Di, 0, sizeof(Di));
+  memset(Do, 0, sizeof(Do));
   memset(Counter0, 0, sizeof(Counter0));
   memset(Counter1, 0, sizeof(Counter1));
 }
@@ -29,6 +31,80 @@ CTimeIOCtrl::~CTimeIOCtrl(void)
   //m_oneShotCtrl->Dispose();
   //m_eventCounterCtrl->Dispose();
   //m_pwModulatorCtrl->Dispose();
+}
+
+BOOL CTimeIOCtrl::CreateDi(int no, TimeIOType type, int device)
+{
+  BOOL ret = FALSE;
+  ASSERT(no < 8);
+  ASSERT(!Di[no].ctrl);
+
+  Di[no].type = type;
+  switch (type) {
+  case STATIC_DI:
+    break;
+  case INTERRUPT_DI:
+    Di[no].ctrl = new CDIInterrupt();
+
+    if (!(ret = Di[no].ctrl->Init(device))) {
+      DeleteDi(no);
+    }
+
+    break;
+  default:
+    break;
+  }
+
+  return ret;
+}
+
+BOOL CTimeIOCtrl::DeleteDi(int no)
+{
+  ASSERT(no < 8);
+  ASSERT(Di[no].ctrl);
+  Di[no].ctrl->DeInit();
+  Di[no].ctrl = NULL;
+  return TRUE;
+}
+
+BOOL CTimeIOCtrl::StartDi(int no, int device, double param0, double param1, void* param2)
+{
+  ASSERT(no < 8);
+  ASSERT(Di[no].ctrl);
+  BOOL ret = FALSE;
+  tagCtrlParam param;
+  param.deviceNumber = device;
+  param.moduleIndex = 0;//module 0
+  param.channel = no;//channel¼´ÊÇno
+  param.param0 = param0;
+  param.param1 = param1;
+  param.proc = (TimeIOProc)param2;
+  if (Di[no].ctrl->Config(&param)) {
+    ret = Di[no].ctrl->Start(&param);
+  }
+  return ret;
+}
+
+BOOL CTimeIOCtrl::StopDi(int no)
+{
+  ASSERT(no < 8);
+  ASSERT(Di[no].ctrl);
+  return Di[no].ctrl->Stop();
+}
+
+BOOL CTimeIOCtrl::ReadDi(int no, double & param0, double & param1)
+{
+  ASSERT(no < 8);
+  ASSERT(Counter0[no].ctrl);
+
+  tagCtrlParam param;
+
+  if (!Di[no].ctrl->Read(&param))
+    return FALSE;
+
+  param0 = param.param0;
+  param1 = param.param1;
+  return TRUE;
 }
 
 BOOL CTimeIOCtrl::CreateT0(int no, TimeIOType type, int device)
@@ -56,6 +132,13 @@ BOOL CTimeIOCtrl::CreateT0(int no, TimeIOType type, int device)
     break;
   case EVENT_COUNTER:
     Counter0[no].ctrl = new CEventCounter();
+
+    if (!(ret = Counter0[no].ctrl->Init(device))) {
+      DeleteT0(no);
+    }
+    break;
+  case ONE_SHOT:
+    Counter0[no].ctrl = new COneShot();
 
     if (!(ret = Counter0[no].ctrl->Init(device))) {
       DeleteT0(no);
@@ -202,6 +285,7 @@ int CTimeIOCtrl::getDevices()
 
 int CTimeIOCtrl::getDevice(int no, DevInf& devInf)
 {
+  ASSERT(no>=0);
   int count = devices.GetCount();
   if (no < count) {
     devInf = devices.GetAt(no);

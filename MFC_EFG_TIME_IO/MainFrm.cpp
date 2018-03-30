@@ -242,6 +242,8 @@ void CMainFrame::OnComboTimeio()
   
   DevInf dev;
   int sel = pComboBox->GetCurSel();
+  if(sel < 0)
+    return;
   int ret = m_timeIOCtrl.getDevice(sel, dev);
   /*DeviceCtrl *obj = DeviceCtrl::Create(dev.deviceNumber, dev.description.GetBuffer(), ModeWriteWithReset);
   dev.description.ReleaseBuffer();
@@ -253,6 +255,9 @@ void CMainFrame::OnComboTimeio()
     ((CDlgT0*)m_splitwnd.GetPane(2, i))->m_device = dev.deviceNumber;
     ((CDlgT1*)m_splitwnd.GetPane(3, i))->m_device = dev.deviceNumber;
 
+    ((CDlgDI*)m_splitwnd.GetPane(0, i))->LoadParam();
+    ((CDlgT0*)m_splitwnd.GetPane(2, i))->LoadParam();
+    ((CDlgT1*)m_splitwnd.GetPane(3, i))->LoadParam();
   }
 
   return;
@@ -287,13 +292,11 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
     ((CDlgT0*)m_splitwnd.GetPane(2, i))->SetDlgItemText(IDC_STATIC, L"T0" + str);
     ((CDlgT1*)m_splitwnd.GetPane(3, i))->SetDlgItemText(IDC_STATIC, L"T1" + str);
 
-    ((CDlgDI*)m_splitwnd.GetPane(0, i))->m_index = i;
     ((CDlgDO*)m_splitwnd.GetPane(1, i))->m_index = i;
-    ((CDlgT0*)m_splitwnd.GetPane(2, i))->m_index = i;
-    ((CDlgT1*)m_splitwnd.GetPane(3, i))->m_index = i;
 
-    ((CDlgT0*)m_splitwnd.GetPane(2, i))->InitDlg();
-    ((CDlgT1*)m_splitwnd.GetPane(3, i))->InitDlg();
+    ((CDlgDI*)m_splitwnd.GetPane(0, i))->InitDlg(i);
+    ((CDlgT0*)m_splitwnd.GetPane(2, i))->InitDlg(i);
+    ((CDlgT1*)m_splitwnd.GetPane(3, i))->InitDlg(i);
   }
  
   m_splitwnd.SetActivePane(0, 0);

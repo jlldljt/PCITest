@@ -3,6 +3,8 @@
 #include "TimerPulse.h"
 #include "PWModulator.h"
 #include "EventCounter.h"
+#include "DIInterrupt.h"
+#include "OneShot.h"
 
 //typedef struct tagDevConfParam
 //{
@@ -12,10 +14,12 @@
 //}DevConfParam, *PDevConfParam;
 
 enum TimeIOType {
-  EVENT_COUNTER = 1 << 7,
-  ONE_SHOT = 1 << 9,
-  TIME_PULSE = 1 << 10,
-  PW_MODULATOR = 1 << 12,
+  STATIC_DI = 0,//SceInstantDi,
+  INTERRUPT_DI,
+  EVENT_COUNTER, //SceEventCounter,
+  ONE_SHOT , //SceOneShot,
+  TIME_PULSE , //SceTimerPulse,
+  PW_MODULATOR , //ScePwModulator,
 };
 //°å¿¨ÐÅÏ¢
 typedef struct tagDevInf
@@ -58,8 +62,9 @@ public:
   //Di
   BOOL CreateDi(int no, TimeIOType type, int device);
   BOOL DeleteDi(int no);
-  BOOL StartDi(int no, int device, double param0);
+  BOOL StartDi(int no, int device, double param0, double param1, void* param2 = NULL);
   BOOL StopDi(int no);
+  BOOL ReadDi(int no, double& param0, double &param1);
   //T0 counter
   BOOL CreateT0(int no, TimeIOType type, int device);
   BOOL DeleteT0(int no);

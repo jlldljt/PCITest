@@ -120,6 +120,10 @@ BOOL CEventCounter::Config(tagCtrlParam * param)
   if (BioFailed(errorCode)) {
     return FALSE;
   }
+  //默认配置
+  m_eventCounterCtrl->getChannels()->getItem(tpParam->channel).setGated(true);//打开gate
+  //m_eventCounterCtrl->getChannels()->getItem(tpParam->channel).setClockPolarity(Positive);//设置极性
+  //m_eventCounterCtrl->getChannels()->getItem(tpParam->channel).setGatePolarity(Positive);
 
   return TRUE;
 }
@@ -128,6 +132,7 @@ BOOL CEventCounter::Start(tagCtrlParam * param)
 {
   tagCtrlParam* tpParam = param;
   ErrorCode errorCode;
+  
   errorCode = m_eventCounterCtrl->setEnabled(true);
   if (BioFailed(errorCode)) {
     return FALSE;
