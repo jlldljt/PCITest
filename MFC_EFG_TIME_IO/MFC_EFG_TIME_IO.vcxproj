@@ -96,6 +96,7 @@
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="ReadMe.txt" />
+    <None Include="res\bitmap1.bmp" />
     <None Include="res\buttons.bmp" />
     <None Include="res\filelarge.bmp" />
     <None Include="res\filesmall.bmp" />
@@ -103,6 +104,7 @@
     <None Include="res\MFC_EFG_TIME_IO.ico" />
     <None Include="res\MFC_EFG_TIME_IO.rc2" />
     <None Include="res\MFC_EFG_TIME_IODoc.ico" />
+    <None Include="res\Project1.bmp" />
     <None Include="res\ribbon.mfcribbon-ms" />
     <None Include="res\Toolbar.bmp" />
     <None Include="res\Toolbar256.bmp" />

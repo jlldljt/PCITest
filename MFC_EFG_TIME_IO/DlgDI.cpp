@@ -62,9 +62,12 @@ void CDlgDI::SetDlg(TimeIOType type)
   }
 
 }
+
+#include "DlgT0.h"
+#include "DlgT1.h"
 void CDlgDI::UserFunc(void *param)
 {
-	return;
+  DIIntCB();
 }
 void CDlgDI::SaveParam()
 {
@@ -114,8 +117,8 @@ void CDlgDI::LoadParam()
       return;
     int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetCurSel(param->comboData);
     CString param0, param1;
-    param0.Format(L"%.0lf", param->param0);
-    param1.Format(L"%.0lf", param->param1);
+    param0.Format(L"%lf", param->param0);
+    param1.Format(L"%lf", param->param1);
     SetDlgItemText(IDC_EDIT_PARAM0, param0);
     SetDlgItemText(IDC_EDIT_PARAM1, param1);
     if (param->start && param->device == m_device) //启动状态
@@ -129,6 +132,36 @@ void CDlgDI::LoadParam()
     }
     delete param;
   }
+}
+void CDlgDI::Stop(void)
+{
+  CString str;
+  GetDlgItemText(IDC_BUTTON_START, str);
+  if ("开始" == str) {
+    return;
+  }
+
+  if (GetMainFrame()->m_timeIOCtrl.StopDi(m_index)) {
+    str = "开始";
+    SetDlgItemText(IDC_BUTTON_START, str);
+    m_brushBack.DeleteObject();
+    m_color = RGB(240, 240, 240);
+    m_brushBack.CreateSolidBrush(m_color);
+
+    GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
+  }
+
+  GetDlgItemText(IDC_BUTTON_CREATE, str);
+  if ("创建" == str) {
+    return;
+  }
+  GetMainFrame()->m_timeIOCtrl.DeleteDi(m_index);
+  SetDlg((TimeIOType)-1);
+  str = "创建";
+  SetDlgItemText(IDC_BUTTON_CREATE, str);
+
+
+  Invalidate();
 }
 void CDlgDI::DoDataExchange(CDataExchange* pDX)
 {

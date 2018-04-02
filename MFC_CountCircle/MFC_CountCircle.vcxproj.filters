@@ -155,5 +155,8 @@
     <None Include="res\MFC_CountCircle.rc2">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="..\MFC_EFG_TIME_IO\res\Project1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -256,6 +256,7 @@
     <Image Include="res\writesmall.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\MFC_EFG_TIME_IO\res\Project1.bmp" />
     <None Include="res\MFC_CountCircle.rc2" />
     <None Include="res\ribbon.mfcribbon-ms" />
   </ItemGroup>

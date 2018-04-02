@@ -27,14 +27,7 @@ protected: // 仅从序列化创建
 // 特性
 public:
   CTimeIOCtrl m_timeIOCtrl;
-  
   CSplitterWnd m_splitwnd;
-  CSplitterWnd m_splitwndDi;
-  CSplitterWnd m_splitwndDo;
-  CSplitterWnd m_splitwndT0;
-  CSplitterWnd m_splitwndT1;
-
-
   CParamConfig m_config;
 // 操作
 public:
@@ -70,7 +63,11 @@ protected:
 public:
   afx_msg void OnComboTimeio();
   virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
+  afx_msg void OnButtonLaserSin();
+  afx_msg void OnUpdateEditOut3(CCmdUI *pCmdUI);
+  afx_msg void OnUpdateEditOut6(CCmdUI *pCmdUI);
 };
 
 
 CMainFrame* GetMainFrame();
+void DIIntCB(void);

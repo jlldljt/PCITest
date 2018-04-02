@@ -39,7 +39,6 @@
 #define IDD_DLGVIEW                     311
 #define IDB_BITMAP1                     314
 #define IDD_DIALOG_MAIN                 315
-#define IDD_DIALOG1                     318
 #define IDD_DIALOG_DO                   318
 #define IDC_PICTURE_SHOW                1000
 #define IDC_BUTTON1                     1001
@@ -74,7 +73,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        320
+#define _APS_NEXT_RESOURCE_VALUE        321
 #define _APS_NEXT_COMMAND_VALUE         32785
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           312

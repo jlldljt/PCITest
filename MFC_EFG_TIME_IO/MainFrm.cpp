@@ -25,6 +25,51 @@ CMainFrame* GetMainFrame() {
   CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
   return ((CMainFrame*)pMain);
 };
+struct tagCounter {
+  bool start;
+  bool flag;
+  int index;
+  double counter[4][312];
+};
+
+tagCounter g_counter;
+
+void DIIntCB(void)
+{
+  if (g_counter.start) {
+    memset(&g_counter, 0, sizeof(g_counter));
+
+    for (int i = 0; i < 4; i++) {
+      GetMainFrame()->m_timeIOCtrl.StopT0(i);
+      GetMainFrame()->m_timeIOCtrl.StartT0(i, ((CDlgT0*)(GetMainFrame()->m_splitwnd.GetPane(2, i)))->m_device, 0, 0);//out6
+    }
+    g_counter.flag = 1;
+  }
+
+  if (!g_counter.flag)
+    return;
+
+  double fparam;
+  for (int i = 0; i < 4; i++) {
+    GetMainFrame()->m_timeIOCtrl.ReadT0(i, g_counter.counter[i][g_counter.index], fparam);
+  }
+
+  if (g_counter.index++ >= 311)
+  {
+    g_counter.flag = 0;
+  }
+}
+
+
+void StartCounter(double delay1/*out3*/, double delay2/*out6*/)
+{
+    GetMainFrame()->m_timeIOCtrl.StopT0(4);//out6
+    GetMainFrame()->m_timeIOCtrl.StopT0(5);//out3
+
+    GetMainFrame()->m_timeIOCtrl.StartT0(4, ((CDlgT0*)(GetMainFrame()->m_splitwnd.GetPane(2, 4)))->m_device, delay2, 0);//out6
+    GetMainFrame()->m_timeIOCtrl.StartT0(5, ((CDlgT0*)(GetMainFrame()->m_splitwnd.GetPane(2, 5)))->m_device, delay1, 0);//out3
+    g_counter.start = 1;
+}
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -43,6 +88,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnFilePrintPreview)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnUpdateFilePrintPreview)
   ON_COMMAND(ID_COMBO_TIMEIO, &CMainFrame::OnComboTimeio)
+  ON_COMMAND(ID_BUTTON_LASER_SIN, &CMainFrame::OnButtonLaserSin)
+  ON_UPDATE_COMMAND_UI(ID_EDIT_OUT3, &CMainFrame::OnUpdateEditOut3)
+  ON_UPDATE_COMMAND_UI(ID_EDIT_OUT6, &CMainFrame::OnUpdateEditOut6)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -249,7 +297,10 @@ void CMainFrame::OnComboTimeio()
   dev.description.ReleaseBuffer();
   int scenarios = DeviceCtrl_getSupportedScenarios(obj);*/
   for (int i = 0; i < 8; i++) {
-    
+    ((CDlgDI*)m_splitwnd.GetPane(0, i))->Stop();
+    ((CDlgT0*)m_splitwnd.GetPane(2, i))->Stop();
+    ((CDlgT1*)m_splitwnd.GetPane(3, i))->Stop();
+
     ((CDlgDI*)m_splitwnd.GetPane(0, i))->m_device = dev.deviceNumber;
     ((CDlgDO*)m_splitwnd.GetPane(1, i))->m_device = dev.deviceNumber;
     ((CDlgT0*)m_splitwnd.GetPane(2, i))->m_device = dev.deviceNumber;
@@ -303,4 +354,30 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 
   return true;
   //return CFrameWndEx::OnCreateClient(lpcs, pContext);
+}
+
+
+void CMainFrame::OnButtonLaserSin()
+{
+  // TODO: 在此添加命令处理程序代码
+  CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
+  CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
+  CString val_out3 = p_edit_out3->GetEditText();
+  CString val_out6 = p_edit_out6->GetEditText();
+
+  StartCounter(_wtof(val_out3), _wtof(val_out6));
+}
+
+
+void CMainFrame::OnUpdateEditOut3(CCmdUI *pCmdUI)
+{
+  // TODO: 在此添加命令更新用户界面处理程序代码
+  pCmdUI->Enable(true);
+}
+
+
+void CMainFrame::OnUpdateEditOut6(CCmdUI *pCmdUI)
+{
+  // TODO: 在此添加命令更新用户界面处理程序代码
+  pCmdUI->Enable(true);
 }

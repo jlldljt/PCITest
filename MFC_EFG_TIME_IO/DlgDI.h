@@ -35,6 +35,7 @@ public:
   static void UserFunc(void *param);
   void SaveParam();
   void LoadParam();
+  void Stop(void);
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 

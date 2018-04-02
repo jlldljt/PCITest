@@ -102,7 +102,7 @@ void CDlgT1::LoadParam()
       return;
     int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetCurSel(param->comboData);
     CString param0;
-    param0.Format(L"%.0lf", param->param0);
+    param0.Format(L"%lf", param->param0);
     SetDlgItemText(IDC_EDIT_PARAM0, param0);
     if (param->start && param->device == m_device) //启动状态
     {
@@ -115,6 +115,38 @@ void CDlgT1::LoadParam()
     }
     delete param;
   }
+}
+
+void CDlgT1::Stop(void)
+{
+  CString str;
+  GetDlgItemText(IDC_BUTTON_START, str);
+  if ("开始" == str) {
+    return;
+  }
+
+  if (GetMainFrame()->m_timeIOCtrl.StopT1(m_index)) {
+    str = "开始";
+    SetDlgItemText(IDC_BUTTON_START, str);
+    m_brushBack.DeleteObject();
+    m_color = RGB(240, 240, 240);
+    m_brushBack.CreateSolidBrush(m_color);
+
+    GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
+  }
+
+  GetDlgItemText(IDC_BUTTON_CREATE, str);
+  if ("创建" == str) {
+    return;
+  }
+  CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
+  ((CMainFrame*)pMain)->m_timeIOCtrl.DeleteT1(m_index);
+  SetDlg((TimeIOType)-1);
+  str = "创建";
+  SetDlgItemText(IDC_BUTTON_CREATE, str);
+
+
+  Invalidate();
 }
 
 void CDlgT1::DoDataExchange(CDataExchange* pDX)
