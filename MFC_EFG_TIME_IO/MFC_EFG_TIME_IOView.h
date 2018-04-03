@@ -17,13 +17,13 @@
 
 class CMFC_EFG_TIME_IOView : public CView
 {
-protected: // 仅从序列化创建
+public://protected: // 仅从序列化创建
 	CMFC_EFG_TIME_IOView();
 	DECLARE_DYNCREATE(CMFC_EFG_TIME_IOView)
 
 // 特性
 public:
-	CMFC_EFG_TIME_IODoc* GetDocument() const;
+//	CMFC_EFG_TIME_IODoc* GetDocument() const;
 
 // 操作
 public:

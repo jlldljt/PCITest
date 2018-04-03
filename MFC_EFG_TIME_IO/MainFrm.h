@@ -16,6 +16,9 @@
 
 
 
+#include "MFC_EFG_TIME_IOView.h"
+#include "SplitFrameWnd.h"
+#include "Viewboard.h"
 
 class CMainFrame : public CFrameWndEx
 {
@@ -27,11 +30,20 @@ protected: // 仅从序列化创建
 // 特性
 public:
   CTimeIOCtrl m_timeIOCtrl;
-  CSplitterWnd m_splitwnd;
+  //CSplitterWnd m_splitwnd;
   CParamConfig m_config;
+
+  CMFC_EFG_TIME_IOView *m_defaultView;
+  CSplitFrameWnd *m_splitFrame;
+  CViewboard *m_viewBoard;
+
 // 操作
 public:
-
+  enum VIEW_ID {
+    SPLIT_FRAME = 0,
+    VIEW_BOARD,
+  };
+  void Switch(VIEW_ID id);
 // 重写
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
@@ -66,6 +78,9 @@ public:
   afx_msg void OnButtonLaserSin();
   afx_msg void OnUpdateEditOut3(CCmdUI *pCmdUI);
   afx_msg void OnUpdateEditOut6(CCmdUI *pCmdUI);
+  afx_msg void OnDestroy();
+  virtual BOOL DestroyWindow();
+  afx_msg void OnClose();
 };
 
 

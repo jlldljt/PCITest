@@ -19,6 +19,7 @@ CDlgT1::CDlgT1()
 
 CDlgT1::~CDlgT1()
 {
+  this;
 }
 
 void CDlgT1::InitDlg(int index)

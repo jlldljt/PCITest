@@ -41,7 +41,7 @@ void DIIntCB(void)
 
     for (int i = 0; i < 4; i++) {
       GetMainFrame()->m_timeIOCtrl.StopT0(i);
-      GetMainFrame()->m_timeIOCtrl.StartT0(i, ((CDlgT0*)(GetMainFrame()->m_splitwnd.GetPane(2, i)))->m_device, 0, 0);//out6
+      GetMainFrame()->m_timeIOCtrl.StartT0(i, ((CDlgT0*)(GetMainFrame()->m_splitFrame->m_splitWndEx.GetPane(2, i)))->m_device, 0, 0);//out6
     }
     g_counter.flag = 1;
   }
@@ -66,8 +66,8 @@ void StartCounter(double delay1/*out3*/, double delay2/*out6*/)
     GetMainFrame()->m_timeIOCtrl.StopT0(4);//out6
     GetMainFrame()->m_timeIOCtrl.StopT0(5);//out3
 
-    GetMainFrame()->m_timeIOCtrl.StartT0(4, ((CDlgT0*)(GetMainFrame()->m_splitwnd.GetPane(2, 4)))->m_device, delay2, 0);//out6
-    GetMainFrame()->m_timeIOCtrl.StartT0(5, ((CDlgT0*)(GetMainFrame()->m_splitwnd.GetPane(2, 5)))->m_device, delay1, 0);//out3
+    GetMainFrame()->m_timeIOCtrl.StartT0(4, ((CDlgT0*)(GetMainFrame()->m_splitFrame->m_splitWndEx.GetPane(2, 4)))->m_device, delay2, 0);//out6
+    GetMainFrame()->m_timeIOCtrl.StartT0(5, ((CDlgT0*)(GetMainFrame()->m_splitFrame->m_splitWndEx.GetPane(2, 5)))->m_device, delay1, 0);//out3
     g_counter.start = 1;
 }
 
@@ -91,6 +91,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
   ON_COMMAND(ID_BUTTON_LASER_SIN, &CMainFrame::OnButtonLaserSin)
   ON_UPDATE_COMMAND_UI(ID_EDIT_OUT3, &CMainFrame::OnUpdateEditOut3)
   ON_UPDATE_COMMAND_UI(ID_EDIT_OUT6, &CMainFrame::OnUpdateEditOut6)
+  ON_WM_DESTROY()
+  ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -99,6 +101,9 @@ CMainFrame::CMainFrame()
 {
 	// TODO: 在此添加成员初始化代码
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_OFF_2007_BLUE);
+  m_splitFrame = NULL;
+  m_viewBoard = NULL;
+  m_defaultView = NULL;
 }
 
 CMainFrame::~CMainFrame()
@@ -148,6 +153,35 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
   }
 
 	return 0;
+}
+
+//0 m_splitFrame
+//1 m_viewBoard
+void CMainFrame::Switch(VIEW_ID id)
+{
+  switch (id)
+  {
+  case SPLIT_FRAME:
+    if (AFX_IDW_PANE_FIRST == m_splitFrame->GetDlgCtrlID())
+      return;
+    m_splitFrame->ShowWindow(SW_SHOW);
+    m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);
+    m_viewBoard->ShowWindow(SW_HIDE);
+    m_viewBoard->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 1);
+    break;
+  case VIEW_BOARD:
+    if (AFX_IDW_PANE_FIRST == m_viewBoard->GetDlgCtrlID())
+      return;
+    m_viewBoard->ShowWindow(SW_SHOW);
+    m_viewBoard->SetDlgCtrlID(AFX_IDW_PANE_FIRST);
+    m_splitFrame->ShowWindow(SW_HIDE);
+    m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 1);
+    break;
+  default:
+    break;
+  }
+
+  RecalcLayout();
 }
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
@@ -297,20 +331,20 @@ void CMainFrame::OnComboTimeio()
   dev.description.ReleaseBuffer();
   int scenarios = DeviceCtrl_getSupportedScenarios(obj);*/
   for (int i = 0; i < 8; i++) {
-    ((CDlgDI*)m_splitwnd.GetPane(0, i))->Stop();
-    ((CDlgT0*)m_splitwnd.GetPane(2, i))->Stop();
-    ((CDlgT1*)m_splitwnd.GetPane(3, i))->Stop();
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->Stop();
 
-    ((CDlgDI*)m_splitwnd.GetPane(0, i))->m_device = dev.deviceNumber;
-    ((CDlgDO*)m_splitwnd.GetPane(1, i))->m_device = dev.deviceNumber;
-    ((CDlgT0*)m_splitwnd.GetPane(2, i))->m_device = dev.deviceNumber;
-    ((CDlgT1*)m_splitwnd.GetPane(3, i))->m_device = dev.deviceNumber;
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_device = dev.deviceNumber;
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_device = dev.deviceNumber;
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_device = dev.deviceNumber;
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_device = dev.deviceNumber;
 
-    ((CDlgDI*)m_splitwnd.GetPane(0, i))->LoadParam();
-    ((CDlgT0*)m_splitwnd.GetPane(2, i))->LoadParam();
-    ((CDlgT1*)m_splitwnd.GetPane(3, i))->LoadParam();
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->LoadParam();
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->LoadParam();
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->LoadParam();
   }
-
+  Switch(SPLIT_FRAME);
   return;
 }
 
@@ -318,39 +352,31 @@ void CMainFrame::OnComboTimeio()
 BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 {
   // TODO: 在此添加专用代码和/或调用基类
-
+  CDocument *doc = pContext->m_pCurrentDoc;
   CRect rect;
   GetClientRect(&rect);
   int nwidth(rect.right);
   int nheight(rect.bottom);   //获取客户区窗口大小  
 
-  if (!m_splitwnd.CreateStatic(this, 4, 8))   //窗口分割  
-  {
-    MessageBox(_T("分割窗口错误"), _T("Error"), MB_OK | MB_ICONERROR);
-    return false;
-  }
-  
-  //关联相关的View类  
-  for (int i = 0; i < 8; i++) {
-    m_splitwnd.CreateView(0, i, RUNTIME_CLASS(CDlgDI), CSize((nwidth - 50) / 8, (nheight - 50) / 4), pContext);
-    m_splitwnd.CreateView(1, i, RUNTIME_CLASS(CDlgDO), CSize((nwidth - 50) / 8, (nheight - 50) / 4), pContext);
-    m_splitwnd.CreateView(2, i, RUNTIME_CLASS(CDlgT0), CSize((nwidth - 50) / 8, (nheight - 50) / 4), pContext);
-    m_splitwnd.CreateView(3, i, RUNTIME_CLASS(CDlgT1), CSize((nwidth - 50) / 8, (nheight - 50) / 4), pContext);
-    CString str;
-    str.Format(L"%d", i);
-    ((CDlgDI*)m_splitwnd.GetPane(0, i))->SetDlgItemText(IDC_STATIC, L"DI" + str);
-    ((CDlgDO*)m_splitwnd.GetPane(1, i))->SetDlgItemText(IDC_STATIC, L"DO" + str);
-    ((CDlgT0*)m_splitwnd.GetPane(2, i))->SetDlgItemText(IDC_STATIC, L"T0" + str);
-    ((CDlgT1*)m_splitwnd.GetPane(3, i))->SetDlgItemText(IDC_STATIC, L"T1" + str);
+  m_splitFrame = new CSplitFrameWnd;
 
-    ((CDlgDO*)m_splitwnd.GetPane(1, i))->m_index = i;
-
-    ((CDlgDI*)m_splitwnd.GetPane(0, i))->InitDlg(i);
-    ((CDlgT0*)m_splitwnd.GetPane(2, i))->InitDlg(i);
-    ((CDlgT1*)m_splitwnd.GetPane(3, i))->InitDlg(i);
-  }
+  m_splitFrame->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect/*CFrameWndEx::rectDefault*/, this, NULL, 0, pContext);
  
-  m_splitwnd.SetActivePane(0, 0);
+  m_splitFrame->ShowWindow(SW_SHOW);
+  
+  m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);//单文档设置当前活动view的默认id给前台view
+
+  pContext->m_pNewViewClass = (CRuntimeClass*)m_splitFrame;   //设置默认视图类
+
+  m_viewBoard = new CViewboard;
+ m_viewBoard->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect/*CFrameWndEx::rectDefault*/, this, NULL/*如果是CFrameView需要对应的dialog IDD*/, pContext);
+m_viewBoard->ShowWindow(SW_HIDE);
+
+//////////////////
+
+  //m_defaultView = new CMFC_EFG_TIME_IOView();
+  //m_defaultView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect, this, NULL, pContext);
+  //m_defaultView->ShowWindow(SW_HIDE);
 
   return true;
   //return CFrameWndEx::OnCreateClient(lpcs, pContext);
@@ -360,12 +386,16 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 void CMainFrame::OnButtonLaserSin()
 {
   // TODO: 在此添加命令处理程序代码
-  CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
+ /* CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
   CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
   CString val_out3 = p_edit_out3->GetEditText();
   CString val_out6 = p_edit_out6->GetEditText();
 
-  StartCounter(_wtof(val_out3), _wtof(val_out6));
+  StartCounter(_wtof(val_out3), _wtof(val_out6));*/
+  if(AFX_IDW_PANE_FIRST == m_splitFrame->GetDlgCtrlID())
+  Switch(VIEW_BOARD);
+  else
+    Switch(SPLIT_FRAME);
 }
 
 
@@ -380,4 +410,33 @@ void CMainFrame::OnUpdateEditOut6(CCmdUI *pCmdUI)
 {
   // TODO: 在此添加命令更新用户界面处理程序代码
   pCmdUI->Enable(true);
+}
+
+
+void CMainFrame::OnDestroy()
+{
+  CFrameWndEx::OnDestroy();
+
+  // TODO: 在此处添加消息处理程序代码
+
+}
+
+
+BOOL CMainFrame::DestroyWindow()
+{
+  // TODO: 在此添加专用代码和/或调用基类
+
+  return CFrameWndEx::DestroyWindow();
+}
+
+
+void CMainFrame::OnClose()
+{
+  // TODO: 在此添加消息处理程序代码和/或调用默认值
+  CDocument* doc = GetActiveDocument();
+  SetActiveView(m_viewBoard);
+  delete m_splitFrame;
+  m_splitFrame = NULL;
+  
+  CFrameWndEx::OnClose();
 }

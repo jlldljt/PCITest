@@ -54,7 +54,7 @@ private:
   //counter0 8个通道信息
   TimeIOCtrl Counter0[8];//8个
   //counter1 4个通道信息
-  TimeIOCtrl Counter1[4];//4个
+  TimeIOCtrl Counter1[8];//8个
   //存放设备信息
   int m_selectedDeviceNumber;
   CArray<DevInf, DevInf&> devices;

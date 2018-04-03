@@ -31,13 +31,20 @@ CTimeIOCtrl::~CTimeIOCtrl(void)
   //m_oneShotCtrl->Dispose();
   //m_eventCounterCtrl->Dispose();
   //m_pwModulatorCtrl->Dispose();
+  for (int i = 0; i < 8; i++)
+  {
+    DeleteDi(i);
+    DeleteT0(i);
+    DeleteT1(i);
+  }
 }
 
 BOOL CTimeIOCtrl::CreateDi(int no, TimeIOType type, int device)
 {
   BOOL ret = FALSE;
   ASSERT(no < 8);
-  ASSERT(!Di[no].ctrl);
+  if (Di[no].ctrl)
+    return FALSE;
 
   Di[no].type = type;
   switch (type) {
@@ -61,7 +68,8 @@ BOOL CTimeIOCtrl::CreateDi(int no, TimeIOType type, int device)
 BOOL CTimeIOCtrl::DeleteDi(int no)
 {
   ASSERT(no < 8);
-  ASSERT(Di[no].ctrl);
+  if(!Di[no].ctrl)
+    return FALSE;
   Di[no].ctrl->DeInit();
   Di[no].ctrl = NULL;
   return TRUE;
@@ -111,7 +119,8 @@ BOOL CTimeIOCtrl::CreateT0(int no, TimeIOType type, int device)
 {
   BOOL ret = FALSE;
   ASSERT(no < 8);
-  ASSERT(!Counter0[no].ctrl);
+  if(Counter0[no].ctrl)
+    return FALSE;
 
   Counter0[no].type = type;
   switch (type) {
@@ -153,7 +162,8 @@ BOOL CTimeIOCtrl::CreateT0(int no, TimeIOType type, int device)
 BOOL CTimeIOCtrl::DeleteT0(int no)
 {
   ASSERT(no < 8);
-  ASSERT(Counter0[no].ctrl);
+  if(!Counter0[no].ctrl)
+    return FALSE;
   Counter0[no].ctrl->DeInit();
   Counter0[no].ctrl = NULL;
   return TRUE;
@@ -202,8 +212,9 @@ BOOL CTimeIOCtrl::ReadT0(int no, double & param0, double &param1)
 BOOL CTimeIOCtrl::CreateT1(int no, TimeIOType type, int device)
 {
   BOOL ret = FALSE;
-  ASSERT(no < 4);
-  ASSERT(!Counter1[no].ctrl);
+  ASSERT(no < 8);
+  if(Counter1[no].ctrl)
+    return FALSE;
 
   Counter1[no].type = type;
   switch (type) {
@@ -223,8 +234,9 @@ BOOL CTimeIOCtrl::CreateT1(int no, TimeIOType type, int device)
 
 BOOL CTimeIOCtrl::DeleteT1(int no)
 {
-  ASSERT(no < 4);
-  ASSERT(Counter1[no].ctrl);
+  ASSERT(no < 8);
+  if(!Counter1[no].ctrl)
+    return FALSE;
   //Counter1[no].ctrl->DeInit();
   delete Counter1[no].ctrl;
   Counter1[no].ctrl = NULL;
@@ -233,7 +245,7 @@ BOOL CTimeIOCtrl::DeleteT1(int no)
 
 BOOL CTimeIOCtrl::StartT1(int no, int device, double param0)
 {
-  ASSERT(no < 4);
+  ASSERT(no < 8);
   ASSERT(Counter1[no].ctrl);
   BOOL ret = FALSE;
   tagCtrlParam param;
@@ -251,7 +263,7 @@ BOOL CTimeIOCtrl::StartT1(int no, int device, double param0)
 
 BOOL CTimeIOCtrl::StopT1(int no)
 {
-  ASSERT(no < 4);
+  ASSERT(no < 8);
   ASSERT(Counter1[no].ctrl);
   return Counter1[no].ctrl->Stop();
 }
