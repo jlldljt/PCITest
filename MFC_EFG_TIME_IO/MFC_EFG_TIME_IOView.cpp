@@ -64,11 +64,11 @@ BOOL CMFC_EFG_TIME_IOView::PreCreateWindow(CREATESTRUCT& cs)
 
 void CMFC_EFG_TIME_IOView::OnDraw(CDC* /*pDC*/)
 {
-	CMFC_EFG_TIME_IODoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
-
+	//CMFC_EFG_TIME_IODoc* pDoc = GetDocument();
+	//ASSERT_VALID(pDoc);
+	//if (!pDoc)
+	//	return;
+  CDocument* pDoc = GetDocument();
 	// TODO: 在此处为本机数据添加绘制代码
 }
 
@@ -126,11 +126,11 @@ void CMFC_EFG_TIME_IOView::Dump(CDumpContext& dc) const
 	CView::Dump(dc);
 }
 
-CMFC_EFG_TIME_IODoc* CMFC_EFG_TIME_IOView::GetDocument() const // 非调试版本是内联的
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMFC_EFG_TIME_IODoc)));
-	return (CMFC_EFG_TIME_IODoc*)m_pDocument;
-}
+//CMFC_EFG_TIME_IODoc* CMFC_EFG_TIME_IOView::GetDocument() const // 非调试版本是内联的
+//{
+//	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMFC_EFG_TIME_IODoc)));
+//	return (CMFC_EFG_TIME_IODoc*)m_pDocument;
+//}
 #endif //_DEBUG
 
 

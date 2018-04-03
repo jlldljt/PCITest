@@ -17,6 +17,7 @@ CDlgT0::CDlgT0()
 
 CDlgT0::~CDlgT0()
 {
+  this;
 }
 
 void CDlgT0::InitDlg(int index)
@@ -197,6 +198,7 @@ BEGIN_MESSAGE_MAP(CDlgT0, CFormView)
   ON_BN_CLICKED(IDC_BUTTON_START, &CDlgT0::OnBnClickedButtonStart)
   ON_WM_CTLCOLOR()
   ON_WM_TIMER()
+  ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -346,4 +348,14 @@ void CDlgT0::OnTimer(UINT_PTR nIDEvent)
     SetDlgItemText(IDC_EDIT_PARAM1, sparam1);
   }
   CFormView::OnTimer(nIDEvent);
+}
+
+
+void CDlgT0::OnDestroy()
+{
+  CFormView::OnDestroy();
+
+  // TODO: 在此处添加消息处理程序代码
+      m_brushBack.DeleteObject();
+
 }

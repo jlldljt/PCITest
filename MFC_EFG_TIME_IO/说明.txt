@@ -1,0 +1,114 @@
+1780U文件说明
+PCI1780U封装类，派生自CtrlBase
+DIInterrupt 输入中断功能
+EventCounter 计数器
+PWModulator 可调脉宽PWM输出
+TimerPulse 不可调脉冲输出
+StaitcDI 普通输入功能
+通用函数说明：
+Init 只判断是否能够初始化，并没有真正的初始化
+Config 进行配置
+
+对外接口类（唯一控制入口）
+TimeIOCtrl 可以创建上述应用并控制
+使用方式
+CreateXX
+StartXX
+StopXX
+DeleteXX
+ReadXX 部分功能有
+
+子窗口类
+DlgDI\DO\T0\T1调用TimeIOCtrl来创建不同的应用
+
+
+其他说明：
+官方例程没有设置gate/Polarity等功能，按照//默认配置 的方式可以设置
+其实每个应用的设置不尽相同，故每个应用类都有一个类似getXXChannels()的函数用于获取到一个channel列表
+再getitem定位到具体channel，之后会定位到具体的设置类，之后就可以设置了
+另外每个应用类进行设置等功能前必须setSelectedDevice到具体的设备，不能颠倒
+另外loadprifile的文件是在官方工具navigator中保存下来的文件一个xml文件
+
+#tinyxml2
+- 注意事项
+加入tinyxml2.cpp后提示编译头错误，右键tinyxml2.cpp不使用编译头
+using namespace tinyxml2;之后与msxml命名冲突，故使用时tinyxml2::
+- 关于node的说明Attribute/Text/Name（Value）
+<?xml version="1.0" encoding="UTF-8"?>
+<node1>
+    <Name1 Attribute1="xx" Attribute2="yy">Text</Name1>
+    <Name2 Attribute1="xx"/>
+</node1>
+
+文档视图关系
+
+ribbon edit的使用
+必须创建UPDATE_COMMAND_UI消息并pCmdUI->Enable(true);才能使用，不然不能编辑
+
+带分割多view切换
+1.添加分割试图。框架类class CSplitFrameWnd : public CFrameWnd（Ex窗口可以拖动，不妥）这么做原因是CSplitterWndEx只能切割框架，即CFrameWnd派生类
+2.添加其他视图。view类class CViewboard : public CView注意将构造函数前的protect改成public;工程默认视图也按照这个改，不过要去掉GetDocument重载
+3.MainFrame
+  成员
+  CSplitFrameWnd *m_splitFrame;
+  CViewboard *m_viewBoard;
+  OnCreateClient中
+  m_splitFrame = new CSplitFrameWnd;
+  m_viewBoard = new CViewboard;
+
+  m_splitFrame->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect/*CFrameWndEx::rectDefault*/, this, NULL, 0, pContext);
+  m_viewBoard->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect, this, NULL/*如果是CFrameView需要对应的dialog IDD*/, pContext);//pContext中包含了文档/框架指针，如果不是在OnCreateClient中，就需要自己设置
+
+  m_splitFrame->ShowWindow(SW_SHOW);
+  m_viewBoard->ShowWindow(SW_HIDE);
+
+  m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);//单文档设置当前活动view的默认id给前台view
+
+  pContext->m_pNewViewClass = (CRuntimeClass*)m_splitFrame;   //设置默认视图类
+
+  自定义Switch()函数
+  void CMainFrame::Switch(int id)
+{
+  switch (id)
+  {
+  case 0:
+    if (AFX_IDW_PANE_FIRST == m_splitFrame->GetDlgCtrlID())
+      return;
+    m_splitFrame->ShowWindow(SW_SHOW);
+    m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);
+    m_viewBoard->ShowWindow(SW_HIDE);
+    m_viewBoard->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 1);
+    break;
+  case 1:
+    if (AFX_IDW_PANE_FIRST == m_viewBoard->GetDlgCtrlID())
+      return;
+    m_viewBoard->ShowWindow(SW_SHOW);
+    m_viewBoard->SetDlgCtrlID(AFX_IDW_PANE_FIRST);
+    m_splitFrame->ShowWindow(SW_HIDE);
+    m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 1);
+    break;
+  default:
+    break;
+  }
+
+  RecalcLayout();
+}
+
+此时会产生错误，关闭对话框出现assert错误e:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\atlmfc\src\mfc\objcore.cpp 99
+问题原因是加入了派生自CFrameWnd的框架作为了CMainFrame的VIEW，派生自其他CXXView的就没有问题
+原因出在e:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\atlmfc\src\mfc\winfrm.cpp的832行void CFrameWnd::OnClose()
+发现原因也很巧合，本来在mainfrm中创建有两个view，一个是CFrameWnd/一个是CView。但是恰巧把CView给注释了，结果发生错误，经定位定位到了CFrameWnd::OnClose，于是重载了CMainFrm的OnClose
+解决方案：onclose中delete掉CFrameWnd
+delete m_splitFrame;
+m_splitFrame = NULL;
+结论：
+1.pdoc至少要绑定一个view，默认CFrameWndEx::OnCreateClient有创建一个view
+2.CFrameWnd不能由系统通过判断pdoc是否绑定了未释放的view，来自动释放(onclose中)。需要我们提前释放，因为系统只能释放CView为基类的视图，不能释放CFrameWnd为基类的框架（我们强制将其作为了视图）
+3.CMainFrm的关闭函数顺序OnClose 〉CFrameFrm中的成员 〉 DestroyWindow 〉 OnDestroy
+
+*以上虽然能解决单纯加入CFrameFrm导致的问题，但是分割CFrameFrm之后问题再现
+问题原因是，（通过debug onclose定位）active view定位出来可能是子框架分割窗口中的某个，而其会在调用onclose前被干掉。故在OnClose中再增加一个语句SetActiveView(m_viewBoard);即定位到MainFrm上的一个页面，这里是m_viewBoard
+SetActiveView(m_viewBoard);
+  delete m_splitFrame;
+  m_splitFrame = NULL;
+  再啰嗦一句，CView的派生类不需要delete，可能onclose中会自动正确的释放

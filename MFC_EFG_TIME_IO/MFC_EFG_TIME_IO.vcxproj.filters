@@ -133,6 +133,15 @@
     <ClInclude Include="ParamConfig.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SplitFrameWnd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySplitterWnd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewboard.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -190,6 +199,15 @@
       <Filter>PCI1780U</Filter>
     </ClCompile>
     <ClCompile Include="ParamConfig.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SplitFrameWnd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MySplitterWnd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewboard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
