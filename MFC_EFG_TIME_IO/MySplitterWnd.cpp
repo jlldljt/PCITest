@@ -12,7 +12,12 @@ IMPLEMENT_DYNAMIC(CMySplitterWnd, CSplitterWndEx)
 
 CMySplitterWnd::CMySplitterWnd()
 {
-
+  m_cxSplitter = 4;    //must >=4 ,拖动时拖动条的宽度
+  m_cySplitter = 4;
+  m_cxBorderShare = 0; //按下鼠标时拖动条的偏移量
+  m_cyBorderShare = 0;
+  m_cxSplitterGap = 1;  //splitter拖动条的宽度
+  m_cySplitterGap = 1;
 }
 
 CMySplitterWnd::~CMySplitterWnd()
@@ -22,6 +27,8 @@ CMySplitterWnd::~CMySplitterWnd()
 
 
 BEGIN_MESSAGE_MAP(CMySplitterWnd, CSplitterWndEx)
+  ON_WM_LBUTTONDOWN()
+  ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 
@@ -29,3 +36,19 @@ END_MESSAGE_MAP()
 // CMySplitterWnd 消息处理程序
 
 
+
+
+void CMySplitterWnd::OnLButtonDown(UINT nFlags, CPoint point)
+{
+  // TODO: 在此添加消息处理程序代码和/或调用默认值
+
+  //CSplitterWndEx::OnLButtonDown(nFlags, point);
+}
+
+
+void CMySplitterWnd::OnMouseMove(UINT nFlags, CPoint point)
+{
+  // TODO: 在此添加消息处理程序代码和/或调用默认值
+
+  //CSplitterWndEx::OnMouseMove(nFlags, point);
+}

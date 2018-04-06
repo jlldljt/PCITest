@@ -18,7 +18,15 @@
 
 #include "MFC_EFG_TIME_IOView.h"
 #include "SplitFrameWnd.h"
-#include "Viewboard.h"
+#include "BoardView.h"
+
+#define COUNTER_NUM 312
+struct tagCounter {
+  bool start;
+  bool flag;
+  int index;
+  double counter[4][COUNTER_NUM];
+};
 
 class CMainFrame : public CFrameWndEx
 {
@@ -35,8 +43,12 @@ public:
 
   CMFC_EFG_TIME_IOView *m_defaultView;
   CSplitFrameWnd *m_splitFrame;
-  CViewboard *m_viewBoard;
+  CBoardView *m_viewBoard;
 
+  //计数器计数一帧数据
+  tagCounter m_counter;
+  void StartCounter(double delay1/*out3*/, double delay2/*out6*/);
+  void DIIntCB(void);
 // 操作
 public:
   enum VIEW_ID {

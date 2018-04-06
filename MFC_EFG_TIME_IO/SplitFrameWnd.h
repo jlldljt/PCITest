@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "MySplitterWnd.h"
 // CSplitFrameWnd ¿ò¼Ü
 
 class CSplitFrameWnd : public CFrameWnd
@@ -12,7 +13,7 @@ public://protected:
 
   // ÌØÐÔ
 public:
-  CSplitterWnd m_splitWndEx;
+  CMySplitterWnd m_splitWndEx;
 
 protected:
 	DECLARE_MESSAGE_MAP()

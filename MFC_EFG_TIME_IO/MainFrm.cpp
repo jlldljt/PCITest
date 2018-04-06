@@ -25,52 +25,91 @@ CMainFrame* GetMainFrame() {
   CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
   return ((CMainFrame*)pMain);
 };
-struct tagCounter {
-  bool start;
-  bool flag;
-  int index;
-  double counter[4][312];
-};
+//struct tagCounter {
+//  bool start;
+//  bool flag;
+//  int index;
+//  double counter[4][312];
+//};
+//
+//tagCounter g_counter;
+//
+//void DIIntCB(void)
+//{
+//  if (g_counter.start) {
+//    memset(&g_counter, 0, sizeof(g_counter));
+//
+//    for (int i = 0; i < 4; i++) {
+//      GetMainFrame()->m_timeIOCtrl.StopT0(i);
+//      GetMainFrame()->m_timeIOCtrl.StartT0(i, ((CDlgT0*)(GetMainFrame()->m_splitFrame->m_splitWndEx.GetPane(2, i)))->m_device, 0, 0);//out6
+//    }
+//    g_counter.flag = 1;
+//  }
+//
+//  if (!g_counter.flag)
+//    return;
+//
+//  double fparam;
+//  for (int i = 0; i < 4; i++) {
+//    GetMainFrame()->m_timeIOCtrl.ReadT0(i, g_counter.counter[i][g_counter.index], fparam);
+//  }
+//
+//  if (g_counter.index++ >= 311)
+//  {
+//    g_counter.flag = 0;
+//  }
+//}
+//
+//
+//void StartCounter(double delay1/*out3*/, double delay2/*out6*/)
+//{
+//    GetMainFrame()->m_timeIOCtrl.StopT0(4);//out6
+//    GetMainFrame()->m_timeIOCtrl.StopT0(5);//out3
+//
+//    GetMainFrame()->m_timeIOCtrl.StartT0(4, ((CDlgT0*)(GetMainFrame()->m_splitFrame->m_splitWndEx.GetPane(2, 4)))->m_device, delay2, 0);//out6
+//    GetMainFrame()->m_timeIOCtrl.StartT0(5, ((CDlgT0*)(GetMainFrame()->m_splitFrame->m_splitWndEx.GetPane(2, 5)))->m_device, delay1, 0);//out3
+//    g_counter.start = 1;
+//}
 
-tagCounter g_counter;
 
-void DIIntCB(void)
+
+void CMainFrame::DIIntCB(void)
 {
-  if (g_counter.start) {
-    memset(&g_counter, 0, sizeof(g_counter));
+  if (m_counter.start) {
+    memset(&m_counter, 0, sizeof(m_counter));
 
     for (int i = 0; i < 4; i++) {
-      GetMainFrame()->m_timeIOCtrl.StopT0(i);
-      GetMainFrame()->m_timeIOCtrl.StartT0(i, ((CDlgT0*)(GetMainFrame()->m_splitFrame->m_splitWndEx.GetPane(2, i)))->m_device, 0, 0);//out6
+      m_timeIOCtrl.StopT0(i);
+      m_timeIOCtrl.StartT0(i, ((CDlgT0*)(m_splitFrame->m_splitWndEx.GetPane(2, i)))->m_device, 0, 0);//out6
     }
-    g_counter.flag = 1;
+    m_counter.flag = 1;
   }
 
-  if (!g_counter.flag)
+  if (!m_counter.flag)
     return;
 
   double fparam;
   for (int i = 0; i < 4; i++) {
-    GetMainFrame()->m_timeIOCtrl.ReadT0(i, g_counter.counter[i][g_counter.index], fparam);
+    m_timeIOCtrl.ReadT0(i, m_counter.counter[i][m_counter.index], fparam);
   }
 
-  if (g_counter.index++ >= 311)
+  if (m_counter.index++ >= COUNTER_NUM-1)
   {
-    g_counter.flag = 0;
+    m_counter.flag = 0;
+    m_viewBoard->Invalidate();
   }
 }
 
 
-void StartCounter(double delay1/*out3*/, double delay2/*out6*/)
+void CMainFrame::StartCounter(double delay1/*out3*/, double delay2/*out6*/)
 {
-    GetMainFrame()->m_timeIOCtrl.StopT0(4);//out6
-    GetMainFrame()->m_timeIOCtrl.StopT0(5);//out3
+  m_timeIOCtrl.StopT0(4);//out6
+  m_timeIOCtrl.StopT0(5);//out3
 
-    GetMainFrame()->m_timeIOCtrl.StartT0(4, ((CDlgT0*)(GetMainFrame()->m_splitFrame->m_splitWndEx.GetPane(2, 4)))->m_device, delay2, 0);//out6
-    GetMainFrame()->m_timeIOCtrl.StartT0(5, ((CDlgT0*)(GetMainFrame()->m_splitFrame->m_splitWndEx.GetPane(2, 5)))->m_device, delay1, 0);//out3
-    g_counter.start = 1;
+  m_timeIOCtrl.StartT0(4, ((CDlgT0*)(m_splitFrame->m_splitWndEx.GetPane(2, 4)))->m_device, delay2, 0);//out6
+  m_timeIOCtrl.StartT0(5, ((CDlgT0*)(m_splitFrame->m_splitWndEx.GetPane(2, 5)))->m_device, delay1, 0);//out3
+  m_counter.start = 1;
 }
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -104,6 +143,15 @@ CMainFrame::CMainFrame()
   m_splitFrame = NULL;
   m_viewBoard = NULL;
   m_defaultView = NULL;
+  memset(&m_counter, 0, sizeof(m_counter));
+  // TODO:删除
+  for (int i = 0; i < COUNTER_NUM; i++)
+  {
+    m_counter.counter[0][i] = 50;
+    m_counter.counter[1][i] = 100;
+    m_counter.counter[2][i] = 50+i;
+    m_counter.counter[3][i] = 100 + i;
+  }
 }
 
 CMainFrame::~CMainFrame()
@@ -368,7 +416,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 
   pContext->m_pNewViewClass = (CRuntimeClass*)m_splitFrame;   //设置默认视图类
 
-  m_viewBoard = new CViewboard;
+  m_viewBoard = new CBoardView;
  m_viewBoard->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect/*CFrameWndEx::rectDefault*/, this, NULL/*如果是CFrameView需要对应的dialog IDD*/, pContext);
 m_viewBoard->ShowWindow(SW_HIDE);
 

@@ -144,6 +144,7 @@ BOOL CMFC_EFG_TIME_IOApp::InitInstance()
 	m_pMainWnd->UpdateWindow();
 	// 仅当具有后缀时才调用 DragAcceptFiles
 	//  在 SDI 应用程序中，这应在 ProcessShellCommand 之后发生
+  BOOL ret = SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
 	return TRUE;
 }
 

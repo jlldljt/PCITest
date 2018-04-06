@@ -139,7 +139,7 @@
     <ClInclude Include="MySplitterWnd.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Viewboard.h">
+    <ClInclude Include="BoardView.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -207,7 +207,7 @@
     <ClCompile Include="MySplitterWnd.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Viewboard.cpp">
+    <ClCompile Include="BoardView.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

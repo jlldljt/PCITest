@@ -67,7 +67,7 @@ void CDlgDI::SetDlg(TimeIOType type)
 #include "DlgT1.h"
 void CDlgDI::UserFunc(void *param)
 {
-  DIIntCB();
+  GetMainFrame()->DIIntCB();
 }
 void CDlgDI::SaveParam()
 {

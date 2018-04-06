@@ -3,13 +3,13 @@
 
 // CViewboard 视图
 
-class CViewboard : public CView
+class CBoardView : public CView
 {
-	DECLARE_DYNCREATE(CViewboard)
+	DECLARE_DYNCREATE(CBoardView)
 
 public://protected:
-	CViewboard();           // 动态创建所使用的受保护的构造函数
-	virtual ~CViewboard();
+	CBoardView();           // 动态创建所使用的受保护的构造函数
+	virtual ~CBoardView();
 
 public:
 	virtual void OnDraw(CDC* pDC);      // 重写以绘制该视图

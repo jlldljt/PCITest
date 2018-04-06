@@ -136,7 +136,7 @@
     <ClInclude Include="TimeIOCtrl.h" />
     <ClInclude Include="TimerPulse.h" />
     <ClInclude Include="tinyxml2.h" />
-    <ClInclude Include="Viewboard.h" />
+    <ClInclude Include="BoardView.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CtrlBase.cpp" />
@@ -165,7 +165,7 @@
     <ClCompile Include="tinyxml2.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Viewboard.cpp" />
+    <ClCompile Include="BoardView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MFC_EFG_TIME_IO.rc" />
