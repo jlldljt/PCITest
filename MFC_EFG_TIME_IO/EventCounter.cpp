@@ -123,7 +123,7 @@ BOOL CEventCounter::Config(tagCtrlParam * param)
   //默认配置
   m_eventCounterCtrl->getChannels()->getItem(tpParam->channel).setGated(true);//打开gate
   //m_eventCounterCtrl->getChannels()->getItem(tpParam->channel).setClockPolarity(Positive);//设置极性
-  //m_eventCounterCtrl->getChannels()->getItem(tpParam->channel).setGatePolarity(Positive);
+  //m_eventCounterCtrl->getChannels()->getItem(tpParam->channel).setGatePolarity(Negative);
 
   return TRUE;
 }

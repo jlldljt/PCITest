@@ -20,7 +20,7 @@
 #include "SplitFrameWnd.h"
 #include "BoardView.h"
 
-#define COUNTER_NUM 312
+#define COUNTER_NUM 180
 struct tagCounter {
   bool start;
   bool flag;
@@ -46,9 +46,11 @@ public:
   CBoardView *m_viewBoard;
 
   //计数器计数一帧数据
-  tagCounter m_counter;
+  struct tagCounter m_counter;
   void StartCounter(double delay1/*out3*/, double delay2/*out6*/);
   void DIIntCB(void);
+
+  int m_deviceNumber;
 // 操作
 public:
   enum VIEW_ID {

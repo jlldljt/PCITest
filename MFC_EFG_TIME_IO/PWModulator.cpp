@@ -122,7 +122,7 @@ BOOL CPWModulator::Config(tagCtrlParam * param)
   }
   //默认配置
   m_pwModulatorCtrl->getChannels()->getItem(tpParam->channel).setGated(false);//关闭gate
-  //m_eventCounterCtrl->getChannels()->getItem(tpParam->channel).setClockPolarity(Positive);//设置极性
+  //m_pwModulatorCtrl->getChannels()->getItem(tpParam->channel).setOutSignal(NegativePulse);//设置极性
 
   return TRUE;
 }

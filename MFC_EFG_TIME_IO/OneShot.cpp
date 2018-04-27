@@ -121,10 +121,10 @@ BOOL COneShot::Config(tagCtrlParam* param)
     return FALSE;
   }
   //Ä¬ÈÏÅäÖÃ
-  SignalDrop signalClock = m_oneShotCtrl->getChannels()->getItem(tpParam->channel).getClockSource();
-  m_oneShotCtrl->getChannels()->getItem(tpParam->channel).setClockPolarity(Positive);
   SignalDrop signalGate = m_oneShotCtrl->getChannels()->getItem(tpParam->channel).getGateSource();
-  m_oneShotCtrl->getChannels()->getItem(tpParam->channel).setGatePolarity(Positive);
+  ErrorCode err = m_oneShotCtrl->getChannels()->getItem(tpParam->channel).setGatePolarity(Positive/*Positive*/);
+  SignalDrop signalClock = m_oneShotCtrl->getChannels()->getItem(tpParam->channel).getClockSource();
+  err = m_oneShotCtrl->getChannels()->getItem(tpParam->channel).setClockPolarity(Positive/*Negative*/);
   if(tpParam->param1)
     m_oneShotCtrl->getChannels()->getItem(tpParam->channel).setOutSignal(PositivePulse);
   else

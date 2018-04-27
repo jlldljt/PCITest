@@ -20,9 +20,11 @@
 #include "DlgT1.h"
 #include "MainFrm.h"
 
-
+#define ENABLE_CNT_NUM 4
 CMainFrame* GetMainFrame() {
-  CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
+  static CFrameWndEx *pMain;
+  if(!pMain)
+  pMain = (CFrameWndEx *)AfxGetMainWnd();
   return ((CMainFrame*)pMain);
 };
 //struct tagCounter {
@@ -78,9 +80,9 @@ void CMainFrame::DIIntCB(void)
   if (m_counter.start) {
     memset(&m_counter, 0, sizeof(m_counter));
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < ENABLE_CNT_NUM; i++) {
       m_timeIOCtrl.StopT0(i);
-      m_timeIOCtrl.StartT0(i, ((CDlgT0*)(m_splitFrame->m_splitWndEx.GetPane(2, i)))->m_device, 0, 0);//out6
+      m_timeIOCtrl.StartT0(i, m_deviceNumber, 0, 0);//out6
     }
     m_counter.flag = 1;
   }
@@ -89,13 +91,20 @@ void CMainFrame::DIIntCB(void)
     return;
 
   double fparam;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < ENABLE_CNT_NUM; i++) {
     m_timeIOCtrl.ReadT0(i, m_counter.counter[i][m_counter.index], fparam);
   }
 
   if (m_counter.index++ >= COUNTER_NUM-1)
   {
     m_counter.flag = 0;
+
+	for (int i = COUNTER_NUM- 1; i > 0; i--) {
+		for (int j = 0; j < ENABLE_CNT_NUM; j++) {
+	  m_counter.counter[j][i]-=m_counter.counter[j][i-1];
+		}
+	}
+
     m_viewBoard->Invalidate();
   }
 }
@@ -106,8 +115,8 @@ void CMainFrame::StartCounter(double delay1/*out3*/, double delay2/*out6*/)
   m_timeIOCtrl.StopT0(4);//out6
   m_timeIOCtrl.StopT0(5);//out3
 
-  m_timeIOCtrl.StartT0(4, ((CDlgT0*)(m_splitFrame->m_splitWndEx.GetPane(2, 4)))->m_device, delay2, 0);//out6
-  m_timeIOCtrl.StartT0(5, ((CDlgT0*)(m_splitFrame->m_splitWndEx.GetPane(2, 5)))->m_device, delay1, 0);//out3
+  m_timeIOCtrl.StartT0(4, m_deviceNumber, delay2, 0);//out6
+  m_timeIOCtrl.StartT0(5, m_deviceNumber, delay1, 0);//out3
   m_counter.start = 1;
 }
 #ifdef _DEBUG
@@ -392,6 +401,7 @@ void CMainFrame::OnComboTimeio()
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->LoadParam();
     ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->LoadParam();
   }
+  m_deviceNumber = dev.deviceNumber;
   Switch(SPLIT_FRAME);
   return;
 }
@@ -434,16 +444,16 @@ m_viewBoard->ShowWindow(SW_HIDE);
 void CMainFrame::OnButtonLaserSin()
 {
   // TODO: 在此添加命令处理程序代码
- /* CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
+  if(AFX_IDW_PANE_FIRST != m_splitFrame->GetDlgCtrlID())
+    Switch(SPLIT_FRAME);
+
+  CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
   CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
   CString val_out3 = p_edit_out3->GetEditText();
   CString val_out6 = p_edit_out6->GetEditText();
 
-  StartCounter(_wtof(val_out3), _wtof(val_out6));*/
-  if(AFX_IDW_PANE_FIRST == m_splitFrame->GetDlgCtrlID())
+  StartCounter(_wtof(val_out3), _wtof(val_out6));
   Switch(VIEW_BOARD);
-  else
-    Switch(SPLIT_FRAME);
 }
 
 
