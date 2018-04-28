@@ -31,8 +31,16 @@ void CBoardView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
 	// TODO:  在此添加绘制代码
-  pDC->TextOut(50, 50, L"好好好好好");
-
+  pDC->TextOut(0, 0, L"0");
+  pDC->TextOut(0, 300, L"300");
+  pDC->TextOut(0, 600, L"600");
+  pDC->TextOut(0, 900, L"900");
+  pDC->TextOut(30 << 2, 0, L"30");
+  pDC->TextOut(60 << 2, 0, L"60");
+  pDC->TextOut(90 << 2, 0, L"90");
+  pDC->TextOut(120 << 2, 0, L"120");
+  pDC->TextOut(150 << 2, 0, L"150");
+  pDC->TextOut(180 << 2, 0, L"180");
   CPen pen, *ppen;
   pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
   ppen = (CPen*)pDC->SelectObject(&pen);

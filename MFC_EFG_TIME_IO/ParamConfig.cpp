@@ -33,14 +33,19 @@ int CParamConfig::Create(const char* path, const char* element)
   int res = doc.LoadFile(m_path.c_str());
   if (res == 0)
   {
+    tinyxml2::XMLElement* root = doc.FirstChildElement(element);
+    if (!root) {//无节点
+      goto param_config_new;
+    }
     return res;
   }
   //doc.Parse(declaration);//会覆盖xml所有内容
 
                          //添加申明可以使用如下两行
-                         tinyxml2::XMLDeclaration* declaration=doc.NewDeclaration();
-                         doc.InsertFirstChild(declaration);
+  tinyxml2::XMLDeclaration* declaration = doc.NewDeclaration();
+  doc.InsertFirstChild(declaration);
 
+param_config_new:
   tinyxml2::XMLElement* root = doc.NewElement(element);
   doc.InsertEndChild(root);
 

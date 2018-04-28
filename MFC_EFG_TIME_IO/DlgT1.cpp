@@ -55,11 +55,43 @@ void CDlgT1::SetDlg(TimeIOType type)
 
 }
 
+//void CDlgT1::SaveParam()
+//{
+//  CString str;
+//  str.Format(L"T1%d.xml", m_index);
+//  CString path = L"config/" + str;
+//  char  ppath[50], pstr[50];
+//  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
+//  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);
+//  if (0 == m_config.Create(ppath, pstr))
+//  {
+//    ConfigParam param;
+//
+//    int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->GetCurSel();
+//    CString param0;
+//    GetDlgItemText(IDC_EDIT_PARAM0, param0);
+//    double fparam0 = _wtof(param0);
+//    bool start;
+//    CString str;
+//    GetDlgItemText(IDC_BUTTON_START, str);
+//    if ("¿ªÊ¼" == str)
+//      start = false;
+//    else
+//      start = true;
+//    param.device = m_device;
+//    param.comboData = index;
+//    param.param0 = fparam0;
+//    param.param1 = 0;
+//    param.start = start;
+//    m_config.SaveParam(param);
+//  }
+//
+//}
 void CDlgT1::SaveParam()
 {
   CString str;
-  str.Format(L"T1%d.xml", m_index);
-  CString path = L"config/" + str;
+  str.Format(L"T1%d", m_index);
+  CString path = L"config/" + m_devName + L".xml";
   char  ppath[50], pstr[50];
   WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
   WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);
@@ -87,12 +119,11 @@ void CDlgT1::SaveParam()
   }
 
 }
-
 void CDlgT1::LoadParam()
 {
   CString str;
-  str.Format(L"T1%d.xml", m_index);
-  CString path = L"config/" + str;
+  str.Format(L"T1%d", m_index);
+  CString path = L"config/" + m_devName + L".xml";
   char  ppath[50], pstr[50];
   WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
   WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);

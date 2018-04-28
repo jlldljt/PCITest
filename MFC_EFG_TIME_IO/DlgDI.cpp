@@ -72,8 +72,8 @@ void CDlgDI::UserFunc(void *param)
 void CDlgDI::SaveParam()
 {
   CString str;
-  str.Format(L"DI%d.xml", m_index);
-  CString path = L"config/" + str;
+  str.Format(L"DI%d", m_index);
+  CString path = L"config/" + m_devName + L".xml";
   char  ppath[50], pstr[50];
   WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
   WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);
@@ -105,8 +105,8 @@ void CDlgDI::SaveParam()
 void CDlgDI::LoadParam()
 {
   CString str;
-  str.Format(L"DI%d.xml", m_index);
-  CString path = L"config/" + str;
+  str.Format(L"DI%d", m_index);
+  CString path = L"config/" + m_devName + L".xml";
   char  ppath[50], pstr[50];
   WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
   WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);

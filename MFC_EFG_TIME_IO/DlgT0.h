@@ -27,12 +27,14 @@ public:
   CBrush m_brushBack;
   COLORREF m_color;
   CParamConfig m_config;
+  CString m_devName;
 public:
   int m_index;
   int m_device;
   void InitDlg(int index);
   void SetDlg(TimeIOType type);
   void SaveParam();
+  void SaveParamWithDev();
   void LoadParam();
   void Stop(void);
 protected:

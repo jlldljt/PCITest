@@ -393,7 +393,7 @@ void CMainFrame::OnComboTimeio()
   dev.description.ReleaseBuffer();
   int scenarios = DeviceCtrl_getSupportedScenarios(obj);*/
   for (int i = 0; i < 8; i++) {
-  /*((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
+    /*((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
     ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->Stop();
     */

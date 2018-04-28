@@ -95,6 +95,7 @@ BOOL CDIInterrupt::Init(int device, int module)
 
 void CDIInterrupt::DeInit()
 {
+  m_callback = NULL;
   m_modules.RemoveAll();
   m_channels.RemoveAll();
 }

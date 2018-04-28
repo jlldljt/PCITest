@@ -26,6 +26,7 @@ public:
 public:
   int m_index;
   int m_device;
+  CString m_devName;
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 

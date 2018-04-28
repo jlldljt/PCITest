@@ -38,6 +38,7 @@ CCtrlBase::CCtrlBase()
 
 CCtrlBase::~CCtrlBase()
 {
+  m_callback = NULL;
 }
 
 int CCtrlBase::GetType()

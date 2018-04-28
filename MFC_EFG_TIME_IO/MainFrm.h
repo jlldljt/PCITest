@@ -45,7 +45,7 @@ public:
   CSplitFrameWnd *m_splitFrame;
   CBoardView *m_viewBoard;
 
-  //计数器计数一帧数据
+  //计数器计数一帧数据相关函数
   struct tagCounter m_counter;
   void StartCounter(double delay1/*out3*/, double delay2/*out6*/);
   void DIIntCB(void);
@@ -95,6 +95,7 @@ public:
   afx_msg void OnDestroy();
   virtual BOOL DestroyWindow();
   afx_msg void OnClose();
+  afx_msg void OnButtonSnap();
 };
 
 
