@@ -18,6 +18,7 @@ typedef struct tagCtrlParam
   double param0;
   double param1;
   TimeIOProc proc;
+  void* procParam;
 }CtrlParam, *PCtrlParam;
 
 class CCtrlBase
@@ -28,7 +29,7 @@ public:
   CArray<int, int&>  m_modules;//支持的模块
   CArray<int, int&>  m_channels;//支持的通道
   TimeIOProc m_callback;
-
+  void *m_callbackParam;
 
   int GetModuleCount();
   int GetModule(int no);

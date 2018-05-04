@@ -71,6 +71,15 @@
     <None Include="res\icon1.ico">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="res\EFG.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\bitmap2.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\small1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MFC_EFG_TIME_IO.h">
@@ -145,6 +154,12 @@
     <ClInclude Include="BoardView.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="MultiCardCtrl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DiIntCounterSnap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -211,6 +226,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="BoardView.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiCardCtrl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DiIntCounterSnap.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -65,10 +65,10 @@ void CDlgDI::SetDlg(TimeIOType type)
 
 #include "DlgT0.h"
 #include "DlgT1.h"
-void CDlgDI::UserFunc(void *param)
-{
-  GetMainFrame()->DIIntCB();
-}
+//void CDlgDI::UserFunc(void *param)
+//{
+//  GetMainFrame()->DIIntCB();
+//}
 void CDlgDI::SaveParam()
 {
   CString str;
@@ -137,20 +137,18 @@ void CDlgDI::Stop(void)
 {
   CString str;
   GetDlgItemText(IDC_BUTTON_START, str);
-  if ("开始" == str) {
-    return;
+  if ("开始" != str) {
+    if (GetMainFrame()->m_timeIOCtrl.StopDi(m_index)) {
+      str = "开始";
+      SetDlgItemText(IDC_BUTTON_START, str);
+      m_brushBack.DeleteObject();
+      m_color = RGB(240, 240, 240);
+      m_brushBack.CreateSolidBrush(m_color);
+
+      GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
+    }
+
   }
-
-  if (GetMainFrame()->m_timeIOCtrl.StopDi(m_index)) {
-    str = "开始";
-    SetDlgItemText(IDC_BUTTON_START, str);
-    m_brushBack.DeleteObject();
-    m_color = RGB(240, 240, 240);
-    m_brushBack.CreateSolidBrush(m_color);
-
-    GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
-  }
-
   GetDlgItemText(IDC_BUTTON_CREATE, str);
   if ("创建" == str) {
     return;
@@ -247,7 +245,7 @@ void CDlgDI::OnBnClickedButtonStart()
     GetDlgItemText(IDC_EDIT_PARAM1, param1);
     double fparam0 = _wtof(param0);
     double fparam1 = _wtof(param1);
-    if (GetMainFrame()->m_timeIOCtrl.StartDi(m_index, m_device, fparam0, fparam1, UserFunc)) {
+    if (GetMainFrame()->m_timeIOCtrl.StartDi(m_index, m_device, fparam0, fparam1/*, UserFunc*/)) {
       str = "结束";
       SetDlgItemText(IDC_BUTTON_START, str);
       m_brushBack.DeleteObject();
@@ -268,7 +266,7 @@ void CDlgDI::OnBnClickedButtonStart()
       GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
     }
   }
-  SaveParam();
+  //SaveParam();
   Invalidate();
 }
 

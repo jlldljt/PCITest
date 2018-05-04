@@ -97,7 +97,9 @@
     <None Include="ClassDiagram.cd" />
     <None Include="ReadMe.txt" />
     <None Include="res\bitmap1.bmp" />
+    <None Include="res\bitmap2.bmp" />
     <None Include="res\buttons.bmp" />
+    <None Include="res\EFG.ico" />
     <None Include="res\filelarge.bmp" />
     <None Include="res\filesmall.bmp" />
     <None Include="res\icon1.ico" />
@@ -107,6 +109,7 @@
     <None Include="res\MFC_EFG_TIME_IODoc.ico" />
     <None Include="res\Project1.bmp" />
     <None Include="res\ribbon.mfcribbon-ms" />
+    <None Include="res\small1.bmp" />
     <None Include="res\Toolbar.bmp" />
     <None Include="res\Toolbar256.bmp" />
     <None Include="res\writelarge.bmp" />
@@ -115,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CtrlBase.h" />
+    <ClInclude Include="DiIntCounterSnap.h" />
     <ClInclude Include="DIInterrupt.h" />
     <ClInclude Include="DlgDI.h" />
     <ClInclude Include="DlgDO.h" />
@@ -125,6 +129,7 @@
     <ClInclude Include="MFC_EFG_TIME_IO.h" />
     <ClInclude Include="MFC_EFG_TIME_IODoc.h" />
     <ClInclude Include="MFC_EFG_TIME_IOView.h" />
+    <ClInclude Include="MultiCardCtrl.h" />
     <ClInclude Include="MySplitterWnd.h" />
     <ClInclude Include="OneShot.h" />
     <ClInclude Include="ParamConfig.h" />
@@ -141,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CtrlBase.cpp" />
+    <ClCompile Include="DiIntCounterSnap.cpp" />
     <ClCompile Include="DIInterrupt.cpp" />
     <ClCompile Include="DlgDI.cpp" />
     <ClCompile Include="DlgDO.cpp" />
@@ -151,6 +157,7 @@
     <ClCompile Include="MFC_EFG_TIME_IO.cpp" />
     <ClCompile Include="MFC_EFG_TIME_IODoc.cpp" />
     <ClCompile Include="MFC_EFG_TIME_IOView.cpp" />
+    <ClCompile Include="MultiCardCtrl.cpp" />
     <ClCompile Include="MySplitterWnd.cpp" />
     <ClCompile Include="OneShot.cpp" />
     <ClCompile Include="ParamConfig.cpp" />

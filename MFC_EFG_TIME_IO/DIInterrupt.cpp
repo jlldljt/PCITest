@@ -5,7 +5,7 @@ void CDIInterrupt::OnDiSnapEvent(void * sender, DiSnapEventArgs * args, void * u
 {
   CDIInterrupt * uParam = (CDIInterrupt *)userParam;
   if (uParam->m_callback) {
-    uParam->m_callback(userParam);
+    uParam->m_callback(uParam->m_callbackParam);
   }
   uParam->m_cnt++;
 }
@@ -127,11 +127,12 @@ BOOL CDIInterrupt::Config(tagCtrlParam * param)
         return FALSE;
       }
       m_callback = tpParam->proc;
+      m_callbackParam = tpParam->procParam;
       return TRUE;
       //break;
     }
   }
-  //默认配置
+  //默认配置// TODO：成功时不会执行到
   m_instantDiCtrl->getDiintChannels()->getItem(tpParam->channel).setGated(false);
   m_instantDiCtrl->getDiintChannels()->getItem(tpParam->channel).setTrigEdge(RisingEdge);
   return FALSE;

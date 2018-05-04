@@ -19,14 +19,16 @@
 #include "MFC_EFG_TIME_IOView.h"
 #include "SplitFrameWnd.h"
 #include "BoardView.h"
+#include "DiIntCounterSnap.h"
+#include "MultiCardCtrl.h"
 
-#define COUNTER_NUM 180
-struct tagCounter {
-  bool start;
-  bool flag;
-  int index;
-  double counter[4][COUNTER_NUM];
-};
+//#define COUNTER_NUM 180
+//struct tagCounter {
+//  bool start;
+//  bool flag;
+//  int index;
+//  double counter[4][COUNTER_NUM];
+//};
 
 class CMainFrame : public CFrameWndEx
 {
@@ -37,7 +39,7 @@ protected: // 仅从序列化创建
 
 // 特性
 public:
-  CTimeIOCtrl m_timeIOCtrl;
+  CTimeIOCtrl m_timeIOCtrl;//分割窗口调试用
   //CSplitterWnd m_splitwnd;
   CParamConfig m_config;
 
@@ -46,10 +48,13 @@ public:
   CBoardView *m_viewBoard;
 
   //计数器计数一帧数据相关函数
-  struct tagCounter m_counter;
-  void StartCounter(double delay1/*out3*/, double delay2/*out6*/);
-  void DIIntCB(void);
-
+  //struct tagCounter m_counter;
+  //void StartCounter(double delay1/*out3*/, double delay2/*out6*/);
+  //void DIIntCB(void);
+  CDiIntCounterSnap m_diIntCounterSnap;
+  //用来加载所有配置并运行，子窗口不显示
+  CMultiCardCtrl m_multiCardCtrl;
+  //保存当前所选设备号，与combo sel 不是一个概念
   int m_deviceNumber;
 // 操作
 public:
@@ -96,6 +101,10 @@ public:
   virtual BOOL DestroyWindow();
   afx_msg void OnClose();
   afx_msg void OnButtonSnap();
+  afx_msg void OnButtonParamLoad();
+  afx_msg void OnButtonParamSave();
+  afx_msg void OnButtonParamRun();
+  afx_msg void OnButtonParamStop();
 };
 
 

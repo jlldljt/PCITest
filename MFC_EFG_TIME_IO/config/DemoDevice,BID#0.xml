@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <T00>
     <Device>0</Device>
-    <ComboData>0</ComboData>
-    <Param0>10</Param0>
+    <ComboData>3</ComboData>
+    <Param0>806</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </T00>
 
 <T01>
     <Device>0</Device>
-    <ComboData>0</ComboData>
-    <Param0>5</Param0>
+    <ComboData>3</ComboData>
+    <Param0>179</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </T01>
 
 <T02>
     <Device>0</Device>
-    <ComboData>0</ComboData>
+    <ComboData>2</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T02>
 
 <T03>
@@ -28,7 +28,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T03>
 
 <T04>
@@ -36,7 +36,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T04>
 
 <T05>
@@ -44,7 +44,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T05>
 
 <T06>
@@ -52,7 +52,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T06>
 
 <T07>
@@ -60,15 +60,15 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T07>
 
 <DI0>
     <Device>0</Device>
-    <ComboData>0</ComboData>
+    <ComboData>1</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>true</Start>
 </DI0>
 
 <T10>
@@ -76,7 +76,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T10>
 
 <DI1>
@@ -84,7 +84,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </DI1>
 
 <T11>
@@ -92,7 +92,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T11>
 
 <DI2>
@@ -100,7 +100,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </DI2>
 
 <T12>
@@ -108,7 +108,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T12>
 
 <DI3>
@@ -116,7 +116,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </DI3>
 
 <T13>
@@ -124,7 +124,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T13>
 
 <DI4>
@@ -132,7 +132,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </DI4>
 
 <T14>
@@ -140,7 +140,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T14>
 
 <DI5>
@@ -148,7 +148,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </DI5>
 
 <T15>
@@ -156,7 +156,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T15>
 
 <DI6>
@@ -164,7 +164,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </DI6>
 
 <T16>
@@ -172,7 +172,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T16>
 
 <DI7>
@@ -180,7 +180,7 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </DI7>
 
 <T17>
@@ -188,5 +188,5 @@
     <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>0</Start>
+    <Start>false</Start>
 </T17>
