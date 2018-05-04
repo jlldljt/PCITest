@@ -153,20 +153,19 @@ void CDlgT1::Stop(void)
 {
   CString str;
   GetDlgItemText(IDC_BUTTON_START, str);
-  if ("开始" == str) {
-    return;
+
+  if ("开始" != str) {
+    if (GetMainFrame()->m_timeIOCtrl.StopT1(m_index)) {
+      str = "开始";
+      SetDlgItemText(IDC_BUTTON_START, str);
+      m_brushBack.DeleteObject();
+      m_color = RGB(240, 240, 240);
+      m_brushBack.CreateSolidBrush(m_color);
+
+      GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
+    }
+
   }
-
-  if (GetMainFrame()->m_timeIOCtrl.StopT1(m_index)) {
-    str = "开始";
-    SetDlgItemText(IDC_BUTTON_START, str);
-    m_brushBack.DeleteObject();
-    m_color = RGB(240, 240, 240);
-    m_brushBack.CreateSolidBrush(m_color);
-
-    GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
-  }
-
   GetDlgItemText(IDC_BUTTON_CREATE, str);
   if ("创建" == str) {
     return;
@@ -301,7 +300,7 @@ void CDlgT1::OnBnClickedButtonStart()
       GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(TRUE);
     }
   }
-  SaveParam();
+  //SaveParam();
   Invalidate();
 }
 

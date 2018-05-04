@@ -32,13 +32,15 @@ WCHAR const * TCHAR_TO_WCHAR(TCHAR const * in, WCHAR* out)
 
 CCtrlBase::CCtrlBase()
 {
-  m_callback = NULL;
+  m_callback = NULL; 
+  m_callbackParam = NULL; 
 }
 
 
 CCtrlBase::~CCtrlBase()
 {
   m_callback = NULL;
+  m_callbackParam = NULL;
 }
 
 int CCtrlBase::GetType()

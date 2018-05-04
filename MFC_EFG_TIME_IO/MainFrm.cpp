@@ -75,50 +75,50 @@ CMainFrame* GetMainFrame() {
 
 
 
-void CMainFrame::DIIntCB(void)
-{
-  if (m_counter.start) {
-    memset(&m_counter, 0, sizeof(m_counter));
-
-    for (int i = 0; i < ENABLE_CNT_NUM; i++) {
-      m_timeIOCtrl.StopT0(i);
-      m_timeIOCtrl.StartT0(i, m_deviceNumber, 0, 0);//out6
-    }
-    m_counter.flag = 1;
-  }
-
-  if (!m_counter.flag)
-    return;
-
-  double fparam;
-  for (int i = 0; i < ENABLE_CNT_NUM; i++) {
-    m_timeIOCtrl.ReadT0(i, m_counter.counter[i][m_counter.index], fparam);
-  }
-
-  if (m_counter.index++ >= COUNTER_NUM-1)
-  {
-    m_counter.flag = 0;
-
-	for (int i = COUNTER_NUM- 1; i > 0; i--) {
-		for (int j = 0; j < ENABLE_CNT_NUM; j++) {
-	  m_counter.counter[j][i]-=m_counter.counter[j][i-1];
-		}
-	}
-
-    m_viewBoard->Invalidate();
-  }
-}
-
-
-void CMainFrame::StartCounter(double delay1/*out3*/, double delay2/*out6*/)
-{
-  m_timeIOCtrl.StopT0(4);//out6
-  m_timeIOCtrl.StopT0(5);//out3
-
-  m_timeIOCtrl.StartT0(4, m_deviceNumber, delay2, 0);//out6
-  m_timeIOCtrl.StartT0(5, m_deviceNumber, delay1, 0);//out3
-  m_counter.start = 1;
-}
+//void CMainFrame::DIIntCB(void)
+//{
+//  if (m_counter.start) {
+//    memset(&m_counter, 0, sizeof(m_counter));
+//
+//    for (int i = 0; i < ENABLE_CNT_NUM; i++) {
+//      m_timeIOCtrl.StopT0(i);
+//      m_timeIOCtrl.StartT0(i, m_deviceNumber, 0, 0);//out6
+//    }
+//    m_counter.flag = 1;
+//  }
+//
+//  if (!m_counter.flag)
+//    return;
+//
+//  double fparam;
+//  for (int i = 0; i < ENABLE_CNT_NUM; i++) {
+//    m_timeIOCtrl.ReadT0(i, m_counter.counter[i][m_counter.index], fparam);
+//  }
+//
+//  if (m_counter.index++ >= COUNTER_NUM-1)
+//  {
+//    m_counter.flag = 0;
+//
+//	for (int i = COUNTER_NUM- 1; i > 0; i--) {
+//		for (int j = 0; j < ENABLE_CNT_NUM; j++) {
+//	  m_counter.counter[j][i]-=m_counter.counter[j][i-1];
+//		}
+//	}
+//
+//    m_viewBoard->Invalidate();
+//  }
+//}
+//
+//
+//void CMainFrame::StartCounter(double delay1/*out3*/, double delay2/*out6*/)
+//{
+//  m_timeIOCtrl.StopT0(4);//out6
+//  m_timeIOCtrl.StopT0(5);//out3
+//
+//  m_timeIOCtrl.StartT0(4, m_deviceNumber, delay2, 0);//out6
+//  m_timeIOCtrl.StartT0(5, m_deviceNumber, delay1, 0);//out3
+//  m_counter.start = 1;
+//}
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -142,6 +142,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
   ON_WM_DESTROY()
   ON_WM_CLOSE()
   ON_COMMAND(ID_BUTTON_SNAP, &CMainFrame::OnButtonSnap)
+  ON_COMMAND(ID_BUTTON_PARAM_LOAD, &CMainFrame::OnButtonParamLoad)
+  ON_COMMAND(ID_BUTTON_PARAM_SAVE, &CMainFrame::OnButtonParamSave)
+  ON_COMMAND(ID_BUTTON_PARAM_RUN, &CMainFrame::OnButtonParamRun)
+  ON_COMMAND(ID_BUTTON_PARAM_STOP, &CMainFrame::OnButtonParamStop)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -153,15 +157,7 @@ CMainFrame::CMainFrame()
   m_splitFrame = NULL;
   m_viewBoard = NULL;
   m_defaultView = NULL;
-  memset(&m_counter, 0, sizeof(m_counter));
-  // TODO:删除
-  for (int i = 0; i < COUNTER_NUM; i++)
-  {
-    m_counter.counter[0][i] = 50;
-    m_counter.counter[1][i] = 100;
-    m_counter.counter[2][i] = 50+i;
-    m_counter.counter[3][i] = 100 + i;
-  }
+
 }
 
 CMainFrame::~CMainFrame()
@@ -382,36 +378,36 @@ void CMainFrame::OnComboTimeio()
 {
   // TODO: 在此添加命令处理程序代码
   //TEST
-  CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
-  
-  DevInf dev;
-  int sel = pComboBox->GetCurSel();
-  if(sel < 0)
-    return;
-  int ret = m_timeIOCtrl.getDevice(sel, dev);
-  /*DeviceCtrl *obj = DeviceCtrl::Create(dev.deviceNumber, dev.description.GetBuffer(), ModeWriteWithReset);
-  dev.description.ReleaseBuffer();
-  int scenarios = DeviceCtrl_getSupportedScenarios(obj);*/
-  for (int i = 0; i < 8; i++) {
-  /*((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
-    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
-    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->Stop();
-    */
-    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_device = dev.deviceNumber;
-    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_device = dev.deviceNumber;
-    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_device = dev.deviceNumber;
-    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_device = dev.deviceNumber;
+  //CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
+  //
+  //DevInf dev;
+  //int sel = pComboBox->GetCurSel();
+  //if(sel < 0)
+  //  return;
+  //int ret = m_timeIOCtrl.getDevice(sel, dev);
+  ///*DeviceCtrl *obj = DeviceCtrl::Create(dev.deviceNumber, dev.description.GetBuffer(), ModeWriteWithReset);
+  //dev.description.ReleaseBuffer();
+  //int scenarios = DeviceCtrl_getSupportedScenarios(obj);*/
+  //for (int i = 0; i < 8; i++) {
+  //  ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
+  //  ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
+  //  ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->Stop();
+  //  
+  //  ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_device = dev.deviceNumber;
+  //  ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_device = dev.deviceNumber;
+  //  ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_device = dev.deviceNumber;
+  //  ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_device = dev.deviceNumber;
 
-    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_devName = dev.description;
-    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_devName = dev.description;
-    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_devName = dev.description;
-    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_devName = dev.description;
+  //  ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_devName = dev.description;
+  //  ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_devName = dev.description;
+  //  ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_devName = dev.description;
+  //  ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_devName = dev.description;
 
-    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->LoadParam();
-    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->LoadParam();
-    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->LoadParam();
-  }
-  m_deviceNumber = dev.deviceNumber;
+  //  ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->LoadParam();
+  //  ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->LoadParam();
+  //  ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->LoadParam();
+  //}
+  //m_deviceNumber = dev.deviceNumber;
   Switch(SPLIT_FRAME);
   return;
 }
@@ -437,8 +433,8 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
   pContext->m_pNewViewClass = (CRuntimeClass*)m_splitFrame;   //设置默认视图类
 
   m_viewBoard = new CBoardView;
- m_viewBoard->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect/*CFrameWndEx::rectDefault*/, this, NULL/*如果是CFrameView需要对应的dialog IDD*/, pContext);
-m_viewBoard->ShowWindow(SW_HIDE);
+  m_viewBoard->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect/*CFrameWndEx::rectDefault*/, this, NULL/*如果是CFrameView需要对应的dialog IDD*/, pContext);
+  m_viewBoard->ShowWindow(SW_HIDE);
 
 //////////////////
 
@@ -462,7 +458,11 @@ void CMainFrame::OnButtonLaserSin()
   CString val_out3 = p_edit_out3->GetEditText();
   CString val_out6 = p_edit_out6->GetEditText();
 
-  StartCounter(_wtof(val_out3), _wtof(val_out6));
+  // 开启一次捕捉
+  m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
+  m_diIntCounterSnap.StartDiIntSin(0);
+  m_diIntCounterSnap.StartCaptureSin(0, _wtof(val_out3), 0, _wtof(val_out6));// TODO：应该时5和4
+
   Switch(VIEW_BOARD);
 }
 
@@ -513,5 +513,91 @@ void CMainFrame::OnClose()
 void CMainFrame::OnButtonSnap()
 {
   // TODO: 在此添加命令处理程序代码
+
+  // 开启一次捕捉
+  m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
+  m_diIntCounterSnap.StartDiIntCircle(0);
+  m_diIntCounterSnap.StartCaptureCircle(1);// TODO：应该时5和4
+
   Switch(VIEW_BOARD);
+}
+
+
+void CMainFrame::OnButtonParamLoad()
+{
+  // TODO: 在此添加命令处理程序代码
+  CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
+
+  DevInf dev;
+  int sel = pComboBox->GetCurSel();
+  if (sel < 0)
+    return;
+  int ret = m_timeIOCtrl.getDevice(sel, dev);
+
+  for (int i = 0; i < 8; i++) {
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->Stop();
+
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_device = dev.deviceNumber;
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_device = dev.deviceNumber;
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_device = dev.deviceNumber;
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_device = dev.deviceNumber;
+
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_devName = dev.description;
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_devName = dev.description;
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_devName = dev.description;
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_devName = dev.description;
+
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->LoadParam();
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->LoadParam();
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->LoadParam();
+  }
+  m_deviceNumber = dev.deviceNumber;
+ // Switch(SPLIT_FRAME);
+  return;
+}
+
+
+void CMainFrame::OnButtonParamSave()
+{
+  // TODO: 在此添加命令处理程序代码
+
+  for (int i = 0; i < 8; i++) {
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->SaveParam();
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->SaveParam();
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->SaveParam();
+  }
+
+  return;
+}
+
+
+void CMainFrame::OnButtonParamRun()
+{
+  // TODO: 在此添加命令处理程序代码
+  CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
+
+  int sel = pComboBox->GetCount();
+  if (sel <= 0)
+    return;
+
+  for (int i = 0; i < sel; i++) {
+    m_multiCardCtrl.Load(i);
+  }
+}
+
+
+void CMainFrame::OnButtonParamStop()
+{
+  // TODO: 在此添加命令处理程序代码
+  CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
+
+  int sel = pComboBox->GetCount();
+  if (sel <= 0)
+    return;
+
+  for (int i = 0; i < sel; i++) {
+    m_multiCardCtrl.Stop(i);
+  }
 }

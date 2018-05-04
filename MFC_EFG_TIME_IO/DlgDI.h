@@ -33,7 +33,7 @@ public:
   int m_device;
   void InitDlg(int index);
   void SetDlg(TimeIOType type);
-  static void UserFunc(void *param);
+  //static void UserFunc(void *param);
   void SaveParam();
   void LoadParam();
   void Stop(void);

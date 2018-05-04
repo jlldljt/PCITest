@@ -62,7 +62,7 @@ public:
   //Di
   BOOL CreateDi(int no, TimeIOType type, int device);
   BOOL DeleteDi(int no);
-  BOOL StartDi(int no, int device, double param0, double param1, void* param2 = NULL);
+  BOOL StartDi(int no, int device, double param0, double param1, void* param2 = NULL, void* param3 = NULL);
   BOOL StopDi(int no);
   BOOL ReadDi(int no, double& param0, double &param1);
   //T0 counter

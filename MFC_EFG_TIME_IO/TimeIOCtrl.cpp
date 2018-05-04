@@ -75,7 +75,7 @@ BOOL CTimeIOCtrl::DeleteDi(int no)
   return TRUE;
 }
 
-BOOL CTimeIOCtrl::StartDi(int no, int device, double param0, double param1, void* param2)
+BOOL CTimeIOCtrl::StartDi(int no, int device, double param0, double param1, void* param2, void* param3)
 {
   ASSERT(no < 8);
   ASSERT(Di[no].ctrl);
@@ -87,6 +87,7 @@ BOOL CTimeIOCtrl::StartDi(int no, int device, double param0, double param1, void
   param.param0 = param0;
   param.param1 = param1;
   param.proc = (TimeIOProc)param2;
+  param.procParam = param3;
   if (Di[no].ctrl->Config(&param)) {
     ret = Di[no].ctrl->Start(&param);
   }
@@ -96,7 +97,8 @@ BOOL CTimeIOCtrl::StartDi(int no, int device, double param0, double param1, void
 BOOL CTimeIOCtrl::StopDi(int no)
 {
   ASSERT(no < 8);
-  ASSERT(Di[no].ctrl);
+  if (!Di[no].ctrl)
+    return FALSE;
   return Di[no].ctrl->Stop();
 }
 
@@ -190,7 +192,9 @@ BOOL CTimeIOCtrl::StartT0(int no, int device, double param0, double param1)
 BOOL CTimeIOCtrl::StopT0(int no)
 {
   ASSERT(no < 8);
-  ASSERT(Counter0[no].ctrl);
+  if (!Counter0[no].ctrl)
+    return FALSE;
+
   return Counter0[no].ctrl->Stop();
 }
 
@@ -264,7 +268,8 @@ BOOL CTimeIOCtrl::StartT1(int no, int device, double param0)
 BOOL CTimeIOCtrl::StopT1(int no)
 {
   ASSERT(no < 8);
-  ASSERT(Counter1[no].ctrl);
+  if (!Counter1[no].ctrl)
+    return FALSE;
   return Counter1[no].ctrl->Stop();
 }
 
