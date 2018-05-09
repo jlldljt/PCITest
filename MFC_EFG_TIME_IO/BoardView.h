@@ -25,8 +25,9 @@ protected:
 
 
 public:
-  void DrawSin();
-  void DrawCircle();
+  void DrawLaserSin();
+  void DrawLaserCircle();
+  void DrawXRayOneShot();
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };
 

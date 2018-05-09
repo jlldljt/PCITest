@@ -146,6 +146,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
   ON_COMMAND(ID_BUTTON_PARAM_SAVE, &CMainFrame::OnButtonParamSave)
   ON_COMMAND(ID_BUTTON_PARAM_RUN, &CMainFrame::OnButtonParamRun)
   ON_COMMAND(ID_BUTTON_PARAM_STOP, &CMainFrame::OnButtonParamStop)
+  ON_COMMAND(ID_BUTTON_XRAY_ONESHOT, &CMainFrame::OnButtonXrayOneshot)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -460,7 +461,7 @@ void CMainFrame::OnButtonLaserSin()
 
   // 开启一次捕捉
   m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
-  m_diIntCounterSnap.StartDiIntSin(0);
+  m_diIntCounterSnap.StartDiIntLaserSin(0);
   m_diIntCounterSnap.StartCaptureSin(0, _wtof(val_out3), 0, _wtof(val_out6));// TODO：应该时5和4
 
   Switch(VIEW_BOARD);
@@ -516,7 +517,7 @@ void CMainFrame::OnButtonSnap()
 
   // 开启一次捕捉
   m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
-  m_diIntCounterSnap.StartDiIntCircle(0);
+  m_diIntCounterSnap.StartDiIntLaserCircle(0);
   m_diIntCounterSnap.StartCaptureCircle(1);// TODO：应该时5和4
 
   Switch(VIEW_BOARD);
@@ -600,4 +601,17 @@ void CMainFrame::OnButtonParamStop()
   for (int i = 0; i < sel; i++) {
     m_multiCardCtrl.Stop(i);
   }
+}
+
+
+void CMainFrame::OnButtonXrayOneshot()
+{
+  // TODO: 在此添加命令处理程序代码
+
+  // 开启一次捕捉
+  m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
+  m_diIntCounterSnap.StartDiIntXRayOneShot(0);
+  m_diIntCounterSnap.StartCaptureXRayOneShot();
+
+  Switch(VIEW_BOARD);
 }

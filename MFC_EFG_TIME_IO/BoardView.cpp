@@ -92,7 +92,7 @@ void CBoardView::Dump(CDumpContext& dc) const
 
 // CViewboard 消息处理程序
 
-void CBoardView::DrawSin()
+void CBoardView::DrawLaserSin()
 {
   CDC* pDC = m_dc;
   CRect rect;
@@ -114,7 +114,7 @@ void CBoardView::DrawSin()
   ppen = (CPen*)pDC->SelectObject(&pen);
   pen.DeleteObject();
 
-  for (int i = 0; i < SIN_NUM; i++)
+  for (int i = 0; i < LASER_SIN_NUM; i++)
   {
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
     pDC->SelectObject(&pen);
@@ -133,7 +133,7 @@ void CBoardView::DrawSin()
   Invalidate();
 }
 
-void CBoardView::DrawCircle()
+void CBoardView::DrawLaserCircle()
 {
   CDC* pDC = m_dc;
   CRect rect;
@@ -152,12 +152,53 @@ void CBoardView::DrawCircle()
   ppen = (CPen*)pDC->SelectObject(&pen);
   pen.DeleteObject();
 
-  for (int i = 0; i < CIRCLE_NUM; i++)
+  for (int i = 0; i < LASER_CIRCLE_NUM; i++)
   {
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
     pDC->SelectObject(&pen);
     pDC->MoveTo(GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i],i);
     pDC->LineTo(GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i],i);
+    pen.DeleteObject();
+  }
+
+  pDC->SelectObject(ppen);
+
+  Invalidate();
+}
+
+void CBoardView::DrawXRayOneShot()
+{
+  CDC* pDC = m_dc;
+  CRect rect;
+  GetClientRect(&rect);
+
+  pDC->FillSolidRect(&rect, RGB(255, 255, 255));
+  pDC->TextOut(0, 0, L"0");
+  pDC->TextOut(0, 300, L"300");
+  pDC->TextOut(0, 600, L"600");
+  pDC->TextOut(0, 900, L"900");
+  pDC->TextOut(30 << 2, 0, L"30");
+  pDC->TextOut(60 << 2, 0, L"60");
+  pDC->TextOut(90 << 2, 0, L"90");
+  pDC->TextOut(120 << 2, 0, L"120");
+  pDC->TextOut(150 << 2, 0, L"150");
+  pDC->TextOut(180 << 2, 0, L"180");
+  CPen pen, *ppen;
+  pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
+  ppen = (CPen*)pDC->SelectObject(&pen);
+  pen.DeleteObject();
+
+  for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
+  {
+    pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
+    pDC->SelectObject(&pen);
+    pDC->MoveTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i]);
+    pDC->LineTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i]);
+    pen.DeleteObject();
+    pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
+    pDC->SelectObject(&pen);
+    pDC->MoveTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[2][i]);
+    pDC->LineTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[3][i]);
     pen.DeleteObject();
   }
 

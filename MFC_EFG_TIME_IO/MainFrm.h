@@ -105,6 +105,7 @@ public:
   afx_msg void OnButtonParamSave();
   afx_msg void OnButtonParamRun();
   afx_msg void OnButtonParamStop();
+  afx_msg void OnButtonXrayOneshot();
 };
 
 
