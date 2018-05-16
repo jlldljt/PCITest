@@ -124,6 +124,7 @@
     <ClInclude Include="DlgDO.h" />
     <ClInclude Include="DlgT0.h" />
     <ClInclude Include="DlgT1.h" />
+    <ClInclude Include="EfgAlg.h" />
     <ClInclude Include="EventCounter.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFC_EFG_TIME_IO.h" />
@@ -152,6 +153,7 @@
     <ClCompile Include="DlgDO.cpp" />
     <ClCompile Include="DlgT0.cpp" />
     <ClCompile Include="DlgT1.cpp" />
+    <ClCompile Include="EfgAlg.cpp" />
     <ClCompile Include="EventCounter.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFC_EFG_TIME_IO.cpp" />

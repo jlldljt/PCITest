@@ -3,6 +3,8 @@
 
 #include "StdAfx.h"
 #include "DiIntCounterSnap.h"
+#include <math.h>
+#include "EfgAlg.h"
 
 
 CDiIntCounterSnap::CDiIntCounterSnap()
@@ -19,6 +21,14 @@ CDiIntCounterSnap::CDiIntCounterSnap()
     m_counter.counter[1][i] = 100;
     m_counter.counter[2][i] = 50 + i;
     m_counter.counter[3][i] = 100 + i;
+  }
+
+  //TODO：调试用
+  for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
+  {
+    //sin后面不是角度是弧度，故要转换
+    //我们是匀速的，每个步进弧度都一致即2pi / XRAY_ONESHOT_NUM
+    m_counter.counter[0][i] = 110 * sin(i * (2 * PI) / XRAY_ONESHOT_NUM + PI) + 370;
   }
 }
 
@@ -143,7 +153,7 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
   if (m_device < 0 || !m_card)
     return;
   if (m_counter.start) {
-    memset(&m_counter, 0, sizeof(m_counter));
+    //memset(&m_counter, 0, sizeof(m_counter));
 
     for (int i = 0; i < ENABLE_CNT_NUM; i++) {
       m_card->StopT0(i);
@@ -158,7 +168,7 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
   double fparam;
   //读取计数器
   for (int i = 0; i < ENABLE_CNT_NUM; i++) {
-    m_card->ReadT0(i, m_counter.counter[i][m_counter.index], fparam);
+    //m_card->ReadT0(i, m_counter.counter[i][m_counter.index], fparam);
   }
 
   if (m_counter.index++ >= XRAY_ONESHOT_NUM - 1)
@@ -167,9 +177,15 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
 
     for (int i = XRAY_ONESHOT_NUM - 1; i > 0; i--) {
       for (int j = 0; j < ENABLE_CNT_NUM; j++) {
-        m_counter.counter[j][i] -= m_counter.counter[j][i - 1];
+       // m_counter.counter[j][i] -= m_counter.counter[j][i - 1];
       }
     }
+    //TODO：调试拟合
+    EfgAlg alg;
+    struct tagSinParam param;
+    alg.FitSinBySubstitution(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[1], param);
+
+
     if (m_viewBoard)
       m_viewBoard->DrawXRayOneShot();
 

@@ -160,6 +160,9 @@
     <ClInclude Include="DiIntCounterSnap.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="EfgAlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -232,6 +235,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DiIntCounterSnap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EfgAlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

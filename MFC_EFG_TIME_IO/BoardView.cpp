@@ -1,4 +1,4 @@
-// Viewboard.cpp : ÊµÏÖÎÄ¼þ
+ï»¿// Viewboard.cpp : å®žçŽ°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -28,12 +28,12 @@ BEGIN_MESSAGE_MAP(CBoardView, CView)
 END_MESSAGE_MAP()
 
 
-// CViewboard »æÍ¼
+// CViewboard ç»˜å›¾
 
 void CBoardView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
-	// TODO:  ÔÚ´ËÌí¼Ó»æÖÆ´úÂë
+	// TODO:  åœ¨æ­¤æ·»åŠ ç»˜åˆ¶ä»£ç 
   /*pDC->TextOut(0, 0, L"0");
   pDC->TextOut(0, 300, L"300");
   pDC->TextOut(0, 600, L"600");
@@ -67,13 +67,13 @@ void CBoardView::OnDraw(CDC* pDC)
 
   CRect rect;
   GetClientRect(&rect);
-  pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), m_dc, 0, 0, SRCCOPY);
-
-
+  //pDC->BitBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1*rect.Height(), m_dc, 0, 0, SRCCOPY);
+  pDC->StretchBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1 * rect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+  pDC->TextOut(0, 0, L"æ¯æ ¼100");
 }
 
 
-// CViewboard Õï¶Ï
+// CViewboard è¯Šæ–­
 
 #ifdef _DEBUG
 void CBoardView::AssertValid() const
@@ -90,7 +90,7 @@ void CBoardView::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 
-// CViewboard ÏûÏ¢´¦Àí³ÌÐò
+// CViewboard æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 void CBoardView::DrawLaserSin()
 {
@@ -140,13 +140,13 @@ void CBoardView::DrawLaserCircle()
   GetClientRect(&rect);
 
   pDC->FillSolidRect(&rect, RGB(255, 255, 255));
-  pDC->TextOut(0, 0, L"0");
-  pDC->TextOut(0, 200, L"200");
-  pDC->TextOut(0, 400, L"400");
-  pDC->TextOut(0, 600, L"600");
-  pDC->TextOut(200 , 0, L"200");
-  pDC->TextOut(400 , 0, L"400");
-  pDC->TextOut(600 , 0, L"600");
+  pDC->TextOut(0, 0, L"-");
+  pDC->TextOut(0, 100, L"-");
+  pDC->TextOut(0, 200, L"-");
+  pDC->TextOut(0, 300, L"-");
+  pDC->TextOut(100 , 0, L"|");
+  pDC->TextOut(200 , 0, L"|");
+  pDC->TextOut(300 , 0, L"|");
   CPen pen, *ppen;
   pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
   ppen = (CPen*)pDC->SelectObject(&pen);
@@ -173,16 +173,19 @@ void CBoardView::DrawXRayOneShot()
   GetClientRect(&rect);
 
   pDC->FillSolidRect(&rect, RGB(255, 255, 255));
-  pDC->TextOut(0, 0, L"0");
-  pDC->TextOut(0, 300, L"300");
-  pDC->TextOut(0, 600, L"600");
-  pDC->TextOut(0, 900, L"900");
-  pDC->TextOut(30 << 2, 0, L"30");
-  pDC->TextOut(60 << 2, 0, L"60");
-  pDC->TextOut(90 << 2, 0, L"90");
-  pDC->TextOut(120 << 2, 0, L"120");
-  pDC->TextOut(150 << 2, 0, L"150");
-  pDC->TextOut(180 << 2, 0, L"180");
+  pDC->TextOut(0, 0, L"");
+  pDC->TextOut(0, 100, L"Â¯");
+  pDC->TextOut(0, 200, L"Â¯");
+  pDC->TextOut(0, 300, L"Â¯");
+  pDC->TextOut(0, 400, L"Â¯");
+  pDC->TextOut(0, 500, L"Â¯");
+  pDC->TextOut(0, 600, L"Â¯");
+  pDC->TextOut(100, 0, L"|");
+  pDC->TextOut(200, 0, L"|");
+  pDC->TextOut(300, 0, L"|");
+  pDC->TextOut(400, 0, L"|");
+  pDC->TextOut(500, 0, L"|");
+  pDC->TextOut(600, 0, L"|");
   CPen pen, *ppen;
   pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
   ppen = (CPen*)pDC->SelectObject(&pen);
@@ -190,15 +193,20 @@ void CBoardView::DrawXRayOneShot()
 
   for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
   {
+    //TODOï¼šè°ƒè¯•
+    pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i], RGB(0, 255, 0));
+    pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i], RGB(255, 0, 0));
+
+    continue;
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
     pDC->SelectObject(&pen);
-    pDC->MoveTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i]);
-    pDC->LineTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i]);
+    pDC->MoveTo(i, 0);
+    pDC->LineTo(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i]);
     pen.DeleteObject();
     pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
     pDC->SelectObject(&pen);
-    pDC->MoveTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[2][i]);
-    pDC->LineTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[3][i]);
+    pDC->MoveTo(i, 300);
+    pDC->LineTo(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i]);
     pen.DeleteObject();
   }
 
@@ -212,7 +220,7 @@ int CBoardView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   if (CView::OnCreate(lpCreateStruct) == -1)
     return -1;
 
-  // TODO:  ÔÚ´ËÌí¼ÓÄú×¨ÓÃµÄ´´½¨´úÂë
+  // TODO:  åœ¨æ­¤æ·»åŠ æ‚¨ä¸“ç”¨çš„åˆ›å»ºä»£ç 
   CWnd * pWnd = FromHandle(this->m_hWnd);
   CDC* pDC = pWnd->GetDC();
   CRect rect;
@@ -221,7 +229,7 @@ int CBoardView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   m_bm = new CBitmap;
   m_dc->CreateCompatibleDC(pDC);
   m_bm->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
-  m_oldbm = m_dc->SelectObject(m_bm);//ÎÞÕâ¾äºÍÉÏ¾ä£¬¶Ômdcmen²Ù×÷ÎÞÐ§
+  m_oldbm = m_dc->SelectObject(m_bm);//æ— è¿™å¥å’Œä¸Šå¥ï¼Œå¯¹mdcmenæ“ä½œæ— æ•ˆ
   m_dc->SetStretchBltMode(HALFTONE);
   SetBrushOrgEx(m_dc->m_hDC, 0, 0, NULL);
   pWnd->ReleaseDC(pDC);
