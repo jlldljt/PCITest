@@ -196,6 +196,7 @@ void CBoardView::DrawXRayOneShot()
     //TODO：调试
     pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i], RGB(0, 255, 0));
     pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i], RGB(255, 0, 0));
+    pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[2][i], RGB(0, 0, 255));
 
     continue;
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
@@ -212,6 +213,26 @@ void CBoardView::DrawXRayOneShot()
 
   pDC->SelectObject(ppen);
 
+  Invalidate();
+}
+
+void CBoardView::DrawPoint(POINT point)
+{
+  CDC* pDC = m_dc;
+  pDC->SetPixel(point.x,point.y, RGB(0, 255, 0));
+  Invalidate();
+}
+void CBoardView::DrawCircle(POINT point, LONG r)
+{
+  CDC* pDC = m_dc;
+  CBrush brush;
+  CBrush *oldbrush;
+  // brush.CreateSolidBrush(RGB(0xD1, 0xFB, 0xED));
+  // oldbrush = pDC->SelectObject(&brush);
+  oldbrush = pDC->SelectObject(CBrush::FromHandle((HBRUSH)GetStockObject(NULL_BRUSH)));
+  RECT rect = { point.x - r,point.y -r, point.x + r,point.y + r };
+  pDC->Ellipse(&rect);
+  pDC->SelectObject(oldbrush);
   Invalidate();
 }
 

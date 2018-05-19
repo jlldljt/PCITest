@@ -66,6 +66,40 @@ void EfgAlg::CalFitYi(double *fityi, int iNum, struct tagSinParam sinparam)
     fityi[i] = SinAwtk(sinparam, i);
   }
 }
+//返回整顿后的数组大小
+int EfgAlg::SmoothYi(double * yi, int iNum, double limit/*超限阈值*/, int confirmLimitNum/*不足即超限*/,int flag/*超限标记*/)
+{
+  int outLimitCnt = 0;
+  // int cur = 0;
+  int limitCur = 0;
+  // int limitCnt = 0;
+  double d = 0;
+
+  for (int i = 0; i < iNum-1; i++)
+  {
+    outLimitCnt = i - limitCur;//
+    d = fabs(yi[i + 1] - yi[i]);//前后两点差
+    if (d < limit && i < iNum - 2)
+    {
+      continue;
+    }
+    else // out limit
+    {
+      if (outLimitCnt < confirmLimitNum)//不确认状态
+      {
+        for (int j = limitCur; j < i+1; j++)
+        {
+          yi[j] = flag;
+        }
+      }
+      
+      limitCur = i + 1;
+    }
+  }
+
+
+  return 0;
+}
 //代入逼近xi 等间距
 int EfgAlg::FitSinBySubstitution(double * yi/*存放原始y值*/, int iNum, double *fityi/*存放拟合后的值*/, struct tagSinParam &sinparam)
 {
@@ -246,4 +280,151 @@ int EfgAlg::FitSinBySubstitution(double * yi/*存放原始y值*/, int iNum, double *f
   sinparam.k = k;
 
   return 1;
+}
+
+//三参数拟合
+//参考《四参数正弦曲线拟合的一种收敛算法》
+int EfgAlg::FitSinByLeastSquares(double * yi, int iNum, double * fityi, tagSinParam & sinparam)
+{
+  double A = 0;
+  const double w = 2 * PI / iNum;
+  double t = 0;
+  double k = 0;
+  struct tagSinParam param = { 0 };
+  double y, a, b;
+  double avgy = 0, avga = 0, avgb = 0;
+  double sumya = 0, sumyb = 0, sumb = 0, suma = 0, sumab = 0, sumaa = 0, sumbb = 0;
+  for (int i = 0; i < iNum; i++)
+  {
+    y = yi[i];
+    a = cos(w*i);
+    b = sin(w*i);
+    avgy += y;
+    avga += a;
+    avgb += b;
+    sumya += y*a; 
+    sumyb += y*b;
+    sumb += b;
+    suma += a;
+    sumab += a*b;
+    sumaa += a*a;
+    sumbb += b*b;
+  }
+  avgy /= iNum; 
+  avga /= iNum;
+  avgb /= iNum;
+
+  double AN = 0, AD = 0, BN = 0, BD = 0;
+  
+  AN = (sumya - avgy * suma) / (sumab - avgb*suma) - (sumyb - avgy*sumb) / (sumbb - avgb*sumb);
+  AD = (sumaa - avga * suma) / (sumab - avgb*suma) - (sumab - avga*sumb) / (sumbb - avgb*sumb);
+  BN = (sumya - avgy * suma) / (sumaa - avga*suma) - (sumyb - avgy*sumb) / (sumab - avga*sumb);
+  BD = (sumab - avgb * suma) / (sumaa - avga*suma) - (sumbb - avgb*sumb) / (sumab - avga*sumb);
+
+  double A1 = 0, B1 = 0, C = 0;
+
+  A1 = AN / AD;
+  B1 = BN / BD;
+  C = avgy - A1*avga - B1*avgb;
+
+  A = sqrt(A1*A1 + B1*B1);
+  if (A1 >= 0)
+  {
+    t = atan(-B1 / A1);
+  }
+  else
+  {
+    t = atan(-B1 / A1) + PI;
+  }
+  k = C;
+  //以上拟合函数是cos   cos（3π / 2 + α） = sinα
+  t -= 3 * PI / 2;
+
+  param.A = A;
+  param.k = k;
+  param.t = t;
+  param.w = w;
+  CalFitYi(fityi, iNum, param);
+
+  return 0;
+}
+
+
+//////////////////////////////////////////////////X laser///////////////////////////////////////////////////
+
+// 提取尖峰
+// 指定一个点，超过这个点一定数量的尖峰，认为合格。
+// 返回整顿后的数组大小
+int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int confirmNum/*确认数量*/, double ignore/*忽略值*/)
+{
+  int outLimitCnt = 0;
+  //int cur = 0;
+  // -1 没有累计到的超限点
+  int limitCur = -1;
+  //int limitCnt = 0;
+  double d = 0;
+
+  m_spikes.RemoveAll();
+
+  for (int i = 0; i < iNum; i++)
+  {
+    if (ignore == yi[i])
+    {
+      if (-1 == limitCur)
+      {
+        ;
+      }
+      else
+      {
+        outLimitCnt++;
+      }
+      continue;
+    }
+
+    d = yi[i] - threshold;
+
+    if (d > 0 && i < iNum-1)
+    {
+      if (-1 == limitCur)
+      {
+        limitCur = i;
+        outLimitCnt = 1;
+      }
+      else
+      {
+        outLimitCnt++;
+      }
+    }
+    else
+    {
+      if (-1 == limitCur)
+      {
+        
+      }
+      else if(outLimitCnt >= confirmNum) // 存
+      {
+       // Spike spike = { limitCur, i - 1 };
+        POINT point;
+        point.x = (limitCur + i - 1) / 2;
+        point.y = yi[point.x];
+        m_spikes.Add(point);
+      }
+      limitCur = -1;
+      outLimitCnt = 0;
+    }
+  }
+
+
+  return 0;
+}
+
+int EfgAlg::GetSpikesNumber()
+{
+  return m_spikes.GetCount();
+}
+
+int EfgAlg::GetSpike(int number, POINT& point)
+{
+  point = m_spikes.GetAt(number);
+  return 0;
 }

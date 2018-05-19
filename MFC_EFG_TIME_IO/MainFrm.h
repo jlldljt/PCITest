@@ -56,6 +56,8 @@ public:
   CMultiCardCtrl m_multiCardCtrl;
   //保存当前所选设备号，与combo sel 不是一个概念
   int m_deviceNumber;
+
+  //POINT m_laserSpikes[10];
 // 操作
 public:
   enum VIEW_ID {

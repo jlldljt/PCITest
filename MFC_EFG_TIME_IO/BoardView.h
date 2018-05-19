@@ -28,6 +28,8 @@ public:
   void DrawLaserSin();
   void DrawLaserCircle();
   void DrawXRayOneShot();
+  void DrawPoint(POINT point);
+  void DrawCircle(POINT point, LONG r);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };
 

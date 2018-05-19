@@ -24,11 +24,16 @@ CDiIntCounterSnap::CDiIntCounterSnap()
   }
 
   //TODO：调试用
+  //for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
+  //{
+  //  //sin后面不是角度是弧度，故要转换
+  //  //我们是匀速的，每个步进弧度都一致即2pi / XRAY_ONESHOT_NUM
+  //  m_counter.counter[0][i] = 110 * sin(i * (2 * PI) / XRAY_ONESHOT_NUM + PI) + 370;
+  //}
   for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
   {
-    //sin后面不是角度是弧度，故要转换
-    //我们是匀速的，每个步进弧度都一致即2pi / XRAY_ONESHOT_NUM
-    m_counter.counter[0][i] = 110 * sin(i * (2 * PI) / XRAY_ONESHOT_NUM + PI) + 370;
+    //x laser 
+    m_counter.counter[0][i] = 100 * sin(i * (2 * PI) / XRAY_ONESHOT_NUM*4+ PI) + 300;
   }
 }
 
@@ -147,6 +152,7 @@ void CDiIntCounterSnap::DIIntLaserCircle(void)
   m_card->StopT0(m_out);
   m_card->StartT0(m_out, m_device, m_counter.index, 0);//指向下一行
 }
+
 void CDiIntCounterSnap::DIIntXRayOneShot(void)
 {
   int delay = 0;
@@ -182,12 +188,25 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
     }
     //TODO：调试拟合
     EfgAlg alg;
-    struct tagSinParam param;
-    alg.FitSinBySubstitution(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[1], param);
+   // struct tagSinParam param;
+   // alg.FitSinBySubstitution(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[1], param);
+   // alg.FitSinByLeastSquares(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[2], param);
+    alg.ExtractSpike(m_counter.counter[0], XRAY_ONESHOT_NUM, 300, 20, -1);
 
-
-    if (m_viewBoard)
+    if (m_viewBoard) {
       m_viewBoard->DrawXRayOneShot();
+      ///TODO：调试拟合
+      int num = alg.GetSpikesNumber();
+      if (num < 10)
+      {
+        POINT point;
+        for (int i = 0; i < num; i++)
+        {
+          alg.GetSpike(i, point);
+          m_viewBoard->DrawCircle(point, 10);
+        }
+      }
+    }
 
     StopDiInt();
   }
