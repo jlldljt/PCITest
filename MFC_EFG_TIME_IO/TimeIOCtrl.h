@@ -5,6 +5,8 @@
 #include "EventCounter.h"
 #include "DIInterrupt.h"
 #include "OneShot.h"
+#include "StaticDI.h"
+#include "StaticDO.h"
 
 //typedef struct tagDevConfParam
 //{
@@ -20,6 +22,7 @@ enum TimeIOType {
   ONE_SHOT , //SceOneShot,
   TIME_PULSE , //SceTimerPulse,
   PW_MODULATOR , //ScePwModulator,
+  STATIC_DO, 
 };
 //板卡信息
 typedef struct tagDevInf
@@ -76,6 +79,12 @@ public:
   BOOL DeleteT1(int no);
   BOOL StartT1(int no, int device, double param0);
   BOOL StopT1(int no);
+  //T0 counter
+  BOOL CreateDO(int no, TimeIOType type, int device);
+  BOOL DeleteDO(int no);
+  BOOL StartDO(int no, int device, double param0);
+  BOOL StopDO(int no);
+  BOOL ReadDO(int no, double& param0, double &param1);
 
   // 获取安装的设备
   int getDevices();

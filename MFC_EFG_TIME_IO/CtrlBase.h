@@ -48,6 +48,7 @@ public:
   virtual BOOL Start(tagCtrlParam* param) = 0;
   virtual BOOL Stop() = 0;
   virtual BOOL Read(tagCtrlParam* param) { return FALSE; }
+  virtual BOOL Write(tagCtrlParam* param) { return FALSE; }
   virtual void Clear(tagCtrlParam* param) { return; }
 };
 

@@ -35,7 +35,9 @@ public:
   // 规定一个sin周期，即w已知，如果w不规定，无法代出结果，不收敛了
   int FitSinBySubstitution(double * yi/*存放原始y值*/, int iNum, double *fityi/*存放拟合后的值*/, struct tagSinParam &sinparam);
   // 三参数
-  int FitSinByLeastSquares(double * yi/*存放原始y值*/, int iNum, double *fityi/*存放拟合后的值*/, struct tagSinParam &sinparam);  //////////////////////////////////////////////X laser////////////////////////////////////////////////////////////
+  int FitSinByLeastSquares(double * yi/*存放原始y值*/, int iNum, double *fityi/*存放拟合后的值*/, struct tagSinParam &sinparam);
+
+  //////////////////////////////////////////////X laser////////////////////////////////////////////////////////////
 
   //typedef struct tagSpike
   //{

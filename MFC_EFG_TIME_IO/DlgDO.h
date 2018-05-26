@@ -24,13 +24,28 @@ public:
 #endif
 
 public:
+  CBrush m_brushBack;
+  COLORREF m_color;
+  CParamConfig m_config;
+  CString m_devName;
+public:
   int m_index;
   int m_device;
-  CString m_devName;
+  void InitDlg(int index);
+  void SetDlg(TimeIOType type);
+  void SaveParam();
+  void LoadParam();
+  void Stop(void);
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 
 	DECLARE_MESSAGE_MAP()
+public:
+  afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+  afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+  afx_msg void OnTimer(UINT_PTR nIDEvent);
+  afx_msg void OnBnClickedButtonCreate();
+  afx_msg void OnBnClickedButtonStart();
 };
 
 

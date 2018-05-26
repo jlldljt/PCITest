@@ -138,6 +138,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SplitFrameWnd.h" />
     <ClInclude Include="StaticDI.h" />
+    <ClInclude Include="StaticDO.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TimeIOCtrl.h" />
@@ -166,6 +167,7 @@
     <ClCompile Include="PWModulator.cpp" />
     <ClCompile Include="SplitFrameWnd.cpp" />
     <ClCompile Include="StaticDI.cpp" />
+    <ClCompile Include="StaticDO.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

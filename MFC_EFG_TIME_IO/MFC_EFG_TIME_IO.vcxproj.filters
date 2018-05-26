@@ -163,6 +163,9 @@
     <ClInclude Include="EfgAlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="StaticDO.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -239,6 +242,9 @@
     </ClCompile>
     <ClCompile Include="EfgAlg.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticDO.cpp">
+      <Filter>PCI1780U</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

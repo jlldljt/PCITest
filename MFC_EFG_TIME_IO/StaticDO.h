@@ -1,14 +1,15 @@
 #pragma once
 #include "CtrlBase.h"
-class CStaticDI :
+class CStaticDO :
   public CCtrlBase
 {
 public:
-  CStaticDI();
-  ~CStaticDI();
+  CStaticDO();
+  ~CStaticDO();
+
   //×Ö¶Î
 private:
-  InstantDiCtrl *      m_instantDiCtrl;
+  InstantDoCtrl *      m_instantDoCtrl;
   int channel;
   //·½·¨
 public:
@@ -18,5 +19,7 @@ public:
   BOOL Start(tagCtrlParam* param);
   BOOL Stop();
   BOOL Read(tagCtrlParam* param);
+  BOOL Write(tagCtrlParam* param);
+
 };
 

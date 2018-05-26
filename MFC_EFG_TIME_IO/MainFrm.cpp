@@ -409,6 +409,29 @@ void CMainFrame::OnComboTimeio()
   //  ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->LoadParam();
   //}
   //m_deviceNumber = dev.deviceNumber;
+
+  
+  CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
+  
+  DevInf dev;
+  int sel = pComboBox->GetCurSel();
+  if(sel < 0)
+    return;
+  int ret = m_timeIOCtrl.getDevice(sel, dev);
+
+  for (int i = 0; i < 8; i++) {
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_device = dev.deviceNumber;
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_device = dev.deviceNumber;
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_device = dev.deviceNumber;
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_device = dev.deviceNumber;
+
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_devName = dev.description;
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_devName = dev.description;
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_devName = dev.description;
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_devName = dev.description;
+
+  }
+  m_deviceNumber = dev.deviceNumber;
   Switch(SPLIT_FRAME);
   return;
 }
@@ -537,6 +560,7 @@ void CMainFrame::OnButtonParamLoad()
 
   for (int i = 0; i < 8; i++) {
     ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->Stop();
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
     ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->Stop();
 
@@ -551,6 +575,7 @@ void CMainFrame::OnButtonParamLoad()
     ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_devName = dev.description;
 
     ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->LoadParam();
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->LoadParam();
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->LoadParam();
     ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->LoadParam();
   }
@@ -566,6 +591,7 @@ void CMainFrame::OnButtonParamSave()
 
   for (int i = 0; i < 8; i++) {
     ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->SaveParam();
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->SaveParam();
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->SaveParam();
     ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->SaveParam();
   }

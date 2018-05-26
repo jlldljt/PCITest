@@ -49,6 +49,11 @@ BOOL CTimeIOCtrl::CreateDi(int no, TimeIOType type, int device)
   Di[no].type = type;
   switch (type) {
   case STATIC_DI:
+    Di[no].ctrl = new CStaticDI();
+
+    if (!(ret = Di[no].ctrl->Init(device))) {
+      DeleteDi(no);
+    }
     break;
   case INTERRUPT_DI:
     Di[no].ctrl = new CDIInterrupt();
@@ -105,7 +110,7 @@ BOOL CTimeIOCtrl::StopDi(int no)
 BOOL CTimeIOCtrl::ReadDi(int no, double & param0, double & param1)
 {
   ASSERT(no < 8);
-  ASSERT(Counter0[no].ctrl);
+  ASSERT(Di[no].ctrl);
 
   tagCtrlParam param;
 
@@ -271,6 +276,79 @@ BOOL CTimeIOCtrl::StopT1(int no)
   if (!Counter1[no].ctrl)
     return FALSE;
   return Counter1[no].ctrl->Stop();
+}
+
+BOOL CTimeIOCtrl::CreateDO(int no, TimeIOType type, int device)
+{
+  BOOL ret = FALSE;
+  ASSERT(no < 8);
+  if (Do[no].ctrl)
+    return FALSE;
+
+  Do[no].type = type;
+  switch (type) {
+  case STATIC_DO:
+    Do[no].ctrl = new CStaticDO();
+
+    if (!(ret = Do[no].ctrl->Init(device))) {
+      DeleteDO(no);
+    }
+
+    break;
+  default:
+    break;
+  }
+
+  return ret;
+}
+
+BOOL CTimeIOCtrl::DeleteDO(int no)
+{
+  ASSERT(no < 8);
+  if (!Do[no].ctrl)
+    return FALSE;
+  Do[no].ctrl->DeInit();
+  Do[no].ctrl = NULL;
+  return TRUE;
+}
+
+BOOL CTimeIOCtrl::StartDO(int no, int device, double param0)
+{
+  ASSERT(no < 8);
+  ASSERT(Do[no].ctrl);
+  BOOL ret = FALSE;
+  tagCtrlParam param;
+  param.deviceNumber = device;
+  param.moduleIndex = 0;//module 0
+  param.channel = no;//channel即是no
+  param.param0 = param0;
+  if (Do[no].ctrl->Config(&param)) {
+    ret = Do[no].ctrl->Start(&param);
+  }
+  return ret;
+}
+
+BOOL CTimeIOCtrl::StopDO(int no)
+{
+  ASSERT(no < 8);
+  if (!Do[no].ctrl)
+    return FALSE;
+  return Do[no].ctrl->Stop();
+}
+
+BOOL CTimeIOCtrl::ReadDO(int no, double & param0, double & param1)
+{
+  ASSERT(no < 8);
+  ASSERT(Do[no].ctrl);
+
+  tagCtrlParam param;
+
+  if (!Do[no].ctrl->Read(&param))
+    return FALSE;
+
+  param0 = param.param0;
+  param1 = param.param1;
+  return TRUE;
 }
 
 //返回设备数量

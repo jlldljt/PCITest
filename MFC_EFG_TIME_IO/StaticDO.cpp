@@ -1,26 +1,26 @@
 #include "StdAfx.h"
-#include "StaticDI.h"
+#include "StaticDO.h"
 
 
-CStaticDI::CStaticDI()
+CStaticDO::CStaticDO()
 {
-  m_instantDiCtrl = NULL;
-  m_instantDiCtrl = InstantDiCtrl::Create();
+  m_instantDoCtrl = NULL;
+  m_instantDoCtrl = InstantDoCtrl::Create();
   channel = -1;
 }
 
 
-CStaticDI::~CStaticDI()
+CStaticDO::~CStaticDO()
 {
-  m_instantDiCtrl->Dispose();
+  m_instantDoCtrl->Dispose();
   channel = -1;
 }
 
-BOOL CStaticDI::Init(int device, int module)
+BOOL CStaticDO::Init(int device, int module)
 {
   BOOL ret = FALSE;
-  InstantDiCtrl * instantDiCtrl = InstantDiCtrl::Create();
-  Array<DeviceTreeNode>* supportedDevices = instantDiCtrl->getSupportedDevices();
+  InstantDoCtrl * instantDoCtrl = InstantDoCtrl::Create();
+  Array<DeviceTreeNode>* supportedDevices = instantDoCtrl->getSupportedDevices();
   if (supportedDevices != NULL)
   {
     for (int i = 0; i < supportedDevices->getCount(); ++i)
@@ -44,7 +44,7 @@ BOOL CStaticDI::Init(int device, int module)
         }
 
         DeviceInformation devInfo(device, ModeWriteWithReset);
-        ErrorCode errorCode = instantDiCtrl->setSelectedDevice(devInfo);//绑定设备
+        ErrorCode errorCode = instantDoCtrl->setSelectedDevice(devInfo);//绑定设备
         if (errorCode != 0) {
           CString str;
           TCHAR des[MAX_DEVICE_DESC_LEN];
@@ -57,15 +57,15 @@ BOOL CStaticDI::Init(int device, int module)
         }
 
         // Set channel start combo box以及支持的类型，一般是8g
-        int portCountMax = instantDiCtrl->getFeatures()->getPortCount();//8
+        int portCountMax = instantDoCtrl->getFeatures()->getPortCount();//8
         byte * portsValue = new byte[portCountMax];
-        errorCode = instantDiCtrl->Read(0, portCountMax, portsValue);//读取所有值？
+        errorCode = instantDoCtrl->Read(0, portCountMax, portsValue);//读取所有值？
         delete portsValue;
         m_channels.RemoveAll();
 
         for (int i = 0; i < portCountMax; i++)
         {
-          m_channels.Add(i);
+           m_channels.Add(i);
         }
 
         break;
@@ -79,65 +79,81 @@ BOOL CStaticDI::Init(int device, int module)
   }
 
   supportedDevices->Dispose();
-  instantDiCtrl->Dispose();
+  instantDoCtrl->Dispose();
 
   return ret;
 }
 
-void CStaticDI::DeInit()
+void CStaticDO::DeInit()
 {
   m_modules.RemoveAll();
   m_channels.RemoveAll();
 }
 
-BOOL CStaticDI::Config(tagCtrlParam * param)
+BOOL CStaticDO::Config(tagCtrlParam * param)
 {
   tagCtrlParam* tpParam = param;
   ErrorCode	errorCode;
   DeviceInformation devInfo(tpParam->deviceNumber);//设备号
   devInfo.ModuleIndex = tpParam->moduleIndex;//模块号
-  errorCode = m_instantDiCtrl->setSelectedDevice(devInfo);
+  errorCode = m_instantDoCtrl->setSelectedDevice(devInfo);
 
   if (BioFailed(errorCode)) {
     return FALSE;
   }
 
-  m_instantDiCtrl->getSelectedDevice(devInfo);
+  m_instantDoCtrl->getSelectedDevice(devInfo);
 
-  TRACE(_T("Static DI - Run( %s )"), devInfo.Description);
-
+  TRACE(_T("Static DO - Run( %s )"), devInfo.Description);
 
   //默认配置
   return TRUE;
 }
 
-BOOL CStaticDI::Start(tagCtrlParam * param)
+BOOL CStaticDO::Start(tagCtrlParam * param)
 {
   tagCtrlParam* tpParam = param;
   ErrorCode errorCode;
 
   channel = tpParam->channel;
+
   return TRUE;
 }
 
-BOOL CStaticDI::Stop()
+BOOL CStaticDO::Stop()
 {
   channel = -1;
   return TRUE;
 }
 
-BOOL CStaticDI::Read(tagCtrlParam * param)
+BOOL CStaticDO::Read(tagCtrlParam * param)
 {
-  if (channel < 0)
+  if(channel < 0)
     return FALSE;
-  int portCountMax = m_instantDiCtrl->getFeatures()->getPortCount();
+  int portCountMax = m_instantDoCtrl->getFeatures()->getPortCount();
   uint8 value;
   if (channel >= portCountMax)
     return FALSE;
-  ErrorCode errorCode = m_instantDiCtrl->Read(channel, 1, &value);
+  ErrorCode errorCode = m_instantDoCtrl->Read(channel, 1, &value);
   if (BioFailed(errorCode)) {
     return FALSE;
   }
   param->param0 = value;
+  return TRUE;
+}
+
+BOOL CStaticDO::Write(tagCtrlParam * param)
+{
+  if (channel < 0)
+    return FALSE;
+  int portCountMax = m_instantDoCtrl->getFeatures()->getPortCount();
+  uint8 value = param->param0;
+  if (channel >= portCountMax)
+    return FALSE;
+
+  ErrorCode errorCode = m_instantDoCtrl->Write(channel, 1, &value);
+  if (BioFailed(errorCode)) {
+    return FALSE;
+  }
   return TRUE;
 }

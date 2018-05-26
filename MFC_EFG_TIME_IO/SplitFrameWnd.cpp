@@ -70,9 +70,9 @@ BOOL CSplitFrameWnd::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContex
     ((CDlgT0*)m_splitWndEx.GetPane(2, i))->SetDlgItemText(IDC_STATIC, L"T0" + str);
     ((CDlgT1*)m_splitWndEx.GetPane(3, i))->SetDlgItemText(IDC_STATIC, L"T1" + str);
 
-    ((CDlgDO*)m_splitWndEx.GetPane(1, i))->m_index = i;
 
     ((CDlgDI*)m_splitWndEx.GetPane(0, i))->InitDlg(i);
+    ((CDlgDO*)m_splitWndEx.GetPane(1, i))->InitDlg(i);
     ((CDlgT0*)m_splitWndEx.GetPane(2, i))->InitDlg(i);
     ((CDlgT1*)m_splitWndEx.GetPane(3, i))->InitDlg(i);
   }
