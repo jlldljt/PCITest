@@ -12,6 +12,7 @@ struct tagCounter {
   bool flag;
   int index;
   double counter[4][COUNTER_NUM];
+  double fit[2][COUNTER_NUM];
 };
 
 class CDiIntCounterSnap

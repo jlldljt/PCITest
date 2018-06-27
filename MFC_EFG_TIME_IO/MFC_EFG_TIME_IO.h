@@ -26,6 +26,7 @@
 // 有关此类的实现，请参阅 MFC_EFG_TIME_IO.cpp
 //
 
+
 class CMFC_EFG_TIME_IOApp : public CWinAppEx
 {
 public:

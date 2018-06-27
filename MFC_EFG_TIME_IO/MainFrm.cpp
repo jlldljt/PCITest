@@ -20,7 +20,7 @@
 #include "DlgT1.h"
 #include "MainFrm.h"
 
-#define ENABLE_CNT_NUM 4
+//#define ENABLE_CNT_NUM 4
 CMainFrame* GetMainFrame() {
   static CFrameWndEx *pMain;
   if(!pMain)
@@ -485,8 +485,11 @@ void CMainFrame::OnButtonLaserSin()
   // 开启一次捕捉
   m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
   m_diIntCounterSnap.StartDiIntLaserSin(0);
+#ifdef __DEBUG__
   m_diIntCounterSnap.StartCaptureSin(0, _wtof(val_out3), 0, _wtof(val_out6));// TODO：应该时5和4
-
+#else
+  m_diIntCounterSnap.StartCaptureSin(5, _wtof(val_out3), 4, _wtof(val_out6));// TODO：应该时5和4
+#endif
   Switch(VIEW_BOARD);
 }
 
@@ -541,7 +544,7 @@ void CMainFrame::OnButtonSnap()
   // 开启一次捕捉
   m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
   m_diIntCounterSnap.StartDiIntLaserCircle(0);
-  m_diIntCounterSnap.StartCaptureCircle(1);// TODO：应该时5和4
+  m_diIntCounterSnap.StartCaptureCircle(1);// TODO：
 
   Switch(VIEW_BOARD);
 }

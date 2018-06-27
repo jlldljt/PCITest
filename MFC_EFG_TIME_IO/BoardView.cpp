@@ -99,16 +99,13 @@ void CBoardView::DrawLaserSin()
   GetClientRect(&rect);
 
   pDC->FillSolidRect(&rect, RGB(255, 255, 255));
-  pDC->TextOut(0, 0, L"0");
-  pDC->TextOut(0, 300, L"300");
-  pDC->TextOut(0, 600, L"600");
-  pDC->TextOut(0, 900, L"900");
-  pDC->TextOut(30 << 2, 0, L"30");
-  pDC->TextOut(60 << 2, 0, L"60");
-  pDC->TextOut(90 << 2, 0, L"90");
-  pDC->TextOut(120 << 2, 0, L"120");
-  pDC->TextOut(150 << 2, 0, L"150");
-  pDC->TextOut(180 << 2, 0, L"180");
+  pDC->TextOut(0, 0, L"-");
+  pDC->TextOut(0, 100, L"-");
+  pDC->TextOut(0, 200, L"-");
+  pDC->TextOut(0, 300, L"-");
+  pDC->TextOut(100 << 2, 0, L"|");
+  pDC->TextOut(200 << 2, 0, L"|");
+  pDC->TextOut(300 << 2, 0, L"|");
   CPen pen, *ppen;
   pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
   ppen = (CPen*)pDC->SelectObject(&pen);
@@ -194,11 +191,13 @@ void CBoardView::DrawXRayOneShot()
   for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
   {
     //TODO：调试
+#ifdef __DEBUG__
     pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i], RGB(0, 255, 0));
     pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i], RGB(255, 0, 0));
     pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[2][i], RGB(0, 0, 255));
 
     continue;
+#endif
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
     pDC->SelectObject(&pen);
     pDC->MoveTo(i, 0);
@@ -219,7 +218,7 @@ void CBoardView::DrawXRayOneShot()
 void CBoardView::DrawPoint(POINT point)
 {
   CDC* pDC = m_dc;
-  pDC->SetPixel(point.x,point.y, RGB(0, 255, 0));
+  pDC->SetPixel(point.x,point.y, RGB(0, 0, 255));
   Invalidate();
 }
 void CBoardView::DrawCircle(POINT point, LONG r)
