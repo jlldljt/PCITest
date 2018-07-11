@@ -27,6 +27,8 @@ void CDlgT1::InitDlg(int index)
   m_index = index;
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"TimerPulse");
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(0, TIME_PULSE);
+  ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"Tmc12Mode");
+  ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(1, TMC12_COUNTER);
 
   
 	GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(FALSE);
@@ -36,6 +38,14 @@ void CDlgT1::InitDlg(int index)
 void CDlgT1::SetDlg(TimeIOType type)
 {
   switch (type) {
+  case TMC12_COUNTER:
+    SetDlgItemText(IDC_STATIC_PARAM0, L"mode 0 - 6");
+    SetDlgItemText(IDC_STATIC_PARAM2, L"计数值");
+    GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDIT_PARAM2)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
+    GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
+    break;
   case TIME_PULSE:
     SetDlgItemText(IDC_STATIC_PARAM0, L"频率Hz");
 	GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
@@ -44,7 +54,9 @@ void CDlgT1::SetDlg(TimeIOType type)
     break;
   default:
     SetDlgItemText(IDC_STATIC_PARAM0, L"param0");
+    SetDlgItemText(IDC_STATIC_PARAM2, L"param1");
 	GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(FALSE);
+  GetDlgItem(IDC_EDIT_PARAM2)->EnableWindow(FALSE);
     GetDlgItem(IDC_BUTTON_START)->EnableWindow(FALSE);
     GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(TRUE);
     SetDlgItemText(IDC_EDIT_PARAM0, L"");
@@ -155,7 +167,7 @@ void CDlgT1::Stop(void)
   GetDlgItemText(IDC_BUTTON_START, str);
 
   if ("开始" != str) {
-    if (GetMainFrame()->m_timeIOCtrl.StopT1(m_index)) {
+    if (GetMainFrame()->m_timeIOCtrl->StopT1(m_index)) {
       str = "开始";
       SetDlgItemText(IDC_BUTTON_START, str);
       m_brushBack.DeleteObject();
@@ -171,7 +183,7 @@ void CDlgT1::Stop(void)
     return;
   }
   CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
-  ((CMainFrame*)pMain)->m_timeIOCtrl.DeleteT1(m_index);
+  ((CMainFrame*)pMain)->m_timeIOCtrl->DeleteT1(m_index);
   SetDlg((TimeIOType)-1);
   str = "创建";
   SetDlgItemText(IDC_BUTTON_CREATE, str);
@@ -191,6 +203,7 @@ BEGIN_MESSAGE_MAP(CDlgT1, CFormView)
   ON_WM_CREATE()
   ON_BN_CLICKED(IDC_BUTTON_START, &CDlgT1::OnBnClickedButtonStart)
   ON_WM_CTLCOLOR()
+  ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -228,7 +241,7 @@ void CDlgT1::OnBnClickedButtonCreate()
     int data = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->GetItemData(index);
 
     CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
-    if (((CMainFrame*)pMain)->m_timeIOCtrl.CreateT1(m_index, (TimeIOType)data, m_device)) {
+    if (((CMainFrame*)pMain)->m_timeIOCtrl->CreateT1(m_index, (TimeIOType)data, m_device)) {
       //// 初始化combo channel
       //;
       //int count = ((CMainFrame*)pMain)->m_timeIOCtrl.GetT1ChannelCount(m_index);
@@ -250,7 +263,7 @@ void CDlgT1::OnBnClickedButtonCreate()
   }// if ("创建" == str) end
   else {
     CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
-    ((CMainFrame*)pMain)->m_timeIOCtrl.DeleteT1(m_index);
+    ((CMainFrame*)pMain)->m_timeIOCtrl->DeleteT1(m_index);
 
     //((CComboBox*)GetDlgItem(IDC_COMBO_CHANNEL))->ResetContent();
     SetDlg((TimeIOType)-1);
@@ -279,7 +292,7 @@ void CDlgT1::OnBnClickedButtonStart()
   CString str;
   GetDlgItemText(IDC_BUTTON_START, str);
   if ("开始" == str) {
-    if (GetMainFrame()->m_timeIOCtrl.StartT1(m_index, m_device, GetDlgItemInt(IDC_EDIT_PARAM0))) {
+    if (GetMainFrame()->m_timeIOCtrl->StartT1(m_index, m_device, GetDlgItemInt(IDC_EDIT_PARAM0))) {
       str = "结束";
       SetDlgItemText(IDC_BUTTON_START, str);
       m_brushBack.DeleteObject();
@@ -290,7 +303,7 @@ void CDlgT1::OnBnClickedButtonStart()
     }
   }
   else {
-    if (GetMainFrame()->m_timeIOCtrl.StopT1(m_index)) {
+    if (GetMainFrame()->m_timeIOCtrl->StopT1(m_index)) {
       str = "开始";
       SetDlgItemText(IDC_BUTTON_START, str);
       m_brushBack.DeleteObject();
@@ -316,4 +329,13 @@ HBRUSH CDlgT1::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
     pDC->SetBkColor(m_color);
   // TODO:  如果默认的不是所需画笔，则返回另一个画笔
   return hbr;
+}
+
+
+void CDlgT1::OnDestroy()
+{
+  CFormView::OnDestroy();
+
+  // TODO: 在此处添加消息处理程序代码
+  m_brushBack.DeleteObject();
 }

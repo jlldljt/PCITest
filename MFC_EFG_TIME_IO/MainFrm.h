@@ -39,7 +39,7 @@ protected: // 仅从序列化创建
 
 // 特性
 public:
-  CTimeIOCtrl m_timeIOCtrl;//分割窗口调试用
+  CPCIBase *m_timeIOCtrl;//分割窗口调试用
   //CSplitterWnd m_splitwnd;
   CParamConfig m_config;
 

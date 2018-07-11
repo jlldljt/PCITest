@@ -32,6 +32,8 @@ void CDlgT0::InitDlg(int index)
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(2, PW_MODULATOR);
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"EventCounter");
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(3, EVENT_COUNTER);
+  ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"Tmc12Mode");
+  ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(4, TMC12_COUNTER);
 
   GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(FALSE);
   GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(FALSE);
@@ -42,6 +44,14 @@ void CDlgT0::InitDlg(int index)
 void CDlgT0::SetDlg(TimeIOType type)
 {
   switch (type) {
+  case TMC12_COUNTER:
+    SetDlgItemText(IDC_STATIC_PARAM0, L"mode 0 - 6");
+    SetDlgItemText(IDC_STATIC_PARAM1, L"计数值");
+    GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
+    GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
+    break;
   case TIME_PULSE:
     SetDlgItemText(IDC_STATIC_PARAM0, L"频率Hz");
     GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
@@ -227,7 +237,7 @@ void CDlgT0::Stop(void)
   //}
   if ("开始" != str) {
 
-    if (GetMainFrame()->m_timeIOCtrl.StopT0(m_index)) {
+    if (GetMainFrame()->m_timeIOCtrl->StopT0(m_index)) {
       str = "开始";
       SetDlgItemText(IDC_BUTTON_START, str);
       m_brushBack.DeleteObject();
@@ -242,7 +252,7 @@ void CDlgT0::Stop(void)
     if ("创建" == str) {
       return;
     }
-    GetMainFrame()->m_timeIOCtrl.DeleteT0(m_index);
+    GetMainFrame()->m_timeIOCtrl->DeleteT0(m_index);
     SetDlg((TimeIOType)-1);
     str = "创建";
     SetDlgItemText(IDC_BUTTON_CREATE, str);
@@ -301,7 +311,7 @@ void CDlgT0::OnBnClickedButtonCreate()
     
     //CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
     //if (((CMainFrame*)pMain)
-    if (GetMainFrame()->m_timeIOCtrl.CreateT0(m_index, (TimeIOType)data, m_device)) {
+    if (GetMainFrame()->m_timeIOCtrl->CreateT0(m_index, (TimeIOType)data, m_device)) {
       //// 初始化combo channel
       //;
       //int count = ((CMainFrame*)pMain)->m_timeIOCtrl.GetT0ChannelCount(m_index);
@@ -324,7 +334,7 @@ void CDlgT0::OnBnClickedButtonCreate()
   else {
     //CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
     //((CMainFrame*)pMain)
-    GetMainFrame()->m_timeIOCtrl.DeleteT0(m_index);
+    GetMainFrame()->m_timeIOCtrl->DeleteT0(m_index);
 
     //((CComboBox*)GetDlgItem(IDC_COMBO_CHANNEL))->ResetContent();
     SetDlg((TimeIOType)-1);
@@ -358,7 +368,7 @@ void CDlgT0::OnBnClickedButtonStart()
     GetDlgItemText(IDC_EDIT_PARAM1, param1);
     double fparam0 = _wtof(param0);
     double fparam1 = _wtof(param1);
-    if (GetMainFrame()->m_timeIOCtrl.StartT0(m_index, m_device, fparam0, fparam1)) {
+    if (GetMainFrame()->m_timeIOCtrl->StartT0(m_index, m_device, fparam0, fparam1)) {
       str = "结束";
       SetDlgItemText(IDC_BUTTON_START, str);
       m_brushBack.DeleteObject();
@@ -370,7 +380,7 @@ void CDlgT0::OnBnClickedButtonStart()
     }
   }
   else {
-    if (GetMainFrame()->m_timeIOCtrl.StopT0(m_index)) {
+    if (GetMainFrame()->m_timeIOCtrl->StopT0(m_index)) {
       str = "开始";
       SetDlgItemText(IDC_BUTTON_START, str);
       m_brushBack.DeleteObject();
@@ -404,7 +414,7 @@ void CDlgT0::OnTimer(UINT_PTR nIDEvent)
 {
   // TODO: 在此添加消息处理程序代码和/或调用默认值
   double fparam0, fparam1;
-  if (GetMainFrame()->m_timeIOCtrl.ReadT0(m_index, fparam0, fparam1)) {
+  if (GetMainFrame()->m_timeIOCtrl->ReadT0(m_index, fparam0, fparam1)) {
     CString sparam0, sparam1;
     sparam0.Format(L"%lf", fparam0);
     sparam1.Format(L"%lf", fparam1);

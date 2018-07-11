@@ -346,6 +346,8 @@ int EfgAlg::FitSinByLeastSquares(double * yi, int iNum, double * fityi, tagSinPa
   param.w = w;
   CalFitYi(fityi, iNum, param);
 
+  sinparam = param;
+
   return 0;
 }
 
@@ -363,6 +365,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãÐÖµ*/, int co
   int limitCur = -1;
   //int limitCnt = 0;
   double d = 0;
+  int max = 0;
 
   m_spikes.RemoveAll();
 
@@ -389,9 +392,13 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãÐÖµ*/, int co
       {
         limitCur = i;
         outLimitCnt = 1;
+        max = i;
       }
       else
       {
+        if (yi[max] < yi[i])
+          max = i;
+
         outLimitCnt++;
       }
     }
@@ -405,7 +412,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãÐÖµ*/, int co
       {
        // Spike spike = { limitCur, i - 1 };
         POINT point;
-        point.x = (limitCur + i - 1) / 2;
+        point.x = max;//(limitCur + i - 1) / 2;
         point.y = yi[point.x];
         m_spikes.Add(point);
       }

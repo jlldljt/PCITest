@@ -92,6 +92,7 @@ void CStaticDI::DeInit()
 
 BOOL CStaticDI::Config(tagCtrlParam * param)
 {
+  ASSERT(param);
   tagCtrlParam* tpParam = param;
   ErrorCode	errorCode;
   DeviceInformation devInfo(tpParam->deviceNumber);//…Ë±∏∫≈
@@ -113,6 +114,7 @@ BOOL CStaticDI::Config(tagCtrlParam * param)
 
 BOOL CStaticDI::Start(tagCtrlParam * param)
 {
+  ASSERT(param);
   tagCtrlParam* tpParam = param;
   ErrorCode errorCode;
 
@@ -128,6 +130,7 @@ BOOL CStaticDI::Stop()
 
 BOOL CStaticDI::Read(tagCtrlParam * param)
 {
+  ASSERT(param);
   if (channel < 0)
     return FALSE;
   int portCountMax = m_instantDiCtrl->getFeatures()->getPortCount();

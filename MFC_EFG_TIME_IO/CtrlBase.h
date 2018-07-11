@@ -3,12 +3,10 @@
 #include "Inc\bdaqctrl.h"
 using namespace Automation::BDaq;
 
+#include "ComDef.h"
 
 typedef void(*TimeIOProc)(void *param);
 
-TCHAR const * WCHAR_TO_TCHAR(WCHAR const * in, TCHAR * out);
-
-WCHAR const * TCHAR_TO_WCHAR(TCHAR const * in, WCHAR* out);
 
 typedef struct tagCtrlParam
 {

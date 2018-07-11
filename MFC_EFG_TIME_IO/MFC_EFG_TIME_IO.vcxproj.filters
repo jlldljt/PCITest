@@ -19,6 +19,12 @@
     <Filter Include="XML">
       <UniqueIdentifier>{f8d6dcce-9283-4561-9dde-7d248845c704}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TMC12A">
+      <UniqueIdentifier>{a264f3d5-5211-4318-bc37-ae7a0be0845e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PCICTRL">
+      <UniqueIdentifier>{f4e4f3d0-f20d-4ccc-a176-755d78138007}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -166,6 +172,33 @@
     <ClInclude Include="StaticDO.h">
       <Filter>PCI1780U</Filter>
     </ClInclude>
+    <ClInclude Include="CTMC12A_Ctrl.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="CPCICtrl.h">
+      <Filter>PCICTRL</Filter>
+    </ClInclude>
+    <ClInclude Include="CPCIBase.h">
+      <Filter>PCICTRL</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_Base.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_DI.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="ComDef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_Counter.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_Callback.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_DO.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -245,6 +278,33 @@
     </ClCompile>
     <ClCompile Include="StaticDO.cpp">
       <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_Ctrl.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CPCICtrl.cpp">
+      <Filter>PCICTRL</Filter>
+    </ClCompile>
+    <ClCompile Include="CPCIBase.cpp">
+      <Filter>PCICTRL</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_Base.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_DI.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="ComDef.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_Counter.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_Callback.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_DO.cpp">
+      <Filter>TMC12A</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

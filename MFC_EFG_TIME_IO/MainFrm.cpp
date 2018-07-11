@@ -159,10 +159,18 @@ CMainFrame::CMainFrame()
   m_viewBoard = NULL;
   m_defaultView = NULL;
 
+  CPCICtrl::AllDriverInit();
+
+  m_timeIOCtrl = NULL;// CPCICtrl::Create(PCI1780U); //new CTimeIOCtrl;
 }
 
 CMainFrame::~CMainFrame()
 {
+  
+
+  //CPCICtrl::Delete(m_timeIOCtrl);
+  
+  CPCICtrl::AllDriverClose();
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -201,12 +209,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
   SetIcon(m_hIcon, TRUE);
   SetIcon(m_hIcon, FALSE);
 
-  int count = m_timeIOCtrl.getDevices();
+  int count = CPCICtrl::m_num;// m_timeIOCtrl->getDevices();
   DevInf dev;
-  //combo init
+  //combo init // combo必须禁止自动排序，或者 会对应不起来
   CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
   for (int i = 0; i < count; i++) {
-    int ret = m_timeIOCtrl.getDevice(i, dev);
+    int ret = CPCICtrl::getDevice(i, dev);
     int nIndex = pComboBox->AddItem(dev.description);
     //pComboBox->SetEditText(m_capControl.m_capName);
   }
@@ -415,9 +423,15 @@ void CMainFrame::OnComboTimeio()
   
   DevInf dev;
   int sel = pComboBox->GetCurSel();
-  if(sel < 0)
+  if(sel < 0 || sel >= MAX_CARD_NUM)
     return;
-  int ret = m_timeIOCtrl.getDevice(sel, dev);
+  int ret = CPCICtrl::getDevice(sel, dev);
+
+  if (!m_multiCardCtrl.m_card[sel]) {  //CPCICtrl::Delete(m_timeIOCtrl);//出错操作
+    m_multiCardCtrl.m_card[sel] = CPCICtrl::Create(dev.type);
+  }
+  
+  m_timeIOCtrl = m_multiCardCtrl.m_card[sel];
 
   for (int i = 0; i < 8; i++) {
     ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_device = dev.deviceNumber;
@@ -483,12 +497,12 @@ void CMainFrame::OnButtonLaserSin()
   CString val_out6 = p_edit_out6->GetEditText();
 
   // 开启一次捕捉
-  m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
+  m_diIntCounterSnap.BindCard(m_deviceNumber, m_timeIOCtrl, m_viewBoard);
   m_diIntCounterSnap.StartDiIntLaserSin(0);
 #ifdef __DEBUG__
   m_diIntCounterSnap.StartCaptureSin(0, _wtof(val_out3), 0, _wtof(val_out6));// TODO：应该时5和4
 #else
-  m_diIntCounterSnap.StartCaptureSin(5, _wtof(val_out3), 4, _wtof(val_out6));// TODO：应该时5和4
+  m_diIntCounterSnap.StartCaptureSin(OUT3_COUNTER, _wtof(val_out3), OUT6_COUNTER, _wtof(val_out6));// TODO：应该时5和4
 #endif
   Switch(VIEW_BOARD);
 }
@@ -542,7 +556,7 @@ void CMainFrame::OnButtonSnap()
   // TODO: 在此添加命令处理程序代码
 
   // 开启一次捕捉
-  m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
+  m_diIntCounterSnap.BindCard(m_deviceNumber, m_timeIOCtrl, m_viewBoard);
   m_diIntCounterSnap.StartDiIntLaserCircle(0);
   m_diIntCounterSnap.StartCaptureCircle(1);// TODO：
 
@@ -559,7 +573,7 @@ void CMainFrame::OnButtonParamLoad()
   int sel = pComboBox->GetCurSel();
   if (sel < 0)
     return;
-  int ret = m_timeIOCtrl.getDevice(sel, dev);
+  int ret = CPCICtrl::getDevice(sel, dev);
 
   for (int i = 0; i < 8; i++) {
     ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
@@ -638,7 +652,7 @@ void CMainFrame::OnButtonXrayOneshot()
   // TODO: 在此添加命令处理程序代码
 
   // 开启一次捕捉
-  m_diIntCounterSnap.BindCard(m_deviceNumber, &m_timeIOCtrl, m_viewBoard);
+  m_diIntCounterSnap.BindCard(m_deviceNumber, m_timeIOCtrl, m_viewBoard);
   m_diIntCounterSnap.StartDiIntXRayOneShot(0);
   m_diIntCounterSnap.StartCaptureXRayOneShot();
 

@@ -12,6 +12,7 @@ public://protected:
 	virtual ~CBoardView();
   CDC *m_dc;
   CBitmap *m_bm, *m_oldbm;
+  CString m_outStr;
 public:
 	virtual void OnDraw(CDC* pDC);      // 重写以绘制该视图
 #ifdef _DEBUG
@@ -28,9 +29,11 @@ public:
   void DrawLaserSin();
   void DrawLaserCircle();
   void DrawXRayOneShot();
-  void DrawPoint(POINT point);
+  void DrawPoint(POINT point, COLORREF color = RGB(0, 0, 255));
   void DrawCircle(POINT point, LONG r);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+  void Erase(void);
+  void SetOutStr(CString str);
 };
 
 

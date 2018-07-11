@@ -19,7 +19,8 @@
 
 #include "resource.h"       // Ö÷·ûºÅ
 
-#include "TimeIOCtrl.h"
+//#include "TimeIOCtrl.h"
+#include "CPCICtrl.h"
 #include "ParamConfig.h"
 
 // CMFC_EFG_TIME_IOApp:

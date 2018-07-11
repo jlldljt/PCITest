@@ -81,9 +81,12 @@ void CDiIntCounterSnap::DIIntLaserSin(void)
   if (m_device < 0 || !m_card)
     return;
   if (m_counter.start) {
-#ifndef  __DEBUG__
     memset(&m_counter, 0, sizeof(m_counter));
 
+    if (m_viewBoard)
+      m_viewBoard->Erase();
+
+#ifndef  __DEBUG__
     for (int i = 0; i < SIN_CNT_NUM; i++) {
       m_card->StopT0(i);
       m_card->StartT0(i, m_device, 0, 0);//out6
@@ -112,6 +115,17 @@ void CDiIntCounterSnap::DIIntLaserSin(void)
 	  m_counter.fit[0][i] = (m_counter.counter[1][i] + m_counter.counter[0][i]+m_counter.counter[3][i] + m_counter.counter[2][i])/4;
     }
 #endif
+
+
+#ifdef __DEBUG__
+    int sin_num = LASER_SIN_NUM;
+    for (int i = 0; i < sin_num; i++)
+    {
+      //x laser 
+      //m_counter.counter[0][i] = 100 * sin(i * (2 * PI) / sin_num *4+ PI) + 300;
+      m_counter.fit[0][i] = 100 * sin(i * (2 * PI) / (sin_num-20) + PI) + 300;
+    }
+#endif // __DEBUG__
     //TODO：调试拟合
     EfgAlg alg;
     struct tagSinParam param;
@@ -119,16 +133,32 @@ void CDiIntCounterSnap::DIIntLaserSin(void)
 
     if (m_viewBoard) {
       m_viewBoard->DrawLaserSin();
+
+      CString str;
+      str.Format(L"yi = %.2f * sin (%.2f * xi + %.2f) + %.2f", param.A, param.w, param.t, param.k);
+      m_viewBoard->SetOutStr(str);
       ///TODO：调试拟合
 
         POINT point;
+
+#ifdef __DEBUG__
+        for (int i = 0; i < LASER_SIN_NUM; i++)
+        {
+          point.x = i << 2;
+          point.y = m_counter.fit[0][i];
+          m_viewBoard->DrawPoint(point, RGB(255, 0, 0));
+        }
+#endif // __DEBUG__
+
         for (int i = 0; i < LASER_SIN_NUM; i++)
         {
           point.x = i << 2;
           point.y = m_counter.fit[1][i];
           m_viewBoard->DrawPoint(point);
+          point.x += 2;
+          m_viewBoard->DrawPoint(point);
         }
-      
+        m_viewBoard->Invalidate();
     }
 
     StopDiInt();
@@ -143,8 +173,12 @@ void CDiIntCounterSnap::DIIntLaserCircle(void)
   if (m_device < 0 || !m_card)
     return;
   if (m_counter.start) {
-#ifndef  __DEBUG__
     memset(&m_counter, 0, sizeof(m_counter));
+
+    if (m_viewBoard)
+      m_viewBoard->Erase();
+
+#ifndef  __DEBUG__
     for (int i = 0; i < CIRCLE_CNT_NUM; i++) {
       m_card->StopT0(i);
       m_card->StartT0(i, m_device, 0, 0);//out6
@@ -175,8 +209,11 @@ void CDiIntCounterSnap::DIIntLaserCircle(void)
       }
     }
 #endif
-    if (m_viewBoard)
+    if (m_viewBoard) {
       m_viewBoard->DrawLaserCircle();
+     // m_viewBoard->SetOutStr(L"");
+      m_viewBoard->Invalidate();
+    }
 
     StopDiInt();
   }
@@ -192,9 +229,12 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
   if (m_device < 0 || !m_card)
     return;
   if (m_counter.start) {
-#ifndef  __DEBUG__
-
     memset(&m_counter, 0, sizeof(m_counter));
+
+    if (m_viewBoard)
+      m_viewBoard->Erase();
+
+#ifndef  __DEBUG__
     for (int i = 0; i < XRAY_CNT_NUM; i++) {
       m_card->StopT0(i);
       m_card->StartT0(i, m_device, 0, 0);//out6
@@ -222,16 +262,45 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
         m_counter.counter[j][i] -= m_counter.counter[j][i - 1];
       }
     }
+    //使用中断信号的话，一个是0计数一个是有计数，直接相加即可
+    for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
+    {
+      for (int j = 0; j < XRAY_CNT_NUM; j++) {
+        m_counter.fit[0][i] += m_counter.counter[j][i];
+      }
+    }
 #endif
+
+#ifdef __DEBUG__
+    int sin_num = XRAY_ONESHOT_NUM;
+    for (int i = 0; i < sin_num; i++)
+    {
+      //x laser 
+      //m_counter.counter[0][i] = 100 * sin(i * (2 * PI) / sin_num *4+ PI) + 300;
+      m_counter.fit[0][i] = 100 * sin(i * (2 * PI) / sin_num * 2 + PI) + 300;
+    }
+#endif // __DEBUG__
+
     //TODO：调试拟合
     EfgAlg alg;
    // struct tagSinParam param;
    // alg.FitSinBySubstitution(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[1], param);
    // alg.FitSinByLeastSquares(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[2], param);
-    alg.ExtractSpike(m_counter.counter[0], XRAY_ONESHOT_NUM, 300, 20, -1);
+    alg.ExtractSpike(m_counter.fit[0], XRAY_ONESHOT_NUM, 300, 20, -1);
 
     if (m_viewBoard) {
       m_viewBoard->DrawXRayOneShot();
+
+    //  m_viewBoard->SetOutStr(L"");
+//#ifdef  __DEBUG__
+//      for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
+//      {
+//        POINT point;
+//        point.x = i;
+//        point.y = m_counter.fit[0][i];
+//        m_viewBoard->DrawPoint(point);
+//      }
+//#endif
       ///TODO：调试拟合
       int num = alg.GetSpikesNumber();
       if (num < 10)
@@ -243,6 +312,7 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
           m_viewBoard->DrawCircle(point, 10);
         }
       }
+      m_viewBoard->Invalidate();
     }
 
     StopDiInt();
@@ -253,7 +323,7 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
 
 
 ////////////////////////////////////////////////////////////////////////
-int CDiIntCounterSnap::BindCard(int device, CTimeIOCtrl * card, CBoardView *viewBoard)
+int CDiIntCounterSnap::BindCard(int device, CPCIBase * card, CBoardView *viewBoard)
 {
   if (device < 0 || !card)
     return -1;
@@ -272,6 +342,9 @@ int CDiIntCounterSnap::StartDiIntLaserSin(int channel)
     m_channel = channel;
     return 0;
   }
+
+
+
   return -1;
 }
 
@@ -294,6 +367,7 @@ int CDiIntCounterSnap::StartDiIntXRayOneShot(int channel)
     m_channel = channel;
     return 0;
   }
+
   return -1;
 }
 
@@ -306,6 +380,7 @@ int CDiIntCounterSnap::StartCaptureSin(int no1, double delay1/*out3*/, int no2, 
 
   m_card->StartT0(no1, m_device, delay1, 0);//out3
   m_card->StartT0(no2, m_device, delay2, 0);//out6
+
   m_counter.start = 1;
   return 0;
 }

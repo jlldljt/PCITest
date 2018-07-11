@@ -1,6 +1,14 @@
 #include "StdAfx.h"
 #include "TimeIOCtrl.h"
 
+#include "TimerPulse.h"
+#include "PWModulator.h"
+#include "EventCounter.h"
+#include "DIInterrupt.h"
+#include "OneShot.h"
+#include "StaticDI.h"
+#include "StaticDO.h"
+
 //
 //void CTimeIOCtrl::OnDiSnapEvent(void * sender, DiSnapEventArgs * args, void * userParam)
 //{
@@ -16,8 +24,9 @@ CTimeIOCtrl::CTimeIOCtrl(void)
   //m_pwModulatorCtrl = PwModulatorCtrl::Create();
   //m_instantDiCtrl = InstantDiCtrl::Create();
   //m_instantDiCtrl->addInterruptHandler(OnDiSnapEvent, this);//diÖÐ¶Ï»Øµ÷
-  m_selectedDeviceNumber = -1;
-  devices.RemoveAll();
+  m_type = PCI1780U;
+  //m_selectedDeviceNumber = -1;
+  //devices.RemoveAll();
 
   memset(Di, 0, sizeof(Di));
   memset(Do, 0, sizeof(Do));
@@ -76,6 +85,7 @@ BOOL CTimeIOCtrl::DeleteDi(int no)
   if(!Di[no].ctrl)
     return FALSE;
   Di[no].ctrl->DeInit();
+  delete  Di[no].ctrl;
   Di[no].ctrl = NULL;
   return TRUE;
 }
@@ -172,6 +182,7 @@ BOOL CTimeIOCtrl::DeleteT0(int no)
   if(!Counter0[no].ctrl)
     return FALSE;
   Counter0[no].ctrl->DeInit();
+  delete  Counter0[no].ctrl;
   Counter0[no].ctrl = NULL;
   return TRUE;
 }
@@ -252,7 +263,7 @@ BOOL CTimeIOCtrl::DeleteT1(int no)
   return TRUE;
 }
 
-BOOL CTimeIOCtrl::StartT1(int no, int device, double param0)
+BOOL CTimeIOCtrl::StartT1(int no, int device, double param0, double param1)
 {
   ASSERT(no < 8);
   ASSERT(Counter1[no].ctrl);
@@ -308,6 +319,7 @@ BOOL CTimeIOCtrl::DeleteDO(int no)
   if (!Do[no].ctrl)
     return FALSE;
   Do[no].ctrl->DeInit();
+  delete  Do[no].ctrl;
   Do[no].ctrl = NULL;
   return TRUE;
 }
@@ -356,7 +368,7 @@ int CTimeIOCtrl::getDevices()
 {
  
 
-  devices.RemoveAll();
+  //devices.RemoveAll();
   Array<DeviceTreeNode>* sptedDevices = DeviceCtrl::getInstalledDevices();
   int count = sptedDevices->getCount();
   if (count == 0)
@@ -370,7 +382,7 @@ int CTimeIOCtrl::getDevices()
     {
       DeviceTreeNode const & node = sptedDevices->getItem(i);
       TRACE("%d, %s\n", node.DeviceNumber, node.Description);
-      DevInf dev = { node.DeviceNumber, node.Description };
+      DevInf dev = { PCI1780U, node.DeviceNumber, node.Description };
       devices.Add(dev);
     }
     sptedDevices->Dispose();
@@ -378,18 +390,18 @@ int CTimeIOCtrl::getDevices()
   }
 }
 
-int CTimeIOCtrl::getDevice(int no, DevInf& devInf)
-{
-  ASSERT(no>=0);
-  int count = devices.GetCount();
-  if (no < count) {
-    devInf = devices.GetAt(no);
-    return 1;
-  }
-  else {
-    return -1;
-  }
-}
+//int CTimeIOCtrl::getDevice(int no, DevInf& devInf)
+//{
+//  ASSERT(no>=0);
+//  int count = devices.GetCount();
+//  if (no < count) {
+//    devInf = devices.GetAt(no);
+//    return 1;
+//  }
+//  else {
+//    return -1;
+//  }
+//}
 
 int CTimeIOCtrl::GetT0ChannelCount(int no)
 {

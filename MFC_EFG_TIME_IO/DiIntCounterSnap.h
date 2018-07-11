@@ -1,6 +1,7 @@
 #pragma once
 
-#include "TimeIOCtrl.h"
+//#include "TimeIOCtrl.h"
+#include "CPCICtrl.h"
 #include "BoardView.h"
 
 #define LASER_SIN_NUM 180
@@ -13,6 +14,7 @@ struct tagCounter {
   int index;
   double counter[4][COUNTER_NUM];
   double fit[2][COUNTER_NUM];
+  unsigned int cnt_num;
 };
 
 class CDiIntCounterSnap
@@ -32,14 +34,14 @@ private:
   void DIIntXRayOneShot(void);
 
   int m_device;//设备号
-  CTimeIOCtrl *m_card;//关联1780 card控制器
+  CPCIBase *m_card;//关联1780 card控制器
   CBoardView *m_viewBoard;//关联画图界面
   //计数器计数一帧数据相关函数
 public:
   //指定4计数器，记out3 6
   struct tagCounter m_counter;
   //绑定相关参数
-  int BindCard(int device, CTimeIOCtrl *card, CBoardView *viewBoard);
+  int BindCard(int device, CPCIBase *card, CBoardView *viewBoard);
   //开启中断通道
   int StartDiIntLaserSin(int channel);
   int StartDiIntLaserCircle(int channel);

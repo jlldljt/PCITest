@@ -128,13 +128,17 @@ BOOL CDIInterrupt::Config(tagCtrlParam * param)
       }
       m_callback = tpParam->proc;
       m_callbackParam = tpParam->procParam;
+
+      //默认配置
+      m_instantDiCtrl->getDiintChannels()->getItem(tpParam->channel).setGated(false);
+      m_instantDiCtrl->getDiintChannels()->getItem(tpParam->channel).setTrigEdge(RisingEdge);
+      //
+
       return TRUE;
       //break;
     }
   }
-  //默认配置// TODO：成功时不会执行到
-  m_instantDiCtrl->getDiintChannels()->getItem(tpParam->channel).setGated(false);
-  m_instantDiCtrl->getDiintChannels()->getItem(tpParam->channel).setTrigEdge(RisingEdge);
+  // TODO：成功时不会执行到
   return FALSE;
 }
 

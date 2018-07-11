@@ -1,13 +1,10 @@
 #pragma once
 
-#include "TimerPulse.h"
-#include "PWModulator.h"
-#include "EventCounter.h"
-#include "DIInterrupt.h"
-#include "OneShot.h"
-#include "StaticDI.h"
-#include "StaticDO.h"
+#include "CtrlBase.h"
+#include "CPCIBase.h"
 
+#define OUT3_COUNTER 5
+#define OUT6_COUNTER 4
 //typedef struct tagDevConfParam
 //{
 //  int deviceNumber;
@@ -15,21 +12,7 @@
 //  WCHAR profilePath[256];
 //}DevConfParam, *PDevConfParam;
 
-enum TimeIOType {
-  STATIC_DI = 0,//SceInstantDi,
-  INTERRUPT_DI,
-  EVENT_COUNTER, //SceEventCounter,
-  ONE_SHOT , //SceOneShot,
-  TIME_PULSE , //SceTimerPulse,
-  PW_MODULATOR , //ScePwModulator,
-  STATIC_DO, 
-};
-//板卡信息
-typedef struct tagDevInf
-{
-  int deviceNumber;
-  CString description;
-}DevInf, *PDevInf;
+
 //计时器通道信息
 typedef struct tagTimeIOCtrl
 {
@@ -37,7 +20,7 @@ typedef struct tagTimeIOCtrl
   CCtrlBase* ctrl;
 }TimeIOCtrl, *PTimeIOCtrl;
 
-class CTimeIOCtrl
+class CTimeIOCtrl : public CPCIBase
 {
 public:
 	CTimeIOCtrl(void);
@@ -59,8 +42,8 @@ private:
   //counter1 4个通道信息
   TimeIOCtrl Counter1[8];//8个
   //存放设备信息
-  int m_selectedDeviceNumber;
-  CArray<DevInf, DevInf&> devices;
+ // int m_selectedDeviceNumber;
+ // CArray<DevInf, DevInf&> devices;
 public:
   //Di
   BOOL CreateDi(int no, TimeIOType type, int device);
@@ -77,7 +60,7 @@ public:
   //T0 counter
   BOOL CreateT1(int no, TimeIOType type, int device);
   BOOL DeleteT1(int no);
-  BOOL StartT1(int no, int device, double param0);
+  BOOL StartT1(int no, int device, double param0, double param1 = 0);
   BOOL StopT1(int no);
   //T0 counter
   BOOL CreateDO(int no, TimeIOType type, int device);
@@ -86,10 +69,10 @@ public:
   BOOL StopDO(int no);
   BOOL ReadDO(int no, double& param0, double &param1);
 
-  // 获取安装的设备
-  int getDevices();
+  // 获取安装的设备 理论上只要再AllDriverInit中调用一次就行了
+  static int getDevices();
   // 获取设备的信息
-  int getDevice(int no, DevInf& devInf);
+  //int getDevice(int no, DevInf& devInf);
   // 获取通道信息 不需要的感觉
   int GetT0ChannelCount(int no);
   int GetT0Channel(int no, int channelIndex);

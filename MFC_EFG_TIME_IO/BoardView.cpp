@@ -69,7 +69,32 @@ void CBoardView::OnDraw(CDC* pDC)
   GetClientRect(&rect);
   //pDC->BitBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1*rect.Height(), m_dc, 0, 0, SRCCOPY);
   pDC->StretchBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1 * rect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+  
+  
+  CFont font, *tmp;
+  font.CreateFont(15,                                          //   nHeight     
+    10,                                                   //   nWidth     
+    0,                                                   //   nEscapement   
+    0,                                                   //   nOrientation     
+    FW_NORMAL,                                   //   nWeight     
+    FALSE,                                           //   bItalic     
+    FALSE,                                           //   bUnderline     
+    0,                                                   //   cStrikeOut     
+    ANSI_CHARSET,                             //   nCharSet     
+    OUT_DEFAULT_PRECIS,                 //   nOutPrecision     
+    CLIP_DEFAULT_PRECIS,               //   nClipPrecision     
+    DEFAULT_QUALITY,                       //   nQuality     
+    DEFAULT_PITCH | FF_SWISS,     //   nPitchAndFamily       
+    _T("宋体"));
+
+  tmp = pDC->SelectObject(&font);
+  pDC->SetBkMode(TRANSPARENT);
   pDC->TextOut(0, 0, L"每格100");
+  pDC->TextOut(0, 50, m_outStr);
+  
+  pDC->SelectObject(tmp);
+  DeleteObject(font);
+
 }
 
 
@@ -127,7 +152,7 @@ void CBoardView::DrawLaserSin()
 
   pDC->SelectObject(ppen);
 
-  Invalidate();
+  //Invalidate();
 }
 
 void CBoardView::DrawLaserCircle()
@@ -160,7 +185,7 @@ void CBoardView::DrawLaserCircle()
 
   pDC->SelectObject(ppen);
 
-  Invalidate();
+  //Invalidate();
 }
 
 void CBoardView::DrawXRayOneShot()
@@ -191,35 +216,35 @@ void CBoardView::DrawXRayOneShot()
   for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
   {
     //TODO：调试
-#ifdef __DEBUG__
-    pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i], RGB(0, 255, 0));
-    pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i], RGB(255, 0, 0));
-    pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[2][i], RGB(0, 0, 255));
-
-    continue;
-#endif
+//#ifdef __DEBUG__
+//    pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i], RGB(0, 255, 0));
+//    pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i], RGB(255, 0, 0));
+//    pDC->SetPixel(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[2][i], RGB(0, 0, 255));
+//
+//    continue;
+//#endif
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
     pDC->SelectObject(&pen);
     pDC->MoveTo(i, 0);
-    pDC->LineTo(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i]);
+    pDC->LineTo(i, GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][i]);
     pen.DeleteObject();
-    pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
+   /* pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
     pDC->SelectObject(&pen);
     pDC->MoveTo(i, 300);
-    pDC->LineTo(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i]);
-    pen.DeleteObject();
+    pDC->LineTo(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i] + 300);
+    pen.DeleteObject();*/
   }
 
   pDC->SelectObject(ppen);
 
-  Invalidate();
+  //Invalidate();
 }
 
-void CBoardView::DrawPoint(POINT point)
+void CBoardView::DrawPoint(POINT point, COLORREF color)
 {
   CDC* pDC = m_dc;
-  pDC->SetPixel(point.x,point.y, RGB(0, 0, 255));
-  Invalidate();
+  pDC->SetPixel(point.x,point.y, color);
+  //Invalidate();
 }
 void CBoardView::DrawCircle(POINT point, LONG r)
 {
@@ -232,7 +257,7 @@ void CBoardView::DrawCircle(POINT point, LONG r)
   RECT rect = { point.x - r,point.y -r, point.x + r,point.y + r };
   pDC->Ellipse(&rect);
   pDC->SelectObject(oldbrush);
-  Invalidate();
+  //Invalidate();
 }
 
 int CBoardView::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -254,4 +279,18 @@ int CBoardView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   SetBrushOrgEx(m_dc->m_hDC, 0, 0, NULL);
   pWnd->ReleaseDC(pDC);
   return 0;
+}
+void CBoardView::Erase(void)
+{
+  CDC* pDC = m_dc;
+  CRect rect;
+  GetClientRect(&rect);
+  pDC->FillSolidRect(&rect, RGB(0, 0, 0));
+  m_outStr = "";
+  Invalidate();
+}
+
+void CBoardView::SetOutStr(CString str)
+{
+  m_outStr = str;
 }
