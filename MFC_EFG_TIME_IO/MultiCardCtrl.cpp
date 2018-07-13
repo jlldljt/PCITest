@@ -44,7 +44,7 @@ int CMultiCardCtrl::LoadDI(int no, int cardSel, DevInf& dev)
     {
       m_card[cardSel]->StopDi(no);
       m_card[cardSel]->DeleteDi(no);
-      m_card[cardSel]->CreateDi(no, (TimeIOType)param->comboData, param->device);
+      if(TRUE==m_card[cardSel]->CreateDi(no, (TimeIOType)param->comboData, param->device))
       m_card[cardSel]->StartDi(no, param->device, param->param0, param->param1);
     }
     else {
@@ -76,7 +76,7 @@ int CMultiCardCtrl::LoadDO(int no, int cardSel, DevInf& dev)
     {
       m_card[cardSel]->StopDO(no);
       m_card[cardSel]->DeleteDO(no);
-      m_card[cardSel]->CreateDO(no, (TimeIOType)param->comboData, param->device);
+      if(TRUE==m_card[cardSel]->CreateDO(no, (TimeIOType)param->comboData, param->device))
       m_card[cardSel]->StartDO(no, param->device, param->param0);
     }
     else {
@@ -108,7 +108,7 @@ int CMultiCardCtrl::LoadT0(int no, int cardSel, DevInf& dev)
     {
       m_card[cardSel]->StopT0(no);
       m_card[cardSel]->DeleteT0(no);
-      m_card[cardSel]->CreateT0(no, (TimeIOType)param->comboData, param->device);
+      if(TRUE==m_card[cardSel]->CreateT0(no, (TimeIOType)param->comboData, param->device))
       m_card[cardSel]->StartT0(no, param->device, param->param0, param->param1);
     }
     else {
@@ -141,7 +141,7 @@ int CMultiCardCtrl::LoadT1(int no, int cardSel, DevInf& dev)
     {
       m_card[cardSel]->StopT1(no);
       m_card[cardSel]->DeleteT1(no);
-      m_card[cardSel]->CreateT1(no, (TimeIOType)param->comboData, param->device);
+      if(TRUE==m_card[cardSel]->CreateT1(no, (TimeIOType)param->comboData, param->device))
       m_card[cardSel]->StartT1(no, param->device, param->param0);
     }
     else {

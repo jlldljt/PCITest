@@ -112,6 +112,7 @@ void CDlgT1::SaveParam()
     ConfigParam param;
 
     int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->GetCurSel();
+	int data = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->GetItemData(index);
     CString param0;
     GetDlgItemText(IDC_EDIT_PARAM0, param0);
     double fparam0 = _wtof(param0);
@@ -123,7 +124,7 @@ void CDlgT1::SaveParam()
     else
       start = true;
     param.device = m_device;
-    param.comboData = index;
+    param.comboData = data;
     param.param0 = fparam0;
     param.param1 = 0;
     param.start = start;
@@ -144,7 +145,18 @@ void CDlgT1::LoadParam()
     ConfigParam* param = m_config.ReadParam();
     if (!param)
       return;
-    int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetCurSel(param->comboData);
+	int count = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->GetCount();
+	int i;
+	for (i = 0; i< count;i++){
+	  int data = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->GetItemData(i);
+	  if(data == param->comboData)
+		break;
+	}
+	if(i >= count)
+		return;
+
+    ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetCurSel(i);
+    //int index = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetCurSel(param->comboData);
     CString param0;
     param0.Format(L"%lf", param->param0);
     SetDlgItemText(IDC_EDIT_PARAM0, param0);

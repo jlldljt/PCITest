@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DI0>
-    <Device>0</Device>
+    <Device>2</Device>
     <ComboData>1</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
@@ -8,248 +8,248 @@
 </DI0>
 
 <DO0>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>6</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DO0>
 
 <T00>
-    <Device>0</Device>
-    <ComboData>3</ComboData>
-    <Param0>478274</Param0>
+    <Device>2</Device>
+    <ComboData>2</ComboData>
+    <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </T00>
 
 <T10>
-    <Device>0</Device>
-    <ComboData>0</ComboData>
-    <Param0>5000000</Param0>
+    <Device>2</Device>
+    <ComboData>4</ComboData>
+    <Param0>0</Param0>
     <Param1>0</Param1>
-    <Start>true</Start>
+    <Start>false</Start>
 </T10>
 
 <DI1>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DI1>
 
 <DO1>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>6</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DO1>
 
 <T01>
-    <Device>0</Device>
-    <ComboData>3</ComboData>
-    <Param0>670836</Param0>
+    <Device>2</Device>
+    <ComboData>2</ComboData>
+    <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </T01>
 
 <T11>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>4</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </T11>
 
 <DI2>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DI2>
 
 <DO2>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>6</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DO2>
 
 <T02>
-    <Device>0</Device>
-    <ComboData>3</ComboData>
-    <Param0>458989</Param0>
+    <Device>2</Device>
+    <ComboData>2</ComboData>
+    <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </T02>
 
 <T12>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>4</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </T12>
 
 <DI3>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DI3>
 
 <DO3>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>6</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DO3>
 
 <T03>
-    <Device>0</Device>
-    <ComboData>3</ComboData>
-    <Param0>675249</Param0>
+    <Device>2</Device>
+    <ComboData>2</ComboData>
+    <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </T03>
 
 <T13>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>4</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </T13>
 
 <DI4>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DI4>
 
 <DO4>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>6</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DO4>
 
 <T04>
-    <Device>0</Device>
-    <ComboData>1</ComboData>
-    <Param0>100</Param0>
+    <Device>2</Device>
+    <ComboData>2</ComboData>
+    <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </T04>
 
 <T14>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>4</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </T14>
 
 <DI5>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DI5>
 
 <DO5>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>6</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DO5>
 
 <T05>
-    <Device>0</Device>
-    <ComboData>1</ComboData>
-    <Param0>200</Param0>
+    <Device>2</Device>
+    <ComboData>2</ComboData>
+    <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </T05>
 
 <T15>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>4</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </T15>
 
 <DI6>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DI6>
 
 <DO6>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>6</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DO6>
 
 <T06>
-    <Device>0</Device>
-    <ComboData>1</ComboData>
-    <Param0>1</Param0>
+    <Device>2</Device>
+    <ComboData>3</ComboData>
+    <Param0>100</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </T06>
 
 <T16>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>4</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </T16>
 
 <DI7>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>0</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DI7>
 
 <DO7>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>6</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>
 </DO7>
 
 <T07>
-    <Device>0</Device>
-    <ComboData>2</ComboData>
-    <Param0>6.3999999999999997e-005</Param0>
-    <Param1>0.019838999999999999</Param1>
+    <Device>2</Device>
+    <ComboData>3</ComboData>
+    <Param0>200</Param0>
+    <Param1>0</Param1>
     <Start>true</Start>
 </T07>
 
 <T17>
-    <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <Device>2</Device>
+    <ComboData>4</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>

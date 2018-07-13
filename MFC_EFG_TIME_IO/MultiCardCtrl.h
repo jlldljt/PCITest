@@ -9,7 +9,7 @@ public:
   ~CMultiCardCtrl();
 
 public:
-#define MAX_CARD_NUM 2
+#define MAX_CARD_NUM 3
 #define MAX_CHANNEL_NUM  8
   CPCIBase *m_card[MAX_CARD_NUM];//1780¿¨
   CDiIntCounterSnap m_diInt[MAX_CARD_NUM];
