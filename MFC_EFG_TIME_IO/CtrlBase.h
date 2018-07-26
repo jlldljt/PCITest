@@ -28,7 +28,7 @@ public:
   CArray<int, int&>  m_channels;//支持的通道
   TimeIOProc m_callback;
   void *m_callbackParam;
-
+  CtrlParam m_param;
   int GetModuleCount();
   int GetModule(int no);
   int GetChannelCount();
@@ -48,5 +48,7 @@ public:
   virtual BOOL Read(tagCtrlParam* param) { return FALSE; }
   virtual BOOL Write(tagCtrlParam* param) { return FALSE; }
   virtual void Clear(tagCtrlParam* param) { return; }
+  virtual BOOL SetParam(CtrlParam param) { m_param = param; return TRUE; }
+  virtual CtrlParam GetParam(void) { return m_param; }
 };
 

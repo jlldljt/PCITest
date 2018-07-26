@@ -201,40 +201,42 @@ int CMultiCardCtrl::Stop(const int cardSel)
 /////////////////////////////////////////////////////////////
 /////////////////////测量所需要的函数////////////////////////
 
-// 开启卡的功能
-void CMultiCardCtrl::StartXrayOneshot(const int cardSel)
-{
-  DevInf dev;
-  m_xray_cardsel = cardSel;
-  int count = CPCICtrl::m_num;// m_card[cardSel]->getDevices();
-  int ret = /*m_card[cardSel]->*/CPCICtrl::getDevice(cardSel, dev);
-
-  // 开启一次捕捉
-  m_diInt[cardSel].BindCard(dev.deviceNumber, m_card[cardSel], NULL);
-  m_diInt[cardSel].StartDiIntXRayOneShot(0);
-}
-// 开启卡的功能
-void CMultiCardCtrl::StartLaserSin(const int cardSel)
-{
-  DevInf dev;
-  m_laser_cardsel = cardSel;
-  int count = CPCICtrl::m_num;// m_card[cardSel]->getDevices();
-  int ret = /*m_card[cardSel]->*/CPCICtrl::getDevice(cardSel, dev);
-
-  // 开启一次捕捉
-  m_diInt[cardSel].BindCard(dev.deviceNumber, m_card[cardSel], NULL);
-  m_diInt[cardSel].StartDiIntLaserSin(0);
-}
-
-// 开启一次测量 具体CDiIntCounterSnap负责
-void CMultiCardCtrl::MeasureStart(double out3_delay/*out3 第几行*/, double out6_delay/*out6 第几行*/)
-{
-  if (m_xray_cardsel == -1 || m_laser_cardsel == -1)
-    return;
-#ifdef __DEBUG__
-  m_diInt[m_laser_cardsel].StartCaptureSin(0, out3_delay, 0, out6_delay);// TODO：应该时5和4
-#else
-  m_diInt[LASERSINCARDSEL].StartCaptureSin(OUT3_COUNTER, _wtof(val_out3), OUT6_COUNTER, _wtof(val_out6));// TODO：应该时5和4
-#endif
-  m_diInt[m_xray_cardsel].StartCaptureXRayOneShot();
-}
+//// 开启卡的功能
+//void CMultiCardCtrl::StartXrayOneshot(const int cardSel)
+//{
+//  DevInf dev;
+//  m_xray_cardsel = cardSel;
+//  int count = CPCICtrl::m_num;// m_card[cardSel]->getDevices();
+//  int ret = /*m_card[cardSel]->*/CPCICtrl::getDevice(cardSel, dev);
+//  if (1 != ret)
+//    return;
+//  // 开启一次捕捉
+//  m_diInt[cardSel].BindCard(dev.deviceNumber, m_card[cardSel], NULL);
+//  m_diInt[cardSel].StartDiIntXRayOneShot(0);
+//}
+//// 开启卡的功能
+//void CMultiCardCtrl::StartLaserSin(const int cardSel)
+//{
+//  DevInf dev;
+//  m_laser_cardsel = cardSel;
+//  int count = CPCICtrl::m_num;// m_card[cardSel]->getDevices();
+//  int ret = /*m_card[cardSel]->*/CPCICtrl::getDevice(cardSel, dev);
+//  if (1 != ret)
+//    return;
+//  // 开启一次捕捉
+//  m_diInt[cardSel].BindCard(dev.deviceNumber, m_card[cardSel], NULL);
+//  m_diInt[cardSel].StartDiIntLaserSin(0);
+//}
+//
+//// 开启一次测量 具体CDiIntCounterSnap负责
+//void CMultiCardCtrl::MeasureStart(double out3_delay/*out3 第几行*/, double out6_delay/*out6 第几行*/)
+//{
+//  if (m_xray_cardsel == -1 || m_laser_cardsel == -1)
+//    return;
+//#ifdef __DEBUG__
+//  m_diInt[m_laser_cardsel].StartCaptureSin(0, out3_delay, 0, out6_delay);// TODO：应该时5和4
+//#else
+//  m_diInt[m_laser_cardsel].StartCaptureSin(OUT3_COUNTER, out3_delay, OUT6_COUNTER, out6_delay);// TODO：应该时5和4
+//#endif
+//  m_diInt[m_xray_cardsel].StartCaptureXRayOneShot();
+//}

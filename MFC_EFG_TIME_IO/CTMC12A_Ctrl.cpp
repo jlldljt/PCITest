@@ -73,6 +73,7 @@ BOOL CTMC12A_Ctrl::StartDi(int no, int device, double param0, double param1, voi
   param.proc = (TMC12A_Proc)param2;
   param.procParam = param3;
   if (Di[no].ctrl->Config(&param)) {
+    Di[no].ctrl->SetParam(param);
     ret = Di[no].ctrl->Start(&param);
   }
   return ret;
@@ -146,6 +147,7 @@ BOOL CTMC12A_Ctrl::StartT0(int no, int device, double param0, double param1)
   param.param1 = param1;
 
   if (Counter0[no].ctrl->Config(&param)) {
+    Counter0[no].ctrl->SetParam(param);
     ret = Counter0[no].ctrl->Start(&param);
   }
   return ret;
@@ -173,6 +175,22 @@ BOOL CTMC12A_Ctrl::ReadT0(int no, double & param0, double & param1)
   param0 = param.param0;
   param1 = param.param1;
   return TRUE;
+}
+
+BOOL CTMC12A_Ctrl::RestartT0(int no)
+{
+  if (TRUE != StopT0(no))
+    return FALSE;
+
+  ASSERT(no < 8);
+  ASSERT(Counter0[no].ctrl);
+  BOOL ret = FALSE;
+  tagTMC12A_Param param = Counter0[no].ctrl->GetParam();
+
+  if (Counter0[no].ctrl->Config(&param)) {
+    ret = Counter0[no].ctrl->Start(&param);
+  }
+  return ret;
 }
 
 BOOL CTMC12A_Ctrl::CreateT1(int no, TimeIOType type, int device)
@@ -220,6 +238,7 @@ BOOL CTMC12A_Ctrl::StartT1(int no, int device, double param0, double param1)
   param.param1 = param1;
 
   if (Counter1[no].ctrl->Config(&param)) {
+    Counter1[no].ctrl->SetParam(param);
     ret = Counter1[no].ctrl->Start(&param);
   }
   return ret;
@@ -247,6 +266,22 @@ BOOL CTMC12A_Ctrl::ReadT1(int no, double & param0, double & param1)
   param0 = param.param0;
   param1 = param.param1;
   return TRUE;
+}
+
+BOOL CTMC12A_Ctrl::RestartT1(int no)
+{
+  if (TRUE != StopT1(no))
+    return FALSE;
+
+  ASSERT(no < 8);
+  ASSERT(Counter1[no].ctrl);
+  BOOL ret = FALSE;
+  tagTMC12A_Param param = Counter1[no].ctrl->GetParam();
+
+  if (Counter1[no].ctrl->Config(&param)) {
+    ret = Counter1[no].ctrl->Start(&param);
+  }
+  return ret;
 }
 
 BOOL CTMC12A_Ctrl::CreateDO(int no, TimeIOType type, int device)
@@ -292,6 +327,7 @@ BOOL CTMC12A_Ctrl::StartDO(int no, int device, double param0)
   param.channel = no;//channel¼´ÊÇno
   param.param0 = param0;
   if (Do[no].ctrl->Config(&param)) {
+    Do[no].ctrl->SetParam(param);
     ret = Do[no].ctrl->Start(&param);
   }
   return ret;
@@ -317,6 +353,20 @@ BOOL CTMC12A_Ctrl::ReadDO(int no, double & param0, double & param1)
 
   param0 = param.param0;
   param1 = param.param1;
+  return TRUE;
+}
+
+BOOL CTMC12A_Ctrl::WriteDO(int no, double & param0)
+{
+  ASSERT(no < 8);
+  ASSERT(Do[no].ctrl);
+
+  tagTMC12A_Param param;
+  param.param0 = param0;
+
+  if (!Do[no].ctrl->Write(&param))
+    return FALSE;
+
   return TRUE;
 }
 

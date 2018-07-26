@@ -38,7 +38,7 @@ BOOL CTMC12A_DO::Write(tagTMC12A_Param * param)
 {
   
   ASSERT(param);
-  if (m_channel < 0 || m_boardNo < 0)
+  if (m_channel  == 0xFFFF  || m_boardNo == 0xFFFF )
     return FALSE;
   WORD val = param->param0;
   WORD wRtn = Ixud_WriteDOBit(m_boardNo, 0, m_channel, val);

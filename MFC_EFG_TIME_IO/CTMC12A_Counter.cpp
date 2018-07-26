@@ -33,7 +33,7 @@ BOOL CTMC12A_Counter::Start(tagTMC12A_Param * param)
 
 BOOL CTMC12A_Counter::Stop()
 {
-  if (m_channel < 0 || m_boardNo < 0)
+  if (m_channel  == 0xFFFF  || m_boardNo == 0xFFFF )
     return FALSE;
   Ixud_DisableCounter(m_boardNo, m_channel);
   m_boardNo = -1;
@@ -52,6 +52,6 @@ BOOL CTMC12A_Counter::Read(tagTMC12A_Param * param)
   if (wRtn)
     return FALSE;
 
-  param->param1 = val;
+  param->param0 = val;
   return TRUE;
 }

@@ -3,8 +3,6 @@
 #include "CtrlBase.h"
 #include "CPCIBase.h"
 
-#define OUT3_COUNTER 5
-#define OUT6_COUNTER 4
 //typedef struct tagDevConfParam
 //{
 //  int deviceNumber;
@@ -68,6 +66,7 @@ public:
   BOOL StartDO(int no, int device, double param0);
   BOOL StopDO(int no);
   BOOL ReadDO(int no, double& param0, double &param1);
+  BOOL WriteDO(int no, double& param0);
 
   // 获取安装的设备 理论上只要再AllDriverInit中调用一次就行了
   static int getDevices();

@@ -140,13 +140,13 @@ void CBoardView::DrawLaserSin()
   {
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
     pDC->SelectObject(&pen);
-    pDC->MoveTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter_laser[0][i]);
-    pDC->LineTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter_laser[1][i]);
+    pDC->MoveTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i]);
+    pDC->LineTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i]);
     pen.DeleteObject();
     pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
     pDC->SelectObject(&pen);
-    pDC->MoveTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter_laser[2][i]);
-    pDC->LineTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter_laser[3][i]);
+    pDC->MoveTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[2][i]);
+    pDC->LineTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[3][i]);
     pen.DeleteObject();
   }
 
@@ -178,8 +178,8 @@ void CBoardView::DrawLaserCircle()
   {
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
     pDC->SelectObject(&pen);
-    pDC->MoveTo(GetMainFrame()->m_diIntCounterSnap.m_counter.counter_laser[0][i],i);
-    pDC->LineTo(GetMainFrame()->m_diIntCounterSnap.m_counter.counter_laser[1][i],i);
+    pDC->MoveTo(GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i],i);
+    pDC->LineTo(GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i],i);
     pen.DeleteObject();
   }
 

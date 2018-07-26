@@ -148,6 +148,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
   ON_COMMAND(ID_BUTTON_PARAM_STOP, &CMainFrame::OnButtonParamStop)
   ON_COMMAND(ID_BUTTON_XRAY_ONESHOT, &CMainFrame::OnButtonXrayOneshot)
   ON_COMMAND(ID_BUTTON_MEASURE, &CMainFrame::OnButtonMeasure)
+  ON_COMMAND(ID_BUTTON_HOME, &CMainFrame::OnButtonHome)
+  ON_COMMAND(ID_BUTTON_LASER_FIT, &CMainFrame::OnButtonLaserFit)
+  ON_COMMAND(ID_BUTTON_XRAY_FIT, &CMainFrame::OnButtonXrayFit)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -218,6 +221,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     int ret = CPCICtrl::getDevice(i, dev);
     int nIndex = pComboBox->AddItem(dev.description);
     //pComboBox->SetEditText(m_capControl.m_capName);
+    if (!m_multiCardCtrl.m_card[i]) {  //CPCICtrl::Delete(m_timeIOCtrl);//出错操作
+      m_multiCardCtrl.m_card[i] = CPCICtrl::Create(dev.type);
+    }
   }
 
 	return 0;
@@ -494,8 +500,15 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 void CMainFrame::OnButtonLaserSin()
 {
   // TODO: 在此添加命令处理程序代码
-  if(AFX_IDW_PANE_FIRST != m_splitFrame->GetDlgCtrlID())
-    Switch(SPLIT_FRAME);
+  PCIType type = m_timeIOCtrl->m_type;
+
+  if (PCI1780U != type) {
+    AfxMessageBox(L"选中卡不是1780");
+    return;
+  }
+
+  //if(AFX_IDW_PANE_FIRST != m_splitFrame->GetDlgCtrlID())
+  //  Switch(SPLIT_FRAME);
 
   CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
   CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
@@ -656,9 +669,14 @@ void CMainFrame::OnButtonParamStop()
 void CMainFrame::OnButtonXrayOneshot()
 {
   // TODO: 在此添加命令处理程序代码
+  PCIType type = m_timeIOCtrl->m_type;
 
+  if (PCI1780U != type) {
+    AfxMessageBox(L"选中卡不是1780");
+    return;
+  }
   // 开启一次捕捉
-  m_diIntCounterSnap.BindCard(m_deviceNumber, m_timeIOCtrl, m_viewBoard, m_deviceNumber, m_timeIOCtrl);
+  m_diIntCounterSnap.BindCard(m_deviceNumber, m_timeIOCtrl, m_viewBoard);
   m_diIntCounterSnap.StartDiIntXRayOneShot(0);
   m_diIntCounterSnap.StartCaptureXRayOneShot();
 
@@ -673,31 +691,36 @@ void CMainFrame::OnButtonMeasure()
   DevInf dev;
   //combo init // combo必须禁止自动排序，或者 会对应不起来
   int count = CPCICtrl::m_num; 
-  if (2 != count)
+  if (!count)
     return;
 
-  int laser_index = -1, xray_index = -1;
-  int deviceNumber[2] = { 0 };
+  int index = -1;
+  int deviceNumber = -1;
   for (int i = 0; i < count; i++) {
     int ret = CPCICtrl::getDevice(i, dev);
-    deviceNumber[i] = dev.deviceNumber;
     if (TMC12A == dev.type) {
-      laser_index = i;
-    }
-    else {
-      xray_index = i;
+      index = i;
+      deviceNumber = dev.deviceNumber;
+	  break;
     }
   }
 
-  m_diIntCounterSnap.BindCard(deviceNumber[laser_index], m_multiCardCtrl.m_card[laser_index], NULL, deviceNumber[xray_index], m_multiCardCtrl.m_card[xray_index]);
-  m_diIntCounterSnap.StartDiIntXRayOneShot(0);
-  m_diIntCounterSnap.StartDiIntLaserSin(0);
+  if (-1 == index) {
+    AfxMessageBox(L"没有tmc12a");
+    return;
+  }
 
-  CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
-  CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
-  CString val_out3 = p_edit_out3->GetEditText();
-  CString val_out6 = p_edit_out6->GetEditText();
-  m_diIntCounterSnap.StartCaptureSin(OUT3_COUNTER, _wtof(val_out3), OUT6_COUNTER, _wtof(val_out6));// TODO：应该时5和4
+  m_diIntCounterSnap.BindCard(deviceNumber, m_multiCardCtrl.m_card[index], m_viewBoard);
+  m_diIntCounterSnap.StartDiIntXRayOneShot(0);
+  //m_diIntCounterSnap.StartDiIntLaserSin(0);
+
+  //TODO:打开X光
+
+  //CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
+  //CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
+  //CString val_out3 = p_edit_out3->GetEditText();
+  //CString val_out6 = p_edit_out6->GetEditText();
+  //m_diIntCounterSnap.StartCaptureSin(OUT3_COUNTER, _wtof(val_out3), OUT6_COUNTER, _wtof(val_out6));// TODO：应该时5和4
   m_diIntCounterSnap.StartCaptureXRayOneShot();
 
   // TODO
@@ -705,6 +728,31 @@ void CMainFrame::OnButtonMeasure()
   // 加入等待零位gate out 低
   // 加入等待零位gate out 高
   // 加入处理代码
-  Switch(VIEW_BOARD);
+  m_diIntCounterSnap.StartMeasure();
 #endif
+}
+
+
+void CMainFrame::OnButtonHome()
+{
+  // TODO: 在此添加命令处理程序代码
+  Switch(SPLIT_FRAME);
+}
+
+
+void CMainFrame::OnButtonLaserFit()
+{
+  // TODO: 在此添加命令处理程序代码
+  if (0 != m_diIntCounterSnap.LaserFit())
+    AfxMessageBox(L"error");
+}
+
+
+void CMainFrame::OnButtonXrayFit()
+{
+  // TODO: 在此添加命令处理程序代码
+  if (0 != m_diIntCounterSnap.XrayFit())
+    AfxMessageBox(L"error");
+  else
+  Switch(VIEW_BOARD);
 }

@@ -39,6 +39,8 @@ void CDlgDO::SetDlg(TimeIOType type)
     SetDlgItemText(IDC_STATIC_PARAM0, L"电平");
     GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
     GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
+    GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(TRUE);
     SetTimer(0, 40, NULL);
     break;
   default:
@@ -226,13 +228,19 @@ HBRUSH CDlgDO::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void CDlgDO::OnTimer(UINT_PTR nIDEvent)
 {
   // TODO: 在此添加消息处理程序代码和/或调用默认值
-  double fparam0, fparam1;
+  CString param0, param1;
+  //GetDlgItemText(IDC_EDIT_PARAM0, param0);
+  GetDlgItemText(IDC_EDIT_PARAM1, param1);
+  double fparam0 = _wtof(param0);
+  double fparam1 = _wtof(param1);
+  GetMainFrame()->m_timeIOCtrl->WriteDO(m_index, fparam1);
+
   if (GetMainFrame()->m_timeIOCtrl->ReadDO(m_index, fparam0, fparam1)) {
     CString sparam0, sparam1;
     sparam0.Format(L"%lf", fparam0);
     sparam1.Format(L"%lf", fparam1);
     SetDlgItemText(IDC_EDIT_PARAM0, sparam0);
-    SetDlgItemText(IDC_EDIT_PARAM1, sparam1);
+    //SetDlgItemText(IDC_EDIT_PARAM1, sparam1);
   }
   CFormView::OnTimer(nIDEvent);
 }

@@ -109,6 +109,9 @@ public:
   afx_msg void OnButtonParamStop();
   afx_msg void OnButtonXrayOneshot();
   afx_msg void OnButtonMeasure();
+  afx_msg void OnButtonHome();
+  afx_msg void OnButtonLaserFit();
+  afx_msg void OnButtonXrayFit();
 };
 
 

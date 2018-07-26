@@ -104,6 +104,7 @@ BOOL CTimeIOCtrl::StartDi(int no, int device, double param0, double param1, void
   param.proc = (TimeIOProc)param2;
   param.procParam = param3;
   if (Di[no].ctrl->Config(&param)) {
+    Di[no].ctrl->SetParam(param);
     ret = Di[no].ctrl->Start(&param);
   }
   return ret;
@@ -200,6 +201,7 @@ BOOL CTimeIOCtrl::StartT0(int no, int device, double param0, double param1)
   param.param1 = param1;
 
   if (Counter0[no].ctrl->Config(&param)) {
+    Counter0[no].ctrl->SetParam(param);
     ret = Counter0[no].ctrl->Start(&param);
   }
   return ret;
@@ -276,6 +278,7 @@ BOOL CTimeIOCtrl::StartT1(int no, int device, double param0, double param1)
   param.param1 = 0;
 
   if (Counter1[no].ctrl->Config(&param)) {
+    Counter1[no].ctrl->SetParam(param);
     ret = Counter1[no].ctrl->Start(&param);
   }
   return ret;
@@ -335,6 +338,7 @@ BOOL CTimeIOCtrl::StartDO(int no, int device, double param0)
   param.channel = no;//channel¼´ÊÇno
   param.param0 = param0;
   if (Do[no].ctrl->Config(&param)) {
+    Do[no].ctrl->SetParam(param);
     ret = Do[no].ctrl->Start(&param);
   }
   return ret;
@@ -360,6 +364,20 @@ BOOL CTimeIOCtrl::ReadDO(int no, double & param0, double & param1)
 
   param0 = param.param0;
   param1 = param.param1;
+  return TRUE;
+}
+
+BOOL CTimeIOCtrl::WriteDO(int no, double & param0)
+{
+  ASSERT(no < 8);
+  ASSERT(Do[no].ctrl);
+
+  tagCtrlParam param;
+  param.param0 = param0;
+
+  if (!Do[no].ctrl->Write(&param))
+    return FALSE;
+
   return TRUE;
 }
 

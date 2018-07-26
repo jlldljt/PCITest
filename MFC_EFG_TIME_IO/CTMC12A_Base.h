@@ -29,7 +29,7 @@ public:
   //CArray<int, int&>  m_channels;//支持的通道
   TMC12A_Proc m_callback;
   void *m_callbackParam;
-
+  TMC12A_Param m_param;
   static WORD m_tmc12Boards;
   static WORD  DriverInit(WORD *wTotalBoards);//初始化所有板卡
   static WORD  DriverClose(void);
@@ -42,12 +42,13 @@ public:
   //virtual int GetType();
   //virtual BOOL Init(int device, int module = 0) = 0;
   //virtual void DeInit() = 0;
-  virtual BOOL Config(tagTMC12A_Param* param) = 0;
-  virtual BOOL Start(tagTMC12A_Param* param) = 0;
+  virtual BOOL Config(TMC12A_Param* param) = 0;
+  virtual BOOL Start(TMC12A_Param* param) = 0;
   virtual BOOL Stop() = 0;
-  virtual BOOL Read(tagTMC12A_Param* param) { return FALSE; }
-  virtual BOOL Write(tagTMC12A_Param* param) { return FALSE; }
-  virtual void Clear(tagTMC12A_Param* param) { return; }
-
+  virtual BOOL Read(TMC12A_Param* param) { return FALSE; }
+  virtual BOOL Write(TMC12A_Param* param) { return FALSE; }
+  virtual void Clear(TMC12A_Param* param) { return; }
+  virtual BOOL SetParam(TMC12A_Param param) { m_param = param; return TRUE; }
+  virtual TMC12A_Param GetParam(void) { return m_param; }
 };
 

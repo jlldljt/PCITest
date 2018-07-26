@@ -42,18 +42,21 @@ public:
   BOOL StartT0(int no, int device, double param0 = 0, double param1 = 0);
   BOOL StopT0(int no);
   BOOL ReadT0(int no, double& param0, double &param1);
+  BOOL RestartT0(int no);
   //T0 counter
   BOOL CreateT1(int no, TimeIOType type, int device);
   BOOL DeleteT1(int no);
   BOOL StartT1(int no, int device, double param0, double param1 = 0);
   BOOL StopT1(int no);
   BOOL ReadT1(int no, double& param0, double &param1);
+  BOOL RestartT1(int no);
   //T0 counter
   BOOL CreateDO(int no, TimeIOType type, int device);
   BOOL DeleteDO(int no);
   BOOL StartDO(int no, int device, double param0);
   BOOL StopDO(int no);
-  BOOL ReadDO(int no, double& param0, double &param1);
+  BOOL ReadDO(int no, double& param0, double &param1); 
+  BOOL WriteDO(int no, double& param0);
 
   // 获取安装的设备理论上只要再AllDriverInit中调用一次就行了
   static int getDevices();

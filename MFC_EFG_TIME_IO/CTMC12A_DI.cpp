@@ -36,7 +36,7 @@ BOOL CTMC12A_DI::Stop()
 BOOL CTMC12A_DI::Read(tagTMC12A_Param * param)
 {
   ASSERT(param);
-  if (m_channel < 0 || m_boardNo < 0)
+  if (m_channel == 0xFFFF || m_boardNo  == 0xFFFF )
     return FALSE;
   WORD val;
   WORD wRtn = Ixud_ReadDIBit(m_boardNo, 0, m_channel, &val);

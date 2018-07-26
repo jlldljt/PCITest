@@ -24,11 +24,11 @@ public:
   int Load(const int cardSel);
   int Stop(const int cardSel);
 
-  void StartXrayOneshot(const int cardSel);
+  //void StartXrayOneshot(const int cardSel);
 
-  void StartLaserSin(const int cardSel);
+  //void StartLaserSin(const int cardSel);
 
-  void MeasureStart(double out3_delay/*out3 第几行*/, double out6_delay/*out6 第几行*/);
+  //void MeasureStart(double out3_delay/*out3 第几行*/, double out6_delay/*out6 第几行*/);
 
 };
 

@@ -50,7 +50,7 @@
 
 
 
-#define __DEBUG__ // ต๗สิ
+//#define __DEBUG__ // ต๗สิ
 
 
 
