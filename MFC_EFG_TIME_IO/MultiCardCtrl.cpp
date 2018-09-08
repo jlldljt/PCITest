@@ -142,7 +142,7 @@ int CMultiCardCtrl::LoadT1(int no, int cardSel, DevInf& dev)
       m_card[cardSel]->StopT1(no);
       m_card[cardSel]->DeleteT1(no);
       if(TRUE==m_card[cardSel]->CreateT1(no, (TimeIOType)param->comboData, param->device))
-      m_card[cardSel]->StartT1(no, param->device, param->param0);
+      m_card[cardSel]->StartT1(no, param->device, param->param0, param->param1);
     }
     else {
       m_card[cardSel]->StopT1(no);

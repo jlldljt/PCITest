@@ -52,6 +52,6 @@ BOOL CTMC12A_Counter::Read(tagTMC12A_Param * param)
   if (wRtn)
     return FALSE;
 
-  param->param0 = val;
+  param->param1 = val;
   return TRUE;
 }

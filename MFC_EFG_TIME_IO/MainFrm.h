@@ -112,6 +112,11 @@ public:
   afx_msg void OnButtonHome();
   afx_msg void OnButtonLaserFit();
   afx_msg void OnButtonXrayFit();
+  afx_msg void OnButtonUrun();
+  afx_msg void OnEditUstep();
+  afx_msg void OnUpdateEditUstep(CCmdUI *pCmdUI);
+  afx_msg void OnUpdateEditXstep(CCmdUI *pCmdUI);
+  afx_msg void OnButtonXrun();
 };
 
 

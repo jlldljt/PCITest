@@ -6,17 +6,36 @@
 
 #define LASER_SIN_NUM 180
 #define LASER_CIRCLE_NUM 200
-#define XRAY_ONESHOT_NUM 1000
-#define COUNTER_NUM 2000 // 必须大于以上宏定义
+#define XRAY_ONESHOT_NUM 8000
+#define COUNTER_NUM 8010 // 必须大于以上宏定义
 struct tagCounter {
-  bool start;
+  int start;
   bool flag;
   int index[2];
   double counter[6][COUNTER_NUM]; // 测量时前4个激光，后两个x光
+  double tmp_counter[6][COUNTER_NUM]; // 测量时前4个激光，后两个x光
   double fit[2][COUNTER_NUM];
   unsigned int cnt_num;
 };
 
+enum emMotor
+{
+	MOTOR_STOP = 0,
+	MOTOR_RUN,
+
+
+};
+
+struct tagMotor {
+  double cur_step;
+  double dst_step;
+  double cur_acc;
+  double max_acc;
+  double max_speed;
+  double cur_speed;
+  int state;
+  bool stop;
+};
 class CDiIntCounterSnap
 {
 public:
@@ -48,6 +67,7 @@ public:
   int StartDiIntLaserSin(int channel);
   int StartDiIntLaserCircle(int channel);
   int StartDiIntXRayOneShot(int channel);
+  int StartXRayAndLaser(int channel);
   int StartDiIntMeasure();
   //开启out3 6
   int StartCaptureSin(int no1, double delay1/*out3*/, int no2, double delay2/*out6*/);
@@ -56,11 +76,16 @@ public:
   int StartCaptureCircle(int out);
   int StartCaptureXRayOneShot();
   int StartMeasure();
+  int TestS();
+  int CheckStart();
   //数据处理
   int LaserFit();
   int XrayFit();
   //停止中断捕捉
   int m_channel; // 中断通道
   int StopDiInt();
+  //dianji 
+  struct tagMotor m_motor_u;
+  int StartURunTrd(double step, double acc, double speed);
 };
 

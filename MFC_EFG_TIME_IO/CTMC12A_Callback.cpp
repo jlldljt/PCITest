@@ -1,18 +1,22 @@
 #include "StdAfx.h"
 #include "CTMC12A_Callback.h"
-
-void WINAPI CTMC12A_Callback::CallbackFun(DWORD param)
+HANDLE hEvent = NULL;
+void* g_param = NULL;
+void CTMC12A_Callback::CallbackFun(DWORD param)
 {
-  CTMC12A_Callback * uParam = (CTMC12A_Callback *)param;
+  CTMC12A_Callback * uParam = (CTMC12A_Callback *)g_param;
   if (uParam->m_callback) {
     uParam->m_callback(uParam->m_callbackParam);
   }
   uParam->m_cnt++;
+  Sleep(1);
+  SetEvent(hEvent);
 }
 
 CTMC12A_Callback::CTMC12A_Callback()
 {
   m_boardNo = -1;
+  hEvent = CreateEvent(NULL, FALSE, INFINITE, L"callback");
   m_channel = -1;
 }
 
@@ -38,7 +42,9 @@ BOOL CTMC12A_Callback::Start(tagTMC12A_Param * param)
   else
     eventType |= IXUD_ACTIVE_LOW;
 
-  WORD wRtn = Ixud_SetEventCallback(param->boardNo, eventType, 1,NULL, CallbackFun, (DWORD)this);
+  SetEvent(hEvent);
+  g_param = this;
+  WORD wRtn = Ixud_SetEventCallback(param->boardNo, eventType, 1,&hEvent, CallbackFun, NULL/*(DWORD)this*/);
   if (wRtn)
     return FALSE;
   //Install the IRQ for INT_0
@@ -59,6 +65,8 @@ BOOL CTMC12A_Callback::Stop()
   WORD wRtn = Ixud_RemoveIrq(m_boardNo);
   // Remove the Callback Event
   wRtn = Ixud_RemoveEventCallback(m_boardNo, 1);
+  Sleep(1);
+  g_param = NULL;
 
   m_boardNo = -1;
   m_channel = -1;

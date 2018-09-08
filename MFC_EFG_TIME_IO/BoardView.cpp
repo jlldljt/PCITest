@@ -140,13 +140,13 @@ void CBoardView::DrawLaserSin()
   {
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
     pDC->SelectObject(&pen);
-    pDC->MoveTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[0][i]);
-    pDC->LineTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i]);
+    pDC->MoveTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[0][i]);
+    pDC->LineTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[1][i]);
     pen.DeleteObject();
     pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
     pDC->SelectObject(&pen);
-    pDC->MoveTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[2][i]);
-    pDC->LineTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[3][i]);
+    pDC->MoveTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[2][i]);
+    pDC->LineTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[3][i]);
     pen.DeleteObject();
   }
 
@@ -213,7 +213,7 @@ void CBoardView::DrawXRayOneShot()
   ppen = (CPen*)pDC->SelectObject(&pen);
   pen.DeleteObject();
 
-  for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
+  for (int i = 0; i < (GetMainFrame()->m_diIntCounterSnap.m_counter.index[1]-1)/8; i++)
   {
     //TODO：调试
 //#ifdef __DEBUG__

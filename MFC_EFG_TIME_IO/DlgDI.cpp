@@ -47,6 +47,8 @@ void CDlgDI::SetDlg(TimeIOType type)
     SetDlgItemText(IDC_STATIC_PARAM0, L"ÖÐ¶Ïcnt");
     GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
     GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
+    GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(TRUE);
     break;
   default:
     SetDlgItemText(IDC_STATIC_PARAM0, L"param0");

@@ -198,8 +198,7 @@ void CDlgT1::Stop(void)
   if ("创建" == str) {
     return;
   }
-  CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
-  ((CMainFrame*)pMain)->m_timeIOCtrl->DeleteT1(m_index);
+  GetMainFrame()->m_timeIOCtrl->DeleteT1(m_index);
   SetDlg((TimeIOType)-1);
   str = "创建";
   SetDlgItemText(IDC_BUTTON_CREATE, str);
@@ -220,6 +219,7 @@ BEGIN_MESSAGE_MAP(CDlgT1, CFormView)
   ON_BN_CLICKED(IDC_BUTTON_START, &CDlgT1::OnBnClickedButtonStart)
   ON_WM_CTLCOLOR()
   ON_WM_DESTROY()
+  ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -256,8 +256,7 @@ void CDlgT1::OnBnClickedButtonCreate()
 
     int data = ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->GetItemData(index);
 
-    CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
-    if (((CMainFrame*)pMain)->m_timeIOCtrl->CreateT1(m_index, (TimeIOType)data, m_device)) {
+    if (GetMainFrame()->m_timeIOCtrl->CreateT1(m_index, (TimeIOType)data, m_device)) {
       //// 初始化combo channel
       //;
       //int count = ((CMainFrame*)pMain)->m_timeIOCtrl.GetT1ChannelCount(m_index);
@@ -278,8 +277,7 @@ void CDlgT1::OnBnClickedButtonCreate()
     }
   }// if ("创建" == str) end
   else {
-    CFrameWndEx *pMain = (CFrameWndEx *)AfxGetMainWnd();
-    ((CMainFrame*)pMain)->m_timeIOCtrl->DeleteT1(m_index);
+    GetMainFrame()->m_timeIOCtrl->DeleteT1(m_index);
 
     //((CComboBox*)GetDlgItem(IDC_COMBO_CHANNEL))->ResetContent();
     SetDlg((TimeIOType)-1);
@@ -308,7 +306,13 @@ void CDlgT1::OnBnClickedButtonStart()
   CString str;
   GetDlgItemText(IDC_BUTTON_START, str);
   if ("开始" == str) {
-    if (GetMainFrame()->m_timeIOCtrl->StartT1(m_index, m_device, GetDlgItemInt(IDC_EDIT_PARAM0))) {
+	  CString param0, param1;
+    GetDlgItemText(IDC_EDIT_PARAM0, param0);
+    GetDlgItemText(IDC_EDIT_PARAM2, param1);
+    double fparam0 = _wtof(param0);
+    double fparam1 = _wtof(param1);
+
+    if (GetMainFrame()->m_timeIOCtrl->StartT1(m_index, m_device, fparam0, fparam1)) {
       str = "结束";
       SetDlgItemText(IDC_BUTTON_START, str);
       m_brushBack.DeleteObject();
@@ -316,9 +320,16 @@ void CDlgT1::OnBnClickedButtonStart()
       m_brushBack.CreateSolidBrush(m_color);
 
       GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(FALSE);
+
+	  if(fparam0 == 4)
+		  SetTimer(0, 40, NULL);
     }
   }
   else {
+	  
+	  KillTimer(0);
+	  Sleep(1);
+
     if (GetMainFrame()->m_timeIOCtrl->StopT1(m_index)) {
       str = "开始";
       SetDlgItemText(IDC_BUTTON_START, str);
@@ -354,4 +365,19 @@ void CDlgT1::OnDestroy()
 
   // TODO: 在此处添加消息处理程序代码
   m_brushBack.DeleteObject();
+}
+
+
+void CDlgT1::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	//double fparam0, fparam1;
+ // if (GetMainFrame()->m_timeIOCtrl->ReadT1(m_index, fparam0, fparam1)) {
+ //   CString sparam0, sparam1;
+ //   sparam0.Format(L"%lf", fparam0);
+ //   sparam1.Format(L"%lf", fparam1);
+ //   //SetDlgItemText(IDC_EDIT_PARAM0, sparam0);
+ //   SetDlgItemText(IDC_EDIT_PARAM2, sparam1);
+ // }
+	CFormView::OnTimer(nIDEvent);
 }

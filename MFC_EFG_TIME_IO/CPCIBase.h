@@ -1,7 +1,7 @@
 #pragma once
 
-#define OUT3_COUNTER 5
-#define OUT6_COUNTER 4
+#define OUT3_COUNTER 2
+#define OUT6_COUNTER 3
 
 enum PCIType {
   PCI1780U = 0,

@@ -389,9 +389,14 @@ void CDlgT0::OnBnClickedButtonStart()
 
       GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(FALSE);
 
+	  if(fparam0 == 4)
+		  SetTimer(0, 40, NULL);
+
     }
   }
   else {
+	  KillTimer(0);
+	  Sleep(1);
     if (GetMainFrame()->m_timeIOCtrl->StopT0(m_index)) {
       str = "开始";
       SetDlgItemText(IDC_BUTTON_START, str);
@@ -425,14 +430,14 @@ HBRUSH CDlgT0::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void CDlgT0::OnTimer(UINT_PTR nIDEvent)
 {
   // TODO: 在此添加消息处理程序代码和/或调用默认值
-  double fparam0, fparam1;
-  if (GetMainFrame()->m_timeIOCtrl->ReadT0(m_index, fparam0, fparam1)) {
-    CString sparam0, sparam1;
-    sparam0.Format(L"%lf", fparam0);
-    sparam1.Format(L"%lf", fparam1);
-    SetDlgItemText(IDC_EDIT_PARAM0, sparam0);
-    SetDlgItemText(IDC_EDIT_PARAM1, sparam1);
-  }
+  //double fparam0, fparam1;
+  //if (GetMainFrame()->m_timeIOCtrl->ReadT0(m_index, fparam0, fparam1)) {
+  //  CString sparam0, sparam1;
+  //  sparam0.Format(L"%lf", fparam0);
+  //  sparam1.Format(L"%lf", fparam1);
+  //  //SetDlgItemText(IDC_EDIT_PARAM0, sparam0);
+  //  SetDlgItemText(IDC_EDIT_PARAM1, sparam1);
+  //}
   CFormView::OnTimer(nIDEvent);
 }
 
