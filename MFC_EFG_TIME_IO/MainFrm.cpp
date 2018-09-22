@@ -156,6 +156,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
   ON_COMMAND(ID_EDIT_USTEP, &CMainFrame::OnEditUstep)
   ON_UPDATE_COMMAND_UI(ID_EDIT_USTEP, &CMainFrame::OnUpdateEditUstep)
   ON_UPDATE_COMMAND_UI(ID_EDIT_XSTEP, &CMainFrame::OnUpdateEditXstep)
+//  ON_WM_HSCROLL()
+//  ON_WM_MOUSEWHEEL()
+//  ON_WM_VSCROLL()
+ON_WM_GETMINMAXINFO()
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -231,6 +235,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     }
   }
 
+  //SetWindowLong(m_hWnd, GWL_STYLE, GetWindowLong(m_hWnd, GWL_STYLE) & ~(WS_SIZEBOX | WS_THICKFRAME | WS_MAXIMIZEBOX));
+ 
 	return 0;
 }
 
@@ -269,7 +275,13 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 		return FALSE;
 	// TODO: 在此处通过修改
 	//  CREATESTRUCT cs 来修改窗口类或样式
-
+  cs.x = 0;
+  cs.y = 0;
+  cs.cx = 190*16+24;//高度设为300
+  cs.cy = 170*4+67;//宽度设为200
+  //cs.style &= ~WS_MAXIMIZEBOX;
+  cs.style &= ~WS_MAXIMIZEBOX;
+  cs.style &= ~WS_THICKFRAME;
 	return TRUE;
 }
 
@@ -474,6 +486,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
   CDocument *doc = pContext->m_pCurrentDoc;
   CRect rect;
   GetClientRect(&rect);
+ // rect = CRect(-300, -300, 190*16, 190 * 4);
   int nwidth(rect.right);
   int nheight(rect.bottom);   //获取客户区窗口大小  
 
@@ -653,6 +666,43 @@ void CMainFrame::OnButtonParamRun()
   for (int i = 0; i < sel; i++) {
     m_multiCardCtrl.Load(i);
   }
+
+  ///////////////////out3 out6///////////////////////
+  DevInf dev;
+  //combo init // combo必须禁止自动排序，或者 会对应不起来
+  int count = CPCICtrl::m_num;
+  if (!count)
+    return;
+
+  int index = -1;
+  int deviceNumber = -1;
+  for (int i = 0; i < count; i++) {
+    int ret = CPCICtrl::getDevice(i, dev);
+    if (TMC12A == dev.type) {
+      index = i;
+      deviceNumber = dev.deviceNumber;
+      break;
+    }
+  }
+
+  if (-1 == index) {
+    AfxMessageBox(L"没有tmc12a");
+    return;
+  }
+
+  double param0, param1;
+  m_multiCardCtrl.LoadParam(L"T0", OUT3_COUNTER, index, param0, param1);
+  CString val_out3;
+  val_out3.Format(L"%lf", param1);
+  m_multiCardCtrl.LoadParam(L"T0", OUT6_COUNTER, index, param0, param1);
+  CString val_out6;
+  val_out6.Format(L"%lf", param1);
+  CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
+  CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
+  
+  p_edit_out3->SetEditText(val_out3);
+  p_edit_out6->SetEditText(val_out6);
+
 }
 
 
@@ -842,4 +892,28 @@ void CMainFrame::OnButtonXrun()
   Switch(VIEW_BOARD);
   m_diIntCounterSnap. TestS();
  
+}
+
+//   最大最小尺寸的象素点（具体根据实际需要设置） 
+#define   MINX   200  
+#define   MINY   300  
+#define   MAXX   190*16  +24
+#define   MAXY   170*4 +67 
+void CMainFrame::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
+{
+  // TODO: 在此添加消息处理程序代码和/或调用默认值
+  CRect   rectWindow;
+  GetWindowRect(&rectWindow);
+
+  CRect   rectClient;
+  GetClientRect(&rectClient);
+
+  //   get   offset   of   toolbars,   scrollbars,   etc.  
+  int   nWidthOffset = rectWindow.Width() - rectClient.Width();
+  int   nHeightOffset = rectWindow.Height() - rectClient.Height();
+  lpMMI->ptMinTrackSize.x = MINX + nWidthOffset;
+  lpMMI->ptMinTrackSize.y = MINY + nHeightOffset;
+  lpMMI->ptMaxTrackSize.x = MAXX + nWidthOffset;
+  lpMMI->ptMaxTrackSize.y = MAXY + nHeightOffset;
+  //CFrameWndEx::OnGetMinMaxInfo(lpMMI);
 }

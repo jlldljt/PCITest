@@ -17,14 +17,18 @@ public:
   CTMC12A_Ctrl();
   ~CTMC12A_Ctrl();
 private:
+#define DI_NUM  16
+#define DO_NUM  16
+#define T0_NUM  16
+#define T1_NUM  16
   //Di 8个通道信息
-  TMC12A_Ctrl Di[8];//8个
+  TMC12A_Ctrl Di[DI_NUM];//
   //Do 8个通道信息
-  TMC12A_Ctrl Do[8];//8个
+  TMC12A_Ctrl Do[DO_NUM];//
   //counter0 8个通道信息
-  TMC12A_Ctrl Counter0[8];//8个
+  TMC12A_Ctrl Counter0[T0_NUM];//
   //counter1 4个通道信息
-  TMC12A_Ctrl Counter1[8];//8个
+  TMC12A_Ctrl Counter1[T1_NUM];//
 
   //存放设备信息
  // WORD m_totalBoards;

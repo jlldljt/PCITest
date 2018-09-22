@@ -69,6 +69,23 @@ public:
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
+
+public:
+  // 产生滚动条的相关函数和变量
+  int  m_nHorzInc, m_nVertInc,
+    m_nVscrollMax, m_nHscrollMax,//最大滚动位置
+    m_nVscrollPos, m_nHscrollPos;//当前滚动位置
+
+  CRect m_ClientRect;
+  CRect m_TabRect;
+  CScrollBar m_Scroll;
+
+  void ChangeSize(CRect rect);
+
+  void ScrollInit(void);
+  void SetupScrollbars();
+  void ResetScrollbars();
+
 // 实现
 public:
 	virtual ~CMainFrame();
@@ -117,6 +134,10 @@ public:
   afx_msg void OnUpdateEditUstep(CCmdUI *pCmdUI);
   afx_msg void OnUpdateEditXstep(CCmdUI *pCmdUI);
   afx_msg void OnButtonXrun();
+//  afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+//  afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+//  afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+  afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 };
 
 

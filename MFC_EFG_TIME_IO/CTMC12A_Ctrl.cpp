@@ -26,7 +26,7 @@ CTMC12A_Ctrl::~CTMC12A_Ctrl()
 BOOL CTMC12A_Ctrl::CreateDi(int no, TimeIOType type, int device)
 {
   BOOL ret = FALSE;
-  ASSERT(no < 8);
+  ASSERT(no < DI_NUM);
   if (Di[no].ctrl)
     return FALSE;
 
@@ -51,7 +51,7 @@ BOOL CTMC12A_Ctrl::CreateDi(int no, TimeIOType type, int device)
 
 BOOL CTMC12A_Ctrl::DeleteDi(int no)
 {
-  ASSERT(no < 8);
+  ASSERT(no < DI_NUM);
   if (!Di[no].ctrl)
     return FALSE;
   delete  Di[no].ctrl;
@@ -61,7 +61,7 @@ BOOL CTMC12A_Ctrl::DeleteDi(int no)
 
 BOOL CTMC12A_Ctrl::StartDi(int no, int device, double param0, double param1, void * param2, void * param3)
 {
-  ASSERT(no < 8);
+  ASSERT(no <DI_NUM);
   ASSERT(Di[no].ctrl);
   BOOL ret = FALSE;
   tagTMC12A_Param param;
@@ -81,7 +81,7 @@ BOOL CTMC12A_Ctrl::StartDi(int no, int device, double param0, double param1, voi
 
 BOOL CTMC12A_Ctrl::StopDi(int no)
 {
-  ASSERT(no < 8);
+  ASSERT(no < DI_NUM);
   if (!Di[no].ctrl)
     return FALSE;
   return Di[no].ctrl->Stop();
@@ -89,7 +89,7 @@ BOOL CTMC12A_Ctrl::StopDi(int no)
 
 BOOL CTMC12A_Ctrl::ReadDi(int no, double & param0, double & param1)
 {
-  ASSERT(no < 8);
+  ASSERT(no < DI_NUM);
   ASSERT(Di[no].ctrl);
 
   tagTMC12A_Param param;
@@ -105,7 +105,7 @@ BOOL CTMC12A_Ctrl::ReadDi(int no, double & param0, double & param1)
 BOOL CTMC12A_Ctrl::CreateT0(int no, TimeIOType type, int device)
 {
   BOOL ret = FALSE;
-  ASSERT(no < 8);
+  ASSERT(no < T0_NUM);
   if (Counter0[no].ctrl)
     return FALSE;
 
@@ -126,7 +126,7 @@ BOOL CTMC12A_Ctrl::CreateT0(int no, TimeIOType type, int device)
 
 BOOL CTMC12A_Ctrl::DeleteT0(int no)
 {
-  ASSERT(no < 8);
+  ASSERT(no < T0_NUM);
   if (!Counter0[no].ctrl)
     return FALSE;
   delete  Counter0[no].ctrl;
@@ -136,7 +136,7 @@ BOOL CTMC12A_Ctrl::DeleteT0(int no)
 
 BOOL CTMC12A_Ctrl::StartT0(int no, int device, double param0, double param1)
 {
-  ASSERT(no < 8);
+  ASSERT(no < T0_NUM);
   ASSERT(Counter0[no].ctrl);
   BOOL ret = FALSE;
   tagTMC12A_Param param;
@@ -155,7 +155,7 @@ BOOL CTMC12A_Ctrl::StartT0(int no, int device, double param0, double param1)
 
 BOOL CTMC12A_Ctrl::StopT0(int no)
 {
-  ASSERT(no < 8);
+  ASSERT(no < T0_NUM);
   if (!Counter0[no].ctrl)
     return FALSE;
 
@@ -164,7 +164,7 @@ BOOL CTMC12A_Ctrl::StopT0(int no)
 
 BOOL CTMC12A_Ctrl::ReadT0(int no, double & param0, double & param1)
 {
-  ASSERT(no < 8);
+  ASSERT(no < T0_NUM);
   ASSERT(Counter0[no].ctrl);
 
   tagTMC12A_Param param;
@@ -182,7 +182,7 @@ BOOL CTMC12A_Ctrl::RestartT0(int no)
   if (TRUE != StopT0(no))
     return FALSE;
 
-  ASSERT(no < 8);
+  ASSERT(no < T0_NUM);
   ASSERT(Counter0[no].ctrl);
   BOOL ret = FALSE;
   tagTMC12A_Param param = Counter0[no].ctrl->GetParam();
@@ -196,7 +196,7 @@ BOOL CTMC12A_Ctrl::RestartT0(int no)
 BOOL CTMC12A_Ctrl::CreateT1(int no, TimeIOType type, int device)
 {
   BOOL ret = FALSE;
-  ASSERT(no < 8);
+  ASSERT(no < T1_NUM);
   if (Counter1[no].ctrl)
     return FALSE;
 
@@ -217,7 +217,7 @@ BOOL CTMC12A_Ctrl::CreateT1(int no, TimeIOType type, int device)
 
 BOOL CTMC12A_Ctrl::DeleteT1(int no)
 {
-  ASSERT(no < 8);
+  ASSERT(no < T1_NUM);
   if (!Counter1[no].ctrl)
     return FALSE;
   delete  Counter1[no].ctrl;
@@ -227,7 +227,7 @@ BOOL CTMC12A_Ctrl::DeleteT1(int no)
 
 BOOL CTMC12A_Ctrl::StartT1(int no, int device, double param0, double param1)
 {
-  ASSERT(no < 8);
+  ASSERT(no < T1_NUM);
   ASSERT(Counter1[no].ctrl);
   BOOL ret = FALSE;
   tagTMC12A_Param param;
@@ -246,7 +246,7 @@ BOOL CTMC12A_Ctrl::StartT1(int no, int device, double param0, double param1)
 
 BOOL CTMC12A_Ctrl::StopT1(int no)
 {
-  ASSERT(no < 8);
+  ASSERT(no < T1_NUM);
   if (!Counter1[no].ctrl)
     return FALSE;
 
@@ -255,7 +255,7 @@ BOOL CTMC12A_Ctrl::StopT1(int no)
 
 BOOL CTMC12A_Ctrl::ReadT1(int no, double & param0, double & param1)
 {
-  ASSERT(no < 8);
+  ASSERT(no < T1_NUM);
   ASSERT(Counter1[no].ctrl);
 
   tagTMC12A_Param param;
@@ -273,7 +273,7 @@ BOOL CTMC12A_Ctrl::RestartT1(int no)
   if (TRUE != StopT1(no))
     return FALSE;
 
-  ASSERT(no < 8);
+  ASSERT(no < T1_NUM);
   ASSERT(Counter1[no].ctrl);
   BOOL ret = FALSE;
   tagTMC12A_Param param = Counter1[no].ctrl->GetParam();
@@ -287,7 +287,7 @@ BOOL CTMC12A_Ctrl::RestartT1(int no)
 BOOL CTMC12A_Ctrl::CreateDO(int no, TimeIOType type, int device)
 {
   BOOL ret = FALSE;
-  ASSERT(no < 8);
+  ASSERT(no < DO_NUM);
   if (Do[no].ctrl)
     return FALSE;
 
@@ -307,7 +307,7 @@ BOOL CTMC12A_Ctrl::CreateDO(int no, TimeIOType type, int device)
 
 BOOL CTMC12A_Ctrl::DeleteDO(int no)
 {
-  ASSERT(no < 8);
+  ASSERT(no < DO_NUM);
   if (!Do[no].ctrl)
     return FALSE;
 
@@ -318,7 +318,7 @@ BOOL CTMC12A_Ctrl::DeleteDO(int no)
 
 BOOL CTMC12A_Ctrl::StartDO(int no, int device, double param0)
 {
-  ASSERT(no < 8);
+  ASSERT(no < DO_NUM);
   ASSERT(Do[no].ctrl);
   BOOL ret = FALSE;
   tagTMC12A_Param param;
@@ -335,7 +335,7 @@ BOOL CTMC12A_Ctrl::StartDO(int no, int device, double param0)
 
 BOOL CTMC12A_Ctrl::StopDO(int no)
 {
-  ASSERT(no < 8);
+  ASSERT(no < DO_NUM);
   if (!Do[no].ctrl)
     return FALSE;
   return Do[no].ctrl->Stop();
@@ -343,7 +343,7 @@ BOOL CTMC12A_Ctrl::StopDO(int no)
 
 BOOL CTMC12A_Ctrl::ReadDO(int no, double & param0, double & param1)
 {
-  ASSERT(no < 8);
+  ASSERT(no < DO_NUM);
   ASSERT(Do[no].ctrl);
 
   tagTMC12A_Param param;
@@ -358,7 +358,7 @@ BOOL CTMC12A_Ctrl::ReadDO(int no, double & param0, double & param1)
 
 BOOL CTMC12A_Ctrl::WriteDO(int no, double & param0)
 {
-  ASSERT(no < 8);
+  ASSERT(no < DO_NUM);
   ASSERT(Do[no].ctrl);
 
   tagTMC12A_Param param;

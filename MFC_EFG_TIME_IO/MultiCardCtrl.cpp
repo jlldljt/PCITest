@@ -240,3 +240,82 @@ int CMultiCardCtrl::Stop(const int cardSel)
 //#endif
 //  m_diInt[m_xray_cardsel].StartCaptureXRayOneShot();
 //}
+
+
+int CMultiCardCtrl::LoadParam(CString type,int no, const int cardSel, double& param0,double& param1)
+{
+  ASSERT(no >= 0 && no < MAX_CHANNEL_NUM);
+  ASSERT(type == L"T0" || type == L"T1" || type == L"DO" || type == L"DI");
+  ASSERT(cardSel >= 0 || MAX_CARD_NUM > cardSel);
+
+  DevInf dev;
+  int count = CPCICtrl::m_num;// m_card[cardSel]->getDevices();
+  int ret = /*m_card[cardSel]->*/CPCICtrl::getDevice(cardSel, dev);
+
+  //if (!m_card[cardSel]) {
+  //  // CPCICtrl::Delete(m_card[cardSel]);
+  //  m_card[cardSel] = CPCICtrl::Create(dev.type);
+  //}
+
+  CParamConfig config;
+  CString str;
+  str.Format(L"%d", no);
+  str = type + str;
+  CString path = L"config/" + dev.description + L".xml";
+  char  ppath[50], pstr[50];
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);
+  if (0 == config.Create(ppath, pstr))
+  {
+    ConfigParam* param = config.ReadParam();
+    if (!param)
+      return -1;
+
+    param0 = param->param0;
+    param1 = param->param1;
+
+    delete param;
+  }
+  return 0;
+
+}
+
+int CMultiCardCtrl::SaveParam(CString type, int no, const int cardSel,double param0, double param1)
+{
+  ASSERT(no >= 0 && no < MAX_CHANNEL_NUM);
+  ASSERT(type == L"T0" || type == L"T1" || type == L"DO" || type == L"DI");
+  ASSERT(cardSel >= 0 || MAX_CARD_NUM > cardSel);
+
+  DevInf dev;
+  int count = CPCICtrl::m_num;// m_card[cardSel]->getDevices();
+  int ret = /*m_card[cardSel]->*/CPCICtrl::getDevice(cardSel, dev);
+
+  //if (!m_card[cardSel]) {
+  //  // CPCICtrl::Delete(m_card[cardSel]);
+  //  m_card[cardSel] = CPCICtrl::Create(dev.type);
+  //}
+
+  CParamConfig config;
+  CString str;
+  str.Format(L"%d", no);
+  str = type + str;
+  CString path = L"config/" + dev.description + L".xml";
+  char  ppath[50], pstr[50];
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)path, -1, ppath, 50, 0, false);
+  WideCharToMultiByte(CP_OEMCP, 0, (LPCTSTR)str, -1, pstr, 50, 0, false);
+
+  ConfigParam* param = NULL;
+  if (0 == config.Create(ppath, pstr))
+  {
+    param = config.ReadParam();
+    if (!param)
+      return -1;
+    param0 = param->param0;
+    param1 = param->param1;
+    param->param0 = param0;
+    param->param1 = param1;
+    config.SaveParam(*param);
+    delete param;
+  }
+
+}

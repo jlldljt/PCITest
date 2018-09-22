@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "MFC_EFG_TIME_IO.h"
 #include "MySplitterWnd.h"
-
+#include <math.h>
 
 // CMySplitterWnd
 
@@ -52,3 +52,5 @@ void CMySplitterWnd::OnMouseMove(UINT nFlags, CPoint point)
 
   //CSplitterWndEx::OnMouseMove(nFlags, point);
 }
+
+

@@ -10,7 +10,7 @@ public:
 
 public:
 #define MAX_CARD_NUM 3
-#define MAX_CHANNEL_NUM  8
+#define MAX_CHANNEL_NUM  16
   CPCIBase *m_card[MAX_CARD_NUM];//1780¿¨
   CDiIntCounterSnap m_diInt[MAX_CARD_NUM];
   int m_xray_cardsel;
@@ -23,6 +23,10 @@ private:
 public:
   int Load(const int cardSel);
   int Stop(const int cardSel);
+
+  int LoadParam(CString type, int no, const int cardSel,double& param0, double& param1);
+
+  int SaveParam(CString type, int no, const int cardSel, double param0, double param1);
 
   //void StartXrayOneshot(const int cardSel);
 
