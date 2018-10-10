@@ -27,6 +27,9 @@ CMainFrame* GetMainFrame() {
   pMain = (CFrameWndEx *)AfxGetMainWnd();
   return ((CMainFrame*)pMain);
 };
+
+
+CString g_ini_path;
 //struct tagCounter {
 //  bool start;
 //  bool flag;
@@ -160,6 +163,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 //  ON_WM_MOUSEWHEEL()
 //  ON_WM_VSCROLL()
 ON_WM_GETMINMAXINFO()
+ON_COMMAND(ID_BUTTON_RUNPAGE, &CMainFrame::OnButtonRunpage)
+ON_COMMAND(ID_BUTTON_DEBUGPAGE, &CMainFrame::OnButtonDebugpage)
+ON_COMMAND(ID_BUTTON_CONFIGCHANNEL, &CMainFrame::OnButtonConfigchannel)
+ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -170,11 +177,78 @@ CMainFrame::CMainFrame()
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_OFF_2007_BLUE);
   m_splitFrame = NULL;
   m_viewBoard = NULL;
+  m_userFrame = NULL;
   m_defaultView = NULL;
 
-  CPCICtrl::AllDriverInit();
+  //CPCICtrl::AllDriverInit();
 
   m_timeIOCtrl = NULL;// CPCICtrl::Create(PCI1780U); //new CTimeIOCtrl;
+
+  //路径
+  CString path;
+  GetModuleFileName(NULL, path.GetBufferSetLength(MAX_PATH + 1), MAX_PATH);
+  path.ReleaseBuffer();
+  int pos = path.ReverseFind('\\');
+  m_exe_path = path.Left(pos);
+
+  //ini文件初始化或读取
+  //目录初始化
+  CString ini_path = m_exe_path + _T("\\INI\\EFG.ini");
+  ///////////////
+  CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用  
+  if (!findini.FindFile(m_exe_path + _T("\\INI\\*.*")))
+  {
+    if (!CreateDirectory(m_exe_path + _T("\\INI\\"), NULL))
+    {
+      AfxMessageBox(_T("INI目录创建失败！"));
+      exit(0);
+    }
+  }
+  BOOL ifFind = findini.FindFile(ini_path);
+  if (!ifFind)  //ini创建，仅此一次
+  {
+    //motor
+    WritePrivateProfileString(_T("电机X"), _T("最大频率"), _T("500"), ini_path);
+    WritePrivateProfileString(_T("电机X"), _T("最小频率"), _T("152"), ini_path);
+    WritePrivateProfileString(_T("电机X"), _T("S弯曲度"), _T("8"), ini_path);
+
+    WritePrivateProfileString(_T("电机Y"), _T("最大频率"), _T("500"), ini_path);
+    WritePrivateProfileString(_T("电机Y"), _T("最小频率"), _T("152"), ini_path);
+    WritePrivateProfileString(_T("电机Y"), _T("S弯曲度"), _T("8"), ini_path);
+
+    WritePrivateProfileString(_T("电机U"), _T("最大频率"), _T("500"), ini_path);
+    WritePrivateProfileString(_T("电机U"), _T("最小频率"), _T("152"), ini_path);
+    WritePrivateProfileString(_T("电机U"), _T("S弯曲度"), _T("8"), ini_path);
+
+    WritePrivateProfileString(_T("激光"), _T("OUT3"), _T("80"), ini_path);
+    WritePrivateProfileString(_T("激光"), _T("OUT6"), _T("120"), ini_path);
+
+  }
+  wchar_t ret[100] = { 0 };
+  GetPrivateProfileString(_T("电机X"), _T("最大频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_efg_param.motor.x.max_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机X"), _T("最小频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_efg_param.motor.x.min_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机X"), _T("S弯曲度"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_efg_param.motor.x.flexible = _wtof(ret);
+  GetPrivateProfileString(_T("电机Y"), _T("最大频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_efg_param.motor.y.max_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机Y"), _T("最小频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_efg_param.motor.y.min_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机Y"), _T("S弯曲度"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_efg_param.motor.y.flexible = _wtof(ret);
+  GetPrivateProfileString(_T("电机U"), _T("最大频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_efg_param.motor.u.max_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机U"), _T("最小频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_efg_param.motor.u.min_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机U"), _T("S弯曲度"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_efg_param.motor.u.flexible = _wtof(ret);
+
+  m_efgio.m_efg_param.laser.out3 = GetPrivateProfileInt(_T("激光"), _T("OUT3"), 0, ini_path);
+  m_efgio.m_efg_param.laser.out6 = GetPrivateProfileInt(_T("激光"), _T("OUT6"), 0, ini_path);
+
+  g_ini_path = ini_path;
+
 }
 
 CMainFrame::~CMainFrame()
@@ -222,28 +296,43 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
   SetIcon(m_hIcon, TRUE);
   SetIcon(m_hIcon, FALSE);
 
-  int count = CPCICtrl::m_num;// m_timeIOCtrl->getDevices();
-  DevInf dev;
-  //combo init // combo必须禁止自动排序，或者 会对应不起来
+  //int count = CPCICtrl::m_num;// m_timeIOCtrl->getDevices();
+  //DevInf dev;
+  ////combo init // combo必须禁止自动排序，或者 会对应不起来
+  //CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
+  //for (int i = 0; i < count; i++) {
+  //  int ret = CPCICtrl::getDevice(i, dev);
+  //  int nIndex = pComboBox->AddItem(dev.description);
+  //  ////pComboBox->SetEditText(m_capControl.m_capName);
+  //  if (!m_multiCardCtrl.m_card[i]) {  //CPCICtrl::Delete(m_timeIOCtrl);//出错操作
+  //    m_multiCardCtrl.m_card[i] = CPCICtrl::Create(dev.type);
+  //  }
+  //}
+  m_efgio.InitPCI();
+  int count = m_efgio.GetPCINum();
   CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
+
   for (int i = 0; i < count; i++) {
-    int ret = CPCICtrl::getDevice(i, dev);
-    int nIndex = pComboBox->AddItem(dev.description);
-    //pComboBox->SetEditText(m_capControl.m_capName);
-    if (!m_multiCardCtrl.m_card[i]) {  //CPCICtrl::Delete(m_timeIOCtrl);//出错操作
-      m_multiCardCtrl.m_card[i] = CPCICtrl::Create(dev.type);
-    }
+    int nIndex = pComboBox->AddItem(m_efgio.GetPCIDesc(i));
   }
 
-  //SetWindowLong(m_hWnd, GWL_STYLE, GetWindowLong(m_hWnd, GWL_STYLE) & ~(WS_SIZEBOX | WS_THICKFRAME | WS_MAXIMIZEBOX));
- 
+
+  //CRect rect;
+  //GetClientRect(&rect);
+  ////SetWindowLong(m_hWnd, GWL_STYLE, GetWindowLong(m_hWnd, GWL_STYLE) & ~(WS_SIZEBOX | WS_THICKFRAME | WS_MAXIMIZEBOX));
+  //SetWindowPos(NULL, rect.left - 190, rect.top - 190, rect.Width(), rect.Height(), SWP_SHOWWINDOW);
+  
 	return 0;
 }
 
 //0 m_splitFrame
 //1 m_viewBoard
 void CMainFrame::Switch(VIEW_ID id)
-{
+{ 
+  CRect rect;	// 存储当前窗口
+  int cx = GetSystemMetrics(SM_CXSCREEN);
+  int cy = GetSystemMetrics(SM_CYSCREEN);
+
   switch (id)
   {
   case SPLIT_FRAME:
@@ -253,6 +342,10 @@ void CMainFrame::Switch(VIEW_ID id)
     m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);
     m_viewBoard->ShowWindow(SW_HIDE);
     m_viewBoard->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 1);
+    m_userFrame->ShowWindow(SW_HIDE);
+    m_userFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 2);
+    MoveWindow(0, 0, 190 * 16 + 24, cy/* 170 * 4 + 67*/, TRUE);  	// 改变窗
+
     break;
   case VIEW_BOARD:
     if (AFX_IDW_PANE_FIRST == m_viewBoard->GetDlgCtrlID())
@@ -261,6 +354,25 @@ void CMainFrame::Switch(VIEW_ID id)
     m_viewBoard->SetDlgCtrlID(AFX_IDW_PANE_FIRST);
     m_splitFrame->ShowWindow(SW_HIDE);
     m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 1);
+    m_userFrame->ShowWindow(SW_HIDE);
+    m_userFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 2);
+
+    //GetWindowRect(rect);	// 得到当前窗体的位置及大小
+    
+    MoveWindow(0, 0, cx, cy, TRUE);  	// 改变窗
+
+
+    break;
+  case USER_FRAME:
+    if (AFX_IDW_PANE_FIRST == m_userFrame->GetDlgCtrlID())
+      return;
+    m_userFrame->ShowWindow(SW_SHOW);
+    m_userFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);
+    m_splitFrame->ShowWindow(SW_HIDE);
+    m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 1);
+    m_viewBoard->ShowWindow(SW_HIDE);
+    m_viewBoard->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 2);
+    MoveWindow(0, 0, cx, cy, TRUE);  	// 改变窗
     break;
   default:
     break;
@@ -275,10 +387,12 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 		return FALSE;
 	// TODO: 在此处通过修改
 	//  CREATESTRUCT cs 来修改窗口类或样式
+  int cx = GetSystemMetrics(SM_CXSCREEN);
+  int cy = GetSystemMetrics(SM_CYSCREEN);
   cs.x = 0;
   cs.y = 0;
-  cs.cx = 190*16+24;//高度设为300
-  cs.cy = 170*4+67;//宽度设为200
+  cs.cx = cx;//高度设为300
+  cs.cy = cy;//宽度设为200
   //cs.style &= ~WS_MAXIMIZEBOX;
   cs.style &= ~WS_MAXIMIZEBOX;
   cs.style &= ~WS_THICKFRAME;
@@ -445,36 +559,41 @@ void CMainFrame::OnComboTimeio()
   
   CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
   
-  DevInf dev;
+  //DevInf dev;
   int sel = pComboBox->GetCurSel();
   if(sel < 0 || sel >= MAX_CARD_NUM)
     return;
-  int ret = CPCICtrl::getDevice(sel, dev);
+  //int ret = CPCICtrl::getDevice(sel, dev);
+  int deviceNumber = m_efgio.GetPCIDeviceNumber(sel);
+  CString description = m_efgio.GetPCIDesc(sel);
 
-  if (!m_multiCardCtrl.m_card[sel]) {  //CPCICtrl::Delete(m_timeIOCtrl);//出错操作
-    m_multiCardCtrl.m_card[sel] = CPCICtrl::Create(dev.type);
-  }
+  //if (!m_multiCardCtrl.m_card[sel]) {  //CPCICtrl::Delete(m_timeIOCtrl);//出错操作
+  //  m_multiCardCtrl.m_card[sel] = CPCICtrl::Create(dev.type);
+  //}
+  
+
   for (int i = 0; i < 8; i++) {
 	((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
 	((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->Stop();
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
     ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->Stop();
   }
-  m_timeIOCtrl = m_multiCardCtrl.m_card[sel];
+  //m_timeIOCtrl = m_multiCardCtrl.m_card[sel];
+  m_timeIOCtrl = m_efgio.GetPCI(sel);
 
   for (int i = 0; i < 8; i++) {
-    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_device = dev.deviceNumber;
-    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_device = dev.deviceNumber;
-    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_device = dev.deviceNumber;
-    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_device = dev.deviceNumber;
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_device = deviceNumber;
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_device = deviceNumber;
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_device = deviceNumber;
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_device = deviceNumber;
 
-    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_devName = dev.description;
-    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_devName = dev.description;
-    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_devName = dev.description;
-    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_devName = dev.description;
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_devName = description;
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_devName = description;
+    ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_devName = description;
+    ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->m_devName = description;
 
   }
-  m_deviceNumber = dev.deviceNumber;
+  m_deviceNumber = deviceNumber;
   Switch(SPLIT_FRAME);
   return;
 }
@@ -494,15 +613,27 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 
   m_splitFrame->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect/*CFrameWndEx::rectDefault*/, this, NULL, 0, pContext);
  
-  m_splitFrame->ShowWindow(SW_SHOW);
-  
-  m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);//单文档设置当前活动view的默认id给前台view
+  m_splitFrame->ShowWindow(SW_HIDE);
+  //
+  //m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);//单文档设置当前活动view的默认id给前台view
 
-  pContext->m_pNewViewClass = (CRuntimeClass*)m_splitFrame;   //设置默认视图类
+  //pContext->m_pNewViewClass = (CRuntimeClass*)m_splitFrame;   //设置默认视图类
 
   m_viewBoard = new CBoardView;
   m_viewBoard->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect/*CFrameWndEx::rectDefault*/, this, NULL/*如果是CFrameView需要对应的dialog IDD*/, pContext);
   m_viewBoard->ShowWindow(SW_HIDE);
+  //add by mmy 201809
+ // m_dlgDebug1 = new CDlgDebug1;
+ // m_dlgDebug1->CreateEx(0, NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect, this,0);
+  
+  m_userFrame = new CUserSplitterWnd;
+  m_userFrame->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect, this, NULL, 0, pContext);
+  m_userFrame->ShowWindow(SW_SHOW);
+
+
+  m_userFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);//单文档设置当前活动view的默认id给前台view
+
+  pContext->m_pNewViewClass = (CRuntimeClass*)m_userFrame;   //设置默认视图类
 
 //////////////////
 
@@ -659,50 +790,52 @@ void CMainFrame::OnButtonParamRun()
   // TODO: 在此添加命令处理程序代码
   CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
 
-  int sel = pComboBox->GetCount();
-  if (sel <= 0)
-    return;
+  //int sel = pComboBox->GetCount();
+  //if (sel <= 0)
+  //  return;
 
-  for (int i = 0; i < sel; i++) {
-    m_multiCardCtrl.Load(i);
+  //for (int i = 0; i < sel; i++) {
+  //  //m_multiCardCtrl.Load(i);
+  //  m_efgio.RunPCI(i);
+  //}
+
+  /////////////////////out3 out6///////////////////////
+  //DevInf dev;
+  ////combo init // combo必须禁止自动排序，或者 会对应不起来
+  //int count = CPCICtrl::m_num;
+  //if (!count)
+  //  return;
+
+  //int index = -1;
+  //int deviceNumber = -1;
+  //for (int i = 0; i < count; i++) {
+  //  int ret = CPCICtrl::getDevice(i, dev);
+  //  if (TMC12A == dev.type) {
+  //    index = i;
+  //    deviceNumber = dev.deviceNumber;
+  //    break;
+  //  }
+  //}
+
+  //if (-1 == index) {
+  //  AfxMessageBox(L"没有tmc12a");
+  //  return;
+  //}
+
+  if (FALSE == m_efgio.CardOn()) {
+    AfxMessageBox(L"tmc12a启动失败");
+    return;
   }
 
-  ///////////////////out3 out6///////////////////////
-  DevInf dev;
-  //combo init // combo必须禁止自动排序，或者 会对应不起来
-  int count = CPCICtrl::m_num;
-  if (!count)
-    return;
-
-  int index = -1;
-  int deviceNumber = -1;
-  for (int i = 0; i < count; i++) {
-    int ret = CPCICtrl::getDevice(i, dev);
-    if (TMC12A == dev.type) {
-      index = i;
-      deviceNumber = dev.deviceNumber;
-      break;
-    }
-  }
-
-  if (-1 == index) {
-    AfxMessageBox(L"没有tmc12a");
-    return;
-  }
-
-  double param0, param1;
-  m_multiCardCtrl.LoadParam(L"T0", OUT3_COUNTER, index, param0, param1);
   CString val_out3;
-  val_out3.Format(L"%lf", param1);
-  m_multiCardCtrl.LoadParam(L"T0", OUT6_COUNTER, index, param0, param1);
+  val_out3.Format(L"%lf", m_efgio.GetOut3());
   CString val_out6;
-  val_out6.Format(L"%lf", param1);
+  val_out6.Format(L"%lf", m_efgio.GetOut6());
   CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
   CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
   
   p_edit_out3->SetEditText(val_out3);
   p_edit_out6->SetEditText(val_out6);
-
 }
 
 
@@ -715,8 +848,12 @@ void CMainFrame::OnButtonParamStop()
   if (sel <= 0)
     return;
 
-  for (int i = 0; i < sel; i++) {
-    m_multiCardCtrl.Stop(i);
+  //for (int i = 0; i < sel; i++) {
+  //  m_multiCardCtrl.Stop(i);
+  //}
+  if (FALSE == m_efgio.CardOff()) {
+    AfxMessageBox(L"tmc12a关闭失败");
+    return;
   }
 }
 
@@ -748,29 +885,34 @@ void CMainFrame::OnButtonMeasure()
 	}
 
 #ifndef __DEBUG__
-  DevInf dev;
-  //combo init // combo必须禁止自动排序，或者 会对应不起来
-  int count = CPCICtrl::m_num; 
-  if (!count)
+  //DevInf dev;
+  ////combo init // combo必须禁止自动排序，或者 会对应不起来
+  //int count = CPCICtrl::m_num; 
+  //if (!count)
+  //  return;
+
+  //int index = -1;
+  //int deviceNumber = -1;
+  //for (int i = 0; i < count; i++) {
+  //  int ret = CPCICtrl::getDevice(i, dev);
+  //  if (TMC12A == dev.type) {
+  //    index = i;
+  //    deviceNumber = dev.deviceNumber;
+	 // break;
+  //  }
+  //}
+
+  //if (-1 == index) {
+  //  AfxMessageBox(L"没有tmc12a");
+  //  return;
+  //}
+
+  int index = m_efgio.GetCardIndex();
+
+  if (index < 0)
     return;
 
-  int index = -1;
-  int deviceNumber = -1;
-  for (int i = 0; i < count; i++) {
-    int ret = CPCICtrl::getDevice(i, dev);
-    if (TMC12A == dev.type) {
-      index = i;
-      deviceNumber = dev.deviceNumber;
-	  break;
-    }
-  }
-
-  if (-1 == index) {
-    AfxMessageBox(L"没有tmc12a");
-    return;
-  }
-
-  m_diIntCounterSnap.BindCard(deviceNumber, m_multiCardCtrl.m_card[index], m_viewBoard);
+  m_diIntCounterSnap.BindCard(m_efgio.GetPCIDeviceNumber(index), m_efgio.GetPCI(index), m_viewBoard, &m_efgio);
   //m_diIntCounterSnap.StartDiIntLaserSin(0);
   //m_diIntCounterSnap.StartDiIntXRayOneShot(0);
   m_diIntCounterSnap.StartXRayAndLaser(0);
@@ -797,7 +939,7 @@ void CMainFrame::OnButtonMeasure()
 void CMainFrame::OnButtonHome()
 {
   // TODO: 在此添加命令处理程序代码
-  Switch(SPLIT_FRAME);
+  Switch(USER_FRAME);
 }
 
 
@@ -830,29 +972,33 @@ void CMainFrame::OnButtonUrun()
 	//}
 
 #ifndef __DEBUG__
-  DevInf dev;
-  //combo init // combo必须禁止自动排序，或者 会对应不起来
-  int count = CPCICtrl::m_num; 
-  if (!count)
+  //DevInf dev;
+  ////combo init // combo必须禁止自动排序，或者 会对应不起来
+  //int count = CPCICtrl::m_num; 
+  //if (!count)
+  //  return;
+
+  //int index = -1;
+  //int deviceNumber = -1;
+  //for (int i = 0; i < count; i++) {
+  //  int ret = CPCICtrl::getDevice(i, dev);
+  //  if (TMC12A == dev.type) {
+  //    index = i;
+  //    deviceNumber = dev.deviceNumber;
+	 // break;
+  //  }
+  //}
+
+  //if (-1 == index) {
+  //  AfxMessageBox(L"没有tmc12a");
+  //  return;
+  //}
+  int index = m_efgio.GetCardIndex();
+
+  if (index < 0)
     return;
 
-  int index = -1;
-  int deviceNumber = -1;
-  for (int i = 0; i < count; i++) {
-    int ret = CPCICtrl::getDevice(i, dev);
-    if (TMC12A == dev.type) {
-      index = i;
-      deviceNumber = dev.deviceNumber;
-	  break;
-    }
-  }
-
-  if (-1 == index) {
-    AfxMessageBox(L"没有tmc12a");
-    return;
-  }
-
-  m_diIntCounterSnap.BindCard(deviceNumber, m_multiCardCtrl.m_card[index], m_viewBoard);
+  m_diIntCounterSnap.BindCard(m_efgio.GetPCIDeviceNumber(index), m_efgio.GetPCI(index), m_viewBoard, &m_efgio);
 
   //TODO:电机
 
@@ -916,4 +1062,92 @@ void CMainFrame::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
   lpMMI->ptMaxTrackSize.x = MAXX + nWidthOffset;
   lpMMI->ptMaxTrackSize.y = MAXY + nHeightOffset;
   //CFrameWndEx::OnGetMinMaxInfo(lpMMI);
+}
+
+
+void CMainFrame::OnButtonRunpage()
+{
+  // TODO: 在此添加命令处理程序代码
+
+  Switch(USER_FRAME);
+
+  CRect   rect;
+  GetClientRect(&rect);
+
+  int cx = GetSystemMetrics(SM_CXSCREEN);
+  int cy = GetSystemMetrics(SM_CYSCREEN);
+  m_userFrame->SetSize(0, 0, rect.Width()-100, rect.Height());
+
+  m_userFrame->SetSize(0, 1, 100, rect.Height());
+
+}
+
+
+void CMainFrame::OnButtonDebugpage()
+{
+  // TODO: 在此添加命令处理程序代码
+  Switch(USER_FRAME);
+
+  CRect   rect;
+  GetClientRect(&rect);
+
+  int cx = GetSystemMetrics(SM_CXSCREEN);
+  int cy = GetSystemMetrics(SM_CYSCREEN);
+  m_userFrame->SetSize(0, 0, 100, rect.Height());
+  m_userFrame->SetSize(0, 1, rect.Width() - 100, rect.Height());
+
+}
+
+
+void CMainFrame::OnButtonConfigchannel()
+{
+  // TODO: 在此添加命令处理程序代码
+  Switch(SPLIT_FRAME);
+}
+
+
+void CMainFrame::OnFileSave()
+{
+  // TODO: 在此添加命令处理程序代码
+  //link CMainFrame()
+  CString ini_path = g_ini_path;
+  ///////////////
+  CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用  
+  if (!findini.FindFile(m_exe_path + _T("\\INI\\*.*")))
+  {
+    if (!CreateDirectory(m_exe_path + _T("\\INI\\"), NULL))
+    {
+      AfxMessageBox(_T("INI目录创建失败！"));
+      return;
+    }
+  }
+
+  CString str;
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.x.max_freq);
+  WritePrivateProfileString(_T("电机X"), _T("最大频率"), str, ini_path);
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.x.min_freq);
+  WritePrivateProfileString(_T("电机X"), _T("最小频率"), str, ini_path);
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.x.flexible);
+  WritePrivateProfileString(_T("电机X"), _T("S弯曲度"), str, ini_path);
+
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.y.max_freq);
+  WritePrivateProfileString(_T("电机Y"), _T("最大频率"), str, ini_path);
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.y.min_freq);
+  WritePrivateProfileString(_T("电机Y"), _T("最小频率"), str, ini_path);
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.y.flexible);
+  WritePrivateProfileString(_T("电机Y"), _T("S弯曲度"), str, ini_path);
+
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.u.max_freq);
+  WritePrivateProfileString(_T("电机U"), _T("最大频率"), str, ini_path);
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.u.min_freq);
+  WritePrivateProfileString(_T("电机U"), _T("最小频率"), str, ini_path);
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.u.flexible);
+  WritePrivateProfileString(_T("电机U"), _T("S弯曲度"), str, ini_path);
+
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.laser.out3);
+  WritePrivateProfileString(_T("激光"), _T("OUT3"), str, ini_path);
+  str.Format(_T("%.2f"), m_efgio.m_efg_param.laser.out6);
+  WritePrivateProfileString(_T("激光"), _T("OUT6"), str, ini_path);
+
+  AfxMessageBox(_T("保存成功！"));
 }

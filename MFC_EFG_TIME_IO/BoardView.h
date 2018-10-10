@@ -34,6 +34,8 @@ public:
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
   void Erase(void);
   void SetOutStr(CString str);
+
+  void DrawToDC(CDC* pDC);
 };
 
 

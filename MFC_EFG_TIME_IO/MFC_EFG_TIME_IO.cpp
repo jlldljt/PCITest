@@ -1,15 +1,15 @@
-// Õâ¶Î MFC Ê¾ÀýÔ´´úÂëÑÝÊ¾ÈçºÎÊ¹ÓÃ MFC Microsoft Office Fluent ÓÃ»§½çÃæ 
-// (¡°Fluent UI¡±)¡£¸ÃÊ¾Àý½ö¹©²Î¿¼£¬
-// ÓÃÒÔ²¹³ä¡¶Microsoft »ù´¡Àà²Î¿¼¡·ºÍ 
-// MFC C++ ¿âÈí¼þËæ¸½µÄÏà¹Øµç×ÓÎÄµµ¡£
-// ¸´ÖÆ¡¢Ê¹ÓÃ»ò·Ö·¢ Fluent UI µÄÐí¿ÉÌõ¿îÊÇµ¥¶ÀÌá¹©µÄ¡£
-// ÈôÒªÁË½âÓÐ¹Ø Fluent UI Ðí¿É¼Æ»®µÄÏêÏ¸ÐÅÏ¢£¬Çë·ÃÎÊ  
-// http://msdn.microsoft.com/officeui¡£
+ï»¿// è¿™æ®µ MFC ç¤ºä¾‹æºä»£ç æ¼”ç¤ºå¦‚ä½•ä½¿ç”¨ MFC Microsoft Office Fluent ç”¨æˆ·ç•Œé¢ 
+// (â€œFluent UIâ€)ã€‚è¯¥ç¤ºä¾‹ä»…ä¾›å‚è€ƒï¼Œ
+// ç”¨ä»¥è¡¥å……ã€ŠMicrosoft åŸºç¡€ç±»å‚è€ƒã€‹å’Œ 
+// MFC C++ åº“è½¯ä»¶éšé™„çš„ç›¸å…³ç”µå­æ–‡æ¡£ã€‚
+// å¤åˆ¶ã€ä½¿ç”¨æˆ–åˆ†å‘ Fluent UI çš„è®¸å¯æ¡æ¬¾æ˜¯å•ç‹¬æä¾›çš„ã€‚
+// è‹¥è¦äº†è§£æœ‰å…³ Fluent UI è®¸å¯è®¡åˆ’çš„è¯¦ç»†ä¿¡æ¯ï¼Œè¯·è®¿é—®  
+// http://msdn.microsoft.com/officeuiã€‚
 //
-// °æÈ¨ËùÓÐ(C) Microsoft Corporation
-// ±£ÁôËùÓÐÈ¨Àû¡£
+// ç‰ˆæƒæ‰€æœ‰(C) Microsoft Corporation
+// ä¿ç•™æ‰€æœ‰æƒåˆ©ã€‚
 
-// MFC_EFG_TIME_IO.cpp : ¶¨ÒåÓ¦ÓÃ³ÌÐòµÄÀàÐÐÎª¡£
+// MFC_EFG_TIME_IO.cpp : å®šä¹‰åº”ç”¨ç¨‹åºçš„ç±»è¡Œä¸ºã€‚
 //
 
 #include "stdafx.h"
@@ -30,58 +30,58 @@
 
 BEGIN_MESSAGE_MAP(CMFC_EFG_TIME_IOApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &CMFC_EFG_TIME_IOApp::OnAppAbout)
-	// »ùÓÚÎÄ¼þµÄ±ê×¼ÎÄµµÃüÁî
+	// åŸºäºŽæ–‡ä»¶çš„æ ‡å‡†æ–‡æ¡£å‘½ä»¤
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
-	// ±ê×¼´òÓ¡ÉèÖÃÃüÁî
+	// æ ‡å‡†æ‰“å°è®¾ç½®å‘½ä»¤
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 END_MESSAGE_MAP()
 
 
-// CMFC_EFG_TIME_IOApp ¹¹Ôì
+// CMFC_EFG_TIME_IOApp æž„é€ 
 
 CMFC_EFG_TIME_IOApp::CMFC_EFG_TIME_IOApp()
 {
-	// Ö§³ÖÖØÐÂÆô¶¯¹ÜÀíÆ÷
+	// æ”¯æŒé‡æ–°å¯åŠ¨ç®¡ç†å™¨
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
 #ifdef _MANAGED
-	// Èç¹ûÓ¦ÓÃ³ÌÐòÊÇÀûÓÃ¹«¹²ÓïÑÔÔËÐÐÊ±Ö§³Ö(/clr)¹¹½¨µÄ£¬Ôò:
-	//     1) ±ØÐëÓÐ´Ë¸½¼ÓÉèÖÃ£¬¡°ÖØÐÂÆô¶¯¹ÜÀíÆ÷¡±Ö§³Ö²ÅÄÜÕý³£¹¤×÷¡£
-	//     2) ÔÚÄúµÄÏîÄ¿ÖÐ£¬Äú±ØÐë°´ÕÕÉú³ÉË³ÐòÏò System.Windows.Forms Ìí¼ÓÒýÓÃ¡£
+	// å¦‚æžœåº”ç”¨ç¨‹åºæ˜¯åˆ©ç”¨å…¬å…±è¯­è¨€è¿è¡Œæ—¶æ”¯æŒ(/clr)æž„å»ºçš„ï¼Œåˆ™:
+	//     1) å¿…é¡»æœ‰æ­¤é™„åŠ è®¾ç½®ï¼Œâ€œé‡æ–°å¯åŠ¨ç®¡ç†å™¨â€æ”¯æŒæ‰èƒ½æ­£å¸¸å·¥ä½œã€‚
+	//     2) åœ¨æ‚¨çš„é¡¹ç›®ä¸­ï¼Œæ‚¨å¿…é¡»æŒ‰ç…§ç”Ÿæˆé¡ºåºå‘ System.Windows.Forms æ·»åŠ å¼•ç”¨ã€‚
 	System::Windows::Forms::Application::SetUnhandledExceptionMode(System::Windows::Forms::UnhandledExceptionMode::ThrowException);
 #endif
 
-	// TODO: ½«ÒÔÏÂÓ¦ÓÃ³ÌÐò ID ×Ö·û´®Ìæ»»ÎªÎ¨Ò»µÄ ID ×Ö·û´®£»½¨ÒéµÄ×Ö·û´®¸ñÊ½
-	//Îª CompanyName.ProductName.SubProduct.VersionInformation
+	// TODO: å°†ä»¥ä¸‹åº”ç”¨ç¨‹åº ID å­—ç¬¦ä¸²æ›¿æ¢ä¸ºå”¯ä¸€çš„ ID å­—ç¬¦ä¸²ï¼›å»ºè®®çš„å­—ç¬¦ä¸²æ ¼å¼
+	//ä¸º CompanyName.ProductName.SubProduct.VersionInformation
 	SetAppID(_T("MFC_EFG_TIME_IO.AppID.NoVersion"));
 
-	// TODO: ÔÚ´Ë´¦Ìí¼Ó¹¹Ôì´úÂë£¬
-	// ½«ËùÓÐÖØÒªµÄ³õÊ¼»¯·ÅÖÃÔÚ InitInstance ÖÐ
+	// TODO: åœ¨æ­¤å¤„æ·»åŠ æž„é€ ä»£ç ï¼Œ
+	// å°†æ‰€æœ‰é‡è¦çš„åˆå§‹åŒ–æ”¾ç½®åœ¨ InitInstance ä¸­
 }
 
-// Î¨Ò»µÄÒ»¸ö CMFC_EFG_TIME_IOApp ¶ÔÏó
+// å”¯ä¸€çš„ä¸€ä¸ª CMFC_EFG_TIME_IOApp å¯¹è±¡
 
 CMFC_EFG_TIME_IOApp theApp;
 
 
-// CMFC_EFG_TIME_IOApp ³õÊ¼»¯
+// CMFC_EFG_TIME_IOApp åˆå§‹åŒ–
 
 BOOL CMFC_EFG_TIME_IOApp::InitInstance()
 {
-	// Èç¹ûÒ»¸öÔËÐÐÔÚ Windows XP ÉÏµÄÓ¦ÓÃ³ÌÐòÇåµ¥Ö¸¶¨Òª
-	// Ê¹ÓÃ ComCtl32.dll °æ±¾ 6 »ò¸ü¸ß°æ±¾À´ÆôÓÃ¿ÉÊÓ»¯·½Ê½£¬
-	//ÔòÐèÒª InitCommonControlsEx()¡£·ñÔò£¬½«ÎÞ·¨´´½¨´°¿Ú¡£
+	// å¦‚æžœä¸€ä¸ªè¿è¡Œåœ¨ Windows XP ä¸Šçš„åº”ç”¨ç¨‹åºæ¸…å•æŒ‡å®šè¦
+	// ä½¿ç”¨ ComCtl32.dll ç‰ˆæœ¬ 6 æˆ–æ›´é«˜ç‰ˆæœ¬æ¥å¯ç”¨å¯è§†åŒ–æ–¹å¼ï¼Œ
+	//åˆ™éœ€è¦ InitCommonControlsEx()ã€‚å¦åˆ™ï¼Œå°†æ— æ³•åˆ›å»ºçª—å£ã€‚
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
-	// ½«ËüÉèÖÃÎª°üÀ¨ËùÓÐÒªÔÚÓ¦ÓÃ³ÌÐòÖÐÊ¹ÓÃµÄ
-	// ¹«¹²¿Ø¼þÀà¡£
+	// å°†å®ƒè®¾ç½®ä¸ºåŒ…æ‹¬æ‰€æœ‰è¦åœ¨åº”ç”¨ç¨‹åºä¸­ä½¿ç”¨çš„
+	// å…¬å…±æŽ§ä»¶ç±»ã€‚
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
 	CWinAppEx::InitInstance();
 
 
-	// ³õÊ¼»¯ OLE ¿â
+	// åˆå§‹åŒ– OLE åº“
 	if (!AfxOleInit())
 	{
 		AfxMessageBox(IDP_OLE_INIT_FAILED);
@@ -92,18 +92,18 @@ BOOL CMFC_EFG_TIME_IOApp::InitInstance()
 
 	EnableTaskbarInteraction(FALSE);
 
-	// Ê¹ÓÃ RichEdit ¿Ø¼þÐèÒª  AfxInitRichEdit2()	
+	// ä½¿ç”¨ RichEdit æŽ§ä»¶éœ€è¦  AfxInitRichEdit2()	
 	// AfxInitRichEdit2();
 
-	// ±ê×¼³õÊ¼»¯
-	// Èç¹ûÎ´Ê¹ÓÃÕâÐ©¹¦ÄÜ²¢Ï£Íû¼õÐ¡
-	// ×îÖÕ¿ÉÖ´ÐÐÎÄ¼þµÄ´óÐ¡£¬ÔòÓ¦ÒÆ³ýÏÂÁÐ
-	// ²»ÐèÒªµÄÌØ¶¨³õÊ¼»¯Àý³Ì
-	// ¸ü¸ÄÓÃÓÚ´æ´¢ÉèÖÃµÄ×¢²á±íÏî
-	// TODO: Ó¦ÊÊµ±ÐÞ¸Ä¸Ã×Ö·û´®£¬
-	// ÀýÈçÐÞ¸ÄÎª¹«Ë¾»ò×éÖ¯Ãû
-	SetRegistryKey(_T("Ó¦ÓÃ³ÌÐòÏòµ¼Éú³ÉµÄ±¾µØÓ¦ÓÃ³ÌÐò"));
-	LoadStdProfileSettings(4);  // ¼ÓÔØ±ê×¼ INI ÎÄ¼þÑ¡Ïî(°üÀ¨ MRU)
+	// æ ‡å‡†åˆå§‹åŒ–
+	// å¦‚æžœæœªä½¿ç”¨è¿™äº›åŠŸèƒ½å¹¶å¸Œæœ›å‡å°
+	// æœ€ç»ˆå¯æ‰§è¡Œæ–‡ä»¶çš„å¤§å°ï¼Œåˆ™åº”ç§»é™¤ä¸‹åˆ—
+	// ä¸éœ€è¦çš„ç‰¹å®šåˆå§‹åŒ–ä¾‹ç¨‹
+	// æ›´æ”¹ç”¨äºŽå­˜å‚¨è®¾ç½®çš„æ³¨å†Œè¡¨é¡¹
+	// TODO: åº”é€‚å½“ä¿®æ”¹è¯¥å­—ç¬¦ä¸²ï¼Œ
+	// ä¾‹å¦‚ä¿®æ”¹ä¸ºå…¬å¸æˆ–ç»„ç»‡å
+	SetRegistryKey(_T("åº”ç”¨ç¨‹åºå‘å¯¼ç”Ÿæˆçš„æœ¬åœ°åº”ç”¨ç¨‹åº"));
+	LoadStdProfileSettings(4);  // åŠ è½½æ ‡å‡† INI æ–‡ä»¶é€‰é¡¹(åŒ…æ‹¬ MRU)
 
 
 	InitContextMenuManager();
@@ -116,64 +116,66 @@ BOOL CMFC_EFG_TIME_IOApp::InitInstance()
 	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
 		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
-	// ×¢²áÓ¦ÓÃ³ÌÐòµÄÎÄµµÄ£°å¡£ÎÄµµÄ£°å
-	// ½«ÓÃ×÷ÎÄµµ¡¢¿ò¼Ü´°¿ÚºÍÊÓÍ¼Ö®¼äµÄÁ¬½Ó
+  //GdiplusStartup(&m_gdiplusToken, &m_gdiplusStartupInput, NULL);
+	// æ³¨å†Œåº”ç”¨ç¨‹åºçš„æ–‡æ¡£æ¨¡æ¿ã€‚æ–‡æ¡£æ¨¡æ¿
+	// å°†ç”¨ä½œæ–‡æ¡£ã€æ¡†æž¶çª—å£å’Œè§†å›¾ä¹‹é—´çš„è¿žæŽ¥
 	CSingleDocTemplate* pDocTemplate;
 	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CMFC_EFG_TIME_IODoc),
-		RUNTIME_CLASS(CMainFrame),       // Ö÷ SDI ¿ò¼Ü´°¿Ú
+		RUNTIME_CLASS(CMainFrame),       // ä¸» SDI æ¡†æž¶çª—å£
 		RUNTIME_CLASS(CMFC_EFG_TIME_IOView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);
 
-	// ·ÖÎö±ê×¼ shell ÃüÁî¡¢DDE¡¢´ò¿ªÎÄ¼þ²Ù×÷µÄÃüÁîÐÐ
+	// åˆ†æžæ ‡å‡† shell å‘½ä»¤ã€DDEã€æ‰“å¼€æ–‡ä»¶æ“ä½œçš„å‘½ä»¤è¡Œ
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
 
 
 
-	// µ÷¶ÈÔÚÃüÁîÐÐÖÐÖ¸¶¨µÄÃüÁî¡£Èç¹û
-	// ÓÃ /RegServer¡¢/Register¡¢/Unregserver »ò /Unregister Æô¶¯Ó¦ÓÃ³ÌÐò£¬Ôò·µ»Ø FALSE¡£
+	// è°ƒåº¦åœ¨å‘½ä»¤è¡Œä¸­æŒ‡å®šçš„å‘½ä»¤ã€‚å¦‚æžœ
+	// ç”¨ /RegServerã€/Registerã€/Unregserver æˆ– /Unregister å¯åŠ¨åº”ç”¨ç¨‹åºï¼Œåˆ™è¿”å›ž FALSEã€‚
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
 
-	// Î¨Ò»µÄÒ»¸ö´°¿ÚÒÑ³õÊ¼»¯£¬Òò´ËÏÔÊ¾Ëü²¢¶ÔÆä½øÐÐ¸üÐÂ
+	// å”¯ä¸€çš„ä¸€ä¸ªçª—å£å·²åˆå§‹åŒ–ï¼Œå› æ­¤æ˜¾ç¤ºå®ƒå¹¶å¯¹å…¶è¿›è¡Œæ›´æ–°
 	m_pMainWnd->ShowWindow(SW_SHOW/*MAXIMIZED*/);
 	m_pMainWnd->UpdateWindow();
-  m_pMainWnd->SetWindowText(_T("±êÌâ33"));
-	// ½öµ±¾ßÓÐºó×ºÊ±²Åµ÷ÓÃ DragAcceptFiles
-	//  ÔÚ SDI Ó¦ÓÃ³ÌÐòÖÐ£¬ÕâÓ¦ÔÚ ProcessShellCommand Ö®ºó·¢Éú
+  m_pMainWnd->SetWindowText(_T("æ ‡é¢˜33"));
+	// ä»…å½“å…·æœ‰åŽç¼€æ—¶æ‰è°ƒç”¨ DragAcceptFiles
+	//  åœ¨ SDI åº”ç”¨ç¨‹åºä¸­ï¼Œè¿™åº”åœ¨ ProcessShellCommand ä¹‹åŽå‘ç”Ÿ
   BOOL ret = SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
 	return TRUE;
 }
 
 int CMFC_EFG_TIME_IOApp::ExitInstance()
 {
-	//TODO: ´¦Àí¿ÉÄÜÒÑÌí¼ÓµÄ¸½¼Ó×ÊÔ´
+	//TODO: å¤„ç†å¯èƒ½å·²æ·»åŠ çš„é™„åŠ èµ„æº
 	AfxOleTerm(FALSE);
-
+  CleanState();
+ // GdiplusShutdown(m_gdiplusToken);
 	return CWinAppEx::ExitInstance();
 }
 
-// CMFC_EFG_TIME_IOApp ÏûÏ¢´¦Àí³ÌÐò
+// CMFC_EFG_TIME_IOApp æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 
-// ÓÃÓÚÓ¦ÓÃ³ÌÐò¡°¹ØÓÚ¡±²Ëµ¥ÏîµÄ CAboutDlg ¶Ô»°¿ò
+// ç”¨äºŽåº”ç”¨ç¨‹åºâ€œå…³äºŽâ€èœå•é¡¹çš„ CAboutDlg å¯¹è¯æ¡†
 
 class CAboutDlg : public CDialogEx
 {
 public:
 	CAboutDlg();
 
-// ¶Ô»°¿òÊý¾Ý
+// å¯¹è¯æ¡†æ•°æ®
 	enum { IDD = IDD_ABOUTBOX };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV æ”¯æŒ
 
-// ÊµÏÖ
+// å®žçŽ°
 protected:
 	DECLARE_MESSAGE_MAP()
 };
@@ -190,14 +192,14 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
-// ÓÃÓÚÔËÐÐ¶Ô»°¿òµÄÓ¦ÓÃ³ÌÐòÃüÁî
+// ç”¨äºŽè¿è¡Œå¯¹è¯æ¡†çš„åº”ç”¨ç¨‹åºå‘½ä»¤
 void CMFC_EFG_TIME_IOApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
 }
 
-// CMFC_EFG_TIME_IOApp ×Ô¶¨Òå¼ÓÔØ/±£´æ·½·¨
+// CMFC_EFG_TIME_IOApp è‡ªå®šä¹‰åŠ è½½/ä¿å­˜æ–¹æ³•
 
 void CMFC_EFG_TIME_IOApp::PreLoadState()
 {
@@ -216,7 +218,42 @@ void CMFC_EFG_TIME_IOApp::SaveCustomState()
 {
 }
 
-// CMFC_EFG_TIME_IOApp ÏûÏ¢´¦Àí³ÌÐò
+// CMFC_EFG_TIME_IOApp æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 
+void ScaleBitmap(CBitmap *pBitmap, CBitmap &BitmapNew, int nWidth, int nHeight) {
+  CDC dcSrc, dcDst;
+  int nWidthOld, nHeightOld;
+  int nWidthNew, nHeightNew;
+
+  BITMAP pBitMap;
+  pBitmap->GetBitmap(&pBitMap);
+
+  nWidthOld = pBitMap.bmWidth;
+  nHeightOld = pBitMap.bmHeight;
+  nWidthNew = nWidth;
+  nHeightNew = nHeight;
+
+  // Create DC
+  dcSrc.CreateCompatibleDC((CDC*)NULL);
+  dcDst.CreateCompatibleDC((CDC*)NULL);
+
+  // Source Bitmap
+  dcSrc.SelectObject(pBitmap);
+
+  // New Bitmap
+  BitmapNew.CreateCompatibleBitmap(&dcSrc, nWidthNew, nHeightNew);
+
+  // Scale Bitmap
+  dcDst.SelectObject(&BitmapNew);
+  //Maps pixels from the source rectangle into blocks of pixelsÂ 
+  //in the destination rectangle. The average color overÂ 
+  //the destination block of pixels approximates the color of the sourceÂ pixels.
+  dcDst.SetStretchBltMode(HALFTONE);
+  dcDst.StretchBlt(0, 0, nWidthNew, nHeightNew, &dcSrc, 0, 0, nWidthOld, nHeightOld, SRCCOPY);
+
+  // Free Resource
+  dcSrc.DeleteDC();
+  dcDst.DeleteDC();
+}
 

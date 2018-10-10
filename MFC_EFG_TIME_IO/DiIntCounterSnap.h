@@ -1,7 +1,8 @@
 #pragma once
 
 //#include "TimeIOCtrl.h"
-#include "CPCICtrl.h"
+//#include "CPCICtrl.h"
+#include "EfgIO.h"
 #include "BoardView.h"
 
 #define LASER_SIN_NUM 180
@@ -58,11 +59,12 @@ public:
   int m_device;// 设备号
   CPCIBase *m_card;//关联1780 card控制器
   CBoardView *m_viewBoard;//关联画图界面
+  CEfgIO *m_efgio;//关联efg控制器
   //计数器计数一帧数据相关函数
   //指定4计数器，记out3 6
   struct tagCounter m_counter;
   //绑定相关参数
-  int BindCard(int device, CPCIBase *card, CBoardView *viewBoard);
+  int BindCard(int device, CPCIBase *card, CBoardView *viewBoard, CEfgIO *efgio = NULL);
   //开启中断通道
   int StartDiIntLaserSin(int channel);
   int StartDiIntLaserCircle(int channel);

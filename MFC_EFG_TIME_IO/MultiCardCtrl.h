@@ -1,7 +1,7 @@
 #pragma once
 //#include "TimeIOCtrl.h"
 #include "CPCICtrl.h"
-#include "DiIntCounterSnap.h"
+//#include "DiIntCounterSnap.h"
 class CMultiCardCtrl
 {
 public:
@@ -12,7 +12,7 @@ public:
 #define MAX_CARD_NUM 3
 #define MAX_CHANNEL_NUM  16
   CPCIBase *m_card[MAX_CARD_NUM];//1780¿¨
-  CDiIntCounterSnap m_diInt[MAX_CARD_NUM];
+  //CDiIntCounterSnap m_diInt[MAX_CARD_NUM];
   int m_xray_cardsel;
   int m_laser_cardsel;
 private:

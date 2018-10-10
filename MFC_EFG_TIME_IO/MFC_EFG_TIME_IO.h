@@ -26,13 +26,16 @@
 // CMFC_EFG_TIME_IOApp:
 // 有关此类的实现，请参阅 MFC_EFG_TIME_IO.cpp
 //
-
+//#include <gdiplus.h>
+//using namespace Gdiplus;
+//#pragma comment(lib, "gdiplus.lib")
 
 class CMFC_EFG_TIME_IOApp : public CWinAppEx
 {
 public:
 	CMFC_EFG_TIME_IOApp();
-
+  //ULONG_PTR m_gdiplusToken;
+  //GdiplusStartupInput m_gdiplusStartupInput;
 
 // 重写
 public:
@@ -50,3 +53,5 @@ public:
 };
 
 extern CMFC_EFG_TIME_IOApp theApp;
+
+void ScaleBitmap(CBitmap *pBitmap, CBitmap &BitmapNew, int nWidth, int nHeight);

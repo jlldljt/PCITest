@@ -161,8 +161,8 @@ void CSplitFrameWnd::ScrollInit(void)
   m_nHscrollPos = 0;
   m_nVscrollPos = 0;
   GetParent()->GetClientRect(&m_TabRect);
-  if (m_TabRect.right > rectWindow.bottom)
-    m_TabRect.right = rectWindow.bottom;
+  if (m_TabRect.right > rectWindow.bottom-500)
+    m_TabRect.right = rectWindow.bottom-500;
   GetClientRect(&m_ClientRect);
   /*m_ClientRect.right = m_ClientRect.left + m_strPageInfo.rectAbs.Width();
   m_ClientRect.bottom = m_ClientRect.top + m_strPageInfo.rectAbs.Height();*/

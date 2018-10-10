@@ -86,6 +86,15 @@
     <None Include="res\small1.bmp">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="C:\Users\Administrator\Desktop\pic\7.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="C:\Users\Administrator\Desktop\pic\painting_1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="C:\Users\Administrator\Desktop\pic\79Z58PICpNH_1024.bmp">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MFC_EFG_TIME_IO.h">
@@ -199,6 +208,21 @@
     <ClInclude Include="CTMC12A_DO.h">
       <Filter>TMC12A</Filter>
     </ClInclude>
+    <ClInclude Include="CUserSplitterWnd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgDebug1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgRun1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EfgIO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgDebugDevice.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -305,6 +329,21 @@
     </ClCompile>
     <ClCompile Include="CTMC12A_DO.cpp">
       <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CUserSplitterWnd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgDebug1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgRun1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EfgIO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgDebugDevice.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -19,7 +19,7 @@ int CPCIBase::getDevice(int no, DevInf & devInf)
   int count = devices.GetCount();
   if (no < count) {
     devInf = devices.GetAt(no);
-    return 1;
+    return 0;
   }
   else {
     return -1;

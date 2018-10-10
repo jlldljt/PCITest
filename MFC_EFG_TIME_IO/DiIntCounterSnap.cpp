@@ -125,37 +125,37 @@ UINT AllMsg(LPVOID pParam)
 	while (!param->m_counter.start);
 
   double tmp_val;
-  param->m_card->WriteDO(2, tmp_val = 1);//guang
+  param->m_card->WriteDO(XRAY_CTRL_GATE, tmp_val = 1);//guang
 	//kaishi
-	param->m_card->ReadDi(2, fparam21, fparam22);//x
-	param->m_card->ReadDi(1, fparam11, fparam12);//激光
-	param->m_card->ReadDi(4, fparam01, fparam02);//零位
+	param->m_card->ReadDi(XRAY_CNT_GATE, fparam21, fparam22);//x
+	param->m_card->ReadDi(LASER_CNT_GATE, fparam11, fparam12);//激光
+	param->m_card->ReadDi(TURNTABLE_ZERO, fparam01, fparam02);//零位
 
 	//读取计数器
 	for (int i = 0; i < XRAY_CNT_NUM; i++) {
-		param->m_card->ReadT1(i, fparam22, param->m_counter.counter[4+i][param->m_counter.index[1]]);
+		param->m_card->ReadT1(i+ XRAY_CNT_START, fparam22, param->m_counter.counter[SIN_CNT_NUM +i][param->m_counter.index[1]]);
 	}
 	param->m_counter.index[1]++;
 
 	for (int i = 0; i < SIN_CNT_NUM; i++) {
-		param->m_card->ReadT0(i+4, fparam12, param->m_counter.counter[i][param->m_counter.index[0]]);
+		param->m_card->ReadT0(i+ LASER_CNT_START, fparam12, param->m_counter.counter[i][param->m_counter.index[0]]);
 	}
 	param->m_counter.index[0]++;
 
 
 	while(1){
-		param->m_card->ReadDi(2, fparam2, fparam22);
-		param->m_card->ReadDi(1, fparam1, fparam12);
-		param->m_card->ReadDi(4, fparam0, fparam02);
+		param->m_card->ReadDi(XRAY_CNT_GATE, fparam2, fparam22);
+		param->m_card->ReadDi(LASER_CNT_GATE, fparam1, fparam12);
+		param->m_card->ReadDi(TURNTABLE_ZERO, fparam0, fparam02);
 		for(int i = 0; i < FILTER_NUM; i++)
 		{
 			cnt = 10;
 			while(cnt--);
-			param->m_card->ReadDi(2, tmpfparam2, fparam22);
+			param->m_card->ReadDi(XRAY_CNT_GATE, tmpfparam2, fparam22);
 			fparam2+=tmpfparam2;
-			param->m_card->ReadDi(1, tmpfparam1, fparam12);
+			param->m_card->ReadDi(LASER_CNT_GATE, tmpfparam1, fparam12);
 			fparam1+=tmpfparam1;
-			param->m_card->ReadDi(4, tmpfparam0, fparam02);
+			param->m_card->ReadDi(TURNTABLE_ZERO, tmpfparam0, fparam02);
 			fparam0+=tmpfparam0;
 		}
 		if (0==fparam0 || FILTER_NUM+1==fparam0) {
@@ -185,7 +185,7 @@ UINT AllMsg(LPVOID pParam)
 				fparam21 = fparam2;
 				//读取计数器
 				for (int i = 0; i < XRAY_CNT_NUM; i++) {
-					param->m_card->ReadT1(i, fparam22, param->m_counter.counter[4+i][param->m_counter.index[1]]);
+					param->m_card->ReadT1(i+ XRAY_CNT_START, fparam22, param->m_counter.counter[SIN_CNT_NUM +i][param->m_counter.index[1]]);
 				}
 				param->m_counter.index[1]++;
 			}
@@ -202,7 +202,7 @@ UINT AllMsg(LPVOID pParam)
 				if(fparam1 == 0)//下降沿
 				{
 					for (int i = 0; i < SIN_CNT_NUM; i++) {
-						param->m_card->ReadT0(i+4, fparam12, param->m_counter.counter[i][param->m_counter.index[0]]);
+						param->m_card->ReadT0(i+ LASER_CNT_START, fparam12, param->m_counter.counter[i][param->m_counter.index[0]]);
 					}
 					param->m_counter.index[0]++;
 				}
@@ -221,7 +221,7 @@ UINT AllMsg(LPVOID pParam)
 
 	//TODO:计算
 
-  param->m_card->WriteDO(2, tmp_val = 0);//guang
+  param->m_card->WriteDO(XRAY_CTRL_GATE, tmp_val = 0);//guang
 	AfxMessageBox(L"over");
 
 
@@ -237,9 +237,9 @@ UINT UMsg(LPVOID pParam)
 		return FALSE;
 
 	double tmp_val;
-		param->m_card->WriteDO(2, tmp_val=0);//guang
-		param->m_card->WriteDO(3, tmp_val=0);//gate
-		param->m_card->WriteDO(1, tmp_val=0);//en
+		param->m_card->WriteDO(XRAY_CTRL_GATE, tmp_val=0);//guang
+		param->m_card->WriteDO(U_GATE, tmp_val=0);//gate
+		param->m_card->WriteDO(U_EN, tmp_val=0);//en
 
 	while(1)
 	{
@@ -258,14 +258,14 @@ UINT UMsg(LPVOID pParam)
 		if(dvalue < 0) // 反转
 		{
 			double val = 0;
-			param->m_card->WriteDO(0, val=0);
+			param->m_card->WriteDO(U_DIR, val=0);
 			param->m_motor_u.cur_step--;
 			param->m_motor_u.state = MOTOR_RUN;
 		}
 		else if(dvalue >0) //正转
 		{
 			double val = 1;
-			param->m_card->WriteDO(0, val=1);
+			param->m_card->WriteDO(U_DIR, val=1);
 			param->m_motor_u.cur_step++;
 			param->m_motor_u.state = MOTOR_RUN;
 		}
@@ -280,8 +280,8 @@ UINT UMsg(LPVOID pParam)
 		//一个脉冲
 		double val = 1;
 		double delay = param->m_motor_u.max_speed/2;
-		param->m_card->WriteDO(4, val=1);
-			param->m_card->WriteDO(5, val=0);
+		param->m_card->WriteDO(U_OUTP, val=1);
+			param->m_card->WriteDO(U_OUTN, val=0);
 		//Sleep(delay);
 		for(int i = 0; i < 1000000; i++)//400us 100000
 		{
@@ -289,8 +289,8 @@ UINT UMsg(LPVOID pParam)
 		}
 
 		val = 0;
-		param->m_card->WriteDO(4, val=0);
-			param->m_card->WriteDO(5, val=1);
+		param->m_card->WriteDO(U_OUTP, val=0);
+			param->m_card->WriteDO(U_OUTN, val=1);
 		//Sleep(delay);
 		for(int i = 0; i < 1000000; i++)
 		{
@@ -298,7 +298,7 @@ UINT UMsg(LPVOID pParam)
 		}
 	}
 
-		param->m_card->WriteDO(3, tmp_val=1);
+	param->m_card->WriteDO(U_GATE, tmp_val=1);
 	AfxMessageBox(L"over");
 }
 
@@ -310,6 +310,7 @@ CDiIntCounterSnap::CDiIntCounterSnap()
 	m_card = NULL;
 	m_card = NULL;
 	m_viewBoard = NULL;
+  m_efgio = NULL;
 	memset(&m_counter, 0, sizeof(m_counter));
 	m_channel = -1;
 	m_channel = -1;
@@ -651,7 +652,7 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
 
 
 ////////////////////////////////////////////////////////////////////////
-int CDiIntCounterSnap::BindCard(int device, CPCIBase * card, CBoardView *viewBoard)
+int CDiIntCounterSnap::BindCard(int device, CPCIBase * card, CBoardView *viewBoard, CEfgIO *efgio)
 {
 	//if (device < 0 || !card)
 	//  return -1;
@@ -659,6 +660,7 @@ int CDiIntCounterSnap::BindCard(int device, CPCIBase * card, CBoardView *viewBoa
 	m_device = device;
 	m_card = card;
 	m_viewBoard = viewBoard;
+  m_efgio = efgio;
 	return 0;
 }
 

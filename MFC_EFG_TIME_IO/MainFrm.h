@@ -20,7 +20,11 @@
 #include "SplitFrameWnd.h"
 #include "BoardView.h"
 #include "DiIntCounterSnap.h"
-#include "MultiCardCtrl.h"
+//#include "MultiCardCtrl.h"
+#include "CUserSplitterWnd.h"
+#include "EfgIO.h"
+
+extern CString g_ini_path;
 
 //#define COUNTER_NUM 180
 //struct tagCounter {
@@ -29,6 +33,12 @@
 //  int index;
 //  double counter[4][COUNTER_NUM];
 //};
+  enum VIEW_ID {
+    SPLIT_FRAME = 0,
+    VIEW_BOARD,
+    USER_FRAME,
+  };
+
 
 class CMainFrame : public CFrameWndEx
 {
@@ -42,10 +52,12 @@ public:
   CPCIBase *m_timeIOCtrl;//分割窗口调试用
   //CSplitterWnd m_splitwnd;
   CParamConfig m_config;
+  CString m_exe_path;//是目录路径，如果要使用需加上形如 + _T("\\xx\\xx.ini");的路径
 
   CMFC_EFG_TIME_IOView *m_defaultView;
   CSplitFrameWnd *m_splitFrame;
   CBoardView *m_viewBoard;
+  CUserSplitterWnd *m_userFrame;
 
   //计数器计数一帧数据相关函数
   //struct tagCounter m_counter;
@@ -54,16 +66,14 @@ public:
   CDiIntCounterSnap m_diIntCounterSnap;
   //用来加载所有配置并运行，子窗口不显示
   CMultiCardCtrl m_multiCardCtrl;
+  CEfgIO m_efgio;
   //保存当前所选设备号，与combo sel 不是一个概念
   int m_deviceNumber;
 
   //POINT m_laserSpikes[10];
 // 操作
 public:
-  enum VIEW_ID {
-    SPLIT_FRAME = 0,
-    VIEW_BOARD,
-  };
+
   void Switch(VIEW_ID id);
 // 重写
 public:
@@ -138,6 +148,10 @@ public:
 //  afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 //  afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
   afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
+  afx_msg void OnButtonRunpage();
+  afx_msg void OnButtonDebugpage();
+  afx_msg void OnButtonConfigchannel();
+  afx_msg void OnFileSave();
 };
 
 

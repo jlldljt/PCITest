@@ -94,6 +94,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="C:\Users\Administrator\Desktop\pic\7.bmp" />
+    <None Include="C:\Users\Administrator\Desktop\pic\79Z58PICpNH_1024.bmp" />
+    <None Include="C:\Users\Administrator\Desktop\pic\painting_1.bmp" />
     <None Include="ClassDiagram.cd" />
     <None Include="ReadMe.txt" />
     <None Include="res\bitmap1.bmp" />
@@ -127,13 +130,18 @@
     <ClInclude Include="CTMC12A_DI.h" />
     <ClInclude Include="CTMC12A_DO.h" />
     <ClInclude Include="CtrlBase.h" />
+    <ClInclude Include="CUserSplitterWnd.h" />
     <ClInclude Include="DiIntCounterSnap.h" />
     <ClInclude Include="DIInterrupt.h" />
+    <ClInclude Include="DlgDebug1.h" />
+    <ClInclude Include="DlgDebugDevice.h" />
     <ClInclude Include="DlgDI.h" />
     <ClInclude Include="DlgDO.h" />
+    <ClInclude Include="DlgRun1.h" />
     <ClInclude Include="DlgT0.h" />
     <ClInclude Include="DlgT1.h" />
     <ClInclude Include="EfgAlg.h" />
+    <ClInclude Include="EfgIO.h" />
     <ClInclude Include="EventCounter.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFC_EFG_TIME_IO.h" />
@@ -166,13 +174,18 @@
     <ClCompile Include="CTMC12A_DI.cpp" />
     <ClCompile Include="CTMC12A_DO.cpp" />
     <ClCompile Include="CtrlBase.cpp" />
+    <ClCompile Include="CUserSplitterWnd.cpp" />
     <ClCompile Include="DiIntCounterSnap.cpp" />
     <ClCompile Include="DIInterrupt.cpp" />
+    <ClCompile Include="DlgDebug1.cpp" />
+    <ClCompile Include="DlgDebugDevice.cpp" />
     <ClCompile Include="DlgDI.cpp" />
     <ClCompile Include="DlgDO.cpp" />
+    <ClCompile Include="DlgRun1.cpp" />
     <ClCompile Include="DlgT0.cpp" />
     <ClCompile Include="DlgT1.cpp" />
     <ClCompile Include="EfgAlg.cpp" />
+    <ClCompile Include="EfgIO.cpp" />
     <ClCompile Include="EventCounter.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFC_EFG_TIME_IO.cpp" />

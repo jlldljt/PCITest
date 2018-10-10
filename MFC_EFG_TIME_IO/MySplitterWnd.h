@@ -16,6 +16,9 @@ protected:
 public:
   afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
   afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+
+  void SetCx(int cx);
+  virtual void OnDrawSplitter(CDC* pDC, ESplitType nType, const CRect& rect);
 };
 
 

@@ -20,6 +20,7 @@ CMySplitterWnd::CMySplitterWnd()
   m_cySplitterGap = 1;
 }
 
+
 CMySplitterWnd::~CMySplitterWnd()
 {
   this;
@@ -53,4 +54,22 @@ void CMySplitterWnd::OnMouseMove(UINT nFlags, CPoint point)
   //CSplitterWndEx::OnMouseMove(nFlags, point);
 }
 
+void CMySplitterWnd::SetCx(int cx)
+{
+  m_cxSplitterGap = cx;
+}
 
+
+
+
+void CMySplitterWnd::OnDrawSplitter(CDC* pDC, ESplitType nType, const CRect& rect)
+{
+  // TODO: 在此添加专用代码和/或调用基类
+  //if (pDC) {
+  //  CBrush brush;
+  //  brush.CreateSolidBrush(RGB(255, 255, 255));
+  //  pDC->FillRect(rect, &brush);
+  //  brush.DeleteObject();
+  //}
+  CSplitterWndEx::OnDrawSplitter(pDC, nType, rect);
+}

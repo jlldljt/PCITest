@@ -294,3 +294,13 @@ void CBoardView::SetOutStr(CString str)
 {
   m_outStr = str;
 }
+
+void CBoardView::DrawToDC(CDC * pDC)
+{
+  CRect rect, torect;
+  GetClientRect(&rect);
+  pDC->GetWindow()->GetClientRect(&torect);
+  pDC->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(pDC->m_hDC, 0, 0, NULL);
+  pDC->StretchBlt(torect.left, torect.top + torect.Height(), torect.Width(), -1 * torect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+}

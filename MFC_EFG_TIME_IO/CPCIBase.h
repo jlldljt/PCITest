@@ -6,6 +6,7 @@
 enum PCIType {
   PCI1780U = 0,
   TMC12A,
+  NO_TYPE,
 };
 
 enum TimeIOType {
