@@ -435,3 +435,24 @@ int EfgAlg::GetSpike(int number, POINT& point)
   point = m_spikes.GetAt(number);
   return 0;
 }
+//根据中心即步长等得出所有档位的档位中心值
+BOOL EfgAlg::GetAllSortDegree(int * out_sec, int in_center_sec, int step_sec, int sort_num)
+{
+  if (!out_sec)
+    return FALSE;
+  int low_num = sort_num / 2;
+  int high_num = sort_num - low_num - 1;
+
+  int high_degree = in_center_sec + high_num * step_sec;
+  out_sec[0] = in_center_sec - low_num * step_sec;
+
+  int i = 1;
+  while (i < sort_num)
+  {
+    out_sec[i] = out_sec[i - 1] + step_sec;
+    i++;
+  }
+
+
+  return TRUE;
+}

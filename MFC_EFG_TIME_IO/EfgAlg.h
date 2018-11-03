@@ -1,5 +1,18 @@
 #pragma once
 #define PI 3.1415926
+
+
+#define USER_TO_SEC(deg) ((deg)/10000*3600+(deg)%10000/100*60+(deg)%100)
+//秒的度分秒
+#define S_DEG(sec) ((sec)/3600)
+#define S_MIN(sec) ((sec)%3600/60)
+#define S_SEC(sec) ((sec)%60)
+//用户输入的度分秒
+#define U_DEG(user) ((user)/10000)
+#define U_MIN(user) ((user)%10000/100)
+#define U_SEC(user) ((user)%100)
+
+
   //yi = A * sin (w*xi + t) + k
   struct tagSinParam {
     double A;
@@ -52,6 +65,6 @@ public:
   int GetSpikesNumber();
   // 得到某个尖峰的坐标
   int GetSpike(int number, POINT& spike);
-
+  BOOL GetAllSortDegree(int *out_sec, int in_center_sec, int step_sec, int sort_num);
 };
 

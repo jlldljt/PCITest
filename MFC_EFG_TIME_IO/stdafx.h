@@ -56,6 +56,8 @@
 
 //#define __DEBUG__ // ต๗สิ
 
+#include "../gridctrl_demo/GridCtrl_src/GridCtrl.h"
+#include <afxcontrolbars.h>
 
 
 

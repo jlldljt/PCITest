@@ -20,18 +20,22 @@ CDlgDO::CDlgDO()
 CDlgDO::~CDlgDO()
 {
 }
-
+//TODO: 增加卡可能修改
 void CDlgDO::InitDlg(int index)
 {
   m_index = index;
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"StaticDo");
   ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(0, STATIC_DO);
+  ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"AC6641_I");
+  ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(1, AC6641_I);
+  ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->AddString(L"AC6641_O");
+  ((CComboBox*)GetDlgItem(IDC_COMBO_TYPE))->SetItemData(2, AC6641_O);
 
   GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(FALSE);
   GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(FALSE);
   GetDlgItem(IDC_BUTTON_START)->EnableWindow(FALSE);
 }
-
+//TODO: 增加卡可能修改
 void CDlgDO::SetDlg(TimeIOType type)
 {
   switch (type) {
@@ -42,7 +46,23 @@ void CDlgDO::SetDlg(TimeIOType type)
     GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
     GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(TRUE);
     SetTimer(0, 40, NULL);
-    break;
+    break;  
+  case AC6641_I:
+      SetDlgItemText(IDC_STATIC_PARAM0, L"输入值8位");
+      GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
+      GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
+      GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
+      //GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(TRUE);
+      SetTimer(0, 40, NULL);
+      break;  
+    case AC6641_O:
+      SetDlgItemText(IDC_STATIC_PARAM0, L"输出值8位");
+      GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
+      GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
+      GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
+      //GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(TRUE);
+      //SetTimer(0, 40, NULL);
+      break;
   default:
     SetDlgItemText(IDC_STATIC_PARAM0, L"param0");
     SetDlgItemText(IDC_STATIC_PARAM1, L"param1");

@@ -1,4 +1,4 @@
-//特殊功能模块，非基础模块
+//特殊功能模块，非基础模块,测量数据采集
 //根据具体的硬件接线，实现转盘一圈正弦曲线的一次捕捉
 
 #include "StdAfx.h"
@@ -111,6 +111,7 @@ UINT LaserMsg(LPVOID pParam)
 CWinThread * gTrdAll = NULL;
 UINT AllMsg(LPVOID pParam)
 {
+  SetThreadAffinityMask(GetCurrentThread(), 1);
 #define FILTER_NUM 2
 	CDiIntCounterSnap* param = (CDiIntCounterSnap*)pParam;
 	//int delay = 0;

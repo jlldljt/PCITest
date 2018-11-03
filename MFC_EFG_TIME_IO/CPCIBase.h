@@ -2,13 +2,14 @@
 
 #define OUT3_COUNTER 2
 #define OUT6_COUNTER 3
-
+//TODO: 增加卡修改
 enum PCIType {
   PCI1780U = 0,
   TMC12A,
+  AC6641,
   NO_TYPE,
 };
-
+//TODO: 增加卡修改
 enum TimeIOType {
   STATIC_DI = 0,//SceInstantDi,
   INTERRUPT_DI,
@@ -18,6 +19,8 @@ enum TimeIOType {
   PW_MODULATOR, //ScePwModulator,
   STATIC_DO,
   TMC12_COUNTER,
+  AC6641_I,
+  AC6641_O,
 };
 //板卡信息
 typedef struct tagDevInf

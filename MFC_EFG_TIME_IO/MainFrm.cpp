@@ -24,7 +24,7 @@
 CMainFrame* GetMainFrame() {
   static CFrameWndEx *pMain;
   if(!pMain)
-  pMain = (CFrameWndEx *)AfxGetMainWnd();
+    pMain = (CFrameWndEx *)AfxGetMainWnd();
   return ((CMainFrame*)pMain);
 };
 
@@ -207,24 +207,24 @@ CMainFrame::CMainFrame()
   BOOL ifFind = findini.FindFile(ini_path);
   if (!ifFind)  //ini创建，仅此一次
   {
-    //motor
-    WritePrivateProfileString(_T("电机X"), _T("最大频率"), _T("500"), ini_path);
-    WritePrivateProfileString(_T("电机X"), _T("最小频率"), _T("152"), ini_path);
-    WritePrivateProfileString(_T("电机X"), _T("S弯曲度"), _T("8"), ini_path);
+    AfxMessageBox(_T("第一次运行，请进入配置界面配置并保存"));
+    ////motor
+    //WritePrivateProfileString(_T("电机X"), _T("最大频率"), _T("500"), ini_path);
+    //WritePrivateProfileString(_T("电机X"), _T("最小频率"), _T("152"), ini_path);
+    //WritePrivateProfileString(_T("电机X"), _T("S弯曲度"), _T("8"), ini_path);
 
-    WritePrivateProfileString(_T("电机Y"), _T("最大频率"), _T("500"), ini_path);
-    WritePrivateProfileString(_T("电机Y"), _T("最小频率"), _T("152"), ini_path);
-    WritePrivateProfileString(_T("电机Y"), _T("S弯曲度"), _T("8"), ini_path);
+    //WritePrivateProfileString(_T("电机Y"), _T("最大频率"), _T("500"), ini_path);
+    //WritePrivateProfileString(_T("电机Y"), _T("最小频率"), _T("152"), ini_path);
+    //WritePrivateProfileString(_T("电机Y"), _T("S弯曲度"), _T("8"), ini_path);
 
-    WritePrivateProfileString(_T("电机U"), _T("最大频率"), _T("500"), ini_path);
-    WritePrivateProfileString(_T("电机U"), _T("最小频率"), _T("152"), ini_path);
-    WritePrivateProfileString(_T("电机U"), _T("S弯曲度"), _T("8"), ini_path);
+    //WritePrivateProfileString(_T("电机U"), _T("最大频率"), _T("500"), ini_path);
+    //WritePrivateProfileString(_T("电机U"), _T("最小频率"), _T("152"), ini_path);
+    //WritePrivateProfileString(_T("电机U"), _T("S弯曲度"), _T("8"), ini_path);
 
-    WritePrivateProfileString(_T("激光"), _T("OUT3"), _T("80"), ini_path);
-    WritePrivateProfileString(_T("激光"), _T("OUT6"), _T("120"), ini_path);
-
+    //WritePrivateProfileString(_T("激光"), _T("OUT3"), _T("80"), ini_path);
+    //WritePrivateProfileString(_T("激光"), _T("OUT6"), _T("120"), ini_path);
   }
-  wchar_t ret[100] = { 0 };
+  /*wchar_t ret[100] = { 0 };
   GetPrivateProfileString(_T("电机X"), _T("最大频率"), _T(""), ret, sizeof(ret), ini_path);
   m_efgio.m_efg_param.motor.x.max_freq = _wtof(ret);
   GetPrivateProfileString(_T("电机X"), _T("最小频率"), _T(""), ret, sizeof(ret), ini_path);
@@ -246,9 +246,11 @@ CMainFrame::CMainFrame()
 
   m_efgio.m_efg_param.laser.out3 = GetPrivateProfileInt(_T("激光"), _T("OUT3"), 0, ini_path);
   m_efgio.m_efg_param.laser.out6 = GetPrivateProfileInt(_T("激光"), _T("OUT6"), 0, ini_path);
-
+*/
   g_ini_path = ini_path;
 
+
+  EfgParamLoad();
 }
 
 CMainFrame::~CMainFrame()
@@ -315,7 +317,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
   for (int i = 0; i < count; i++) {
     int nIndex = pComboBox->AddItem(m_efgio.GetPCIDesc(i));
   }
-
 
   //CRect rect;
   //GetClientRect(&rect);
@@ -1109,45 +1110,276 @@ void CMainFrame::OnButtonConfigchannel()
 void CMainFrame::OnFileSave()
 {
   // TODO: 在此添加命令处理程序代码
+  EfgParamSave();
+
+
+  AfxMessageBox(_T("保存成功！"));
+  ////link CMainFrame()
+  //CString ini_path = g_ini_path;
+  /////////////////
+  //CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用  
+  //if (!findini.FindFile(m_exe_path + _T("\\INI\\*.*")))
+  //{
+  //  if (!CreateDirectory(m_exe_path + _T("\\INI\\"), NULL))
+  //  {
+  //    AfxMessageBox(_T("INI目录创建失败！"));
+  //    return;
+  //  }
+  //}
+
+  //CString str;
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.x.max_freq);
+  //WritePrivateProfileString(_T("电机X"), _T("最大频率"), str, ini_path);
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.x.min_freq);
+  //WritePrivateProfileString(_T("电机X"), _T("最小频率"), str, ini_path);
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.x.flexible);
+  //WritePrivateProfileString(_T("电机X"), _T("S弯曲度"), str, ini_path);
+
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.y.max_freq);
+  //WritePrivateProfileString(_T("电机Y"), _T("最大频率"), str, ini_path);
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.y.min_freq);
+  //WritePrivateProfileString(_T("电机Y"), _T("最小频率"), str, ini_path);
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.y.flexible);
+  //WritePrivateProfileString(_T("电机Y"), _T("S弯曲度"), str, ini_path);
+
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.u.max_freq);
+  //WritePrivateProfileString(_T("电机U"), _T("最大频率"), str, ini_path);
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.u.min_freq);
+  //WritePrivateProfileString(_T("电机U"), _T("最小频率"), str, ini_path);
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.u.flexible);
+  //WritePrivateProfileString(_T("电机U"), _T("S弯曲度"), str, ini_path);
+
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.laser.out3);
+  //WritePrivateProfileString(_T("激光"), _T("OUT3"), str, ini_path);
+  //str.Format(_T("%.2f"), m_efgio.m_efg_param.laser.out6);
+  //WritePrivateProfileString(_T("激光"), _T("OUT6"), str, ini_path);
+
+  //AfxMessageBox(_T("保存成功！"));
+}
+
+void CMainFrame::EfgParamLoad()
+{
+  //目录初始化
+  CString ini_path = g_ini_path;
+  wchar_t ret[100] = { 0 };
+  //laser
+  m_efgio.m_configParam.laser.out3 = GetPrivateProfileInt(_T("激光"), _T("OUT3"), 0, ini_path);
+  m_efgio.m_configParam.laser.out6 = GetPrivateProfileInt(_T("激光"), _T("OUT6"), 0, ini_path);
+  //xray
+  //motor
+  GetPrivateProfileString(_T("电机X"), _T("最大频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.motor.x.max_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机X"), _T("最小频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.motor.x.min_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机X"), _T("S弯曲度"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.motor.x.flexible = _wtof(ret);
+  GetPrivateProfileString(_T("电机Y"), _T("最大频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.motor.y.max_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机Y"), _T("最小频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.motor.y.min_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机Y"), _T("S弯曲度"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.motor.y.flexible = _wtof(ret);
+  GetPrivateProfileString(_T("电机U"), _T("最大频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.motor.u.max_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机U"), _T("最小频率"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.motor.u.min_freq = _wtof(ret);
+  GetPrivateProfileString(_T("电机U"), _T("S弯曲度"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.motor.u.flexible = _wtof(ret);
+  //user_config
+  m_efgio.m_configParam.user_config.type= GetPrivateProfileInt(_T("基本配置"), _T("晶片类型"), 0, ini_path);
+  for (int i = 0; i < MAX_TYPE_NUM; i++)
+  {
+    CString tmp;
+    tmp.Format(_T("%d类档数"), i);
+    m_efgio.m_configParam.user_config.type_sort_num[i]= GetPrivateProfileInt(_T("基本配置"), tmp, 0, ini_path);
+  }
+  m_efgio.m_configParam.user_config.pos.x_off=GetPrivateProfileInt(_T("基本配置"), _T("x放料位"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.x_wait=GetPrivateProfileInt(_T("基本配置"), _T("x等待位"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.y_wait=GetPrivateProfileInt(_T("基本配置"), _T("y等待位"), 0, ini_path);
+  for (int i = 0; i < MAX_TYPE_NUM; i++)
+  {
+    CString tmp_type;
+    tmp_type.Format(_T("%d类档位"), i);
+    ASSERT(m_efgio.m_configParam.user_config.type_sort_num[i] < MAX_SORT_NUM);
+    for (int j = 0; j < m_efgio.m_configParam.user_config.type_sort_num[i]; j++)
+    {
+      CString tmp_step;
+      tmp_step.Format(_T("第%d档位"), j);
+      m_efgio.m_configParam.user_config.pos.y_off[i][j]=GetPrivateProfileInt(tmp_type, tmp_step, 0, ini_path);
+    }
+  }
+  m_efgio.m_configParam.user_config.pos.primary_n = GetPrivateProfileInt(_T("基本配置"), _T("主测角低"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.primary_p=GetPrivateProfileInt(_T("基本配置"), _T("主测角高"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.secondary_n=GetPrivateProfileInt(_T("基本配置"), _T("次测角低"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.secondary_p=GetPrivateProfileInt(_T("基本配置"), _T("次测角高"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.not_detected=GetPrivateProfileInt(_T("基本配置"), _T("未检出"), 0, ini_path);
+  //时间
+  m_efgio.m_configParam.user_config.time.x_on=GetPrivateProfileInt(_T("基本配置"), _T("x吸料时间"), 0, ini_path);
+  m_efgio.m_configParam.user_config.time.x_off=GetPrivateProfileInt(_T("基本配置"), _T("x放料时间"), 0, ini_path);
+  m_efgio.m_configParam.user_config.time.y_on=GetPrivateProfileInt(_T("基本配置"), _T("y吸料时间"), 0, ini_path);
+  m_efgio.m_configParam.user_config.time.y_off=GetPrivateProfileInt(_T("基本配置"), _T("y放料时间"), 0, ini_path);
+  m_efgio.m_configParam.user_config.time.blow = GetPrivateProfileInt(_T("基本配置"), _T("吹气时间"), 0, ini_path);
+  m_efgio.m_configParam.user_config.time.clean = GetPrivateProfileInt(_T("基本配置"), _T("清理三孔时间"), 0, ini_path);
+  
+  GetPrivateProfileString(_T("测量配置"), _T("流程卡"), _T(""), m_efgio.m_configParam.user_config.measure.card, MAX_CARD_LEN, ini_path);
+
+  //m_efgio.m_configParam.user_config.measure.card= GetPrivateProfileInt(_T("测量配置"), _T("流程卡"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.primary.type=GetPrivateProfileInt(_T("测量配置"), _T("主测量类型"),0, ini_path);
+  m_efgio.m_configParam.user_config.measure.primary.center_degree=GetPrivateProfileInt(_T("测量配置"), _T("中心角度"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.primary.step_degree=GetPrivateProfileInt(_T("测量配置"), _T("步进角度"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.secondary.type=GetPrivateProfileInt(_T("测量配置"), _T("次测量类型"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.secondary.min_degree=GetPrivateProfileInt(_T("测量配置"), _T("最小角度"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.secondary.max_degree=GetPrivateProfileInt(_T("测量配置"), _T("最大角度"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.equivalent_angle.phi=GetPrivateProfileInt(_T("测量配置"), _T("等效角电轴"),0, ini_path);
+  m_efgio.m_configParam.user_config.measure.equivalent_angle.factor=GetPrivateProfileInt(_T("测量配置"), _T("等效角因子"), 0, ini_path);
+}
+
+void CMainFrame::EfgParamSave()
+{
+  // TODO: 在此添加命令处理程序代码
   //link CMainFrame()
   CString ini_path = g_ini_path;
   ///////////////
-  CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用  
-  if (!findini.FindFile(m_exe_path + _T("\\INI\\*.*")))
-  {
-    if (!CreateDirectory(m_exe_path + _T("\\INI\\"), NULL))
-    {
-      AfxMessageBox(_T("INI目录创建失败！"));
-      return;
-    }
-  }
+  //CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用  
+  //if (!findini.FindFile(m_exe_path + _T("\\INI\\*.*")))
+  //{
+  //  if (!CreateDirectory(m_exe_path + _T("\\INI\\"), NULL))
+  //  {
+  //    AfxMessageBox(_T("INI目录创建失败！"));
+  //    return;
+  //  }
+  //}
 
   CString str;
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.x.max_freq);
+  //laser
+  str.Format(_T("%d"), m_efgio.m_configParam.laser.out3);
+  WritePrivateProfileString(_T("激光"), _T("OUT3"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.laser.out6);
+  WritePrivateProfileString(_T("激光"), _T("OUT6"), str, ini_path);
+  //xray
+  //motor
+  str.Format(_T("%.2f"), m_efgio.m_configParam.motor.x.max_freq);
   WritePrivateProfileString(_T("电机X"), _T("最大频率"), str, ini_path);
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.x.min_freq);
+  str.Format(_T("%.2f"), m_efgio.m_configParam.motor.x.min_freq);
   WritePrivateProfileString(_T("电机X"), _T("最小频率"), str, ini_path);
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.x.flexible);
+  str.Format(_T("%.2f"), m_efgio.m_configParam.motor.x.flexible);
   WritePrivateProfileString(_T("电机X"), _T("S弯曲度"), str, ini_path);
 
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.y.max_freq);
+  str.Format(_T("%.2f"), m_efgio.m_configParam.motor.y.max_freq);
   WritePrivateProfileString(_T("电机Y"), _T("最大频率"), str, ini_path);
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.y.min_freq);
+  str.Format(_T("%.2f"), m_efgio.m_configParam.motor.y.min_freq);
   WritePrivateProfileString(_T("电机Y"), _T("最小频率"), str, ini_path);
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.y.flexible);
+  str.Format(_T("%.2f"), m_efgio.m_configParam.motor.y.flexible);
   WritePrivateProfileString(_T("电机Y"), _T("S弯曲度"), str, ini_path);
 
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.u.max_freq);
+  str.Format(_T("%.2f"), m_efgio.m_configParam.motor.u.max_freq);
   WritePrivateProfileString(_T("电机U"), _T("最大频率"), str, ini_path);
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.u.min_freq);
+  str.Format(_T("%.2f"), m_efgio.m_configParam.motor.u.min_freq);
   WritePrivateProfileString(_T("电机U"), _T("最小频率"), str, ini_path);
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.motor.u.flexible);
+  str.Format(_T("%.2f"), m_efgio.m_configParam.motor.u.flexible);
   WritePrivateProfileString(_T("电机U"), _T("S弯曲度"), str, ini_path);
 
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.laser.out3);
-  WritePrivateProfileString(_T("激光"), _T("OUT3"), str, ini_path);
-  str.Format(_T("%.2f"), m_efgio.m_efg_param.laser.out6);
-  WritePrivateProfileString(_T("激光"), _T("OUT6"), str, ini_path);
+  //user_config
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.type);
+  WritePrivateProfileString(_T("基本配置"), _T("晶片类型"), str, ini_path);
+  for (int i = 0; i < MAX_TYPE_NUM; i++)
+  {
+    CString tmp;
+    tmp.Format(_T("%d类档数"), i);
+    str.Format(_T("%d"), m_efgio.m_configParam.user_config.type_sort_num[i]);
+    WritePrivateProfileString(_T("基本配置"), tmp, str, ini_path);
+  }
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.pos.x_off);
+  WritePrivateProfileString(_T("基本配置"), _T("x放料位"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.pos.x_wait);
+  WritePrivateProfileString(_T("基本配置"), _T("x等待位"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.pos.y_wait);
+  WritePrivateProfileString(_T("基本配置"), _T("y等待位"), str, ini_path);
+  for (int i = 0; i < MAX_TYPE_NUM; i++)
+  {
+    CString tmp_type;
+    tmp_type.Format(_T("%d类档位"), i);
+    ASSERT(m_efgio.m_configParam.user_config.type_sort_num[i] < MAX_SORT_NUM);
+    for (int j = 0; j < m_efgio.m_configParam.user_config.type_sort_num[i]; j++)
+    {
+      CString tmp_step;
+      tmp_step.Format(_T("第%d档位"), j);
+      str.Format(_T("%d"), m_efgio.m_configParam.user_config.pos.y_off[i][j]);
+      WritePrivateProfileString(tmp_type, tmp_step, str, ini_path);
+    }
+  }
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.pos.primary_n);
+  WritePrivateProfileString(_T("基本配置"), _T("主测角低"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.pos.primary_p);
+  WritePrivateProfileString(_T("基本配置"), _T("主测角高"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.pos.secondary_n);
+  WritePrivateProfileString(_T("基本配置"), _T("次测角低"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.pos.secondary_p);
+  WritePrivateProfileString(_T("基本配置"), _T("次测角高"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.pos.not_detected);
+  WritePrivateProfileString(_T("基本配置"), _T("未检出"), str, ini_path);
+  //时间
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.time.x_on);
+  WritePrivateProfileString(_T("基本配置"), _T("x吸料时间"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.time.x_off);
+  WritePrivateProfileString(_T("基本配置"), _T("x放料时间"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.time.y_on);
+  WritePrivateProfileString(_T("基本配置"), _T("y吸料时间"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.time.y_off);
+  WritePrivateProfileString(_T("基本配置"), _T("y放料时间"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.time.blow);
+  WritePrivateProfileString(_T("基本配置"), _T("吹气时间"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.time.clean);
+  WritePrivateProfileString(_T("基本配置"), _T("清理三孔时间"), str, ini_path);
 
-  AfxMessageBox(_T("保存成功！"));
+  //str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.card);
+  WritePrivateProfileString(_T("测量配置"), _T("流程卡"), m_efgio.m_configParam.user_config.measure.card, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.primary.type);
+  WritePrivateProfileString(_T("测量配置"), _T("主测量类型"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.primary.center_degree);
+  WritePrivateProfileString(_T("测量配置"), _T("中心角度"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.primary.step_degree);
+  WritePrivateProfileString(_T("测量配置"), _T("步进角度"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.secondary.type);
+  WritePrivateProfileString(_T("测量配置"), _T("次测量类型"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.secondary.min_degree);
+  WritePrivateProfileString(_T("测量配置"), _T("最小角度"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.secondary.max_degree);
+  WritePrivateProfileString(_T("测量配置"), _T("最大角度"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.equivalent_angle.phi);
+  WritePrivateProfileString(_T("测量配置"), _T("等效角电轴"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.equivalent_angle.factor);
+  WritePrivateProfileString(_T("测量配置"), _T("等效角因子"), str, ini_path);
+
+}
+
+BOOL CMainFrame::StartMeasure(int out3, int out6)
+{
+  if (m_diIntCounterSnap.CheckStart() > 0) {
+    //AfxMessageBox(L"正在采集");
+    return FALSE;
+  }
+
+  int index = m_efgio.GetCardIndex();
+
+  if (index < 0)
+    return FALSE;
+
+  m_diIntCounterSnap.BindCard(m_efgio.GetPCIDeviceNumber(index), m_efgio.GetPCI(index), m_viewBoard, &m_efgio);
+  m_diIntCounterSnap.StartXRayAndLaser(0);
+
+  m_diIntCounterSnap.StartCaptureSin(OUT3_COUNTER, out3, OUT6_COUNTER, out6);// TODO：应该时5和4
+  m_diIntCounterSnap.StartCaptureXRayOneShot();
+
+  m_diIntCounterSnap.StartMeasure();
+  
+  return TRUE;
+}
+// TRUE 在测量中，False 没有测量
+BOOL CMainFrame::CheckMeasure()
+{
+  if (m_diIntCounterSnap.CheckStart() > 0) {
+    return FALSE;
+  }
+  return TRUE;
 }

@@ -112,7 +112,10 @@
     <None Include="res\MFC_EFG_TIME_IODoc.ico" />
     <None Include="res\Project1.bmp" />
     <None Include="res\ribbon.mfcribbon-ms" />
+    <None Include="res\run.ico" />
     <None Include="res\small1.bmp" />
+    <None Include="res\start.bmp" />
+    <None Include="res\stop.bmp" />
     <None Include="res\Toolbar.bmp" />
     <None Include="res\Toolbar256.bmp" />
     <None Include="res\writelarge.bmp" />
@@ -120,6 +123,23 @@
     <None Include="说明.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\CellRange.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCell.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\MemDC.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\TitleTip.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridURLCell.h" />
+    <ClInclude Include="AC6641_Base.h" />
+    <ClInclude Include="AC6641_Ctrl.h" />
+    <ClInclude Include="AC6641_DI.h" />
+    <ClInclude Include="AC6641_DO.h" />
     <ClInclude Include="ComDef.h" />
     <ClInclude Include="CPCICtrl.h" />
     <ClInclude Include="CPCIBase.h" />
@@ -137,6 +157,7 @@
     <ClInclude Include="DlgDebugDevice.h" />
     <ClInclude Include="DlgDI.h" />
     <ClInclude Include="DlgDO.h" />
+    <ClInclude Include="DlgLaser.h" />
     <ClInclude Include="DlgRun1.h" />
     <ClInclude Include="DlgT0.h" />
     <ClInclude Include="DlgT1.h" />
@@ -164,6 +185,21 @@
     <ClInclude Include="BoardView.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCell.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\TitleTip.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridURLCell.cpp" />
+    <ClCompile Include="AC6641_Base.cpp" />
+    <ClCompile Include="AC6641_Ctrl.cpp" />
+    <ClCompile Include="AC6641_DI.cpp" />
+    <ClCompile Include="AC6641_DO.cpp" />
     <ClCompile Include="ComDef.cpp" />
     <ClCompile Include="CPCICtrl.cpp" />
     <ClCompile Include="CPCIBase.cpp" />
@@ -181,6 +217,7 @@
     <ClCompile Include="DlgDebugDevice.cpp" />
     <ClCompile Include="DlgDI.cpp" />
     <ClCompile Include="DlgDO.cpp" />
+    <ClCompile Include="DlgLaser.cpp" />
     <ClCompile Include="DlgRun1.cpp" />
     <ClCompile Include="DlgT0.cpp" />
     <ClCompile Include="DlgT1.cpp" />

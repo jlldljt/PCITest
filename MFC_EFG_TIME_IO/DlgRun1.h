@@ -1,6 +1,34 @@
 #pragma once
+#include "EfgIO.h"
 
+enum ENUM_STATE
+{
+  MAIN_START,
+  MAIN_PAUSE,
+  MAIN_STOP,
+  X_START,
+  X_WAIT,
+  X_STOP,
+  X_END,
+  Y_START,
+  Y_STOP,
+  Y_END,
+  TURNTABLE_NULL,//y轴取走，初始化
+  TURNTABLE_MEASURE,//x轴放下
+  TURNTABLE_MEASURING,//正在测量
+  TURNTABLE_END,//测量完成
 
+};
+
+typedef struct {
+  struct {
+    ENUM_STATE mainrun;//mainrun线程的状态 1
+    ENUM_STATE x;
+    ENUM_STATE y;
+    ENUM_STATE turntable;//转盘状态
+  }state;
+  int measure; // 0无测量
+}Run_Param;
 
 // CDlgRun1 窗体视图
 
@@ -27,9 +55,34 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
   CBrush m_brush;
+  CFont m_font;
+
 public:
+  Run_Param m_run;//运行参数
+  EFG_ConfigParam *m_param;//配置参数
+  CEfgIO *m_io;//io控制
+  EFG_ResultParam *m_result;//运行结果
   afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
   virtual void OnInitialUpdate();
+//  afx_msg void OnBnClickedSortSet();
+  afx_msg void OnBnClickedEdtRunSet();
+  afx_msg void OnCbnSelchangeCmbPrimary();
+  afx_msg void OnEnChangeEdtCard();
+  afx_msg void OnCbnSelchangeCmbSecondary();
+  afx_msg void OnEnChangeEdtCenterDegree();
+  afx_msg void OnEnChangeEdtStepDegree();
+  afx_msg void OnEnChangeEdtMinDegree();
+  afx_msg void OnEnChangeEdtMaxDegree();
+  afx_msg void OnEnChangeEdtEquPhi();
+  afx_msg void OnEnChangeEdtEquFactor();
+  CGridCtrl m_gridSort;
+  void InitGrid(void);
+  void UpdateGrid();
+  void UpdateGridWithRecalc();
+  afx_msg void OnBnClickedBtnCtrl();
+  afx_msg void OnBnClickedChkPause();
+  CBitmapButton m_btn_ctrl;
+  CTabCtrl m_tab_preview;
 };
 
 

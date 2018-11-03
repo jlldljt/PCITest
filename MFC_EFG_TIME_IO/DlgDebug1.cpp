@@ -15,6 +15,7 @@ CDlgDebug1::CDlgDebug1()
 	: CFormView(CDlgDebug1::IDD)
 {
   m_dlg_debug_device = NULL;
+  m_dlg_laser = NULL;
 }
 
 CDlgDebug1::~CDlgDebug1()
@@ -67,9 +68,17 @@ void CDlgDebug1::OnTcnSelchangeTabDebug(NMHDR *pNMHDR, LRESULT *pResult)
   {
   case 0:
     m_dlg_debug_device->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
+    m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    
+    break;
+  case 1:
+    m_dlg_debug_device->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
+    
     break;
   default:
     m_dlg_debug_device->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     break;
   }
   *pResult = 0;
@@ -109,12 +118,15 @@ void CDlgDebug1::OnInitialUpdate()
   m_tab_debug.InsertItem(1, _T("其他调试"));
   m_dlg_debug_device = new CDlgDebugDevice;
   m_dlg_debug_device->Create(IDD_DIALOG_DEVICE, &m_tab_debug);
+  m_dlg_laser = new CDlgLaser;
+  m_dlg_laser->Create(IDD_DLG_LASER, &m_tab_debug);
   m_tab_debug.GetClientRect(&dbgRect);//tab控件大小
   dbgRect.left += 1;
   dbgRect.right -= 1;
   dbgRect.top += 22;
   dbgRect.bottom -= 1;
   m_dlg_debug_device->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(), SWP_SHOWWINDOW);
+  m_dlg_laser->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(), SWP_HIDEWINDOW);
   m_tab_debug.SetCurSel(0);
 }
 

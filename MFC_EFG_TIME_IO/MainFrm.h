@@ -152,6 +152,10 @@ public:
   afx_msg void OnButtonDebugpage();
   afx_msg void OnButtonConfigchannel();
   afx_msg void OnFileSave();
+  void EfgParamLoad();
+  void EfgParamSave();
+  BOOL StartMeasure(int out3, int out6);
+  BOOL CheckMeasure();
 };
 
 
