@@ -68,6 +68,11 @@ UINT Thread_TurntableRun(LPVOID pParam)
     case TURNTABLE_END:
       if (Y_END == pdlg->m_run.state.y)//如果y停止，启动y
       {
+        //GetMainFrame()->m_diIntCounterSnap.CalcResult();//测量完成，等待y轴运行完毕，进行计算
+        pdlg->CalcResult();
+        //pdlg->m_io->GetCurOffPos();//得到当前的下料位置
+        //pdlg->ShowResult(1);
+
         pdlg->m_run.state.y = Y_START;
         gTrdYRun->ResumeThread();
       }
@@ -181,6 +186,14 @@ CDlgRun1::CDlgRun1()
 
 CDlgRun1::~CDlgRun1()
 {
+  m_laserdc->SelectObject(m_laseroldbm);
+  m_laserbm->DeleteObject();
+  m_laserdc->DeleteDC();
+
+  m_xraydc->SelectObject(m_xrayoldbm);
+  m_xraybm->DeleteObject();
+  m_xraydc->DeleteDC();
+
 }
 
 void CDlgRun1::DoDataExchange(CDataExchange* pDX)
@@ -189,6 +202,7 @@ void CDlgRun1::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_GRID_SORT, m_gridSort);
   DDX_Control(pDX, IDC_BTN_CTRL, m_btn_ctrl);
   DDX_Control(pDX, IDC_TAB_PREVIEW, m_tab_preview);
+  DDX_Control(pDX, IDC_STATIC_RESULT, m_static_result);
 }
 
 BEGIN_MESSAGE_MAP(CDlgRun1, CFormView)
@@ -206,6 +220,7 @@ ON_EN_CHANGE(IDC_EDT_EQU_PHI, &CDlgRun1::OnEnChangeEdtEquPhi)
 ON_EN_CHANGE(IDC_EDT_EQU_FACTOR, &CDlgRun1::OnEnChangeEdtEquFactor)
 ON_BN_CLICKED(IDC_BTN_CTRL, &CDlgRun1::OnBnClickedBtnCtrl)
 ON_BN_CLICKED(IDC_CHK_PAUSE, &CDlgRun1::OnBnClickedChkPause)
+ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_PREVIEW, &CDlgRun1::OnTcnSelchangeTabPreview)
 END_MESSAGE_MAP()
 
 
@@ -240,7 +255,8 @@ HBRUSH CDlgRun1::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
   else if (nCtlColor == CTLCOLOR_STATIC || nCtlColor == CTLCOLOR_BTN /*|| nCtlColor == CTLCOLOR_MAX*/)
   {
     pDC->SetBkMode(TRANSPARENT);
-    pDC->SetTextColor(RGB(255, 255, 255));
+    pDC->SetTextColor(RGB(0, 0, 0));
+    if (pWnd->GetDlgCtrlID() == IDC_STATIC||pWnd->GetDlgCtrlID() == IDC_STATIC_SORT|| pWnd->GetDlgCtrlID() == IDC_STATIC_RESULT)
     return (HBRUSH)::GetStockObject(NULL_BRUSH);
   }
   // TODO:  如果默认的不是所需画笔，则返回另一个画笔
@@ -272,14 +288,52 @@ void CDlgRun1::OnInitialUpdate()
   m_btn_ctrl.LoadBitmaps(IDB_START);
   m_btn_ctrl.SizeToContent();
 
+  //////////////tab
+                   //tab控件初始化
+  CRect rect;
+  m_tab_preview.InsertItem(0, _T("尖峰图"));
+  m_tab_preview.InsertItem(1, _T("摇摆曲线"));
+  m_tab_preview.SetCurSel(0);
 
+  m_tab_preview.GetClientRect(&rect);
+  m_preview_rect = rect;
+
+  rect.left += 1;
+  rect.right -= 1;
+  rect.top += 22;
+  rect.bottom -= 1;
+
+  m_preview_rect.right -= 2;
+  m_preview_rect.bottom -= 23;
+
+  CDC *pDC = m_tab_preview.GetDC();
+  m_laserdc = new CDC;
+  m_laserbm = new CBitmap;
+  m_laserdc->CreateCompatibleDC(pDC);
+  m_laserbm->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
+  m_laseroldbm = m_laserdc->SelectObject(m_laserbm);
+  m_laserdc->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(m_laserdc->m_hDC, 0, 0, NULL);
+
+
+  m_xraydc = new CDC;
+  m_xraybm = new CBitmap;
+  m_xraydc->CreateCompatibleDC(pDC);
+  m_xraybm->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
+  m_xrayoldbm = m_xraydc->SelectObject(m_xraybm);
+  m_xraydc->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(m_xraydc->m_hDC, 0, 0, NULL);
+
+  ReleaseDC(pDC);
+
+  // 背景贴图
   CBitmap bmp, sbmp;
   HBITMAP bitmap = (HBITMAP)::LoadImage(NULL, _T("BK1.bmp"), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_LOADFROMFILE | LR_DEFAULTSIZE);
   if (bitmap)
     bmp.Attach(bitmap);
   else
     bmp.LoadBitmap(IDB_BK1);   //IDB_BITMAP1是图片资源ID
-  CRect rect;
+//  CRect rect;
   GetClientRect(&rect);
   ScaleBitmap(&bmp, sbmp, rect.Width(), rect.Height());
   m_brush.CreatePatternBrush(&sbmp);
@@ -457,9 +511,9 @@ void CDlgRun1::InitGrid(void)
 
   CRect cRect;
   GetDlgItem(IDC_GRID_SORT)->GetClientRect(&cRect);
-  m_gridSort.SetColumnWidth(0, cRect.Width() / 5 * 1); //设置列宽 
-  m_gridSort.SetColumnWidth(1, cRect.Width() / 5 * 2); //
-  m_gridSort.SetColumnWidth(2, cRect.Width() / 5 * 2); //
+  m_gridSort.SetColumnWidth(0, cRect.Width() / 6 * 1); //设置列宽 
+  m_gridSort.SetColumnWidth(1, cRect.Width() / 6 * 3); //
+  m_gridSort.SetColumnWidth(2, cRect.Width() / 6 * 2); //
   m_gridSort.ExpandLastColumn();
   m_gridSort.SetColumnResize(FALSE);
   m_gridSort.SetRowResize(FALSE);
@@ -588,9 +642,167 @@ void CDlgRun1::OnBnClickedChkPause()
   if (nStat)
   {
    // GetDlgItem(IDC_CHK_PAUSE)->GetDC()->SetBkColor(RGB(255, 0, 0));
+    GetMainFrame()->m_diIntCounterSnap.BindCard(0, NULL, GetMainFrame()->m_viewBoard);
+    GetMainFrame()->m_diIntCounterSnap.TestS();
+
+    //CRect rect;
+    //GetDlgItem(IDC_TAB_PREVIEW)->GetClientRect(rect);
+
+    //rect.right -= 2;
+    //rect.bottom -= 23;
+
+    GetMainFrame()->m_viewBoard->DrawToDC(m_laserdc, m_preview_rect);
+
+    ShowResult(1);
   }
   else
   {
    // GetDlgItem(IDC_CHK_PAUSE)->GetDC()->SetBkColor(RGB(0, 255, 0));
+    GetMainFrame()->m_diIntCounterSnap.BindCard(0, NULL, GetMainFrame()->m_viewBoard);
+    GetMainFrame()->m_diIntCounterSnap.TestS();
+    GetMainFrame()->m_viewBoard->DrawToDC(m_xraydc, m_preview_rect);
+
+    ShowResult(0);
   }
+}
+
+//sw 1刷新，sw清零
+void CDlgRun1::ShowResult(BOOL sw)
+{
+  CString str_deg = _T("");
+  int str_pos = 0;
+  if (sw)
+  {
+    
+    str_deg.Format(_T("类  别\t当前值\t平均值\t散  差\r\n光轴\t%.3lf\t%.3lf\t%.3lf\r\n电轴\t%.3lf\t%.3lf\t%.3lf\r\n等效角\t%.3f\t%.3f\t%.3f\r\n光轴0\t%.3f\t%.3f\t%.3f\r\n电轴0\t%.3f\t%.3f\t%.3f\r\n"),
+      m_io->m_resultParam.measure.cur_laser1, m_io->m_resultParam.measure.avg_laser1, m_io->m_resultParam.measure.std_laser1,
+      m_io->m_resultParam.measure.cur_phi1, m_io->m_resultParam.measure.avg_phi1, m_io->m_resultParam.measure.std_phi1,
+      m_io->m_resultParam.measure.cur_equ, m_io->m_resultParam.measure.avg_equ, m_io->m_resultParam.measure.std_equ,
+      m_io->m_resultParam.measure.cur_laser0, m_io->m_resultParam.measure.avg_laser0, m_io->m_resultParam.measure.std_laser0,
+      m_io->m_resultParam.measure.cur_phi0, m_io->m_resultParam.measure.avg_phi0, m_io->m_resultParam.measure.std_phi0
+    );
+
+    str_pos = m_io->m_resultParam.measure.cur_pos;
+  }
+  else
+  {
+    m_io->ClearMeasureResult();
+  }
+  GetDlgItem(IDC_STATIC_RESULT)->SetWindowText(str_deg);
+  SetDlgItemText(IDC_SHOW_DEGREE, str_deg);
+  //SetDlgItemText(IDC_STATIC_RESULT, str_deg);
+
+  OnTcnSelchangeTabPreview(NULL, NULL);
+
+  SetDlgItemInt(IDC_STATIC_SORT, str_pos);
+}
+
+
+void CDlgRun1::OnTcnSelchangeTabPreview(NMHDR *pNMHDR, LRESULT *pResult)
+{
+  // TODO: 在此添加控件通知处理程序代码
+  CRect tabRect;
+  m_tab_preview.GetClientRect(&tabRect);
+  tabRect.left += 1;
+  tabRect.right -= 1;
+  tabRect.top += 22;
+  tabRect.bottom -= 1;
+  CDC *pDC = m_tab_preview.GetDC();
+  switch (m_tab_preview.GetCurSel())
+  {
+  case 0:
+    pDC->BitBlt(tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), m_xraydc, 0, 0, SRCCOPY);
+    break;
+  case 1:
+    pDC->BitBlt(tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), m_laserdc, 0, 0, SRCCOPY);
+
+    break;
+  }
+  ReleaseDC(pDC);
+
+  if(pResult)
+  *pResult = 0;
+}
+//得到用户最终结果并刷新界面
+int CDlgRun1::CalcResult()
+{
+  if (-1 == GetMainFrame()->m_diIntCounterSnap.LaserFit())
+    return -1;
+  if(GetMainFrame()->m_viewBoard)
+    GetMainFrame()->m_viewBoard->DrawToDC(m_laserdc, m_preview_rect);
+
+  if (-1 == GetMainFrame()->m_diIntCounterSnap.XrayFit())
+    return -1;
+  if (GetMainFrame()->m_viewBoard)
+    GetMainFrame()->m_viewBoard->DrawToDC(m_xraydc, m_preview_rect);
+
+  EfgAlg alg;
+
+  struct tagSinParam sin_param = {
+    m_io->m_resultParam.measure.A,
+    m_io->m_resultParam.measure.w,
+    m_io->m_resultParam.measure.t,
+    m_io->m_resultParam.measure.k
+  };
+  //计算光轴电轴
+  alg.CalcDegree1(
+    m_io->m_resultParam.measure.cur_laser0,
+    m_io->m_resultParam.measure.cur_phi0,
+    sin_param,
+    m_io->m_resultParam.measure.cur_laser1,
+    m_io->m_resultParam.measure.cur_phi1
+  );
+  //计算等效角
+  alg.CalcEquAngle(
+    m_io->m_resultParam.measure.cur_laser0,
+    m_io->m_resultParam.measure.cur_phi0,
+    USER_TO_DEG(m_io->m_configParam.user_config.measure.equivalent_angle.phi),
+    m_io->m_configParam.user_config.measure.equivalent_angle.factor / 1000.0,
+    m_io->m_resultParam.measure.cur_equ
+  );
+
+  // 累计
+  m_io->m_resultParam.measure.num++;
+
+  // 累计平均值，散差
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.cur_laser0,
+    m_io->m_resultParam.measure.avg_laser0,
+    m_io->m_resultParam.measure.std_laser0,
+    m_io->m_resultParam.measure.std2_laser0
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.cur_phi0,
+    m_io->m_resultParam.measure.avg_phi0,
+    m_io->m_resultParam.measure.std_phi0,
+    m_io->m_resultParam.measure.std2_phi0
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.cur_laser1,
+    m_io->m_resultParam.measure.avg_laser1,
+    m_io->m_resultParam.measure.std_laser1,
+    m_io->m_resultParam.measure.std2_laser1
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.cur_phi1,
+    m_io->m_resultParam.measure.avg_phi1,
+    m_io->m_resultParam.measure.std_phi1,
+    m_io->m_resultParam.measure.std2_phi1
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.cur_equ,
+    m_io->m_resultParam.measure.avg_equ,
+    m_io->m_resultParam.measure.std_equ,
+    m_io->m_resultParam.measure.std2_equ
+  );
+  //计算档位，在别的地方，或许在efgio
+
+  m_io->GetCurOffPos();//得到当前的下料位置
+  ShowResult(1);//刷新界面
+  return 0;
 }

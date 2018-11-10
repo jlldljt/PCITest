@@ -52,11 +52,12 @@
 #include <afxcontrolbars.h>
 
 
-
+#include "StaticEx.h"
 
 //#define __DEBUG__ // ต๗สิ
 
 #include "../gridctrl_demo/GridCtrl_src/GridCtrl.h"
+#include <afxcontrolbars.h>
 #include <afxcontrolbars.h>
 
 

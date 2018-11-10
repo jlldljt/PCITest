@@ -94,10 +94,16 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\pic\BK1.bmp" />
+    <None Include="..\pic\BK2.bmp" />
+    <None Include="..\pic\BK3.bmp" />
     <None Include="C:\Users\Administrator\Desktop\pic\7.bmp" />
     <None Include="C:\Users\Administrator\Desktop\pic\79Z58PICpNH_1024.bmp" />
     <None Include="C:\Users\Administrator\Desktop\pic\painting_1.bmp" />
     <None Include="ClassDiagram.cd" />
+    <None Include="pic\BK1.bmp" />
+    <None Include="pic\BK2.bmp" />
+    <None Include="pic\BK3.bmp" />
     <None Include="ReadMe.txt" />
     <None Include="res\bitmap1.bmp" />
     <None Include="res\bitmap2.bmp" />
@@ -161,6 +167,7 @@
     <ClInclude Include="DlgRun1.h" />
     <ClInclude Include="DlgT0.h" />
     <ClInclude Include="DlgT1.h" />
+    <ClInclude Include="DlgXray.h" />
     <ClInclude Include="EfgAlg.h" />
     <ClInclude Include="EfgIO.h" />
     <ClInclude Include="EventCounter.h" />
@@ -177,6 +184,7 @@
     <ClInclude Include="SplitFrameWnd.h" />
     <ClInclude Include="StaticDI.h" />
     <ClInclude Include="StaticDO.h" />
+    <ClInclude Include="StaticEx.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TimeIOCtrl.h" />
@@ -221,6 +229,7 @@
     <ClCompile Include="DlgRun1.cpp" />
     <ClCompile Include="DlgT0.cpp" />
     <ClCompile Include="DlgT1.cpp" />
+    <ClCompile Include="DlgXray.cpp" />
     <ClCompile Include="EfgAlg.cpp" />
     <ClCompile Include="EfgIO.cpp" />
     <ClCompile Include="EventCounter.cpp" />
@@ -236,6 +245,7 @@
     <ClCompile Include="SplitFrameWnd.cpp" />
     <ClCompile Include="StaticDI.cpp" />
     <ClCompile Include="StaticDO.cpp" />
+    <ClCompile Include="StaticEx.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

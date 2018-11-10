@@ -393,7 +393,7 @@ int CTimeIOCtrl::getDevices()
   {
     AfxMessageBox(_T("No device to support the currently demonstrated function!"));
     sptedDevices->Dispose();
-    return -1;
+    return 0;
   }
   else {
     for (int i = 0; i < count; ++i)

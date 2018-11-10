@@ -20,11 +20,12 @@ BOOL CAC6641_Base::DriverInit(void)
   {
     return FALSE;
   }
-  if (6641 != AC6641_SN(m_hDevice))
-  {
-    AC6641_CloseDevice(m_hDevice);
-    return FALSE;
-  }
+  //int sn = AC6641_SN(m_hDevice);
+  //if (6641 != AC6641_SN(m_hDevice))
+  //{
+  //  AC6641_CloseDevice(m_hDevice);
+  //  return FALSE;
+  //}
   m_ac6641Boards = 1;
   return TRUE;
 }

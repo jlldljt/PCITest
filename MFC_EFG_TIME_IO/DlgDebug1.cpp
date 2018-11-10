@@ -16,6 +16,7 @@ CDlgDebug1::CDlgDebug1()
 {
   m_dlg_debug_device = NULL;
   m_dlg_laser = NULL;
+  m_dlg_xray = NULL;
 }
 
 CDlgDebug1::~CDlgDebug1()
@@ -69,16 +70,25 @@ void CDlgDebug1::OnTcnSelchangeTabDebug(NMHDR *pNMHDR, LRESULT *pResult)
   case 0:
     m_dlg_debug_device->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
     m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
-    
+    m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+
     break;
   case 1:
     m_dlg_debug_device->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
-    
+    m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+
+    break;
+  case 2:
+    m_dlg_debug_device->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
+
     break;
   default:
     m_dlg_debug_device->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     break;
   }
   *pResult = 0;
@@ -110,16 +120,30 @@ void CDlgDebug1::OnInitialUpdate()
   CFormView::OnInitialUpdate();
 
   // TODO: 在此添加专用代码和/或调用基类
-  
+  CBitmap bmp, sbmp;
+  HBITMAP bitmap = (HBITMAP)::LoadImage(NULL, _T("BK1.bmp"), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_LOADFROMFILE | LR_DEFAULTSIZE);
+  if (bitmap)
+    bmp.Attach(bitmap);
+  else
+    bmp.LoadBitmap(IDB_BK1);   //IDB_BITMAP1是图片资源ID
+  CRect rect;
+  GetClientRect(&rect);
+  ScaleBitmap(&bmp, sbmp, rect.Width(), rect.Height());
+  m_brush.CreatePatternBrush(&sbmp);
+  bmp.DeleteObject();
+
   //////////////tab
   CRect dbgRect;   // 标签控件客户区的位置和大小  
   //tab控件初始化
   m_tab_debug.InsertItem(0, _T("机构调试"));
-  m_tab_debug.InsertItem(1, _T("其他调试"));
+  m_tab_debug.InsertItem(1, _T("激光调试"));
+  m_tab_debug.InsertItem(2, _T("X光调试"));
   m_dlg_debug_device = new CDlgDebugDevice;
   m_dlg_debug_device->Create(IDD_DIALOG_DEVICE, &m_tab_debug);
   m_dlg_laser = new CDlgLaser;
   m_dlg_laser->Create(IDD_DLG_LASER, &m_tab_debug);
+  m_dlg_xray = new CDlgXray;
+  m_dlg_xray->Create(IDD_DLG_XRAY, &m_tab_debug);
   m_tab_debug.GetClientRect(&dbgRect);//tab控件大小
   dbgRect.left += 1;
   dbgRect.right -= 1;
@@ -127,6 +151,7 @@ void CDlgDebug1::OnInitialUpdate()
   dbgRect.bottom -= 1;
   m_dlg_debug_device->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(), SWP_SHOWWINDOW);
   m_dlg_laser->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(), SWP_HIDEWINDOW);
+  m_dlg_xray->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(), SWP_HIDEWINDOW);
   m_tab_debug.SetCurSel(0);
 }
 
@@ -144,7 +169,16 @@ HBRUSH CDlgDebug1::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
   HBRUSH hbr = CFormView::OnCtlColor(pDC, pWnd, nCtlColor);
 
   // TODO:  在此更改 DC 的任何特性
-
+  if (pWnd == this) {
+    return m_brush;
+  }
+  else if (nCtlColor == CTLCOLOR_STATIC || nCtlColor == CTLCOLOR_BTN  /*|| nCtlColor == CTLCOLOR_MAX*/)
+  {
+    pDC->SetBkMode(TRANSPARENT);
+    pDC->SetTextColor(RGB(0, 0, 0));
+    if (pWnd->GetDlgCtrlID() == IDC_STATIC)
+    return (HBRUSH)::GetStockObject(NULL_BRUSH);
+  }
   // TODO:  如果默认的不是所需画笔，则返回另一个画笔
   return hbr;
 }

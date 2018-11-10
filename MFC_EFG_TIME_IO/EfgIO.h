@@ -22,7 +22,11 @@ typedef struct  {
   }laser;
   
   struct {//X光相关
-
+    int threshold;//阈值
+    int confirmNum;//确认数量，宽度超过多少象素
+    int ignore;//忽略值，忽略的值
+    double factor_h;//纵向因子
+    double factor_w;//横向因子
   }xray;
 
   struct {  //电机相关
@@ -92,9 +96,10 @@ typedef struct  {
       }equivalent_angle;
      
     }measure;
-  }user_config;
+  }user_config;//用户输入，使用时，需要转换，
   //位置相关
 
+  int auto_run;//板卡自动启动
 }EFG_ConfigParam;
 
 // 大部分数据不保存到ini
@@ -108,19 +113,23 @@ typedef struct {
     int secondary_p;//次角高
     int not_detected;//未检出
   }num;
-  struct
+  struct//单位是秒
   {
-    int sort_sec[MAX_SORT_NUM];    //y_off各位置的角度,秒
+    int sort_sec[MAX_SORT_NUM];     // y_off各位置的角度,秒
 
   }degree;
-  struct
+  struct//单位是°
   {
-    double D1, D2, DM;              //x光结果
-    double A, w, t, k;              //激光结果
-    double cur_phi, cur_phi0, cur_; //当前片
+    double D1, D2, DM;              // x光结果，单位°
+    double pluse_num;               // 转盘脉冲数
+    double u_g;                      // 公式计算处的u轴的g值
+    double A, w, t, k;              // 激光结果
+    double cur_phi1, cur_phi0, cur_laser1, cur_laser0, cur_equ; // 当前片
+    double avg_phi1, avg_phi0, avg_laser1, avg_laser0, avg_equ;       // 平均
+    double std_phi1, std_phi0, std_laser1, std_laser0, std_equ;       // 散差
+    double std2_phi1, std2_phi0, std2_laser1, std2_laser0, std2_equ;   //中间值
     int cur_pos;//当前片档位
-    double avg_phi, avg_phi0;       //平均
-    double std_phi, std_phi0;       // 散差
+    int num;//测量数量
   }measure;
 }EFG_ResultParam;
 
@@ -230,6 +239,11 @@ public:
   BOOL CheckMotoEnd(int moto_index);
   CString GetMeasureType(int index);
   void InitEfgIO(void);
+  // 获取当前角度的下料位置
+  BOOL GetCurOffPos();
+  // 判断主测角的档位 -1 低 ；=档位数 高
+  void JudegSortWhich(double sec, int & which);
+  void ClearMeasureResult(void);
 private:
 
 

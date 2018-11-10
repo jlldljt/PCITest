@@ -116,6 +116,24 @@
     <None Include="res\stop.bmp">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="..\pic\BK1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\pic\BK2.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\pic\BK3.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="pic\BK1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="pic\BK2.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="pic\BK3.bmp">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MFC_EFG_TIME_IO.h">
@@ -298,6 +316,12 @@
     <ClInclude Include="AC6641_DO.h">
       <Filter>AC6641</Filter>
     </ClInclude>
+    <ClInclude Include="DlgXray.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticEx.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -467,6 +491,12 @@
     </ClCompile>
     <ClCompile Include="AC6641_DO.cpp">
       <Filter>AC6641</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgXray.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticEx.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

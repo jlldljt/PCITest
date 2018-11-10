@@ -2,6 +2,11 @@
 
 
 // CViewboard 视图
+typedef struct tagOutStr {
+  CString str;
+  POINT p;
+} OutStr;
+
 
 class CBoardView : public CView
 {
@@ -12,7 +17,12 @@ public://protected:
 	virtual ~CBoardView();
   CDC *m_dc;
   CBitmap *m_bm, *m_oldbm;
+  CDC *m_strdc;
+  CBitmap *m_strbm, *m_strOldbm;
   CString m_outStr;
+  CDC *m_alldc;
+  CBitmap *m_allbm, *m_allOldbm;
+  CArray<OutStr, OutStr&>  m_outStrs;
 public:
 	virtual void OnDraw(CDC* pDC);      // 重写以绘制该视图
 #ifdef _DEBUG
@@ -30,12 +40,17 @@ public:
   void DrawLaserCircle();
   void DrawXRayOneShot();
   void DrawPoint(POINT point, COLORREF color = RGB(0, 0, 255));
+  void DrawStr(POINT point, const CString &str);
   void DrawCircle(POINT point, LONG r);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
   void Erase(void);
   void SetOutStr(CString str);
-
+  void SetOutStr(CString str, int x, int y);
+  void SetOutStr(CString str, POINT p);
+  //void ClearOutStr(void);
   void DrawToDC(CDC* pDC);
+  void DrawToDC(CDC * pDC, CRect rect);
+  //void DrawOutStr(CDC * pDC);
 };
 
 

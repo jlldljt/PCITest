@@ -3,6 +3,7 @@
 
 #include "DlgDebugDevice.h"
 #include "DlgLaser.h"
+#include "DlgXray.h"
 
 // CDlgDebug1 窗体视图
 
@@ -27,9 +28,12 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
+private:
+  CBrush m_brush;
 public:
   CDlgDebugDevice * m_dlg_debug_device;
   CDlgLaser * m_dlg_laser;
+  CDlgXray *m_dlg_xray;
   CTabCtrl m_tab_debug;
   afx_msg void OnTcnSelchangeTabDebug(NMHDR *pNMHDR, LRESULT *pResult);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

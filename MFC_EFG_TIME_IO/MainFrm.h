@@ -69,7 +69,6 @@ public:
   CEfgIO m_efgio;
   //保存当前所选设备号，与combo sel 不是一个概念
   int m_deviceNumber;
-
   //POINT m_laserSpikes[10];
 // 操作
 public:
@@ -156,6 +155,8 @@ public:
   void EfgParamSave();
   BOOL StartMeasure(int out3, int out6);
   BOOL CheckMeasure();
+  afx_msg void OnChkAutoRun();
+  afx_msg void OnUpdateChkAutoRun(CCmdUI *pCmdUI);
 };
 
 

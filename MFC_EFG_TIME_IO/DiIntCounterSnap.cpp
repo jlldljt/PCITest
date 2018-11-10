@@ -638,7 +638,9 @@ void CDiIntCounterSnap::DIIntXRayOneShot(void)
 				POINT point;
 				for (int i = 0; i < num; i++)
 				{
-					alg.GetSpike(i, point);
+          SPIKE spike;
+					alg.GetSpike(i, spike);
+          point = spike.p;
 					m_viewBoard->DrawCircle(point, 10);
 				}
 			}
@@ -931,7 +933,7 @@ void CalculateSModelLine(float fre[], unsigned short period[], float len, float 
 }
 int CDiIntCounterSnap::TestS()
 {
-#define LEN 1000
+#define LEN 600
   float fre[LEN] = { 0 };
   unsigned short period[LEN] = { 0 };
   float fre_max = 500;
@@ -939,7 +941,9 @@ int CDiIntCounterSnap::TestS()
   float flexible = 8;
 
   CalculateSModelLine(fre, period, LEN, fre_max, fre_min, flexible);
+
   POINT point;
+  m_viewBoard->Erase();
   for (int i = 0; i < LEN; i++)
   {
     point.x = i;
@@ -950,6 +954,11 @@ int CDiIntCounterSnap::TestS()
     point.y = period[i] / 100;
     m_viewBoard->DrawPoint(point, RGB(255, 255, 0));
   }
+  m_viewBoard->SetOutStr(_T("0"), 0, 0);
+  m_viewBoard->SetOutStr(_T("100"), 0, 100);
+  m_viewBoard->SetOutStr(_T("200"), 0, 200);
+  m_viewBoard->SetOutStr(_T("300"), 0, 300);
+  m_viewBoard->SetOutStr(_T("400"), 0, 400);
   m_viewBoard->Invalidate();
   return 0;
 }
@@ -1123,13 +1132,44 @@ int CDiIntCounterSnap::XrayFit()
 	// struct tagSinParam param;
 	// alg.FitSinBySubstitution(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[1], param);
 	// alg.FitSinByLeastSquares(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[2], param);
-	alg.ExtractSpike(m_counter.fit[0], sin_num, 100, 3, -1);
+  alg.ExtractSpike(m_counter.fit[0], sin_num,// 100, 3, -1);
+    m_efgio->m_configParam.xray.threshold,
+    m_efgio->m_configParam.xray.confirmNum,
+    m_efgio->m_configParam.xray.ignore);
+  //转盘脉冲数
+  m_efgio->m_resultParam.measure.pluse_num = m_counter.index[1] - 1;
+	
+  alg.GetD1D2DM(
+    m_efgio->m_resultParam.measure.D1,
+    m_efgio->m_resultParam.measure.D2,
+    m_efgio->m_resultParam.measure.DM,
+    m_efgio->m_resultParam.measure.pluse_num
+    );
 
-	if (m_viewBoard) {
+  alg.CalcDegree0(
+    m_efgio->m_resultParam.measure.D1,
+    m_efgio->m_resultParam.measure.D2,
+    m_efgio->m_resultParam.measure.DM,
+    m_efgio->m_resultParam.measure.cur_laser0,
+    m_efgio->m_resultParam.measure.cur_phi0,
+    m_efgio->m_resultParam.measure.u_g
+    );
+
+  
+  if (m_viewBoard) {
 		m_viewBoard->DrawXRayOneShot();
 		CString str;
-		str.Format(L"num: %d", m_counter.index[1]-1);
+		str.Format(L"num:%d D1:%.3f D2:%.3f DM:%.3f laser0:%f phi0:%f ug:%f", 
+      m_counter.index[1]-1,
+      m_efgio->m_resultParam.measure.D1,
+      m_efgio->m_resultParam.measure.D2,
+      m_efgio->m_resultParam.measure.DM,
+      m_efgio->m_resultParam.measure.cur_laser0,
+      m_efgio->m_resultParam.measure.cur_phi0,
+      m_efgio->m_resultParam.measure.u_g);
+
 		m_viewBoard->SetOutStr(str);
+
 		//  m_viewBoard->SetOutStr(L"");
 		//#ifdef  __DEBUG__
 		//      for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
@@ -1147,8 +1187,13 @@ int CDiIntCounterSnap::XrayFit()
 			POINT point;
 			for (int i = 0; i < num; i++)
 			{
-				alg.GetSpike(i, point);
+        SPIKE spike;
+				alg.GetSpike(i, spike);
+        point = spike.p;
 				m_viewBoard->DrawCircle(point, 10);
+        CString str;
+        str.Format(_T("No:%d X:%d Y:%d W:%d"), i, spike.p.x, spike.p.y, spike.w);
+        m_viewBoard->DrawStr(point, str);
 			}
 		}
 		m_viewBoard->Invalidate();
@@ -1157,6 +1202,87 @@ int CDiIntCounterSnap::XrayFit()
 	//StopDiInt();
 	return 0;
 }
+////todo 不完善， ° ″，单位没统一
+//int CDiIntCounterSnap::CalcResult()
+//{
+//  //CDlgRun1* dlg_run = ((CDlgRun1*)GetMainFrame()->m_userFrame->m_splitUser.GetPane(0, 0));
+//  if (-1 == LaserFit())
+//    return -1;
+//  //if(m_viewBoard)
+//  //  m_viewBoard->DrawToDC(dlg_run->m_laserdc, dlg_run->m_preview_rect);
+//
+//  if (-1 == XrayFit())
+//    return -1;
+//  //if (m_viewBoard)
+//  //  m_viewBoard->DrawToDC(dlg_run->m_xraydc, dlg_run->m_preview_rect);
+//
+//  EfgAlg alg;
+//
+//  struct tagSinParam sin_param = {
+//    m_efgio->m_resultParam.measure.A,
+//    m_efgio->m_resultParam.measure.w,
+//    m_efgio->m_resultParam.measure.t,
+//    m_efgio->m_resultParam.measure.k
+//  };
+//  //计算光轴电轴
+//  alg.CalcDegree1(
+//    m_efgio->m_resultParam.measure.cur_laser0,
+//    m_efgio->m_resultParam.measure.cur_phi0,
+//    sin_param,
+//    m_efgio->m_resultParam.measure.cur_laser1,
+//    m_efgio->m_resultParam.measure.cur_phi1
+//    );
+//  //计算等效角
+//  alg.CalcEquAngle(
+//    m_efgio->m_resultParam.measure.cur_laser0,
+//    m_efgio->m_resultParam.measure.cur_phi0,
+//    USER_TO_DEG(m_efgio->m_configParam.user_config.measure.equivalent_angle.phi),
+//    m_efgio->m_configParam.user_config.measure.equivalent_angle.factor/1000.0,
+//    m_efgio->m_resultParam.measure.cur_equ
+//  );
+//
+//  // 累计
+//  m_efgio->m_resultParam.measure.num++;
+//
+//  // 累计平均值，散差
+//  alg.SortAvgStd(
+//    m_efgio->m_resultParam.measure.num,
+//    m_efgio->m_resultParam.measure.cur_laser0,
+//    m_efgio->m_resultParam.measure.avg_laser0,
+//    m_efgio->m_resultParam.measure.std_laser0,
+//    m_efgio->m_resultParam.measure.std2_laser0
+//  );
+//  alg.SortAvgStd(
+//    m_efgio->m_resultParam.measure.num,
+//    m_efgio->m_resultParam.measure.cur_phi0,
+//    m_efgio->m_resultParam.measure.avg_phi0,
+//    m_efgio->m_resultParam.measure.std_phi0,
+//    m_efgio->m_resultParam.measure.std2_phi0
+//  );
+//  alg.SortAvgStd(
+//    m_efgio->m_resultParam.measure.num,
+//    m_efgio->m_resultParam.measure.cur_laser1,
+//    m_efgio->m_resultParam.measure.avg_laser1,
+//    m_efgio->m_resultParam.measure.std_laser1,
+//    m_efgio->m_resultParam.measure.std2_laser1
+//  );
+//  alg.SortAvgStd(
+//    m_efgio->m_resultParam.measure.num,
+//    m_efgio->m_resultParam.measure.cur_phi1,
+//    m_efgio->m_resultParam.measure.avg_phi1,
+//    m_efgio->m_resultParam.measure.std_phi1,
+//    m_efgio->m_resultParam.measure.std2_phi1
+//  );
+//  alg.SortAvgStd(
+//    m_efgio->m_resultParam.measure.num,
+//    m_efgio->m_resultParam.measure.cur_equ,
+//    m_efgio->m_resultParam.measure.avg_equ,
+//    m_efgio->m_resultParam.measure.std_equ,
+//    m_efgio->m_resultParam.measure.std2_equ
+//  );
+//  //计算档位，在别的地方，或许在efgio
+//  return 0;
+//}
 
 int CDiIntCounterSnap::StopDiInt()
 {

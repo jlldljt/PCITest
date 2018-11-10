@@ -7,6 +7,8 @@
 
 #include "MainFrm.h"
 
+#define WND_WIDTH 800
+#define WND_HIGHT 600
 // CViewboard
 
 IMPLEMENT_DYNCREATE(CBoardView, CView)
@@ -21,6 +23,14 @@ CBoardView::~CBoardView()
   m_dc->SelectObject(m_oldbm);
   m_bm->DeleteObject();
   m_dc->DeleteDC();
+
+  m_strdc->SelectObject(m_strOldbm);;
+  m_strbm->DeleteObject();
+  m_strdc->DeleteDC();
+
+  m_alldc->SelectObject(m_allOldbm);;
+  m_allbm->DeleteObject();
+  m_alldc->DeleteDC();
 }
 
 BEGIN_MESSAGE_MAP(CBoardView, CView)
@@ -65,35 +75,37 @@ void CBoardView::OnDraw(CDC* pDC)
   
   pDC->SelectObject(ppen);*/
 
-  CRect rect;
-  GetClientRect(&rect);
+  CRect rect( 0, 0, WND_WIDTH, WND_HIGHT );
+  //GetClientRect(&rect);
   //pDC->BitBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1*rect.Height(), m_dc, 0, 0, SRCCOPY);
-  pDC->StretchBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1 * rect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
   
-  
-  CFont font, *tmp;
-  font.CreateFont(15,                                          //   nHeight     
-    10,                                                   //   nWidth     
-    0,                                                   //   nEscapement   
-    0,                                                   //   nOrientation     
-    FW_NORMAL,                                   //   nWeight     
-    FALSE,                                           //   bItalic     
-    FALSE,                                           //   bUnderline     
-    0,                                                   //   cStrikeOut     
-    ANSI_CHARSET,                             //   nCharSet     
-    OUT_DEFAULT_PRECIS,                 //   nOutPrecision     
-    CLIP_DEFAULT_PRECIS,               //   nClipPrecision     
-    DEFAULT_QUALITY,                       //   nQuality     
-    DEFAULT_PITCH | FF_SWISS,     //   nPitchAndFamily       
-    _T("宋体"));
+  DrawToDC(pDC, rect);
+  //pDC->StretchBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1 * rect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+  //DrawOutStr(pDC);
+  //
+  //CFont font, *tmp;
+  //font.CreateFont(15,                                          //   nHeight     
+  //  10,                                                   //   nWidth     
+  //  0,                                                   //   nEscapement   
+  //  0,                                                   //   nOrientation     
+  //  FW_NORMAL,                                   //   nWeight     
+  //  FALSE,                                           //   bItalic     
+  //  FALSE,                                           //   bUnderline     
+  //  0,                                                   //   cStrikeOut     
+  //  ANSI_CHARSET,                             //   nCharSet     
+  //  OUT_DEFAULT_PRECIS,                 //   nOutPrecision     
+  //  CLIP_DEFAULT_PRECIS,               //   nClipPrecision     
+  //  DEFAULT_QUALITY,                       //   nQuality     
+  //  DEFAULT_PITCH | FF_SWISS,     //   nPitchAndFamily       
+  //  _T("宋体"));
 
-  tmp = pDC->SelectObject(&font);
-  pDC->SetBkMode(TRANSPARENT);
-  pDC->TextOut(0, 0, L"每格100");
-  pDC->TextOut(0, 50, m_outStr);
-  
-  pDC->SelectObject(tmp);
-  DeleteObject(font);
+  //tmp = pDC->SelectObject(&font);
+  //pDC->SetBkMode(TRANSPARENT);
+  //pDC->TextOut(0, 0, L"每格100");
+  //pDC->TextOut(0, 50, m_outStr);
+  //
+  //pDC->SelectObject(tmp);
+  //DeleteObject(font);
 
 }
 
@@ -120,17 +132,25 @@ void CBoardView::Dump(CDumpContext& dc) const
 void CBoardView::DrawLaserSin()
 {
   CDC* pDC = m_dc;
-  CRect rect;
-  GetClientRect(&rect);
+  CRect rect(0, 0, WND_WIDTH, WND_HIGHT);
+  //GetClientRect(&rect);
 
   pDC->FillSolidRect(&rect, RGB(255, 255, 255));
-  pDC->TextOut(0, 0, L"-");
+  int x, y;
+  x = 0, y = 100; pDC->MoveTo(x, y); pDC->LineTo(x+10, y); SetOutStr(_T("100"), x+10, y);
+  x = 0, y = 200; pDC->MoveTo(x, y); pDC->LineTo(x+10, y); SetOutStr(_T("200"), x+10, y);
+  x = 0, y = 300; pDC->MoveTo(x, y); pDC->LineTo(x+10, y); SetOutStr(_T("300"),x+ 10, y);
+  x = 100<<2, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("100"), x, y + 10);
+  x = 200<<2, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("200"), x, y + 10);
+  x = 300<<2, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("300"), x, y + 10);
+
+  /*pDC->TextOut(0, 0, L"-");
   pDC->TextOut(0, 100, L"-");
   pDC->TextOut(0, 200, L"-");
-  pDC->TextOut(0, 300, L"-");
-  pDC->TextOut(100 << 2, 0, L"|");
-  pDC->TextOut(200 << 2, 0, L"|");
-  pDC->TextOut(300 << 2, 0, L"|");
+  pDC->TextOut(0, 300, L"-");*/
+  //pDC->TextOut(100 << 2, 0, L"|");
+  //pDC->TextOut(200 << 2, 0, L"|");
+  //pDC->TextOut(300 << 2, 0, L"|");
   CPen pen, *ppen;
   pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
   ppen = (CPen*)pDC->SelectObject(&pen);
@@ -158,17 +178,25 @@ void CBoardView::DrawLaserSin()
 void CBoardView::DrawLaserCircle()
 {
   CDC* pDC = m_dc;
-  CRect rect;
-  GetClientRect(&rect);
+  CRect rect ( 0, 0, WND_WIDTH, WND_HIGHT );;
+  //GetClientRect(&rect);
 
   pDC->FillSolidRect(&rect, RGB(255, 255, 255));
-  pDC->TextOut(0, 0, L"-");
-  pDC->TextOut(0, 100, L"-");
-  pDC->TextOut(0, 200, L"-");
-  pDC->TextOut(0, 300, L"-");
-  pDC->TextOut(100 , 0, L"|");
-  pDC->TextOut(200 , 0, L"|");
-  pDC->TextOut(300 , 0, L"|");
+  int x, y;
+  x = 0, y = 100; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("100"), x + 10, y);
+  x = 0, y = 200; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("200"), x + 10, y);
+  x = 0, y = 300; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("300"), x + 10, y);
+  x = 100, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("100"), x, y + 10);
+  x = 200, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("200"), x, y + 10);
+  x = 300, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("300"), x, y + 10);
+
+  //pDC->TextOut(0, 0, L"-");
+  //pDC->TextOut(0, 100, L"-");
+  //pDC->TextOut(0, 200, L"-");
+  //pDC->TextOut(0, 300, L"-");
+  //pDC->TextOut(100 , 0, L"|");
+  //pDC->TextOut(200 , 0, L"|");
+  //pDC->TextOut(300 , 0, L"|");
   CPen pen, *ppen;
   pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
   ppen = (CPen*)pDC->SelectObject(&pen);
@@ -191,23 +219,35 @@ void CBoardView::DrawLaserCircle()
 void CBoardView::DrawXRayOneShot()
 {
   CDC* pDC = m_dc;
-  CRect rect;
-  GetClientRect(&rect);
+  CRect rect ( 0, 0, WND_WIDTH, WND_HIGHT );;
+  //GetClientRect(&rect);
 
   pDC->FillSolidRect(&rect, RGB(255, 255, 255));
-  pDC->TextOut(0, 0, L"");
-  pDC->TextOut(0, 100, L"¯");
-  pDC->TextOut(0, 200, L"¯");
-  pDC->TextOut(0, 300, L"¯");
-  pDC->TextOut(0, 400, L"¯");
-  pDC->TextOut(0, 500, L"¯");
-  pDC->TextOut(0, 600, L"¯");
-  pDC->TextOut(100, 0, L"|");
-  pDC->TextOut(200, 0, L"|");
-  pDC->TextOut(300, 0, L"|");
-  pDC->TextOut(400, 0, L"|");
-  pDC->TextOut(500, 0, L"|");
-  pDC->TextOut(600, 0, L"|");
+  int x, y;
+  x = 0, y = 100; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("100"), x + 10, y);
+  x = 0, y = 200; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("200"), x + 10, y);
+  x = 0, y = 300; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("300"), x + 10, y);
+  x = 0, y = 400; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("400"), x + 10, y);
+  x = 0, y = 500; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("500"), x + 10, y);
+  x = 100, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("100"), x, y + 10);
+  x = 100, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("200"), x, y + 10);
+  x = 200, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("300"), x, y + 10);
+  x = 400, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("400"), x, y + 10);
+  x = 500, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("500"), x, y + 10);
+
+  //pDC->TextOut(0, 0, L"");
+  //pDC->TextOut(0, 100, L"¯");
+  //pDC->TextOut(0, 200, L"¯");
+  //pDC->TextOut(0, 300, L"¯");
+  //pDC->TextOut(0, 400, L"¯");
+  //pDC->TextOut(0, 500, L"¯");
+  //pDC->TextOut(0, 600, L"¯");
+  //pDC->TextOut(100, 0, L"|");
+  //pDC->TextOut(200, 0, L"|");
+  //pDC->TextOut(300, 0, L"|");
+  //pDC->TextOut(400, 0, L"|");
+  //pDC->TextOut(500, 0, L"|");
+  //pDC->TextOut(600, 0, L"|");
   CPen pen, *ppen;
   pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
   ppen = (CPen*)pDC->SelectObject(&pen);
@@ -246,6 +286,14 @@ void CBoardView::DrawPoint(POINT point, COLORREF color)
   pDC->SetPixel(point.x,point.y, color);
   //Invalidate();
 }
+
+void CBoardView::DrawStr(POINT point, const CString &str)
+{
+  CDC* pDC = m_dc;
+  pDC->TextOut(point.x, point.y, str);
+  //Invalidate();
+}
+
 void CBoardView::DrawCircle(POINT point, LONG r)
 {
   CDC* pDC = m_dc;
@@ -268,25 +316,48 @@ int CBoardView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   // TODO:  在此添加您专用的创建代码
   CWnd * pWnd = FromHandle(this->m_hWnd);
   CDC* pDC = pWnd->GetDC();
-  CRect rect;
-  GetClientRect(&rect);
+  CRect rect ( 0, 0, WND_WIDTH, WND_HIGHT );;
+  //GetClientRect(&rect);
   m_dc = new CDC;
   m_bm = new CBitmap;
   m_dc->CreateCompatibleDC(pDC);
   m_bm->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
-  m_oldbm = m_dc->SelectObject(m_bm);//无这句和上句，对mdcmen操作无效
+  m_oldbm = m_dc->SelectObject(m_bm);
   m_dc->SetStretchBltMode(HALFTONE);
   SetBrushOrgEx(m_dc->m_hDC, 0, 0, NULL);
+
+  m_strdc = new CDC;
+  m_strbm = new CBitmap;
+  m_strdc->CreateCompatibleDC(pDC);
+  m_strbm->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
+  m_strOldbm = m_strdc->SelectObject(m_strbm);
+  m_strdc->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(m_strdc->m_hDC, 0, 0, NULL);
+
+  m_alldc = new CDC;
+  m_allbm = new CBitmap;
+  m_alldc->CreateCompatibleDC(pDC);
+  m_allbm->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
+  m_allOldbm = m_alldc->SelectObject(m_allbm);
+  m_alldc->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(m_alldc->m_hDC, 0, 0, NULL);
+
+
   pWnd->ReleaseDC(pDC);
+
   return 0;
 }
 void CBoardView::Erase(void)
 {
   CDC* pDC = m_dc;
-  CRect rect;
-  GetClientRect(&rect);
+  CRect rect ( 0, 0, WND_WIDTH, WND_HIGHT );;
+  //GetClientRect(&rect);
   pDC->FillSolidRect(&rect, RGB(0, 0, 0));
-  m_outStr = "";
+  pDC = m_strdc;
+  pDC->FillSolidRect(&rect, RGB(0, 0, 0));
+  //m_outStr = "";
+  SetOutStr(_T(""));
+  //ClearOutStr();
   Invalidate();
 }
 
@@ -295,12 +366,117 @@ void CBoardView::SetOutStr(CString str)
   m_outStr = str;
 }
 
+void CBoardView::SetOutStr(CString str, int x, int y)
+{
+  CDC* pDC = m_strdc;
+  CFont font, *tmp;
+  font.CreateFont(30,                                          //   nHeight     
+    20,                                                   //   nWidth     
+    0,                                                   //   nEscapement   
+    0,                                                   //   nOrientation     
+    FW_NORMAL,                                   //   nWeight     
+    FALSE,                                           //   bItalic     
+    FALSE,                                           //   bUnderline     
+    0,                                                   //   cStrikeOut     
+    ANSI_CHARSET,                             //   nCharSet     
+    OUT_DEFAULT_PRECIS,                 //   nOutPrecision     
+    CLIP_DEFAULT_PRECIS,               //   nClipPrecision     
+    DEFAULT_QUALITY,                       //   nQuality     
+    DEFAULT_PITCH | FF_SWISS,     //   nPitchAndFamily       
+    _T("宋体"));
+
+  tmp = pDC->SelectObject(&font);
+  pDC->SetBkMode(TRANSPARENT);
+
+  pDC->SetTextColor(RGB(0, 255, 0));
+  pDC->TextOut(x, WND_HIGHT - y, str);
+
+  pDC->SelectObject(tmp);
+  DeleteObject(font);
+}
+
+void CBoardView::SetOutStr(CString str, POINT p)
+{
+  
+  SetOutStr(str, p.x, p.y);
+  //OutStr out = { str,p };
+
+  //m_outStrs.Add(out);
+
+
+
+}
+
+//void CBoardView::ClearOutStr(void)
+//{
+//  m_outStrs.RemoveAll();
+//}
+
 void CBoardView::DrawToDC(CDC * pDC)
 {
-  CRect rect, torect;
-  GetClientRect(&rect);
+  CRect rect ( 0, 0, WND_WIDTH, WND_HIGHT );; 
+  CRect torect;
+  //GetClientRect(&rect);
   pDC->GetWindow()->GetClientRect(&torect);
   pDC->SetStretchBltMode(HALFTONE);
   SetBrushOrgEx(pDC->m_hDC, 0, 0, NULL);
-  pDC->StretchBlt(torect.left, torect.top + torect.Height(), torect.Width(), -1 * torect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+  m_alldc->StretchBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1 * rect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+  m_alldc->TransparentBlt(rect.left, rect.top, rect.Width(), rect.Height(), m_strdc, 0, 0, rect.Width(), rect.Height(), RGB(0, 0, 0));
+  pDC->StretchBlt(torect.left, torect.top, torect.Width(), torect.Height(), m_alldc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+  //DrawOutStr(pDC);
 }
+
+void CBoardView::DrawToDC(CDC * pDC,CRect torect)
+{
+  CRect rect(0, 0, WND_WIDTH, WND_HIGHT);;
+  //CRect torect;
+  //GetClientRect(&rect);
+  //pDC->GetWindow()->GetClientRect(&torect);
+
+
+
+  pDC->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(pDC->m_hDC, 0, 0, NULL);
+  m_alldc->StretchBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1 * rect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+  m_alldc->TransparentBlt(rect.left, rect.top, rect.Width(), rect.Height(), m_strdc, 0, 0, rect.Width(), rect.Height(), RGB(0, 0, 0));
+  pDC->StretchBlt(torect.left, torect.top, torect.Width(), torect.Height(), m_alldc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+
+  CBrush* oldbrush = pDC->SelectObject(CBrush::FromHandle((HBRUSH)GetStockObject(NULL_BRUSH)));
+  pDC->Rectangle(torect);
+  pDC->SelectObject(oldbrush);
+
+  //DrawOutStr(pDC);
+}
+
+//void CBoardView::DrawOutStr(CDC * pDC)
+//{
+//  CFont font, *tmp;
+//  font.CreateFont(15,                                          //   nHeight     
+//    10,                                                   //   nWidth     
+//    0,                                                   //   nEscapement   
+//    0,                                                   //   nOrientation     
+//    FW_NORMAL,                                   //   nWeight     
+//    FALSE,                                           //   bItalic     
+//    FALSE,                                           //   bUnderline     
+//    0,                                                   //   cStrikeOut     
+//    ANSI_CHARSET,                             //   nCharSet     
+//    OUT_DEFAULT_PRECIS,                 //   nOutPrecision     
+//    CLIP_DEFAULT_PRECIS,               //   nClipPrecision     
+//    DEFAULT_QUALITY,                       //   nQuality     
+//    DEFAULT_PITCH | FF_SWISS,     //   nPitchAndFamily       
+//    _T("宋体"));
+//
+//  tmp = pDC->SelectObject(&font);
+//  pDC->SetBkMode(TRANSPARENT);
+//  //pDC->TextOut(0, 0, L"每格100");
+//  pDC->TextOut(0, 50, m_outStr);
+//  for (int i = 0; i < m_outStrs.GetCount(); i++)
+//  {
+//    OutStr out = m_outStrs[i];
+//    pDC->SetTextColor(RGB(255, 255,255));
+//    pDC->TextOut(out.p.x, out.p.y, out.str);
+//  }
+//
+//  pDC->SelectObject(tmp);
+//  DeleteObject(font);
+//}

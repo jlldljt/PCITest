@@ -19,7 +19,8 @@ CAC6641_Ctrl::~CAC6641_Ctrl()
 BOOL CAC6641_Ctrl::CreateDO(int no, TimeIOType type, int device)
 {
   BOOL ret = FALSE;
-  ASSERT(no < PORT_NUM);
+  if(no >= PORT_NUM)
+	  return FALSE;
   if (port[no].ctrl)
     return FALSE;
 
@@ -44,7 +45,8 @@ BOOL CAC6641_Ctrl::CreateDO(int no, TimeIOType type, int device)
 
 BOOL CAC6641_Ctrl::DeleteDO(int no)
 {
-  ASSERT(no < PORT_NUM);
+  if(no >= PORT_NUM)
+	  return FALSE;
   if (!port[no].ctrl)
     return FALSE;
 
@@ -55,7 +57,8 @@ BOOL CAC6641_Ctrl::DeleteDO(int no)
 
 BOOL CAC6641_Ctrl::StartDO(int no, int device, double param0)
 {
-  ASSERT(no < PORT_NUM);
+  if(no >= PORT_NUM)
+	  return FALSE;
   ASSERT(port[no].ctrl);
   BOOL ret = FALSE;
   tagAC6641_Param param;
@@ -69,7 +72,8 @@ BOOL CAC6641_Ctrl::StartDO(int no, int device, double param0)
 
 BOOL CAC6641_Ctrl::StopDO(int no)
 {
-  ASSERT(no < PORT_NUM);
+  if(no >= PORT_NUM)
+	  return FALSE;
   if (!port[no].ctrl)
     return FALSE;
   return port[no].ctrl->Stop();
@@ -77,7 +81,8 @@ BOOL CAC6641_Ctrl::StopDO(int no)
 
 BOOL CAC6641_Ctrl::ReadDO(int no, double & param0, double & param1)
 {
-  ASSERT(no < PORT_NUM);
+  if(no >= PORT_NUM)
+	  return FALSE;
   ASSERT(port[no].ctrl);
 
   tagAC6641_Param param;
@@ -92,7 +97,8 @@ BOOL CAC6641_Ctrl::ReadDO(int no, double & param0, double & param1)
 
 BOOL CAC6641_Ctrl::WriteDO(int no, double & param0)
 {
-  ASSERT(no < PORT_NUM);
+  if(no >= PORT_NUM)
+	  return FALSE;
   ASSERT(port[no].ctrl);
 
   tagAC6641_Param param;
@@ -110,7 +116,7 @@ int CAC6641_Ctrl::getDevices()
   {
     CString name;
     name.Format(L"AC6641%02d", i);
-    DevInf dev = { TMC12A, i, name };
+    DevInf dev = { AC6641, i, name };
     devices.Add(dev);
   }
   return CAC6641_Base::m_ac6641Boards;

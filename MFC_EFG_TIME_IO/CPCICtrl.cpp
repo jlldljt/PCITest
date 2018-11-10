@@ -44,10 +44,10 @@ void CPCICtrl::AllDriverInit(void)
   if (TRUE != CAC6641_Base::DriverInit())
     AfxMessageBox(L"AC6641初始化失败");
 
-  int num1 = CTimeIOCtrl::getDevices();
+//  int num1 = CTimeIOCtrl::getDevices();
   int num2 = CTMC12A_Ctrl::getDevices();
   int num3 = CAC6641_Ctrl::getDevices();
-  m_num = num1 + num2 + num3;
+  m_num = /*num1 + */num2 + num3;
 }
 //TODO: 增加卡修改
 void CPCICtrl::AllDriverClose(void)

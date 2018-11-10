@@ -58,6 +58,12 @@ private:
   CFont m_font;
 
 public:
+  CDC * m_laserdc;
+  CBitmap *m_laserbm, *m_laseroldbm;
+  CDC *m_xraydc;
+  CBitmap *m_xraybm, *m_xrayoldbm;
+  CRect m_preview_rect;
+
   Run_Param m_run;//运行参数
   EFG_ConfigParam *m_param;//配置参数
   CEfgIO *m_io;//io控制
@@ -83,6 +89,10 @@ public:
   afx_msg void OnBnClickedChkPause();
   CBitmapButton m_btn_ctrl;
   CTabCtrl m_tab_preview;
+  void ShowResult(BOOL sw);
+  afx_msg void OnTcnSelchangeTabPreview(NMHDR *pNMHDR, LRESULT *pResult);
+  int CalcResult();
+  CStaticEx m_static_result;
 };
 
 

@@ -83,6 +83,7 @@ public:
   //数据处理
   int LaserFit();
   int XrayFit();
+ // int CalcResult();
   //停止中断捕捉
   int m_channel; // 中断通道
   int StopDiInt();

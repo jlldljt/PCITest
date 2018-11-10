@@ -11,7 +11,6 @@
 
 // MainFrm.cpp : CMainFrame 类的实现
 //
-
 #include "stdafx.h"
 #include "MFC_EFG_TIME_IO.h"
 #include "DlgDI.h"
@@ -19,6 +18,8 @@
 #include "DlgT0.h"
 #include "DlgT1.h"
 #include "MainFrm.h"
+
+#define CHANNEL_MAX 16
 
 //#define ENABLE_CNT_NUM 4
 CMainFrame* GetMainFrame() {
@@ -167,6 +168,8 @@ ON_COMMAND(ID_BUTTON_RUNPAGE, &CMainFrame::OnButtonRunpage)
 ON_COMMAND(ID_BUTTON_DEBUGPAGE, &CMainFrame::OnButtonDebugpage)
 ON_COMMAND(ID_BUTTON_CONFIGCHANNEL, &CMainFrame::OnButtonConfigchannel)
 ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
+ON_COMMAND(ID_CHK_AUTO_RUN, &CMainFrame::OnChkAutoRun)
+ON_UPDATE_COMMAND_UI(ID_CHK_AUTO_RUN, &CMainFrame::OnUpdateChkAutoRun)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -183,7 +186,6 @@ CMainFrame::CMainFrame()
   //CPCICtrl::AllDriverInit();
 
   m_timeIOCtrl = NULL;// CPCICtrl::Create(PCI1780U); //new CTimeIOCtrl;
-
   //路径
   CString path;
   GetModuleFileName(NULL, path.GetBufferSetLength(MAX_PATH + 1), MAX_PATH);
@@ -322,7 +324,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
   //GetClientRect(&rect);
   ////SetWindowLong(m_hWnd, GWL_STYLE, GetWindowLong(m_hWnd, GWL_STYLE) & ~(WS_SIZEBOX | WS_THICKFRAME | WS_MAXIMIZEBOX));
   //SetWindowPos(NULL, rect.left - 190, rect.top - 190, rect.Width(), rect.Height(), SWP_SHOWWINDOW);
-  
+  if (m_efgio.m_configParam.auto_run)
+  {
+    OnButtonParamRun();
+  }
 	return 0;
 }
 
@@ -573,7 +578,7 @@ void CMainFrame::OnComboTimeio()
   //}
   
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < CHANNEL_MAX; i++) {
 	((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
 	((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->Stop();
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
@@ -582,7 +587,7 @@ void CMainFrame::OnComboTimeio()
   //m_timeIOCtrl = m_multiCardCtrl.m_card[sel];
   m_timeIOCtrl = m_efgio.GetPCI(sel);
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < CHANNEL_MAX; i++) {
     ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->m_device = deviceNumber;
     ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->m_device = deviceNumber;
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->m_device = deviceNumber;
@@ -744,7 +749,7 @@ void CMainFrame::OnButtonParamLoad()
     return;
   int ret = CPCICtrl::getDevice(sel, dev);
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < CHANNEL_MAX; i++) {
     ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
     ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->Stop();
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
@@ -775,7 +780,7 @@ void CMainFrame::OnButtonParamSave()
 {
   // TODO: 在此添加命令处理程序代码
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < CHANNEL_MAX; i++) {
     ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->SaveParam();
     ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->SaveParam();
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->SaveParam();
@@ -824,14 +829,14 @@ void CMainFrame::OnButtonParamRun()
   //}
 
   if (FALSE == m_efgio.CardOn()) {
-    AfxMessageBox(L"tmc12a启动失败");
+    AfxMessageBox(L"板卡启动失败");
     return;
   }
 
   CString val_out3;
-  val_out3.Format(L"%lf", m_efgio.GetOut3());
+  val_out3.Format(L"%d", m_efgio.GetOut3());
   CString val_out6;
-  val_out6.Format(L"%lf", m_efgio.GetOut6());
+  val_out6.Format(L"%d", m_efgio.GetOut6());
   CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
   CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
   
@@ -1166,6 +1171,14 @@ void CMainFrame::EfgParamLoad()
   m_efgio.m_configParam.laser.out3 = GetPrivateProfileInt(_T("激光"), _T("OUT3"), 0, ini_path);
   m_efgio.m_configParam.laser.out6 = GetPrivateProfileInt(_T("激光"), _T("OUT6"), 0, ini_path);
   //xray
+
+  m_efgio.m_configParam.xray.threshold=GetPrivateProfileInt(_T("X光"), _T("阈值"), 0, ini_path);
+  m_efgio.m_configParam.xray.confirmNum=GetPrivateProfileInt(_T("X光"), _T("最小宽度"), 0, ini_path);
+  m_efgio.m_configParam.xray.ignore=GetPrivateProfileInt(_T("X光"), _T("忽略值"), 0, ini_path);
+  GetPrivateProfileString(_T("X光"), _T("纵向因子"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.xray.factor_h = _wtof(ret);
+  GetPrivateProfileString(_T("X光"), _T("横向因子"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.xray.factor_w = _wtof(ret);
   //motor
   GetPrivateProfileString(_T("电机X"), _T("最大频率"), _T(""), ret, sizeof(ret), ini_path);
   m_efgio.m_configParam.motor.x.max_freq = _wtof(ret);
@@ -1232,6 +1245,9 @@ void CMainFrame::EfgParamLoad()
   m_efgio.m_configParam.user_config.measure.secondary.max_degree=GetPrivateProfileInt(_T("测量配置"), _T("最大角度"), 0, ini_path);
   m_efgio.m_configParam.user_config.measure.equivalent_angle.phi=GetPrivateProfileInt(_T("测量配置"), _T("等效角电轴"),0, ini_path);
   m_efgio.m_configParam.user_config.measure.equivalent_angle.factor=GetPrivateProfileInt(_T("测量配置"), _T("等效角因子"), 0, ini_path);
+
+  //其他配置
+  m_efgio.m_configParam.auto_run = GetPrivateProfileInt(_T("其他配置"), _T("自动运行"), 0, ini_path);
 }
 
 void CMainFrame::EfgParamSave()
@@ -1257,6 +1273,16 @@ void CMainFrame::EfgParamSave()
   str.Format(_T("%d"), m_efgio.m_configParam.laser.out6);
   WritePrivateProfileString(_T("激光"), _T("OUT6"), str, ini_path);
   //xray
+  str.Format(_T("%d"), m_efgio.m_configParam.xray.threshold);
+  WritePrivateProfileString(_T("X光"), _T("阈值"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.xray.confirmNum);
+  WritePrivateProfileString(_T("X光"), _T("最小宽度"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.xray.ignore);
+  WritePrivateProfileString(_T("X光"), _T("忽略值"), str, ini_path);
+  str.Format(_T("%.5f"), m_efgio.m_configParam.xray.factor_h);
+  WritePrivateProfileString(_T("X光"), _T("纵向因子"), str, ini_path);
+  str.Format(_T("%.5f"), m_efgio.m_configParam.xray.factor_w);
+  WritePrivateProfileString(_T("X光"), _T("横向因子"), str, ini_path);
   //motor
   str.Format(_T("%.2f"), m_efgio.m_configParam.motor.x.max_freq);
   WritePrivateProfileString(_T("电机X"), _T("最大频率"), str, ini_path);
@@ -1351,6 +1377,9 @@ void CMainFrame::EfgParamSave()
   str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.equivalent_angle.factor);
   WritePrivateProfileString(_T("测量配置"), _T("等效角因子"), str, ini_path);
 
+  //其他配置
+  str.Format(_T("%d"), m_efgio.m_configParam.auto_run);
+  WritePrivateProfileString(_T("其他配置"), _T("自动运行"), str, ini_path);
 }
 
 BOOL CMainFrame::StartMeasure(int out3, int out6)
@@ -1382,4 +1411,19 @@ BOOL CMainFrame::CheckMeasure()
     return FALSE;
   }
   return TRUE;
+}
+
+
+void CMainFrame::OnChkAutoRun()
+{
+  // TODO: 在此添加命令处理程序代码
+  m_efgio.m_configParam.auto_run = !m_efgio.m_configParam.auto_run;
+}
+
+
+void CMainFrame::OnUpdateChkAutoRun(CCmdUI *pCmdUI)
+{
+  // TODO: 在此添加命令更新用户界面处理程序代码
+
+    pCmdUI->SetCheck(/*p_chk->IsVisible()*/m_efgio.m_configParam.auto_run);
 }
