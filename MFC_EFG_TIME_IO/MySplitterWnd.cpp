@@ -14,8 +14,8 @@ CMySplitterWnd::CMySplitterWnd()
 {
   m_cxSplitter = 4;    //must >=4 ,拖动时拖动条的宽度
   m_cySplitter = 4;
-  m_cxBorderShare = 0; //按下鼠标时拖动条的偏移量
-  m_cyBorderShare = 0;
+  m_cxBorderShare = -4; //按下鼠标时拖动条的偏移量
+  m_cyBorderShare = -4;
   m_cxSplitterGap = 1;  //splitter拖动条的宽度
   m_cySplitterGap = 1;
 }
@@ -42,7 +42,8 @@ END_MESSAGE_MAP()
 void CMySplitterWnd::OnLButtonDown(UINT nFlags, CPoint point)
 {
   // TODO: 在此添加消息处理程序代码和/或调用默认值
-
+  ::PostMessage(AfxGetMainWnd()->GetSafeHwnd(), WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(point.x, point.y));
+  CWnd::OnLButtonDown(nFlags, point);
   //CSplitterWndEx::OnLButtonDown(nFlags, point);
 }
 
@@ -50,7 +51,7 @@ void CMySplitterWnd::OnLButtonDown(UINT nFlags, CPoint point)
 void CMySplitterWnd::OnMouseMove(UINT nFlags, CPoint point)
 {
   // TODO: 在此添加消息处理程序代码和/或调用默认值
-
+  CWnd::OnMouseMove(nFlags, point);
   //CSplitterWndEx::OnMouseMove(nFlags, point);
 }
 
@@ -72,4 +73,14 @@ void CMySplitterWnd::OnDrawSplitter(CDC* pDC, ESplitType nType, const CRect& rec
   //  brush.DeleteObject();
   //}
   CSplitterWndEx::OnDrawSplitter(pDC, nType, rect);
+}
+
+
+BOOL CMySplitterWnd::PreCreateWindow(CREATESTRUCT& cs)
+{
+  // TODO: 在此添加专用代码和/或调用基类
+  m_clsName = AfxRegisterWndClass(0, ::LoadCursor(NULL,
+    IDC_ARROW), ::CreateSolidBrush(RGB(255, 95, 17)));
+  cs.lpszClass = (const TCHAR*)m_clsName;
+  return CSplitterWndEx::PreCreateWindow(cs);
 }

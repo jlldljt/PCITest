@@ -170,6 +170,7 @@ ON_COMMAND(ID_BUTTON_CONFIGCHANNEL, &CMainFrame::OnButtonConfigchannel)
 ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 ON_COMMAND(ID_CHK_AUTO_RUN, &CMainFrame::OnChkAutoRun)
 ON_UPDATE_COMMAND_UI(ID_CHK_AUTO_RUN, &CMainFrame::OnUpdateChkAutoRun)
+ON_COMMAND(ID_BUTTON_HALFPAGE, &CMainFrame::OnButtonHalfpage)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -1084,9 +1085,9 @@ void CMainFrame::OnButtonRunpage()
 
   int cx = GetSystemMetrics(SM_CXSCREEN);
   int cy = GetSystemMetrics(SM_CYSCREEN);
-  m_userFrame->SetSize(0, 0, rect.Width()-10, rect.Height());
+  m_userFrame->SetSize(0, 0, rect.Width()-1, rect.Height());
 
-  m_userFrame->SetSize(0, 1, 10, rect.Height());
+  m_userFrame->SetSize(0, 1, 1, rect.Height());
 
 }
 
@@ -1101,8 +1102,8 @@ void CMainFrame::OnButtonDebugpage()
 
   int cx = GetSystemMetrics(SM_CXSCREEN);
   int cy = GetSystemMetrics(SM_CYSCREEN);
-  m_userFrame->SetSize(0, 0, 10, rect.Height());
-  m_userFrame->SetSize(0, 1, rect.Width() - 10, rect.Height());
+  m_userFrame->SetSize(0, 0, 1, rect.Height());
+  m_userFrame->SetSize(0, 1, rect.Width() - 1, rect.Height());
 
 }
 
@@ -1444,4 +1445,19 @@ void CMainFrame::OnUpdateChkAutoRun(CCmdUI *pCmdUI)
   // TODO: 在此添加命令更新用户界面处理程序代码
 
     pCmdUI->SetCheck(/*p_chk->IsVisible()*/m_efgio.m_configParam.auto_run);
+}
+
+
+void CMainFrame::OnButtonHalfpage()
+{
+  // TODO: 在此添加命令处理程序代码
+  Switch(USER_FRAME);
+
+  CRect   rect;
+  GetClientRect(&rect);
+
+  int cx = GetSystemMetrics(SM_CXSCREEN);
+  int cy = GetSystemMetrics(SM_CYSCREEN);
+  m_userFrame->SetSize(0, 0, rect.Width() / 2, rect.Height());
+  m_userFrame->SetSize(0, 1, rect.Width() / 2, rect.Height());
 }

@@ -157,6 +157,7 @@ public:
   BOOL CheckMeasure();
   afx_msg void OnChkAutoRun();
   afx_msg void OnUpdateChkAutoRun(CCmdUI *pCmdUI);
+  afx_msg void OnButtonHalfpage();
 };
 
 
