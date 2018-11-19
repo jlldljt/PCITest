@@ -1,6 +1,9 @@
 #pragma once
 
 
+#define WND_WIDTH 800
+#define WND_HIGHT 600
+#define XRAY_Y_TIMES 2 //x光图 y方向放大系数
 // CViewboard 视图
 typedef struct tagOutStr {
   CString str;

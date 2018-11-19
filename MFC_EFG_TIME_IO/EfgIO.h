@@ -19,14 +19,17 @@ typedef struct  {
   struct {//激光相关
     int out3;
     int out6;
+    double factor_a;//幅度因子，反映激光晃动的距离 amp = atan (A * factor_a / factor_l) 若factor_l = 1；则简化为amp = atan (A * factor_a)
+    double factor_l;//距离因子，反映反射光到镜头的距离
+    double offset;//角度偏移
   }laser;
   
   struct {//X光相关
     int threshold;//阈值
     int confirmNum;//确认数量，宽度超过多少象素
     int ignore;//忽略值，忽略的值
-    double factor_h;//纵向因子
-    double factor_w;//横向因子
+    double factor_h;//纵向因子，平滑次数
+    double factor_w;//横向因子,平滑宽度
   }xray;
 
   struct {  //电机相关
@@ -120,14 +123,15 @@ typedef struct {
   }degree;
   struct//单位是°
   {
-    double D1, D2, DM;              // x光结果，单位°
-    double pluse_num;               // 转盘脉冲数
+    double D1, D2, DM, R1;              // x光结果，单位°
+    double pluse_num,min_pluse_num,max_pluse_num;               // 转盘脉冲数
+	  int    pluse_cnt;
     double u_g;                      // 公式计算处的u轴的g值
     double A, w, t, k;              // 激光结果
-    double cur_phi1, cur_phi0, cur_laser1, cur_laser0, cur_equ; // 当前片
-    double avg_phi1, avg_phi0, avg_laser1, avg_laser0, avg_equ;       // 平均
-    double std_phi1, std_phi0, std_laser1, std_laser0, std_equ;       // 散差
-    double std2_phi1, std2_phi0, std2_laser1, std2_laser0, std2_equ;   //中间值
+    double cur_phi1, cur_phi0, cur_theta1, cur_theta0, cur_equ; // 当前片
+    double avg_phi1, avg_phi0, avg_theta1, avg_theta0, avg_equ;       // 平均
+    double std_phi1, std_phi0, std_theta1, std_theta0, std_equ;       // 散差
+    double std2_phi1, std2_phi0, std2_theta1, std2_theta0, std2_equ;   //中间值
     int cur_pos;//当前片档位
     int num;//测量数量
   }measure;
@@ -167,11 +171,11 @@ enum AC6641_Channel
   CLEAN,
   X_STATE=6*8,
   Y_STATE=6*8+4,
+  READY=6*8+7,//有料开关
   U_DIR=10*8,
   U_GO,
   //U_NOZZLE=10*8+3,
   U_STATE = 11 * 8,
-  READY,//有料开关
 };
 //按port
 enum AC6641_Port
@@ -240,7 +244,7 @@ public:
   CString GetMeasureType(int index);
   void InitEfgIO(void);
   // 获取当前角度的下料位置
-  BOOL GetCurOffPos();
+  int GetCurOffPos(int &pos_num);
   // 判断主测角的档位 -1 低 ；=档位数 高
   void JudegSortWhich(double sec, int & which);
   void ClearMeasureResult(void);

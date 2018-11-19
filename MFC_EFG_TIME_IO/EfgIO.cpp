@@ -244,6 +244,7 @@ double CEfgIO::ReadT0(EFG_T0Channel channel)
   return fparam1;
 }
 //0 x;1 y;2 u
+#define MAX_STEP 65000
 void CEfgIO::MotoRun(int moto_index, double param)
 {
   int sel = moto_index;
@@ -251,6 +252,9 @@ void CEfgIO::MotoRun(int moto_index, double param)
   switch (sel) {
   case 0:
     m_configParam.motor.x.dst_pos = dst;
+	if(dst == 0)
+		dst = -65000;
+	else
     dst = m_configParam.motor.x.dst_pos - m_configParam.motor.x.pos;
     //设定方向
     if (dst > 0)
@@ -260,22 +264,40 @@ void CEfgIO::MotoRun(int moto_index, double param)
 	else
 		break;
     dst = abs(dst);
-    //设定步数
-    WritePort(X_STEP_LOW, dst);
-    WritePort(X_STEP_HIGH, dst >> 8);
-    //下降沿
-    WriteDo(X_FULL_CURRENT, IO_OFF);
-    WriteDo(X_GO, IO_ON);
-    Sleep(1);
-    WriteDo(X_GO, IO_OFF);
-    WriteDo(X_FULL_CURRENT, IO_ON);
-    Sleep(1);
-    while (IO_OFF != ReadDi(X_STATE));
+	while(dst > 0)
+	{ 
+		if(dst > MAX_STEP)
+		{
+
+		//设定步数
+		WritePort(X_STEP_LOW, MAX_STEP);
+		WritePort(X_STEP_HIGH, MAX_STEP >> 8);
+		}
+		else
+		{
+			
+		//设定步数
+		WritePort(X_STEP_LOW, dst);
+		WritePort(X_STEP_HIGH, dst >> 8);
+		}
+		dst-=MAX_STEP;
+		//下降沿
+		WriteDo(X_FULL_CURRENT, IO_OFF);
+		WriteDo(X_GO, IO_ON);
+		Sleep(1);
+		WriteDo(X_GO, IO_OFF);
+		WriteDo(X_FULL_CURRENT, IO_ON);
+		Sleep(1);
+		while (IO_OFF != ReadDi(X_STATE));
+	}
     m_configParam.motor.x.pos = m_configParam.motor.x.dst_pos;
     break;
   case 1:
     m_configParam.motor.y.dst_pos = dst;
-    dst = m_configParam.motor.y.dst_pos - m_configParam.motor.y.pos;
+    if(dst == 0)
+		dst = -65000;
+	else
+		dst = m_configParam.motor.y.dst_pos - m_configParam.motor.y.pos;
     //设定方向
     if (dst > 0)
       WriteDo(Y_DIR, IO_ON);
@@ -284,22 +306,41 @@ void CEfgIO::MotoRun(int moto_index, double param)
 	else
 		break;
     dst = abs(dst);
+	while(dst > 0)
+	{ 
+		if(dst > MAX_STEP)
+		{
+			
+    //设定步数
+    WritePort(Y_STEP_LOW, MAX_STEP);
+    WritePort(Y_STEP_HIGH, MAX_STEP >> 8);
+		}
+		else
+		{
+			
     //设定步数
     WritePort(Y_STEP_LOW, dst);
     WritePort(Y_STEP_HIGH, dst >> 8);
-    //下降沿
-    WriteDo(Y_FULL_CURRENT, IO_OFF);
-    WriteDo(Y_GO, IO_ON);
-    Sleep(1);
-    WriteDo(Y_GO, IO_OFF);
-    WriteDo(Y_FULL_CURRENT, IO_ON);
-    Sleep(1);
-    while (IO_OFF != ReadDi(Y_STATE));
+		}
+		dst-=MAX_STEP;
+
+		//下降沿
+		WriteDo(Y_FULL_CURRENT, IO_OFF);
+		WriteDo(Y_GO, IO_ON);
+		Sleep(1);
+		WriteDo(Y_GO, IO_OFF);
+		WriteDo(Y_FULL_CURRENT, IO_ON);
+		Sleep(1);
+		while (IO_OFF != ReadDi(Y_STATE));
+	}
     m_configParam.motor.y.pos = m_configParam.motor.y.dst_pos;
     break;
   case 2:
     m_configParam.motor.u.dst_pos = dst;
-    dst = m_configParam.motor.u.dst_pos - m_configParam.motor.u.pos;
+    if(dst == 0)
+		dst = -65000;
+	else
+		dst = m_configParam.motor.u.dst_pos - m_configParam.motor.u.pos;
     //设定方向
     if (dst > 0)
       WriteDo(U_DIR, IO_ON);
@@ -308,15 +349,31 @@ void CEfgIO::MotoRun(int moto_index, double param)
 	else
 		break;
     dst = abs(dst);
+	while(dst > 0)
+	{ 
+		if(dst > MAX_STEP)
+		{
+			
+    //设定步数
+    WritePort(U_STEP_LOW, MAX_STEP);
+    WritePort(U_STEP_HIGH, MAX_STEP >> 8);
+		}
+		else
+		{
+			
     //设定步数
     WritePort(U_STEP_LOW, dst);
     WritePort(U_STEP_HIGH, dst >> 8);
-    //下降沿
-    WriteDo(U_GO, IO_ON);
-    Sleep(1);
-    WriteDo(U_GO, IO_OFF);
-    Sleep(1);
-    while (IO_OFF != ReadDi(U_STATE));
+		}
+		dst-=MAX_STEP;
+
+		//下降沿
+		WriteDo(U_GO, IO_ON);
+		Sleep(1);
+		WriteDo(U_GO, IO_OFF);
+		Sleep(1);
+		while (IO_OFF != ReadDi(U_STATE));
+	}
     m_configParam.motor.u.pos = m_configParam.motor.u.dst_pos;
     break;
   default:
@@ -396,12 +453,15 @@ void CEfgIO::MotoRunNoWait(int moto_index, double param)
 
 void CEfgIO::MotoZero(int moto_index)
 {
+	MotoRun(moto_index, 0);
+	return;
   int sel = moto_index;
-  int dst = -10000;
+  int dst = -65000;
+
   switch (sel) {
   case 0:
-    //m_configParam.motor.x.dst_pos = dst;
-    //dst = m_configParam.motor.x.dst_pos - m_configParam.motor.x.pos;
+    m_configParam.motor.x.dst_pos = dst;
+    dst = m_configParam.motor.x.dst_pos - m_configParam.motor.x.pos;
     //设定方向
     if (dst > 0)
       WriteDo(X_DIR, IO_ON);
@@ -509,9 +569,9 @@ CString CEfgIO::GetMeasureType(int index)
 
 void CEfgIO::InitEfgIO(void)
 {
-  MotoZero(2); 
-  MotoZero(1);
+  //MotoZero(2); 
   MotoZero(0);
+  MotoZero(1);
 
   WriteDo(X_DIR, IO_OFF);
   WriteDo(X_GO, IO_OFF);
@@ -532,67 +592,79 @@ void CEfgIO::InitEfgIO(void)
   MotoRun(0, m_configParam.user_config.pos.x_wait);
   MotoRun(1, m_configParam.user_config.pos.not_detected);
   WriteDo(Y_NOZZLE, IO_OFF);
+  Sleep(m_configParam.user_config.time.y_off);//延时
   MotoRun(1, m_configParam.user_config.pos.y_wait);
+
 }
 
-BOOL CEfgIO::GetCurOffPos()
+int CEfgIO::GetCurOffPos(int &pos_num)
 {
-  double primary_degree, secondary_degree;
-  
+  double primary_degree = 0;
+  double secondary_degree = 0;
+  int pos = -1;
+  pos_num = -1;
   switch (m_configParam.user_config.measure.primary.type)//判断主要测量类型
   {
-  case 0:
-    primary_degree = m_resultParam.measure.cur_laser1;
-    break;
   case 1:
-    primary_degree = m_resultParam.measure.cur_phi1;
+    primary_degree = m_resultParam.measure.cur_theta1;
     break;
   case 2:
+    primary_degree = m_resultParam.measure.cur_phi1;
+    break;
+  case 3:
     primary_degree = m_resultParam.measure.cur_equ;
     break;
-  defautl:
-    return FALSE;
+  default:
+    return pos;
   }
 
   switch (m_configParam.user_config.measure.secondary.type)//判断主要测量类型
   {
-  case 0:
-    secondary_degree = m_resultParam.measure.cur_laser1;
-    break;
   case 1:
-    secondary_degree = m_resultParam.measure.cur_phi1;
+    secondary_degree = m_resultParam.measure.cur_theta1;
     break;
   case 2:
+    secondary_degree = m_resultParam.measure.cur_phi1;
+    break;
+  case 3:
     secondary_degree = m_resultParam.measure.cur_equ;
     break;
   default:
-    return FALSE;
+    break;
   }
-
+  
   int sort_type = m_configParam.user_config.type;//晶片类型
   ASSERT(sort_type < MAX_TYPE_NUM);
   int sort_num = m_configParam.user_config.type_sort_num[sort_type];//档位数量
   // 未检出
-  if (0 == primary_degree || 0 == secondary_degree)
+  if (0 == primary_degree /*|| 0 == secondary_degree*/)
   {
     m_resultParam.measure.cur_pos = sort_num + 4;
-    m_configParam.user_config.pos.not_detected++;
-    return TRUE;
+    m_resultParam.num.not_detected++;
+	pos = m_resultParam.measure.cur_pos;
+    pos_num = m_resultParam.num.not_detected;
+    return pos;
   }
-
+  if (m_configParam.user_config.measure.secondary.type != 0)
+  {
   // 超上限
   if (secondary_degree > USER_TO_DEG(m_configParam.user_config.measure.secondary.max_degree))
   {
     m_resultParam.measure.cur_pos = sort_num+3;
-    m_configParam.user_config.pos.secondary_p++;
-    return TRUE;
+    m_resultParam.num.secondary_p++;
+	pos = m_resultParam.measure.cur_pos;
+    pos_num = m_resultParam.num.secondary_p;
+    return pos;
   }
   // 超下限
   if (secondary_degree < USER_TO_DEG(m_configParam.user_config.measure.secondary.min_degree))
   {
     m_resultParam.measure.cur_pos = sort_num+2;
-    m_configParam.user_config.pos.secondary_n++;
-    return TRUE;
+    m_resultParam.num.secondary_n++;
+	pos = m_resultParam.measure.cur_pos;
+    pos_num = m_resultParam.num.secondary_n;
+    return pos;
+  }
   }
   // 判断在那个档
   JudegSortWhich(DEG_TO_SEC(primary_degree), m_resultParam.measure.cur_pos);
@@ -600,18 +672,24 @@ BOOL CEfgIO::GetCurOffPos()
   if (m_resultParam.measure.cur_pos == -1)
   {
     m_resultParam.measure.cur_pos = sort_num;
-    m_configParam.user_config.pos.primary_n++;
-    return TRUE;
+    m_resultParam.num.primary_n++;
+	pos = m_resultParam.measure.cur_pos;
+    pos_num = m_resultParam.num.primary_n;
+    return pos;
   }
 
   if (m_resultParam.measure.cur_pos == sort_num)
   {
     m_resultParam.measure.cur_pos = sort_num + 1;
-    m_configParam.user_config.pos.primary_p++;
-    return TRUE;
+    m_resultParam.num.primary_p++;
+	pos = m_resultParam.measure.cur_pos;
+    pos_num = m_resultParam.num.primary_p;
+    return pos;
   }
-
-  return FALSE;
+  m_resultParam.num.y_off[m_resultParam.measure.cur_pos]++;
+  pos = m_resultParam.measure.cur_pos;
+  pos_num = m_resultParam.num.y_off[m_resultParam.measure.cur_pos];
+  return pos;
 }
 
 // sec 待判断角度

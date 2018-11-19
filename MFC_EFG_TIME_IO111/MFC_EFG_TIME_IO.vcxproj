@@ -1,0 +1,271 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{95A77B9C-9441-4E6E-AEEF-2E7C50BCE9FE}</ProjectGuid>
+    <RootNamespace>MFC_EFG_TIME_IO</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\pic\BK1.bmp" />
+    <None Include="..\pic\BK2.bmp" />
+    <None Include="..\pic\BK3.bmp" />
+    <None Include="C:\Users\Administrator\Desktop\pic\7.bmp" />
+    <None Include="C:\Users\Administrator\Desktop\pic\79Z58PICpNH_1024.bmp" />
+    <None Include="C:\Users\Administrator\Desktop\pic\painting_1.bmp" />
+    <None Include="ClassDiagram.cd" />
+    <None Include="pic\BK1.bmp" />
+    <None Include="pic\BK2.bmp" />
+    <None Include="pic\BK3.bmp" />
+    <None Include="ReadMe.txt" />
+    <None Include="res\bitmap1.bmp" />
+    <None Include="res\bitmap2.bmp" />
+    <None Include="res\buttons.bmp" />
+    <None Include="res\EFG.ico" />
+    <None Include="res\filelarge.bmp" />
+    <None Include="res\filesmall.bmp" />
+    <None Include="res\icon1.ico" />
+    <None Include="res\main.bmp" />
+    <None Include="res\MFC_EFG_TIME_IO.ico" />
+    <None Include="res\MFC_EFG_TIME_IO.rc2" />
+    <None Include="res\MFC_EFG_TIME_IODoc.ico" />
+    <None Include="res\Project1.bmp" />
+    <None Include="res\ribbon.mfcribbon-ms" />
+    <None Include="res\run.ico" />
+    <None Include="res\small1.bmp" />
+    <None Include="res\start.bmp" />
+    <None Include="res\stop.bmp" />
+    <None Include="res\Toolbar.bmp" />
+    <None Include="res\Toolbar256.bmp" />
+    <None Include="res\writelarge.bmp" />
+    <None Include="res\writesmall.bmp" />
+    <None Include="说明.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\CellRange.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCell.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\MemDC.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\TitleTip.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridURLCell.h" />
+    <ClInclude Include="AC6641_Base.h" />
+    <ClInclude Include="AC6641_Ctrl.h" />
+    <ClInclude Include="AC6641_DI.h" />
+    <ClInclude Include="AC6641_DO.h" />
+    <ClInclude Include="ComDef.h" />
+    <ClInclude Include="CPCICtrl.h" />
+    <ClInclude Include="CPCIBase.h" />
+    <ClInclude Include="CTMC12A_Base.h" />
+    <ClInclude Include="CTMC12A_Callback.h" />
+    <ClInclude Include="CTMC12A_Counter.h" />
+    <ClInclude Include="CTMC12A_Ctrl.h" />
+    <ClInclude Include="CTMC12A_DI.h" />
+    <ClInclude Include="CTMC12A_DO.h" />
+    <ClInclude Include="CtrlBase.h" />
+    <ClInclude Include="CUserSplitterWnd.h" />
+    <ClInclude Include="DiIntCounterSnap.h" />
+    <ClInclude Include="DIInterrupt.h" />
+    <ClInclude Include="DlgDebug1.h" />
+    <ClInclude Include="DlgDebugDevice.h" />
+    <ClInclude Include="DlgDI.h" />
+    <ClInclude Include="DlgDO.h" />
+    <ClInclude Include="DlgLaser.h" />
+    <ClInclude Include="DlgRun1.h" />
+    <ClInclude Include="DlgT0.h" />
+    <ClInclude Include="DlgT1.h" />
+    <ClInclude Include="DlgXray.h" />
+    <ClInclude Include="EfgAlg.h" />
+    <ClInclude Include="EfgIO.h" />
+    <ClInclude Include="EventCounter.h" />
+    <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MFC_EFG_TIME_IO.h" />
+    <ClInclude Include="MFC_EFG_TIME_IODoc.h" />
+    <ClInclude Include="MFC_EFG_TIME_IOView.h" />
+    <ClInclude Include="MultiCardCtrl.h" />
+    <ClInclude Include="MySplitterWnd.h" />
+    <ClInclude Include="OneShot.h" />
+    <ClInclude Include="ParamConfig.h" />
+    <ClInclude Include="PWModulator.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="SplitFrameWnd.h" />
+    <ClInclude Include="StaticDI.h" />
+    <ClInclude Include="StaticDO.h" />
+    <ClInclude Include="StaticEx.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="TimeIOCtrl.h" />
+    <ClInclude Include="TimerPulse.h" />
+    <ClInclude Include="tinyxml2.h" />
+    <ClInclude Include="BoardView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCell.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\TitleTip.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridURLCell.cpp" />
+    <ClCompile Include="AC6641_Base.cpp" />
+    <ClCompile Include="AC6641_Ctrl.cpp" />
+    <ClCompile Include="AC6641_DI.cpp" />
+    <ClCompile Include="AC6641_DO.cpp" />
+    <ClCompile Include="ComDef.cpp" />
+    <ClCompile Include="CPCICtrl.cpp" />
+    <ClCompile Include="CPCIBase.cpp" />
+    <ClCompile Include="CTMC12A_Base.cpp" />
+    <ClCompile Include="CTMC12A_Callback.cpp" />
+    <ClCompile Include="CTMC12A_Counter.cpp" />
+    <ClCompile Include="CTMC12A_Ctrl.cpp" />
+    <ClCompile Include="CTMC12A_DI.cpp" />
+    <ClCompile Include="CTMC12A_DO.cpp" />
+    <ClCompile Include="CtrlBase.cpp" />
+    <ClCompile Include="CUserSplitterWnd.cpp" />
+    <ClCompile Include="DiIntCounterSnap.cpp" />
+    <ClCompile Include="DIInterrupt.cpp" />
+    <ClCompile Include="DlgDebug1.cpp" />
+    <ClCompile Include="DlgDebugDevice.cpp" />
+    <ClCompile Include="DlgDI.cpp" />
+    <ClCompile Include="DlgDO.cpp" />
+    <ClCompile Include="DlgLaser.cpp" />
+    <ClCompile Include="DlgRun1.cpp" />
+    <ClCompile Include="DlgT0.cpp" />
+    <ClCompile Include="DlgT1.cpp" />
+    <ClCompile Include="DlgXray.cpp" />
+    <ClCompile Include="EfgAlg.cpp" />
+    <ClCompile Include="EfgIO.cpp" />
+    <ClCompile Include="EventCounter.cpp" />
+    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MFC_EFG_TIME_IO.cpp" />
+    <ClCompile Include="MFC_EFG_TIME_IODoc.cpp" />
+    <ClCompile Include="MFC_EFG_TIME_IOView.cpp" />
+    <ClCompile Include="MultiCardCtrl.cpp" />
+    <ClCompile Include="MySplitterWnd.cpp" />
+    <ClCompile Include="OneShot.cpp" />
+    <ClCompile Include="ParamConfig.cpp" />
+    <ClCompile Include="PWModulator.cpp" />
+    <ClCompile Include="SplitFrameWnd.cpp" />
+    <ClCompile Include="StaticDI.cpp" />
+    <ClCompile Include="StaticDO.cpp" />
+    <ClCompile Include="StaticEx.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TimeIOCtrl.cpp" />
+    <ClCompile Include="TimerPulse.cpp" />
+    <ClCompile Include="tinyxml2.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="BoardView.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MFC_EFG_TIME_IO.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="MFC_EFG_TIME_IO.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

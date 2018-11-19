@@ -111,8 +111,11 @@ UINT LaserMsg(LPVOID pParam)
 CWinThread * gTrdAll = NULL;
 UINT AllMsg(LPVOID pParam)
 {
-  SetThreadAffinityMask(GetCurrentThread(), 1);
-#define FILTER_NUM 2
+	if(0 == SetThreadAffinityMask(GetCurrentThread(), 2))
+	  SetThreadAffinityMask(GetCurrentThread(), 2);
+
+  //SetThreadAffinityMask(GetCurrentThread(), 1);
+#define FILTER_NUM 2//滤波 n-1次
 	CDiIntCounterSnap* param = (CDiIntCounterSnap*)pParam;
 	//int delay = 0;
 	if (param->m_device < 0 || !param->m_card)
@@ -126,7 +129,8 @@ UINT AllMsg(LPVOID pParam)
 	while (!param->m_counter.start);
 
   double tmp_val;
-  param->m_card->WriteDO(XRAY_CTRL_GATE, tmp_val = 1);//guang
+  param->m_efgio->WriteDo(XRAY_GATE, IO_ON);
+  //param->m_card->WriteDO(XRAY_CTRL_GATE, tmp_val = 1);//guang
 	//kaishi
 	param->m_card->ReadDi(XRAY_CNT_GATE, fparam21, fparam22);//x
 	param->m_card->ReadDi(LASER_CNT_GATE, fparam11, fparam12);//激光
@@ -221,9 +225,9 @@ UINT AllMsg(LPVOID pParam)
 	//param->StopDiInt();
 
 	//TODO:计算
-
-  param->m_card->WriteDO(XRAY_CTRL_GATE, tmp_val = 0);//guang
-	AfxMessageBox(L"over");
+	param->m_efgio->WriteDo(XRAY_GATE, IO_OFF);
+  //param->m_card->WriteDO(XRAY_CTRL_GATE, tmp_val = 0);//guang
+	//AfxMessageBox(L"over");
 
 
 	return 0;
@@ -1013,15 +1017,16 @@ int CDiIntCounterSnap::LaserFit()
 	alg.FitSinByLeastSquares(m_counter.fit[0], m_counter.index[0]-1, m_counter.fit[1], param);
 
 	if (m_viewBoard) {
+		m_viewBoard->Erase();
 		m_viewBoard->DrawLaserSin();
 
 		CString str;
 		str.Format(L"yi = %.2f * sin (%.2f * xi + %.2f) + %.2f\r\n num:%d", param.A, param.w, param.t, param.k,m_counter.index[0]-1);
-		m_viewBoard->SetOutStr(str);
+		m_viewBoard->SetOutStr(str, 10,500);//m_viewBoard->SetOutStr(str);
 		///TODO：调试拟合
 
 		POINT point;
-
+		double time_x = ((double)WND_WIDTH) / (m_counter.index[0]-1);
 #ifdef __DEBUG__
 		for (int i = 0; i < m_counter.index[0]-1; i++)
 		{
@@ -1033,10 +1038,10 @@ int CDiIntCounterSnap::LaserFit()
 
 		for (int i = 0; i < m_counter.index[0]-1; i++)
 		{
-			point.x = i << 2;
+			point.x = i * time_x+1;
 			point.y = m_counter.fit[1][i];
 			m_viewBoard->DrawPoint(point);
-			point.x += 2;
+			point.x += time_x/2;
 			m_viewBoard->DrawPoint(point);
 		}
 		m_viewBoard->Invalidate();
@@ -1104,20 +1109,21 @@ int CDiIntCounterSnap::XrayFit()
 		}
 	}
 	//yasuo
-	for (int i = 0; i <  m_counter.index[1]-1; i++)
-	{
-		for (int j = 0; j < XRAY_CNT_NUM; j++) {
-			m_counter.fit[0][i/8] += m_counter.tmp_counter[XRAY_CNT_START_INDEX+j][i];
-		}
-	}
+	//for (int i = 0; i <  m_counter.index[1]-1; i++)
+	//{
+	//	for (int j = 0; j < XRAY_CNT_NUM; j++) {
+	//		m_counter.fit[0][i/*/SMALL*/] += m_counter.tmp_counter[XRAY_CNT_START_INDEX+j][i];
+	//	}
+	//}
 #endif
 
-	int sin_num = (m_counter.index[1]-1)/8;
-
+	int sin_num = (m_counter.index[1]-1)/*/SMALL*/;
+	/*
 		for (int i = 0; i <  sin_num; i++)
 	{
-		m_counter.fit[0][i]/=4;
+		m_counter.fit[0][i]/=SMALL/2;
 	}
+	*/
 #ifdef __DEBUG__
 	for (int i = 0; i < sin_num; i++)
 	{
@@ -1132,43 +1138,60 @@ int CDiIntCounterSnap::XrayFit()
 	// struct tagSinParam param;
 	// alg.FitSinBySubstitution(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[1], param);
 	// alg.FitSinByLeastSquares(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[2], param);
+	alg.Smooth(m_counter.fit[0], sin_num,m_efgio->m_configParam.xray.factor_w,m_efgio->m_configParam.xray.factor_h);//平滑
   alg.ExtractSpike(m_counter.fit[0], sin_num,// 100, 3, -1);
     m_efgio->m_configParam.xray.threshold,
     m_efgio->m_configParam.xray.confirmNum,
     m_efgio->m_configParam.xray.ignore);
+  
   //转盘脉冲数
   m_efgio->m_resultParam.measure.pluse_num = m_counter.index[1] - 1;
+  m_efgio->m_resultParam.measure.pluse_cnt++;
 	
+  if(m_efgio->m_resultParam.measure.pluse_num > m_efgio->m_resultParam.measure.max_pluse_num)
+	  m_efgio->m_resultParam.measure.max_pluse_num = m_efgio->m_resultParam.measure.pluse_num;
+  if(m_efgio->m_resultParam.measure.pluse_num < m_efgio->m_resultParam.measure.min_pluse_num)
+	  m_efgio->m_resultParam.measure.min_pluse_num = m_efgio->m_resultParam.measure.pluse_num;
+
   alg.GetD1D2DM(
     m_efgio->m_resultParam.measure.D1,
     m_efgio->m_resultParam.measure.D2,
     m_efgio->m_resultParam.measure.DM,
-    m_efgio->m_resultParam.measure.pluse_num
+    m_efgio->m_resultParam.measure.R1,
+    m_efgio->m_resultParam.measure.pluse_num/*/SMALL*/
     );
 
   alg.CalcDegree0(
     m_efgio->m_resultParam.measure.D1,
     m_efgio->m_resultParam.measure.D2,
     m_efgio->m_resultParam.measure.DM,
-    m_efgio->m_resultParam.measure.cur_laser0,
+    m_efgio->m_resultParam.measure.cur_theta0,
     m_efgio->m_resultParam.measure.cur_phi0,
     m_efgio->m_resultParam.measure.u_g
     );
 
   
   if (m_viewBoard) {
+	  m_viewBoard->Erase();
 		m_viewBoard->DrawXRayOneShot();
 		CString str;
-		str.Format(L"num:%d D1:%.3f D2:%.3f DM:%.3f laser0:%f phi0:%f ug:%f", 
-      m_counter.index[1]-1,
+		str.Format(L"num:%.0f D1:%.3f D2:%.3f DM:%.3f theta0:%.3f phi0:%.3f ug:%.3f", 
+      m_efgio->m_resultParam.measure.pluse_num,//m_counter.index[1]-1,
       m_efgio->m_resultParam.measure.D1,
       m_efgio->m_resultParam.measure.D2,
       m_efgio->m_resultParam.measure.DM,
-      m_efgio->m_resultParam.measure.cur_laser0,
+      m_efgio->m_resultParam.measure.cur_theta0,
       m_efgio->m_resultParam.measure.cur_phi0,
       m_efgio->m_resultParam.measure.u_g);
 
-		m_viewBoard->SetOutStr(str);
+		m_viewBoard->SetOutStr(str,10,540);
+
+	str.Format(L"最小转盘脉冲:%.0f 最大转盘脉冲:%.0f 次数:%d", 
+      m_efgio->m_resultParam.measure.min_pluse_num,
+      m_efgio->m_resultParam.measure.max_pluse_num,
+	   m_efgio->m_resultParam.measure.pluse_cnt);
+
+		m_viewBoard->SetOutStr(str,10,590);
 
 		//  m_viewBoard->SetOutStr(L"");
 		//#ifdef  __DEBUG__
@@ -1181,6 +1204,7 @@ int CDiIntCounterSnap::XrayFit()
 		//      }
 		//#endif
 		///TODO：调试拟合
+		int times = (m_counter.index[1]-1)/WND_WIDTH;
 		int num = alg.GetSpikesNumber();
 		if (num < 10)
 		{
@@ -1190,10 +1214,12 @@ int CDiIntCounterSnap::XrayFit()
         SPIKE spike;
 				alg.GetSpike(i, spike);
         point = spike.p;
+		point.x/=times;
+		point.y*=XRAY_Y_TIMES;
 				m_viewBoard->DrawCircle(point, 10);
         CString str;
         str.Format(_T("No:%d X:%d Y:%d W:%d"), i, spike.p.x, spike.p.y, spike.w);
-        m_viewBoard->DrawStr(point, str);
+        m_viewBoard->SetOutStr(str, point.x, 250+50*i);
 			}
 		}
 		m_viewBoard->Invalidate();

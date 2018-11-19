@@ -1,0 +1,507 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="PCI1780U">
+      <UniqueIdentifier>{0890ee0e-6467-4f43-beb3-d17c2d6ae52d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XML">
+      <UniqueIdentifier>{f8d6dcce-9283-4561-9dde-7d248845c704}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TMC12A">
+      <UniqueIdentifier>{a264f3d5-5211-4318-bc37-ae7a0be0845e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PCICTRL">
+      <UniqueIdentifier>{f4e4f3d0-f20d-4ccc-a176-755d78138007}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl">
+      <UniqueIdentifier>{e9363f9d-3c3c-44e1-bb69-f394916e1786}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl\NewCellTypes">
+      <UniqueIdentifier>{f6f16a03-3c50-4093-9686-a4a11da45442}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl\Src">
+      <UniqueIdentifier>{5a711361-1c72-47f9-968c-e110ea72fc4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AC6641">
+      <UniqueIdentifier>{8111f139-2bb6-4fad-b08b-bb53576be522}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\buttons.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\filelarge.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\filesmall.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\main.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\writelarge.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\writesmall.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\ribbon.mfcribbon-ms">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\MFC_EFG_TIME_IO.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\MFC_EFG_TIME_IODoc.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\MFC_EFG_TIME_IO.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Toolbar.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Toolbar256.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="ClassDiagram.cd" />
+    <None Include="说明.txt">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\bitmap1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Project1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\icon1.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\EFG.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\bitmap2.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\small1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="C:\Users\Administrator\Desktop\pic\7.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="C:\Users\Administrator\Desktop\pic\painting_1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="C:\Users\Administrator\Desktop\pic\79Z58PICpNH_1024.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\run.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\start.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\stop.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\pic\BK1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\pic\BK2.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\pic\BK3.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="pic\BK1.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="pic\BK2.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="pic\BK3.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MFC_EFG_TIME_IO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MFC_EFG_TIME_IODoc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MFC_EFG_TIME_IOView.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgDI.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgDO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgT0.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgT1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CtrlBase.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerPulse.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="PWModulator.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="EventCounter.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="DIInterrupt.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticDI.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="OneShot.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml2.h">
+      <Filter>XML</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeIOCtrl.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="ParamConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SplitFrameWnd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySplitterWnd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BoardView.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiCardCtrl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DiIntCounterSnap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EfgAlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticDO.h">
+      <Filter>PCI1780U</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_Ctrl.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="CPCICtrl.h">
+      <Filter>PCICTRL</Filter>
+    </ClInclude>
+    <ClInclude Include="CPCIBase.h">
+      <Filter>PCICTRL</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_Base.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_DI.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="ComDef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_Counter.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_Callback.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="CTMC12A_DO.h">
+      <Filter>TMC12A</Filter>
+    </ClInclude>
+    <ClInclude Include="CUserSplitterWnd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgDebug1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgRun1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EfgIO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgDebugDevice.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\CellRange.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCell.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\TitleTip.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridURLCell.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\MemDC.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgLaser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AC6641_Base.h">
+      <Filter>AC6641</Filter>
+    </ClInclude>
+    <ClInclude Include="AC6641_Ctrl.h">
+      <Filter>AC6641</Filter>
+    </ClInclude>
+    <ClInclude Include="AC6641_DI.h">
+      <Filter>AC6641</Filter>
+    </ClInclude>
+    <ClInclude Include="AC6641_DO.h">
+      <Filter>AC6641</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgXray.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticEx.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MFC_EFG_TIME_IO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MFC_EFG_TIME_IODoc.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MFC_EFG_TIME_IOView.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CtrlBase.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgDI.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgDO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgT0.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgT1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerPulse.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="PWModulator.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="EventCounter.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="DIInterrupt.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticDI.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="OneShot.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml2.cpp">
+      <Filter>XML</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeIOCtrl.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="ParamConfig.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SplitFrameWnd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MySplitterWnd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BoardView.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiCardCtrl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DiIntCounterSnap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EfgAlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticDO.cpp">
+      <Filter>PCI1780U</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_Ctrl.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CPCICtrl.cpp">
+      <Filter>PCICTRL</Filter>
+    </ClCompile>
+    <ClCompile Include="CPCIBase.cpp">
+      <Filter>PCICTRL</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_Base.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_DI.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="ComDef.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_Counter.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_Callback.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CTMC12A_DO.cpp">
+      <Filter>TMC12A</Filter>
+    </ClCompile>
+    <ClCompile Include="CUserSplitterWnd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgDebug1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgRun1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EfgIO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgDebugDevice.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCell.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\TitleTip.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridURLCell.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgLaser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AC6641_Base.cpp">
+      <Filter>AC6641</Filter>
+    </ClCompile>
+    <ClCompile Include="AC6641_Ctrl.cpp">
+      <Filter>AC6641</Filter>
+    </ClCompile>
+    <ClCompile Include="AC6641_DI.cpp">
+      <Filter>AC6641</Filter>
+    </ClCompile>
+    <ClCompile Include="AC6641_DO.cpp">
+      <Filter>AC6641</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgXray.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticEx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MFC_EFG_TIME_IO.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

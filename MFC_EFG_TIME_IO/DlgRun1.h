@@ -1,23 +1,17 @@
 #pragma once
 #include "EfgIO.h"
+#include "staticex.h"
 
 enum ENUM_STATE
 {
-  MAIN_START,
-  MAIN_PAUSE,
-  MAIN_STOP,
-  X_START,
-  X_WAIT,
-  X_STOP,
-  X_END,
-  Y_START,
-  Y_STOP,
-  Y_END,
-  TURNTABLE_NULL,//y轴取走，初始化
-  TURNTABLE_MEASURE,//x轴放下
-  TURNTABLE_MEASURING,//正在测量
-  TURNTABLE_END,//测量完成
-
+  START,
+  RUNNING,
+  PAUSE,
+  STOP,
+  STATIC_MEASURE_START,
+  STATIC_MEASURE_STOP,
+  WAIT,
+  END,
 };
 
 typedef struct {
@@ -26,6 +20,7 @@ typedef struct {
     ENUM_STATE x;
     ENUM_STATE y;
     ENUM_STATE turntable;//转盘状态
+    ENUM_STATE staticmeasure;//静态测量
   }state;
   int measure; // 0无测量
 }Run_Param;
@@ -93,6 +88,9 @@ public:
   afx_msg void OnTcnSelchangeTabPreview(NMHDR *pNMHDR, LRESULT *pResult);
   int CalcResult();
   CStaticEx m_static_result;
+  afx_msg void OnBnClickedChkStaticmeasure();
+  CStaticEx m_static_sort;
+  CStaticEx m_static_message;
 };
 
 

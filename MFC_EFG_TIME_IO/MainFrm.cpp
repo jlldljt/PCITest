@@ -938,6 +938,8 @@ void CMainFrame::OnButtonMeasure()
   // 加入等待零位gate out 高
   // 加入处理代码
   m_diIntCounterSnap.StartMeasure();
+  while (!GetMainFrame()->CheckMeasure());
+  AfxMessageBox(L"over");
 #endif
 }
 
@@ -1082,9 +1084,9 @@ void CMainFrame::OnButtonRunpage()
 
   int cx = GetSystemMetrics(SM_CXSCREEN);
   int cy = GetSystemMetrics(SM_CYSCREEN);
-  m_userFrame->SetSize(0, 0, rect.Width()-100, rect.Height());
+  m_userFrame->SetSize(0, 0, rect.Width()-10, rect.Height());
 
-  m_userFrame->SetSize(0, 1, 100, rect.Height());
+  m_userFrame->SetSize(0, 1, 10, rect.Height());
 
 }
 
@@ -1099,8 +1101,8 @@ void CMainFrame::OnButtonDebugpage()
 
   int cx = GetSystemMetrics(SM_CXSCREEN);
   int cy = GetSystemMetrics(SM_CYSCREEN);
-  m_userFrame->SetSize(0, 0, 100, rect.Height());
-  m_userFrame->SetSize(0, 1, rect.Width() - 100, rect.Height());
+  m_userFrame->SetSize(0, 0, 10, rect.Height());
+  m_userFrame->SetSize(0, 1, rect.Width() - 10, rect.Height());
 
 }
 
@@ -1170,6 +1172,14 @@ void CMainFrame::EfgParamLoad()
   //laser
   m_efgio.m_configParam.laser.out3 = GetPrivateProfileInt(_T("激光"), _T("OUT3"), 0, ini_path);
   m_efgio.m_configParam.laser.out6 = GetPrivateProfileInt(_T("激光"), _T("OUT6"), 0, ini_path);
+
+  GetPrivateProfileString(_T("激光"), _T("幅度因子"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.laser.factor_a = _wtof(ret);
+  GetPrivateProfileString(_T("激光"), _T("距离因子"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.laser.factor_l = _wtof(ret);
+  GetPrivateProfileString(_T("激光"), _T("角度偏移"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.laser.offset = _wtof(ret);
+  
   //xray
 
   m_efgio.m_configParam.xray.threshold=GetPrivateProfileInt(_T("X光"), _T("阈值"), 0, ini_path);
@@ -1272,6 +1282,13 @@ void CMainFrame::EfgParamSave()
   WritePrivateProfileString(_T("激光"), _T("OUT3"), str, ini_path);
   str.Format(_T("%d"), m_efgio.m_configParam.laser.out6);
   WritePrivateProfileString(_T("激光"), _T("OUT6"), str, ini_path);
+
+  str.Format(_T("%.3f"), m_efgio.m_configParam.laser.factor_a);
+  WritePrivateProfileString(_T("激光"), _T("幅度因子"), str, ini_path);
+  str.Format(_T("%.3f"), m_efgio.m_configParam.laser.factor_l);
+  WritePrivateProfileString(_T("激光"), _T("距离因子"), str, ini_path);
+  str.Format(_T("%.3f"), m_efgio.m_configParam.laser.offset);
+  WritePrivateProfileString(_T("激光"), _T("角度偏移"), str, ini_path);
   //xray
   str.Format(_T("%d"), m_efgio.m_configParam.xray.threshold);
   WritePrivateProfileString(_T("X光"), _T("阈值"), str, ini_path);
@@ -1279,9 +1296,9 @@ void CMainFrame::EfgParamSave()
   WritePrivateProfileString(_T("X光"), _T("最小宽度"), str, ini_path);
   str.Format(_T("%d"), m_efgio.m_configParam.xray.ignore);
   WritePrivateProfileString(_T("X光"), _T("忽略值"), str, ini_path);
-  str.Format(_T("%.5f"), m_efgio.m_configParam.xray.factor_h);
+  str.Format(_T("%.3f"), m_efgio.m_configParam.xray.factor_h);
   WritePrivateProfileString(_T("X光"), _T("纵向因子"), str, ini_path);
-  str.Format(_T("%.5f"), m_efgio.m_configParam.xray.factor_w);
+  str.Format(_T("%.3f"), m_efgio.m_configParam.xray.factor_w);
   WritePrivateProfileString(_T("X光"), _T("横向因子"), str, ini_path);
   //motor
   str.Format(_T("%.2f"), m_efgio.m_configParam.motor.x.max_freq);
@@ -1393,6 +1410,7 @@ BOOL CMainFrame::StartMeasure(int out3, int out6)
 
   if (index < 0)
     return FALSE;
+
 
   m_diIntCounterSnap.BindCard(m_efgio.GetPCIDeviceNumber(index), m_efgio.GetPCI(index), m_viewBoard, &m_efgio);
   m_diIntCounterSnap.StartXRayAndLaser(0);

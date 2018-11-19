@@ -146,6 +146,7 @@
     <ClInclude Include="AC6641_Ctrl.h" />
     <ClInclude Include="AC6641_DI.h" />
     <ClInclude Include="AC6641_DO.h" />
+    <ClInclude Include="DlgParam.h" />
     <ClInclude Include="ComDef.h" />
     <ClInclude Include="CPCICtrl.h" />
     <ClInclude Include="CPCIBase.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="AC6641_Ctrl.cpp" />
     <ClCompile Include="AC6641_DI.cpp" />
     <ClCompile Include="AC6641_DO.cpp" />
+    <ClCompile Include="DlgParam.cpp" />
     <ClCompile Include="ComDef.cpp" />
     <ClCompile Include="CPCICtrl.cpp" />
     <ClCompile Include="CPCIBase.cpp" />

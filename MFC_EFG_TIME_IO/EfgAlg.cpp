@@ -2,8 +2,6 @@
 #include "EfgAlg.h"
 #include <math.h>
 
-double DPI = 0.0174532922;
-
 EfgAlg::EfgAlg()
 {
 }
@@ -351,38 +349,72 @@ int EfgAlg::FitSinByLeastSquares(double * yi, int iNum, double * fityi, tagSinPa
   return 0;
 }
 
+//smooth_width两边各cnt次数
+  void EfgAlg::Smooth(double * yi, int iNum, int smooth_width, int cnt)
+  {
+	  double *tmp_yi=NULL;
+	  tmp_yi = new double[iNum];
+	  for(int j=0;j<cnt;j++)
+	  {
+	  for(int i = 0 ; i < iNum; i++)
+	  {
+		  double tmp_sum = yi[i];
+		  for (int j = 0; j< smooth_width;j++)
+		  {
+			  int index_low = i - j;
+			  int index_high = i + j;
+
+			  if(index_low < 0)
+				  index_low += iNum;
+
+			  if(index_high >= iNum)
+				  index_high -= iNum;
+
+			  tmp_sum += (yi[index_low] + yi[index_high]);
+		  }
+		  tmp_sum /= (smooth_width*2+1);
+		  tmp_yi[i] = tmp_sum;
+	  }
+
+	  memcpy(yi,tmp_yi,sizeof(double)*iNum);
+	  }
+	  delete[] tmp_yi;
+  }
 
 //////////////////////////////////////////////////X laser///////////////////////////////////////////////////
 
 // 提取尖峰
 // 指定一个点，超过这个点一定数量的尖峰，认为合格。
 // 返回整顿后的数组大小
+  // ignore 忽略多少个连续不合格点，即认为合格,故confirmNum需包含不和格数量
 int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int confirmNum/*确认数量*/, double ignore/*忽略值*/)
 {
-  int outLimitCnt = 0;
+  int outLimitCnt = 0;// 超限点计数
+  int ignoreCnt = 0; //忽略点计数181116
   //int cur = 0;
   // -1 没有累计到的超限点
-  int limitCur = -1;
+  int limitCur = -1;// 第一个超限点
   //int limitCnt = 0;
   double d = 0;
-  int max = 0;
-
+  int max = 0;// 最大超限点
+  confirmNum += ignore;
   m_spikes.RemoveAll();
 
   for (int i = 0; i < iNum; i++)
   {
-    if (ignore == yi[i])
-    {
-      if (-1 == limitCur)
-      {
-        ;
-      }
-      else
-      {
-        outLimitCnt++;
-      }
-      continue;
-    }
+  //  if (ignore == yi[i])
+  //  {
+  //    if (-1 == limitCur)
+  //    {
+  //      ;
+  //    }
+  //    else
+  //    {
+  //      outLimitCnt++;
+		//ignoreCnt++;
+  //    }
+  //    continue;
+  //  }
 
     d = yi[i] - threshold;
 
@@ -401,12 +433,21 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
 
         outLimitCnt++;
       }
+	  ignoreCnt = 0;
     }
-    else
+    else//d<=0
     {
       if (-1 == limitCur)
       {
-        
+        ;
+      }
+	  else if (ignore > ignoreCnt)
+      {
+
+        outLimitCnt++;
+		ignoreCnt++;
+      
+        continue;
       }
       else if(outLimitCnt >= confirmNum) // 存
       {
@@ -419,6 +460,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
       }
       limitCur = -1;
       outLimitCnt = 0;
+	  ignoreCnt = 0;
     }
   }
 
@@ -457,11 +499,16 @@ BOOL EfgAlg::GetAllSortDegree(int * out_sec, int in_center_sec, int step_sec, in
 
   return TRUE;
 }
-// 利用间距计算d1d2dm,factor调节用于较准确的计算最小差值
-BOOL EfgAlg::GetD1D2DM(double &D1, double &D2, double &DM, int pluse_num)
+// 利用间距计算d1d2dm,最大间距过来的第一个最小间距是D1，然后D2的中间距离零位距离是R1
+BOOL EfgAlg::GetD1D2DM(double &D1, double &D2, double &DM, double &R1,int pluse_num)
 {
   if (!SortSpike(pluse_num))
+  {
+	D1 = 0;
+	D2 = 0;
+	DM = 0;
     return FALSE;
+  }
 
 
   SPIKE p[4];
@@ -473,14 +520,16 @@ BOOL EfgAlg::GetD1D2DM(double &D1, double &D2, double &DM, int pluse_num)
   double d_D1 = p[1].p.x - p[0].p.x;
   double d_D2 = p[3].p.x - p[2].p.x;
   double d_DM = p[2].p.x - p[1].p.x;
-  D1 = d_D1 < 0 ? d_D1 + 360 : d_D1;
-  D2 = d_D2 < 0 ? d_D2 + 360 : d_D2;
-  DM = d_DM < 0 ? d_DM + 360 : d_DM;
+  D1 = d_D1 < 0 ? d_D1 + pluse_num : d_D1;
+  D2 = d_D2 < 0 ? d_D2 + pluse_num : d_D2;
+  DM = d_DM < 0 ? d_DM + pluse_num : d_DM;
   DM += (D1 + D2) / 2;
+  double d_R1 = p[2].p.x + D2 / 2;
+  R1 = d_R1 >= pluse_num ? d_R1 - pluse_num : d_R1;
   D1 = D1 * 360 / pluse_num;
   D2 = D2 * 360 / pluse_num;
   DM = DM * 360 / pluse_num;
-
+  R1 = R1 * 360 / pluse_num;
   //D2在d1前面，调整
   if (D2 < D1 || DM > 180)
   {
@@ -489,30 +538,30 @@ BOOL EfgAlg::GetD1D2DM(double &D1, double &D2, double &DM, int pluse_num)
   return TRUE;
 }
 // 利用高度/宽度计算d1d2dm,factor调节用于较准确的计算最小差值
-BOOL EfgAlg::GetD1D2DM(double &D1, double &D2, double &DM, int pluse_num, double factor_h, double factor_w)
-{
-  if (!SortSpike(factor_h, factor_w))
-    return FALSE;
-
-  SPIKE p[4];
-  for (int i = 0; i < 4; i++)
-  {
-    p[i] = m_spikes.GetAt(i);
-  }
-
-  D1 = double(abs(p[0].p.y - p[1].p.y)) * 360 / pluse_num;
-  D2 = double(abs(p[2].p.y - p[3].p.y)) * 360 / pluse_num;
-  DM = double(abs((p[0].p.y + p[1].p.y) / 2 - (p[2].p.y + p[3].p.y) / 2)) * 360 / pluse_num;
-  //D2在d1前面，调整
-  if (D2 < D1)
-  {
-    double tmp;
-    tmp = D1;
-    D1 = D2;
-    D2 = tmp;
-    DM = 360 - DM;
-  }
-}
+//BOOL EfgAlg::GetD1D2DM(double &D1, double &D2, double &DM, int pluse_num, double factor_h, double factor_w)
+//{
+//  if (!SortSpike(factor_h, factor_w))
+//    return FALSE;
+//
+//  SPIKE p[4];
+//  for (int i = 0; i < 4; i++)
+//  {
+//    p[i] = m_spikes.GetAt(i);
+//  }
+//
+//  D1 = double(abs(p[0].p.y - p[1].p.y)) * 360 / pluse_num;
+//  D2 = double(abs(p[2].p.y - p[3].p.y)) * 360 / pluse_num;
+//  DM = double(abs((p[0].p.y + p[1].p.y) / 2 - (p[2].p.y + p[3].p.y) / 2)) * 360 / pluse_num;
+//  //D2在d1前面，调整
+//  if (D2 < D1)
+//  {
+//    double tmp;
+//    tmp = D1;
+//    D1 = D2;
+//    D2 = tmp;
+//    DM = 360 - DM;
+//  }
+//}
 
 // 将spike点排序，间距最长的右侧点排在第一,则01 d1，23 d2
 // 根据经验D1<D2,D1+D2=90°，dm<180°
@@ -532,7 +581,7 @@ BOOL EfgAlg::SortSpike(int pluse_num)
     SPIKE p2 = m_spikes.GetAt(j);
     int d = p1.p.x - p2.p.x;
     dval[i] = d < 0 ? d + pluse_num : d;
-    if (dval[i] > dval[max_i])
+    if (dval[i] < dval[max_i])//SC < ;AT >
       max_i = i;//找到最小因子的一对的起始序号
   }
 
@@ -543,7 +592,7 @@ BOOL EfgAlg::SortSpike(int pluse_num)
     m_spikes.RemoveAt(i);
     m_spikes.Add(spike);
   }
-  return 0;
+  return TRUE;
 }
 
 // 将spike点排序，01一对，23一对
@@ -635,8 +684,15 @@ double cal_thetab(double delta, double g, double phi) {
 //double
 
 //计算原始光轴/原始电轴/u轴g ，单位都是°
-void EfgAlg::CalcDegree0(const double D1, const  double D2, const double DM, double &laser0, double &phi0, double &u_g)
+void EfgAlg::CalcDegree0(const double D1, const  double D2, const double DM, double &theta0, double &phi0, double &u_g)
 {
+	if(D1==0||D2==0||DM==0)
+	{
+		theta0=0;
+		phi0=0;
+		u_g=0;
+		return ;
+	}
   // TODO: 在此添加控件通知处理程序代码
   double h1 = -1;
   double k1 = 3;
@@ -721,23 +777,107 @@ void EfgAlg::CalcDegree0(const double D1, const  double D2, const double DM, dou
   //GetDlgItem(IDC_EDIT3)->SetWindowText(str);
   //str.Format(_T("%lf"), tg);
   //GetDlgItem(IDC_EDIT4)->SetWindowText(str);
-  laser0 = theta / DPI;
+  theta0 = theta / DPI;
   phi0 = phi2 / DPI;
   u_g = tg;
 }
-//tagSinParam角度是弧度值
-void EfgAlg::CalcDegree1(double laser0, double phi0, tagSinParam sinparam, double laser1, double phi1)
+
+//计算∠X"L
+//单位 度
+//X1st = X'
+//X2nd = X"
+double CalcX2ndL1(const double theta0, const double phi0)
 {
-  laser1 = laser0;
-  phi1 = phi0;
+  //原子面1方向余弦
+  double theta = theta0 * DPI;//角度转换到弧度
+  double phi = phi0 * DPI;
+  double h = -1;
+  double k = 3;
+  double l = 3;
+  double s = 4 / 3 * (h * h + h * k + k * k) + l * l / 1.21;
+  //原子面方向余弦
+  double cos_an = h / sqrt(s);
+  double cos_bn = (h + 2 * k) / sqrt(3 * s);
+  double cos_rn = l / (1.1*sqrt(s));
+  //测量面方向余弦
+  double cos_a1st = -cos(theta)*sin(phi);
+  double cos_b1st = cos(theta)*cos(phi);
+  double cos_r1st = sin(theta);
+  //原子面1与测量面的交线 L1
+  //L1的方向数
+  double p = cos_bn * sin(theta) + cos_rn * cos(theta)*cos(phi);
+  double q = cos_rn * (-cos(theta)) + cos_an * sin(theta);
+  double r = cos_an * cos(theta)*cos(phi) + cos_bn * (-cos(theta));
+  //X2nd的方向数
+  double px = cos(phi);
+  double qx = sin(phi);
+  double rx = 0;
+  //L1和X"轴的夹角，∠X"L
+  double x2nd_l = acos((p * px + q * qx + r * rx) / 
+    (sqrt(p * p + q * q + r * r) * sqrt(px * px + qx * qx + rx * rx)));
+  return x2nd_l / DPI;
+}
+/*
+amp	激光测量的修正角度（正弦拟合的幅度值）
+      amp = atan (A * factor_a / factor_l) 转换成°
+PHASE	相位值（正弦拟合的相位值 + 180）
+      sin 的 x∈（0，iNum）转换到 x∈（0，2 * pi）,w就是1，故phase = sinparam.t转换成°
+R1	测量结果中的R1值（原子面和晶片表面交线相对于零位的偏移量）
+LaserOffset	设置的激光相对偏移角度（激光入射光线和零位的夹角）
+θ	晶片表面相对的θ角度（没有修正）
+φ	同上类似
+
+单位统一为°
+*/
+void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset,double theta0, double phi0, double &theta1, double &phi1)
+{
+  double x2nd_l = CalcX2ndL1(theta0, phi0);
+  //转换到弧度
+  double am = amp * DPI;
+  double PHASE = phase * DPI;
+  double R1 = r1 * DPI;
+  double laserOffset = laser_offset * DPI;
+  double theta = theta0 * DPI;
+  double phi = phi0 * DPI;
+  double X2ndL = x2nd_l * DPI;
+
+  double phase1 = R1 + X2ndL - PHASE + 270 - laserOffset;
+  //计算测量时的晶片表面和测量基准面交线的方向余弦
+  double nx = cos(phase1)*cos(phi) + sin(phase1)*sin(theta)*sin(phi);
+  double ny = cos(phase1)*sin(phi) - sin(phase1)*sin(theta)*cos(phi);
+  double nz = sin(phase1)*cos(theta);
+  //变换矩阵
+  double c11 = nx * nx*(1 - cos(am)) + cos(am);
+  double c12 = nx * ny*(1 - cos(am)) + nz * sin(am);
+  double c13 = nx * nz*(1 - cos(am)) - ny * sin(am);
+  double c21 = nx * ny*(1 - cos(am)) - nz * sin(am);
+  double c22 = ny * ny*(1 - cos(am)) + cos(am);
+  double c23 = ny * nz*(1 - cos(am)) + nx * sin(am);
+  double c31 = nx * nz*(1 - cos(am)) + ny * sin(am);
+  double c32 = ny * nz*(1 - cos(am)) - nx * sin(am);
+  double c33 = nz * nz*(1 - cos(am)) + cos(am);
+  //测量面的方向余弦
+  double cos_a1st = -cos(theta)*sin(phi);
+  double cos_b1st = cos(theta)*cos(phi);
+  double cos_r1st = sin(theta);
+  //计算基准面的方向余弦
+  double cos_a0 = c11 * cos_a1st + c12 * cos_b1st + c13 * cos_r1st;
+  double cos_b0 = c21 * cos_a1st + c22 * cos_b1st + c23 * cos_r1st;
+  double cos_r0 = c31 * cos_a1st + c32 * cos_b1st + c33 * cos_r1st;
+  double a0 = acos(cos_a0);
+  double b0 = acos(cos_b0);
+  double r0 = acos(cos_r0);
+  // 计算修正后的θ和φ
+  theta1 = asin(r0) / DPI;
+  phi1 = acos(b0 / sqrt(1 - r0 * r0)) / DPI;
 }
 
 //单位必须一致，比如°
-void EfgAlg::CalcEquAngle(double laser0, double phi0, double equ_phi, double equ_factor, double &equ)
+void EfgAlg::CalcEquAngle(double theta0, double phi0, double equ_phi, double equ_factor, double &equ)
 {
   // 等效角 = 原始光轴 + （原始电轴 - 等效角电轴参数）/等效角因子
-  if (equ_factor) {
-    equ = laser0 + double(phi0 - equ_phi) * 1000 / equ_factor + 0.5;
+  if (equ_factor&&theta0&&phi0&&equ_phi) {
+    equ = theta0 + double(phi0 - equ_phi)/* * 1000 *// equ_factor + 0.5;
   }
   else {
     equ = 0;

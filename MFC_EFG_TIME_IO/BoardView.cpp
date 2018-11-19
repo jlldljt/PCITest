@@ -7,8 +7,6 @@
 
 #include "MainFrm.h"
 
-#define WND_WIDTH 800
-#define WND_HIGHT 600
 // CViewboard
 
 IMPLEMENT_DYNCREATE(CBoardView, CView)
@@ -134,15 +132,18 @@ void CBoardView::DrawLaserSin()
   CDC* pDC = m_dc;
   CRect rect(0, 0, WND_WIDTH, WND_HIGHT);
   //GetClientRect(&rect);
-
+  double sin_num = GetMainFrame()->m_diIntCounterSnap.m_counter.index[0]-1;
+  double time_x = (WND_WIDTH) / sin_num;
   pDC->FillSolidRect(&rect, RGB(255, 255, 255));
   int x, y;
   x = 0, y = 100; pDC->MoveTo(x, y); pDC->LineTo(x+10, y); SetOutStr(_T("100"), x+10, y);
   x = 0, y = 200; pDC->MoveTo(x, y); pDC->LineTo(x+10, y); SetOutStr(_T("200"), x+10, y);
   x = 0, y = 300; pDC->MoveTo(x, y); pDC->LineTo(x+10, y); SetOutStr(_T("300"),x+ 10, y);
-  x = 100<<2, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("100"), x, y + 10);
-  x = 200<<2, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("200"), x, y + 10);
-  x = 300<<2, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("300"), x, y + 10);
+  //x = 90<<2, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("100"), x, y + 50);
+  x = sin_num/4*time_x, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("90°"), x-30, y + 50);
+  x = sin_num/2*time_x, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("180°"), x-30, y + 50);
+  x = sin_num*3/4*time_x, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("270°"), x-30, y + 50);
+  x = sin_num*time_x, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("360°"), x-30, y + 50);
 
   /*pDC->TextOut(0, 0, L"-");
   pDC->TextOut(0, 100, L"-");
@@ -152,21 +153,21 @@ void CBoardView::DrawLaserSin()
   //pDC->TextOut(200 << 2, 0, L"|");
   //pDC->TextOut(300 << 2, 0, L"|");
   CPen pen, *ppen;
-  pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
-  ppen = (CPen*)pDC->SelectObject(&pen);
-  pen.DeleteObject();
+	pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
+	ppen = (CPen*)pDC->SelectObject(&pen);
+	pen.DeleteObject();
 
-  for (int i = 0; i < LASER_SIN_NUM; i++)
+  for (int i = 0; i < sin_num; i++)//GetMainFrame()->m_diIntCounterSnap.m_counter.index[0]-1
   {
     pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
     pDC->SelectObject(&pen);
-    pDC->MoveTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[0][i]);
-    pDC->LineTo(i << 2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[1][i]);
+    pDC->MoveTo(i * time_x, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[0][i]);
+    pDC->LineTo(i * time_x, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[1][i]);
     pen.DeleteObject();
     pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
     pDC->SelectObject(&pen);
-    pDC->MoveTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[2][i]);
-    pDC->LineTo((i << 2) + 2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[3][i]);
+    pDC->MoveTo((i * time_x) + time_x/2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[2][i]);
+    pDC->LineTo((i * time_x) + time_x/2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[3][i]);
     pen.DeleteObject();
   }
 
@@ -224,16 +225,18 @@ void CBoardView::DrawXRayOneShot()
 
   pDC->FillSolidRect(&rect, RGB(255, 255, 255));
   int x, y;
-  x = 0, y = 100; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("100"), x + 10, y);
-  x = 0, y = 200; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("200"), x + 10, y);
-  x = 0, y = 300; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("300"), x + 10, y);
-  x = 0, y = 400; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("400"), x + 10, y);
-  x = 0, y = 500; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("500"), x + 10, y);
-  x = 100, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("100"), x, y + 10);
-  x = 100, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("200"), x, y + 10);
-  x = 200, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("300"), x, y + 10);
-  x = 400, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("400"), x, y + 10);
-  x = 500, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("500"), x, y + 10);
+  int times = (GetMainFrame()->m_diIntCounterSnap.m_counter.index[1]-1)/WND_WIDTH;
+  //int deg = (GetMainFrame()->m_diIntCounterSnap.m_counter.index[1]-1)/8;//360°
+  x = 0, y = 100*XRAY_Y_TIMES; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("100"), x + 10, y);
+  x = 0, y = 200*XRAY_Y_TIMES; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("200"), x + 10, y);
+  //x = 0, y = 300*XRAY_Y_TIMES; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("300"), x + 10, y);
+  //x = 0, y = 400*XRAY_Y_TIMES; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("400"), x + 10, y);
+  //x = 0, y = 500*XRAY_Y_TIMES; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("500"), x + 10, y);
+  x = WND_WIDTH/4, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("90°"), x-30, y + 50);
+  x = WND_WIDTH/2, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("180°"), x-30, y + 50);
+  x = WND_WIDTH*3/4, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("270°"), x-30, y + 50);
+  x = WND_WIDTH, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("360°"), x-30, y + 50);
+  //x = 500, y = 0; pDC->MoveTo(x, y); pDC->LineTo(x, y + 10); SetOutStr(_T("500"), x, y + 50);
 
   //pDC->TextOut(0, 0, L"");
   //pDC->TextOut(0, 100, L"¯");
@@ -249,11 +252,11 @@ void CBoardView::DrawXRayOneShot()
   //pDC->TextOut(500, 0, L"|");
   //pDC->TextOut(600, 0, L"|");
   CPen pen, *ppen;
-  pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
+  pen.CreatePen(PS_SOLID, 2, RGB(0, 0, 250));
   ppen = (CPen*)pDC->SelectObject(&pen);
   pen.DeleteObject();
 
-  for (int i = 0; i < (GetMainFrame()->m_diIntCounterSnap.m_counter.index[1]-1)/8; i++)
+  for (int i = 0; i < WND_WIDTH/*(GetMainFrame()->m_diIntCounterSnap.m_counter.index[1]-1)/8*/; i++)
   {
     //TODO：调试
 //#ifdef __DEBUG__
@@ -263,10 +266,18 @@ void CBoardView::DrawXRayOneShot()
 //
 //    continue;
 //#endif
-    pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
+    pen.CreatePen(PS_SOLID, 2, RGB(0, 0, 250));
     pDC->SelectObject(&pen);
     pDC->MoveTo(i, 0);
-    pDC->LineTo(i, GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][i]);
+
+	int lineTo = 0;
+	for (int j = 0; j <  times; j++)
+	{
+		if(lineTo <GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][i*times + j])
+			lineTo =GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][i*times + j];
+	}
+	lineTo=lineTo*XRAY_Y_TIMES;
+    pDC->LineTo(i, lineTo/*GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][i]*/);
     pen.DeleteObject();
    /* pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
     pDC->SelectObject(&pen);
@@ -371,7 +382,7 @@ void CBoardView::SetOutStr(CString str, int x, int y)
   CDC* pDC = m_strdc;
   CFont font, *tmp;
   font.CreateFont(30,                                          //   nHeight     
-    20,                                                   //   nWidth     
+    10,                                                   //   nWidth     
     0,                                                   //   nEscapement   
     0,                                                   //   nOrientation     
     FW_NORMAL,                                   //   nWeight     
@@ -388,7 +399,7 @@ void CBoardView::SetOutStr(CString str, int x, int y)
   tmp = pDC->SelectObject(&font);
   pDC->SetBkMode(TRANSPARENT);
 
-  pDC->SetTextColor(RGB(0, 255, 0));
+  pDC->SetTextColor(RGB(255, 0, 0));
   pDC->TextOut(x, WND_HIGHT - y, str);
 
   pDC->SelectObject(tmp);
