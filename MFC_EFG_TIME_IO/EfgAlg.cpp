@@ -579,17 +579,17 @@ BOOL EfgAlg::SortSpike(int pluse_num)
 
     SPIKE p1 = m_spikes.GetAt(i);
     SPIKE p2 = m_spikes.GetAt(j);
-    int d = p1.p.x - p2.p.x;
+    int d = p2.p.x - p1.p.x;
     dval[i] = d < 0 ? d + pluse_num : d;
-    if (dval[i] < dval[max_i])//SC < ;AT >
+    if (dval[i] > dval[max_i])//SC > ;AT <
       max_i = i;//找到最小因子的一对的起始序号
   }
-
-  for (int i = 0; i < max_i; i++)//把前面的滚到后面
+  //max_i=max_i + 1 > 3 ? 0 : max_i + 1;
+  for (int i = 0; i <= max_i; i++)//把前面的滚到后面
   {
     SPIKE spike;
-    spike = m_spikes.GetAt(i);
-    m_spikes.RemoveAt(i);
+    spike = m_spikes.GetAt(0);
+    m_spikes.RemoveAt(0);
     m_spikes.Add(spike);
   }
   return TRUE;
@@ -794,7 +794,7 @@ double CalcX2ndL1(const double theta0, const double phi0)
   double h = -1;
   double k = 3;
   double l = 3;
-  double s = 4 / 3 * (h * h + h * k + k * k) + l * l / 1.21;
+  double s = 4.0 / 3 * (h * h + h * k + k * k) + l * l / 1.21;
   //原子面方向余弦
   double cos_an = h / sqrt(s);
   double cos_bn = (h + 2 * k) / sqrt(3 * s);
@@ -805,9 +805,14 @@ double CalcX2ndL1(const double theta0, const double phi0)
   double cos_r1st = sin(theta);
   //原子面1与测量面的交线 L1
   //L1的方向数
-  double p = cos_bn * sin(theta) + cos_rn * cos(theta)*cos(phi);
-  double q = cos_rn * (-cos(theta)) + cos_an * sin(theta);
-  double r = cos_an * cos(theta)*cos(phi) + cos_bn * (-cos(theta));
+  //double p = cos_bn * sin(theta) + cos_rn * cos(theta)*cos(phi);//excel b34
+  //double q = cos_rn * (-cos(theta)) + cos_an * sin(theta);
+  //double r = cos_an * cos(theta)*cos(phi) + cos_bn * (-cos(theta));
+
+  double p = cos_bn * cos_r1st - cos_rn * cos_b1st;//excel b34
+  double q = cos_rn * cos_a1st - cos_an * cos_r1st;
+  double r = cos_an * cos_b1st - cos_bn * cos_a1st;
+
   //X2nd的方向数
   double px = cos(phi);
   double qx = sin(phi);
@@ -831,6 +836,13 @@ LaserOffset	设置的激光相对偏移角度（激光入射光线和零位的夹角）
 */
 void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset,double theta0, double phi0, double &theta1, double &phi1)
 {
+	if(theta0==0||phi0==0)
+	{
+		theta1=0;
+		phi1=0;
+		return ;
+	}
+
   double x2nd_l = CalcX2ndL1(theta0, phi0);
   //转换到弧度
   double am = amp * DPI;
@@ -841,7 +853,7 @@ void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset
   double phi = phi0 * DPI;
   double X2ndL = x2nd_l * DPI;
 
-  double phase1 = R1 + X2ndL - PHASE + 270 - laserOffset;
+  double phase1 = R1 + X2ndL - PHASE + 270 * DPI - laserOffset;//excel h10
   //计算测量时的晶片表面和测量基准面交线的方向余弦
   double nx = cos(phase1)*cos(phi) + sin(phase1)*sin(theta)*sin(phi);
   double ny = cos(phase1)*sin(phi) - sin(phase1)*sin(theta)*cos(phi);
@@ -861,12 +873,12 @@ void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset
   double cos_b1st = cos(theta)*cos(phi);
   double cos_r1st = sin(theta);
   //计算基准面的方向余弦
-  double cos_a0 = c11 * cos_a1st + c12 * cos_b1st + c13 * cos_r1st;
-  double cos_b0 = c21 * cos_a1st + c22 * cos_b1st + c23 * cos_r1st;
-  double cos_r0 = c31 * cos_a1st + c32 * cos_b1st + c33 * cos_r1st;
-  double a0 = acos(cos_a0);
+  double a0 = c11 * cos_a1st + c12 * cos_b1st + c13 * cos_r1st;
+  double b0 = c21 * cos_a1st + c22 * cos_b1st + c23 * cos_r1st;
+  double r0 = c31 * cos_a1st + c32 * cos_b1st + c33 * cos_r1st;
+  /*double a0 = acos(cos_a0);
   double b0 = acos(cos_b0);
-  double r0 = acos(cos_r0);
+  double r0 = acos(cos_r0);*/
   // 计算修正后的θ和φ
   theta1 = asin(r0) / DPI;
   phi1 = acos(b0 / sqrt(1 - r0 * r0)) / DPI;

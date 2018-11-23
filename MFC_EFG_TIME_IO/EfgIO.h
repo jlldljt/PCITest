@@ -133,6 +133,7 @@ typedef struct {
     double std_phi1, std_phi0, std_theta1, std_theta0, std_equ;       // 散差
     double std2_phi1, std2_phi0, std2_theta1, std2_theta0, std2_equ;   //中间值
     int cur_pos;//当前片档位
+    int cur_pos_step;//当前片档位
     int num;//测量数量
   }measure;
 }EFG_ResultParam;

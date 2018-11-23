@@ -67,7 +67,7 @@ BOOL CEfgIO::AddPCI(int cardNo, PCIType type)
     return TRUE;
   else
     return FALSE;
-  
+
 }
 
 CPCIBase * CEfgIO::GetPCI(int cardNo)
@@ -85,10 +85,10 @@ BOOL CEfgIO::RunPCI(int cardNo)
 
 BOOL CEfgIO::StopPCI(int cardNo)
 {
-    if (0 == m_multiCardCtrl.Stop(cardNo))
-      return TRUE;
-    else
-      return FALSE;
+  if (0 == m_multiCardCtrl.Stop(cardNo))
+    return TRUE;
+  else
+    return FALSE;
 }
 //打开efg所需要的卡
 BOOL CEfgIO::CardOn()
@@ -197,7 +197,7 @@ double CEfgIO::ReadDi(AC6641_Channel channel)
   double val = GetPCI(m_on_iocard_no)->ReadDO(port, fparam0, fparam1);
 
   fparam1 = ((int)fparam0) & (0x1 << bit);
- 
+
   return fparam1;
 }
 
@@ -216,7 +216,7 @@ void CEfgIO::WriteDo(AC6641_Channel channel, double param)
   int bit = index % 8;
   double fparam0, fparam1;
   ac6641_critical.Lock();
-  double val = GetPCI(m_on_iocard_no)->ReadDO(port,fparam0,fparam1);
+  double val = GetPCI(m_on_iocard_no)->ReadDO(port, fparam0, fparam1);
   if (param > 0)
   {
     fparam1 = ((int)fparam0) | (0x1 << bit);
@@ -252,128 +252,128 @@ void CEfgIO::MotoRun(int moto_index, double param)
   switch (sel) {
   case 0:
     m_configParam.motor.x.dst_pos = dst;
-	if(dst == 0)
-		dst = -65000;
-	else
-    dst = m_configParam.motor.x.dst_pos - m_configParam.motor.x.pos;
+    if (dst == 0)
+      dst = -65000;
+    else
+      dst = m_configParam.motor.x.dst_pos - m_configParam.motor.x.pos;
     //设定方向
     if (dst > 0)
       WriteDo(X_DIR, IO_ON);
-    else if(dst < 0)
+    else if (dst < 0)
       WriteDo(X_DIR, IO_OFF);
-	else
-		break;
+    else
+      break;
     dst = abs(dst);
-	while(dst > 0)
-	{ 
-		if(dst > MAX_STEP)
-		{
+    while (dst > 0)
+    {
+      if (dst > MAX_STEP)
+      {
 
-		//设定步数
-		WritePort(X_STEP_LOW, MAX_STEP);
-		WritePort(X_STEP_HIGH, MAX_STEP >> 8);
-		}
-		else
-		{
-			
-		//设定步数
-		WritePort(X_STEP_LOW, dst);
-		WritePort(X_STEP_HIGH, dst >> 8);
-		}
-		dst-=MAX_STEP;
-		//下降沿
-		WriteDo(X_FULL_CURRENT, IO_OFF);
-		WriteDo(X_GO, IO_ON);
-		Sleep(1);
-		WriteDo(X_GO, IO_OFF);
-		WriteDo(X_FULL_CURRENT, IO_ON);
-		Sleep(1);
-		while (IO_OFF != ReadDi(X_STATE));
-	}
+        //设定步数
+        WritePort(X_STEP_LOW, MAX_STEP);
+        WritePort(X_STEP_HIGH, MAX_STEP >> 8);
+      }
+      else
+      {
+
+        //设定步数
+        WritePort(X_STEP_LOW, dst);
+        WritePort(X_STEP_HIGH, dst >> 8);
+      }
+      dst -= MAX_STEP;
+      //下降沿
+      WriteDo(X_FULL_CURRENT, IO_OFF);
+      WriteDo(X_GO, IO_ON);
+      Sleep(1);
+      WriteDo(X_GO, IO_OFF);
+      WriteDo(X_FULL_CURRENT, IO_ON);
+      Sleep(1);
+      while (IO_OFF != ReadDi(X_STATE));
+    }
     m_configParam.motor.x.pos = m_configParam.motor.x.dst_pos;
     break;
   case 1:
     m_configParam.motor.y.dst_pos = dst;
-    if(dst == 0)
-		dst = -65000;
-	else
-		dst = m_configParam.motor.y.dst_pos - m_configParam.motor.y.pos;
+    if (dst == 0)
+      dst = -65000;
+    else
+      dst = m_configParam.motor.y.dst_pos - m_configParam.motor.y.pos;
     //设定方向
     if (dst > 0)
       WriteDo(Y_DIR, IO_ON);
-    else if(dst < 0)
+    else if (dst < 0)
       WriteDo(Y_DIR, IO_OFF);
-	else
-		break;
+    else
+      break;
     dst = abs(dst);
-	while(dst > 0)
-	{ 
-		if(dst > MAX_STEP)
-		{
-			
-    //设定步数
-    WritePort(Y_STEP_LOW, MAX_STEP);
-    WritePort(Y_STEP_HIGH, MAX_STEP >> 8);
-		}
-		else
-		{
-			
-    //设定步数
-    WritePort(Y_STEP_LOW, dst);
-    WritePort(Y_STEP_HIGH, dst >> 8);
-		}
-		dst-=MAX_STEP;
+    while (dst > 0)
+    {
+      if (dst > MAX_STEP)
+      {
 
-		//下降沿
-		WriteDo(Y_FULL_CURRENT, IO_OFF);
-		WriteDo(Y_GO, IO_ON);
-		Sleep(1);
-		WriteDo(Y_GO, IO_OFF);
-		WriteDo(Y_FULL_CURRENT, IO_ON);
-		Sleep(1);
-		while (IO_OFF != ReadDi(Y_STATE));
-	}
+        //设定步数
+        WritePort(Y_STEP_LOW, MAX_STEP);
+        WritePort(Y_STEP_HIGH, MAX_STEP >> 8);
+      }
+      else
+      {
+
+        //设定步数
+        WritePort(Y_STEP_LOW, dst);
+        WritePort(Y_STEP_HIGH, dst >> 8);
+      }
+      dst -= MAX_STEP;
+
+      //下降沿
+      WriteDo(Y_FULL_CURRENT, IO_OFF);
+      WriteDo(Y_GO, IO_ON);
+      Sleep(1);
+      WriteDo(Y_GO, IO_OFF);
+      WriteDo(Y_FULL_CURRENT, IO_ON);
+      Sleep(1);
+      while (IO_OFF != ReadDi(Y_STATE));
+    }
     m_configParam.motor.y.pos = m_configParam.motor.y.dst_pos;
     break;
   case 2:
     m_configParam.motor.u.dst_pos = dst;
-    if(dst == 0)
-		dst = -65000;
-	else
-		dst = m_configParam.motor.u.dst_pos - m_configParam.motor.u.pos;
+    if (dst == 0)
+      dst = -65000;
+    else
+      dst = m_configParam.motor.u.dst_pos - m_configParam.motor.u.pos;
     //设定方向
     if (dst > 0)
       WriteDo(U_DIR, IO_ON);
-    else if(dst < 0)
+    else if (dst < 0)
       WriteDo(U_DIR, IO_OFF);
-	else
-		break;
+    else
+      break;
     dst = abs(dst);
-	while(dst > 0)
-	{ 
-		if(dst > MAX_STEP)
-		{
-			
-    //设定步数
-    WritePort(U_STEP_LOW, MAX_STEP);
-    WritePort(U_STEP_HIGH, MAX_STEP >> 8);
-		}
-		else
-		{
-			
-    //设定步数
-    WritePort(U_STEP_LOW, dst);
-    WritePort(U_STEP_HIGH, dst >> 8);
-		}
-		dst-=MAX_STEP;
+    while (dst > 0)
+    {
+      if (dst > MAX_STEP)
+      {
 
-		//下降沿
-		WriteDo(U_GO, IO_ON);
-		Sleep(1);
-		WriteDo(U_GO, IO_OFF);
-		Sleep(1);
-		while (IO_OFF != ReadDi(U_STATE));
-	}
+        //设定步数
+        WritePort(U_STEP_LOW, MAX_STEP);
+        WritePort(U_STEP_HIGH, MAX_STEP >> 8);
+      }
+      else
+      {
+
+        //设定步数
+        WritePort(U_STEP_LOW, dst);
+        WritePort(U_STEP_HIGH, dst >> 8);
+      }
+      dst -= MAX_STEP;
+
+      //下降沿
+      WriteDo(U_GO, IO_ON);
+      Sleep(1);
+      WriteDo(U_GO, IO_OFF);
+      Sleep(1);
+      while (IO_OFF != ReadDi(U_STATE));
+    }
     m_configParam.motor.u.pos = m_configParam.motor.u.dst_pos;
     break;
   default:
@@ -453,8 +453,8 @@ void CEfgIO::MotoRunNoWait(int moto_index, double param)
 
 void CEfgIO::MotoZero(int moto_index)
 {
-	MotoRun(moto_index, 0);
-	return;
+  MotoRun(moto_index, 0);
+  return;
   int sel = moto_index;
   int dst = -65000;
 
@@ -480,7 +480,7 @@ void CEfgIO::MotoZero(int moto_index)
     Sleep(1);
     while (IO_OFF != ReadDi(X_STATE));
     m_configParam.motor.x.pos = 0;
-	m_configParam.motor.x.dst_pos = 0;
+    m_configParam.motor.x.dst_pos = 0;
     break;
   case 1:
     m_configParam.motor.y.dst_pos = dst;
@@ -503,7 +503,7 @@ void CEfgIO::MotoZero(int moto_index)
     Sleep(1);
     while (IO_OFF != ReadDi(Y_STATE));
     m_configParam.motor.y.pos = 0;
-	m_configParam.motor.y.dst_pos = 0;
+    m_configParam.motor.y.dst_pos = 0;
     break;
   case 2:
     m_configParam.motor.u.dst_pos = dst;
@@ -524,7 +524,7 @@ void CEfgIO::MotoZero(int moto_index)
     Sleep(1);
     while (IO_OFF != ReadDi(U_STATE));
     m_configParam.motor.u.pos = 0;
-	m_configParam.motor.u.dst_pos = 0;
+    m_configParam.motor.u.dst_pos = 0;
     break;
   default:
     return;
@@ -596,13 +596,17 @@ void CEfgIO::InitEfgIO(void)
   MotoRun(1, m_configParam.user_config.pos.y_wait);
 
 }
-
+//返回档位，pos_num返回该档位的计数值，pos_step返回该档位的位置
 int CEfgIO::GetCurOffPos(int &pos_num)
 {
   double primary_degree = 0;
   double secondary_degree = 0;
   int pos = -1;
   pos_num = -1;
+  int sort_type = m_configParam.user_config.type;//晶片类型
+  ASSERT(sort_type < MAX_TYPE_NUM);
+  int sort_num = m_configParam.user_config.type_sort_num[sort_type];//档位数量
+
   switch (m_configParam.user_config.measure.primary.type)//判断主要测量类型
   {
   case 1:
@@ -614,7 +618,12 @@ int CEfgIO::GetCurOffPos(int &pos_num)
   case 3:
     primary_degree = m_resultParam.measure.cur_equ;
     break;
-  default:
+  default://同未检出
+    m_resultParam.measure.cur_pos = sort_num + 4;
+    m_resultParam.num.not_detected++;
+    pos = m_resultParam.measure.cur_pos;
+    pos_num = m_resultParam.num.not_detected;
+    m_resultParam.measure.cur_pos_step = m_configParam.user_config.pos.not_detected;
     return pos;
   }
 
@@ -632,39 +641,39 @@ int CEfgIO::GetCurOffPos(int &pos_num)
   default:
     break;
   }
-  
-  int sort_type = m_configParam.user_config.type;//晶片类型
-  ASSERT(sort_type < MAX_TYPE_NUM);
-  int sort_num = m_configParam.user_config.type_sort_num[sort_type];//档位数量
+
   // 未检出
   if (0 == primary_degree /*|| 0 == secondary_degree*/)
   {
     m_resultParam.measure.cur_pos = sort_num + 4;
     m_resultParam.num.not_detected++;
-	pos = m_resultParam.measure.cur_pos;
+    pos = m_resultParam.measure.cur_pos;
     pos_num = m_resultParam.num.not_detected;
+    m_resultParam.measure.cur_pos_step = m_configParam.user_config.pos.not_detected;
     return pos;
   }
   if (m_configParam.user_config.measure.secondary.type != 0)
   {
-  // 超上限
-  if (secondary_degree > USER_TO_DEG(m_configParam.user_config.measure.secondary.max_degree))
-  {
-    m_resultParam.measure.cur_pos = sort_num+3;
-    m_resultParam.num.secondary_p++;
-	pos = m_resultParam.measure.cur_pos;
-    pos_num = m_resultParam.num.secondary_p;
-    return pos;
-  }
-  // 超下限
-  if (secondary_degree < USER_TO_DEG(m_configParam.user_config.measure.secondary.min_degree))
-  {
-    m_resultParam.measure.cur_pos = sort_num+2;
-    m_resultParam.num.secondary_n++;
-	pos = m_resultParam.measure.cur_pos;
-    pos_num = m_resultParam.num.secondary_n;
-    return pos;
-  }
+    // 超上限
+    if (secondary_degree > USER_TO_DEG(m_configParam.user_config.measure.secondary.max_degree))
+    {
+      m_resultParam.measure.cur_pos = sort_num + 3;
+      m_resultParam.num.secondary_p++;
+      pos = m_resultParam.measure.cur_pos;
+      pos_num = m_resultParam.num.secondary_p;
+      m_resultParam.measure.cur_pos_step = m_configParam.user_config.pos.secondary_p;
+      return pos;
+    }
+    // 超下限
+    if (secondary_degree < USER_TO_DEG(m_configParam.user_config.measure.secondary.min_degree))
+    {
+      m_resultParam.measure.cur_pos = sort_num + 2;
+      m_resultParam.num.secondary_n++;
+      pos = m_resultParam.measure.cur_pos;
+      pos_num = m_resultParam.num.secondary_n;
+      m_resultParam.measure.cur_pos_step = m_configParam.user_config.pos.secondary_n;
+      return pos;
+    }
   }
   // 判断在那个档
   JudegSortWhich(DEG_TO_SEC(primary_degree), m_resultParam.measure.cur_pos);
@@ -673,8 +682,9 @@ int CEfgIO::GetCurOffPos(int &pos_num)
   {
     m_resultParam.measure.cur_pos = sort_num;
     m_resultParam.num.primary_n++;
-	pos = m_resultParam.measure.cur_pos;
+    pos = m_resultParam.measure.cur_pos;
     pos_num = m_resultParam.num.primary_n;
+    m_resultParam.measure.cur_pos_step = m_configParam.user_config.pos.primary_n;
     return pos;
   }
 
@@ -682,19 +692,21 @@ int CEfgIO::GetCurOffPos(int &pos_num)
   {
     m_resultParam.measure.cur_pos = sort_num + 1;
     m_resultParam.num.primary_p++;
-	pos = m_resultParam.measure.cur_pos;
+    pos = m_resultParam.measure.cur_pos;
     pos_num = m_resultParam.num.primary_p;
+    m_resultParam.measure.cur_pos_step = m_configParam.user_config.pos.primary_p;
     return pos;
   }
   m_resultParam.num.y_off[m_resultParam.measure.cur_pos]++;
   pos = m_resultParam.measure.cur_pos;
   pos_num = m_resultParam.num.y_off[m_resultParam.measure.cur_pos];
+  m_resultParam.measure.cur_pos_step = m_configParam.user_config.pos.y_off[sort_type][pos];
   return pos;
 }
 
 // sec 待判断角度
 //which 结果 档位值
-void CEfgIO::JudegSortWhich(double sec,  int &which)
+void CEfgIO::JudegSortWhich(double sec, int &which)
 {
   int sort_type = m_configParam.user_config.type;//晶片类型
   ASSERT(sort_type < MAX_TYPE_NUM);
@@ -710,11 +722,11 @@ void CEfgIO::JudegSortWhich(double sec,  int &which)
     return;
   }
 
-  if (sec > sort_sec[sort_num - 1] + d_sec)
-  {
-    which = sort_num;
-    return;
-  }
+  //if (sec > sort_sec[sort_num - 1] + d_sec)
+  //{
+  //  which = sort_num;
+  //  return;
+  //}
 
   int i;
   for (i = 0; i < sort_num; i++)

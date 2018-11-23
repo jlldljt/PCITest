@@ -18,13 +18,14 @@
 #include "DlgT0.h"
 #include "DlgT1.h"
 #include "MainFrm.h"
+#include "DlgTestCalcDegree1.h"
 
 #define CHANNEL_MAX 16
 
 //#define ENABLE_CNT_NUM 4
 CMainFrame* GetMainFrame() {
   static CFrameWndEx *pMain;
-  if(!pMain)
+  if (!pMain)
     pMain = (CFrameWndEx *)AfxGetMainWnd();
   return ((CMainFrame*)pMain);
 };
@@ -132,13 +133,13 @@ CString g_ini_path;
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
-	ON_WM_CREATE()
-	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
-	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
-	ON_COMMAND(ID_FILE_PRINT, &CMainFrame::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CMainFrame::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnFilePrintPreview)
-	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnUpdateFilePrintPreview)
+  ON_WM_CREATE()
+  ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
+  ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
+  ON_COMMAND(ID_FILE_PRINT, &CMainFrame::OnFilePrint)
+  ON_COMMAND(ID_FILE_PRINT_DIRECT, &CMainFrame::OnFilePrint)
+  ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnFilePrintPreview)
+  ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnUpdateFilePrintPreview)
   ON_COMMAND(ID_COMBO_TIMEIO, &CMainFrame::OnComboTimeio)
   ON_COMMAND(ID_BUTTON_LASER_SIN, &CMainFrame::OnButtonLaserSin)
   ON_UPDATE_COMMAND_UI(ID_EDIT_OUT3, &CMainFrame::OnUpdateEditOut3)
@@ -160,25 +161,26 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
   ON_COMMAND(ID_EDIT_USTEP, &CMainFrame::OnEditUstep)
   ON_UPDATE_COMMAND_UI(ID_EDIT_USTEP, &CMainFrame::OnUpdateEditUstep)
   ON_UPDATE_COMMAND_UI(ID_EDIT_XSTEP, &CMainFrame::OnUpdateEditXstep)
-//  ON_WM_HSCROLL()
-//  ON_WM_MOUSEWHEEL()
-//  ON_WM_VSCROLL()
-ON_WM_GETMINMAXINFO()
-ON_COMMAND(ID_BUTTON_RUNPAGE, &CMainFrame::OnButtonRunpage)
-ON_COMMAND(ID_BUTTON_DEBUGPAGE, &CMainFrame::OnButtonDebugpage)
-ON_COMMAND(ID_BUTTON_CONFIGCHANNEL, &CMainFrame::OnButtonConfigchannel)
-ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
-ON_COMMAND(ID_CHK_AUTO_RUN, &CMainFrame::OnChkAutoRun)
-ON_UPDATE_COMMAND_UI(ID_CHK_AUTO_RUN, &CMainFrame::OnUpdateChkAutoRun)
-ON_COMMAND(ID_BUTTON_HALFPAGE, &CMainFrame::OnButtonHalfpage)
+  //  ON_WM_HSCROLL()
+  //  ON_WM_MOUSEWHEEL()
+  //  ON_WM_VSCROLL()
+  ON_WM_GETMINMAXINFO()
+  ON_COMMAND(ID_BUTTON_RUNPAGE, &CMainFrame::OnButtonRunpage)
+  ON_COMMAND(ID_BUTTON_DEBUGPAGE, &CMainFrame::OnButtonDebugpage)
+  ON_COMMAND(ID_BUTTON_CONFIGCHANNEL, &CMainFrame::OnButtonConfigchannel)
+  ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
+  ON_COMMAND(ID_CHK_AUTO_RUN, &CMainFrame::OnChkAutoRun)
+  ON_UPDATE_COMMAND_UI(ID_CHK_AUTO_RUN, &CMainFrame::OnUpdateChkAutoRun)
+  ON_COMMAND(ID_BUTTON_HALFPAGE, &CMainFrame::OnButtonHalfpage)
+  ON_COMMAND(ID_BTN_CALCDEGREE1, &CMainFrame::OnBtnTestCalcDegree1)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
 
 CMainFrame::CMainFrame()
 {
-	// TODO: 在此添加成员初始化代码
-	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_OFF_2007_BLUE);
+  // TODO: 在此添加成员初始化代码
+  theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_OFF_2007_BLUE);
   m_splitFrame = NULL;
   m_viewBoard = NULL;
   m_userFrame = NULL;
@@ -258,44 +260,80 @@ CMainFrame::CMainFrame()
 
 CMainFrame::~CMainFrame()
 {
-  
+
 
   //CPCICtrl::Delete(m_timeIOCtrl);
-  
+
   CPCICtrl::AllDriverClose();
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
-		return -1;
+  if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
+    return -1;
 
-	BOOL bNameValid;
-	// 基于持久值设置视觉管理器和样式
-	OnApplicationLook(theApp.m_nAppLook);
+  BOOL bNameValid;
+  // 基于持久值设置视觉管理器和样式
+  OnApplicationLook(theApp.m_nAppLook);
 
-	m_wndRibbonBar.Create(this);
-	m_wndRibbonBar.LoadFromResource(IDR_RIBBON);
+  m_wndRibbonBar.Create(this);
+  m_wndRibbonBar.LoadFromResource(IDR_RIBBON);
 
-	if (!m_wndStatusBar.Create(this))
-	{
-		TRACE0("未能创建状态栏\n");
-		return -1;      // 未能创建
-	}
+  //
+  m_wndRibbonBar.ShowContextCategories(ID_CONTEXT_DEBUG, TRUE);
+#if (_MFC_VER >= 0x0A00)
+    m_wndRibbonBar.ShowCategory(1, TRUE);
+    m_wndRibbonBar.ShowCategory(2, TRUE);
+    m_wndRibbonBar.SetActiveCategory(m_wndRibbonBar.GetCategory(2), FALSE);
 
-	CString strTitlePane1;
-	CString strTitlePane2;
-	bNameValid = strTitlePane1.LoadString(IDS_STATUS_PANE1);
-	ASSERT(bNameValid);
-	bNameValid = strTitlePane2.LoadString(IDS_STATUS_PANE2);
-	ASSERT(bNameValid);
-	m_wndStatusBar.AddElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE1, strTitlePane1, TRUE), strTitlePane1);
-	m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE2, strTitlePane2, TRUE), strTitlePane2);
+#else
+  m_wndRibbonBar.ShowCategory(0, FALSE);
+  m_wndRibbonBar.ShowCategory(1, TRUE);
+  m_wndRibbonBar.SetActiveCategory(m_wndRibbonBar.GetCategory(1), FALSE);
 
-	// 启用 Visual Studio 2005 样式停靠窗口行为
-	CDockingManager::SetDockingMode(DT_SMART);
-	// 启用 Visual Studio 2005 样式停靠窗口自动隐藏行为
-	EnableAutoHidePanes(CBRS_ALIGN_ANY);
+#endif
+
+  //m_wndRibbonBar.ShowCategory(4, TRUE);
+  //m_wndRibbonBar.ShowCategory(5, TRUE);
+
+
+  m_wndRibbonBar.ToggleMimimizeState();
+
+
+  CList<UINT, UINT> lstQATCmds;
+
+  lstQATCmds.AddTail(ID_BUTTON_RUNPAGE);
+  lstQATCmds.AddTail(ID_BUTTON_HALFPAGE);
+  lstQATCmds.AddTail(ID_BUTTON_DEBUGPAGE);
+  lstQATCmds.AddTail(ID_FILE_SAVE);
+
+  // CMFCRibbonBar m_wndRibbonBar
+  m_wndRibbonBar.SetQuickAccessCommands(lstQATCmds);
+
+  m_wndRibbonBar.ForceRecalcLayout();
+
+
+  //
+
+  if (!m_wndStatusBar.Create(this))
+  {
+    TRACE0("未能创建状态栏\n");
+    return -1;      // 未能创建
+  }
+
+  CString strTitlePane1;
+  CString strTitlePane2;
+  bNameValid = strTitlePane1.LoadString(IDS_STATUS_PANE1);
+  ASSERT(bNameValid);
+  bNameValid = strTitlePane2.LoadString(IDS_STATUS_PANE2);
+  ASSERT(bNameValid);
+  m_wndStatusBar.AddElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE1, strTitlePane1, TRUE), strTitlePane1);
+  m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE2, strTitlePane2, TRUE), strTitlePane2);
+
+  // 启用 Visual Studio 2005 样式停靠窗口行为
+  CDockingManager::SetDockingMode(DT_SMART);
+  // 启用 Visual Studio 2005 样式停靠窗口自动隐藏行为
+  EnableAutoHidePanes(CBRS_ALIGN_ANY);
   //设置标题栏的图标  
   HICON m_hIcon = AfxGetApp()->LoadIcon(IDI_EFG);
   SetIcon(m_hIcon, TRUE);
@@ -329,13 +367,16 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
   {
     OnButtonParamRun();
   }
-	return 0;
+
+
+
+  return 0;
 }
 
 //0 m_splitFrame
 //1 m_viewBoard
 void CMainFrame::Switch(VIEW_ID id)
-{ 
+{
   CRect rect;	// 存储当前窗口
   int cx = GetSystemMetrics(SM_CXSCREEN);
   int cy = GetSystemMetrics(SM_CYSCREEN);
@@ -365,7 +406,7 @@ void CMainFrame::Switch(VIEW_ID id)
     m_userFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST + 2);
 
     //GetWindowRect(rect);	// 得到当前窗体的位置及大小
-    
+
     MoveWindow(0, 0, cx, cy, TRUE);  	// 改变窗
 
 
@@ -390,10 +431,10 @@ void CMainFrame::Switch(VIEW_ID id)
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
-	if( !CFrameWndEx::PreCreateWindow(cs) )
-		return FALSE;
-	// TODO: 在此处通过修改
-	//  CREATESTRUCT cs 来修改窗口类或样式
+  if (!CFrameWndEx::PreCreateWindow(cs))
+    return FALSE;
+  // TODO: 在此处通过修改
+  //  CREATESTRUCT cs 来修改窗口类或样式
   int cx = GetSystemMetrics(SM_CXSCREEN);
   int cy = GetSystemMetrics(SM_CYSCREEN);
   cs.x = 0;
@@ -403,7 +444,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
   //cs.style &= ~WS_MAXIMIZEBOX;
   cs.style &= ~WS_MAXIMIZEBOX;
   cs.style &= ~WS_THICKFRAME;
-	return TRUE;
+  return TRUE;
 }
 
 // CMainFrame 诊断
@@ -411,12 +452,12 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const
 {
-	CFrameWndEx::AssertValid();
+  CFrameWndEx::AssertValid();
 }
 
 void CMainFrame::Dump(CDumpContext& dc) const
 {
-	CFrameWndEx::Dump(dc);
+  CFrameWndEx::Dump(dc);
 }
 #endif //_DEBUG
 
@@ -425,106 +466,106 @@ void CMainFrame::Dump(CDumpContext& dc) const
 
 void CMainFrame::OnApplicationLook(UINT id)
 {
-	CWaitCursor wait;
+  CWaitCursor wait;
 
-	theApp.m_nAppLook = id;
+  theApp.m_nAppLook = id;
 
-	switch (theApp.m_nAppLook)
-	{
-	case ID_VIEW_APPLOOK_WIN_2000:
-		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManager));
-		m_wndRibbonBar.SetWindows7Look(FALSE);
-		break;
+  switch (theApp.m_nAppLook)
+  {
+  case ID_VIEW_APPLOOK_WIN_2000:
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManager));
+    m_wndRibbonBar.SetWindows7Look(FALSE);
+    break;
 
-	case ID_VIEW_APPLOOK_OFF_XP:
-		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOfficeXP));
-		m_wndRibbonBar.SetWindows7Look(FALSE);
-		break;
+  case ID_VIEW_APPLOOK_OFF_XP:
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOfficeXP));
+    m_wndRibbonBar.SetWindows7Look(FALSE);
+    break;
 
-	case ID_VIEW_APPLOOK_WIN_XP:
-		CMFCVisualManagerWindows::m_b3DTabsXPTheme = TRUE;
-		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
-		m_wndRibbonBar.SetWindows7Look(FALSE);
-		break;
+  case ID_VIEW_APPLOOK_WIN_XP:
+    CMFCVisualManagerWindows::m_b3DTabsXPTheme = TRUE;
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+    m_wndRibbonBar.SetWindows7Look(FALSE);
+    break;
 
-	case ID_VIEW_APPLOOK_OFF_2003:
-		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2003));
-		CDockingManager::SetDockingMode(DT_SMART);
-		m_wndRibbonBar.SetWindows7Look(FALSE);
-		break;
+  case ID_VIEW_APPLOOK_OFF_2003:
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2003));
+    CDockingManager::SetDockingMode(DT_SMART);
+    m_wndRibbonBar.SetWindows7Look(FALSE);
+    break;
 
-	case ID_VIEW_APPLOOK_VS_2005:
-		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2005));
-		CDockingManager::SetDockingMode(DT_SMART);
-		m_wndRibbonBar.SetWindows7Look(FALSE);
-		break;
+  case ID_VIEW_APPLOOK_VS_2005:
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2005));
+    CDockingManager::SetDockingMode(DT_SMART);
+    m_wndRibbonBar.SetWindows7Look(FALSE);
+    break;
 
-	case ID_VIEW_APPLOOK_VS_2008:
-		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2008));
-		CDockingManager::SetDockingMode(DT_SMART);
-		m_wndRibbonBar.SetWindows7Look(FALSE);
-		break;
+  case ID_VIEW_APPLOOK_VS_2008:
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2008));
+    CDockingManager::SetDockingMode(DT_SMART);
+    m_wndRibbonBar.SetWindows7Look(FALSE);
+    break;
 
-	case ID_VIEW_APPLOOK_WINDOWS_7:
-		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows7));
-		CDockingManager::SetDockingMode(DT_SMART);
-		m_wndRibbonBar.SetWindows7Look(TRUE);
-		break;
+  case ID_VIEW_APPLOOK_WINDOWS_7:
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows7));
+    CDockingManager::SetDockingMode(DT_SMART);
+    m_wndRibbonBar.SetWindows7Look(TRUE);
+    break;
 
-	default:
-		switch (theApp.m_nAppLook)
-		{
-		case ID_VIEW_APPLOOK_OFF_2007_BLUE:
-			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_LunaBlue);
-			break;
+  default:
+    switch (theApp.m_nAppLook)
+    {
+    case ID_VIEW_APPLOOK_OFF_2007_BLUE:
+      CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_LunaBlue);
+      break;
 
-		case ID_VIEW_APPLOOK_OFF_2007_BLACK:
-			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_ObsidianBlack);
-			break;
+    case ID_VIEW_APPLOOK_OFF_2007_BLACK:
+      CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_ObsidianBlack);
+      break;
 
-		case ID_VIEW_APPLOOK_OFF_2007_SILVER:
-			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Silver);
-			break;
+    case ID_VIEW_APPLOOK_OFF_2007_SILVER:
+      CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Silver);
+      break;
 
-		case ID_VIEW_APPLOOK_OFF_2007_AQUA:
-			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Aqua);
-			break;
-		}
+    case ID_VIEW_APPLOOK_OFF_2007_AQUA:
+      CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Aqua);
+      break;
+    }
 
-		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2007));
-		CDockingManager::SetDockingMode(DT_SMART);
-		m_wndRibbonBar.SetWindows7Look(FALSE);
-	}
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2007));
+    CDockingManager::SetDockingMode(DT_SMART);
+    m_wndRibbonBar.SetWindows7Look(FALSE);
+  }
 
-	RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
+  RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
 
-	theApp.WriteInt(_T("ApplicationLook"), theApp.m_nAppLook);
+  theApp.WriteInt(_T("ApplicationLook"), theApp.m_nAppLook);
 }
 
 void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 {
-	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
+  pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
 }
 
 void CMainFrame::OnFilePrint()
 {
-	if (IsPrintPreview())
-	{
-		PostMessage(WM_COMMAND, AFX_ID_PREVIEW_PRINT);
-	}
+  if (IsPrintPreview())
+  {
+    PostMessage(WM_COMMAND, AFX_ID_PREVIEW_PRINT);
+  }
 }
 
 void CMainFrame::OnFilePrintPreview()
 {
-	if (IsPrintPreview())
-	{
-		PostMessage(WM_COMMAND, AFX_ID_PREVIEW_CLOSE);  // 强制关闭“打印预览”模式
-	}
+  if (IsPrintPreview())
+  {
+    PostMessage(WM_COMMAND, AFX_ID_PREVIEW_CLOSE);  // 强制关闭“打印预览”模式
+  }
 }
 
 void CMainFrame::OnUpdateFilePrintPreview(CCmdUI* pCmdUI)
 {
-	pCmdUI->SetCheck(IsPrintPreview());
+  pCmdUI->SetCheck(IsPrintPreview());
 }
 
 
@@ -563,12 +604,12 @@ void CMainFrame::OnComboTimeio()
   //}
   //m_deviceNumber = dev.deviceNumber;
 
-  
+
   CMFCRibbonComboBox *pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_COMBO_TIMEIO));
-  
+
   //DevInf dev;
   int sel = pComboBox->GetCurSel();
-  if(sel < 0 || sel >= MAX_CARD_NUM)
+  if (sel < 0 || sel >= MAX_CARD_NUM)
     return;
   //int ret = CPCICtrl::getDevice(sel, dev);
   int deviceNumber = m_efgio.GetPCIDeviceNumber(sel);
@@ -577,11 +618,11 @@ void CMainFrame::OnComboTimeio()
   //if (!m_multiCardCtrl.m_card[sel]) {  //CPCICtrl::Delete(m_timeIOCtrl);//出错操作
   //  m_multiCardCtrl.m_card[sel] = CPCICtrl::Create(dev.type);
   //}
-  
+
 
   for (int i = 0; i < CHANNEL_MAX; i++) {
-	((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
-	((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->Stop();
+    ((CDlgDI*)m_splitFrame->m_splitWndEx.GetPane(0, i))->Stop();
+    ((CDlgDO*)m_splitFrame->m_splitWndEx.GetPane(1, i))->Stop();
     ((CDlgT0*)m_splitFrame->m_splitWndEx.GetPane(2, i))->Stop();
     ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->Stop();
   }
@@ -612,14 +653,14 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
   CDocument *doc = pContext->m_pCurrentDoc;
   CRect rect;
   GetClientRect(&rect);
- // rect = CRect(-300, -300, 190*16, 190 * 4);
+  // rect = CRect(-300, -300, 190*16, 190 * 4);
   int nwidth(rect.right);
   int nheight(rect.bottom);   //获取客户区窗口大小  
 
   m_splitFrame = new CSplitFrameWnd;
 
   m_splitFrame->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect/*CFrameWndEx::rectDefault*/, this, NULL, 0, pContext);
- 
+
   m_splitFrame->ShowWindow(SW_HIDE);
   //
   //m_splitFrame->SetDlgCtrlID(AFX_IDW_PANE_FIRST);//单文档设置当前活动view的默认id给前台view
@@ -632,7 +673,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
   //add by mmy 201809
  // m_dlgDebug1 = new CDlgDebug1;
  // m_dlgDebug1->CreateEx(0, NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect, this,0);
-  
+
   m_userFrame = new CUserSplitterWnd;
   m_userFrame->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW &~WS_BORDER, rect, this, NULL, 0, pContext);
   m_userFrame->ShowWindow(SW_SHOW);
@@ -721,7 +762,7 @@ void CMainFrame::OnClose()
   SetActiveView(m_viewBoard);
   delete m_splitFrame;
   m_splitFrame = NULL;
-  
+
   CFrameWndEx::OnClose();
 }
 
@@ -772,7 +813,7 @@ void CMainFrame::OnButtonParamLoad()
     ((CDlgT1*)m_splitFrame->m_splitWndEx.GetPane(3, i))->LoadParam();
   }
   m_deviceNumber = dev.deviceNumber;
- // Switch(SPLIT_FRAME);
+  // Switch(SPLIT_FRAME);
   return;
 }
 
@@ -840,7 +881,7 @@ void CMainFrame::OnButtonParamRun()
   val_out6.Format(L"%d", m_efgio.GetOut6());
   CMFCRibbonEdit *p_edit_out3 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT3));
   CMFCRibbonEdit *p_edit_out6 = DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_OUT6));
-  
+
   p_edit_out3->SetEditText(val_out3);
   p_edit_out6->SetEditText(val_out6);
 }
@@ -886,10 +927,10 @@ void CMainFrame::OnButtonXrayOneshot()
 void CMainFrame::OnButtonMeasure()
 {
   // TODO: 在此添加命令处理程序代码
-	if(m_diIntCounterSnap.CheckStart() > 0) {
-		AfxMessageBox(L"正在采集");
-		return;
-	}
+  if (m_diIntCounterSnap.CheckStart() > 0) {
+    AfxMessageBox(L"正在采集");
+    return;
+  }
 
 #ifndef __DEBUG__
   //DevInf dev;
@@ -905,7 +946,7 @@ void CMainFrame::OnButtonMeasure()
   //  if (TMC12A == dev.type) {
   //    index = i;
   //    deviceNumber = dev.deviceNumber;
-	 // break;
+   // break;
   //  }
   //}
 
@@ -958,7 +999,7 @@ void CMainFrame::OnButtonLaserFit()
   if (0 != m_diIntCounterSnap.LaserFit())
     AfxMessageBox(L"error");
   else
-  Switch(VIEW_BOARD);
+    Switch(VIEW_BOARD);
 }
 
 
@@ -968,17 +1009,17 @@ void CMainFrame::OnButtonXrayFit()
   if (0 != m_diIntCounterSnap.XrayFit())
     AfxMessageBox(L"error");
   else
-  Switch(VIEW_BOARD);
+    Switch(VIEW_BOARD);
 }
 
 
 void CMainFrame::OnButtonUrun()
 {
-	// TODO: 在此添加命令处理程序代码
-	//if(m_diIntCounterSnap.CheckStart() > 0) {
-	//	AfxMessageBox(L"正在采集");
-	//	return;
-	//}
+  // TODO: 在此添加命令处理程序代码
+  //if(m_diIntCounterSnap.CheckStart() > 0) {
+  //	AfxMessageBox(L"正在采集");
+  //	return;
+  //}
 
 #ifndef __DEBUG__
   //DevInf dev;
@@ -994,7 +1035,7 @@ void CMainFrame::OnButtonUrun()
   //  if (TMC12A == dev.type) {
   //    index = i;
   //    deviceNumber = dev.deviceNumber;
-	 // break;
+   // break;
   //  }
   //}
 
@@ -1022,14 +1063,14 @@ void CMainFrame::OnButtonUrun()
 
 void CMainFrame::OnEditUstep()
 {
-	// TODO: 在此添加命令处理程序代码
+  // TODO: 在此添加命令处理程序代码
 }
 
 
 void CMainFrame::OnUpdateEditUstep(CCmdUI *pCmdUI)
 {
-	// TODO: 在此添加命令更新用户界面处理程序代码
-	 pCmdUI->Enable(true);
+  // TODO: 在此添加命令更新用户界面处理程序代码
+  pCmdUI->Enable(true);
 }
 
 
@@ -1045,8 +1086,8 @@ void CMainFrame::OnButtonXrun()
   // TODO: 在此添加命令处理程序代码
   m_diIntCounterSnap.BindCard(0, NULL, m_viewBoard);
   Switch(VIEW_BOARD);
-  m_diIntCounterSnap. TestS();
- 
+  m_diIntCounterSnap.TestS();
+
 }
 
 //   最大最小尺寸的象素点（具体根据实际需要设置） 
@@ -1085,10 +1126,11 @@ void CMainFrame::OnButtonRunpage()
 
   int cx = GetSystemMetrics(SM_CXSCREEN);
   int cy = GetSystemMetrics(SM_CYSCREEN);
-  m_userFrame->SetSize(0, 0, rect.Width()-1, rect.Height());
+  m_userFrame->SetSize(0, 0, rect.Width() - 1, rect.Height());
 
   m_userFrame->SetSize(0, 1, 1, rect.Height());
-
+  m_wndRibbonBar.ShowContextCategories(ID_CONTEXT_DEBUG, FALSE);
+  m_wndRibbonBar.ForceRecalcLayout();
 }
 
 
@@ -1104,7 +1146,8 @@ void CMainFrame::OnButtonDebugpage()
   int cy = GetSystemMetrics(SM_CYSCREEN);
   m_userFrame->SetSize(0, 0, 1, rect.Height());
   m_userFrame->SetSize(0, 1, rect.Width() - 1, rect.Height());
-
+  m_wndRibbonBar.ShowContextCategories(ID_CONTEXT_DEBUG, TRUE);
+  m_wndRibbonBar.ForceRecalcLayout();
 }
 
 
@@ -1180,12 +1223,12 @@ void CMainFrame::EfgParamLoad()
   m_efgio.m_configParam.laser.factor_l = _wtof(ret);
   GetPrivateProfileString(_T("激光"), _T("角度偏移"), _T(""), ret, sizeof(ret), ini_path);
   m_efgio.m_configParam.laser.offset = _wtof(ret);
-  
+
   //xray
 
-  m_efgio.m_configParam.xray.threshold=GetPrivateProfileInt(_T("X光"), _T("阈值"), 0, ini_path);
-  m_efgio.m_configParam.xray.confirmNum=GetPrivateProfileInt(_T("X光"), _T("最小宽度"), 0, ini_path);
-  m_efgio.m_configParam.xray.ignore=GetPrivateProfileInt(_T("X光"), _T("忽略值"), 0, ini_path);
+  m_efgio.m_configParam.xray.threshold = GetPrivateProfileInt(_T("X光"), _T("阈值"), 0, ini_path);
+  m_efgio.m_configParam.xray.confirmNum = GetPrivateProfileInt(_T("X光"), _T("最小宽度"), 0, ini_path);
+  m_efgio.m_configParam.xray.ignore = GetPrivateProfileInt(_T("X光"), _T("忽略值"), 0, ini_path);
   GetPrivateProfileString(_T("X光"), _T("纵向因子"), _T(""), ret, sizeof(ret), ini_path);
   m_efgio.m_configParam.xray.factor_h = _wtof(ret);
   GetPrivateProfileString(_T("X光"), _T("横向因子"), _T(""), ret, sizeof(ret), ini_path);
@@ -1210,16 +1253,16 @@ void CMainFrame::EfgParamLoad()
   GetPrivateProfileString(_T("电机U"), _T("S弯曲度"), _T(""), ret, sizeof(ret), ini_path);
   m_efgio.m_configParam.motor.u.flexible = _wtof(ret);
   //user_config
-  m_efgio.m_configParam.user_config.type= GetPrivateProfileInt(_T("基本配置"), _T("晶片类型"), 0, ini_path);
+  m_efgio.m_configParam.user_config.type = GetPrivateProfileInt(_T("基本配置"), _T("晶片类型"), 0, ini_path);
   for (int i = 0; i < MAX_TYPE_NUM; i++)
   {
     CString tmp;
     tmp.Format(_T("%d类档数"), i);
-    m_efgio.m_configParam.user_config.type_sort_num[i]= GetPrivateProfileInt(_T("基本配置"), tmp, 0, ini_path);
+    m_efgio.m_configParam.user_config.type_sort_num[i] = GetPrivateProfileInt(_T("基本配置"), tmp, 0, ini_path);
   }
-  m_efgio.m_configParam.user_config.pos.x_off=GetPrivateProfileInt(_T("基本配置"), _T("x放料位"), 0, ini_path);
-  m_efgio.m_configParam.user_config.pos.x_wait=GetPrivateProfileInt(_T("基本配置"), _T("x等待位"), 0, ini_path);
-  m_efgio.m_configParam.user_config.pos.y_wait=GetPrivateProfileInt(_T("基本配置"), _T("y等待位"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.x_off = GetPrivateProfileInt(_T("基本配置"), _T("x放料位"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.x_wait = GetPrivateProfileInt(_T("基本配置"), _T("x等待位"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.y_wait = GetPrivateProfileInt(_T("基本配置"), _T("y等待位"), 0, ini_path);
   for (int i = 0; i < MAX_TYPE_NUM; i++)
   {
     CString tmp_type;
@@ -1229,33 +1272,33 @@ void CMainFrame::EfgParamLoad()
     {
       CString tmp_step;
       tmp_step.Format(_T("第%d档位"), j);
-      m_efgio.m_configParam.user_config.pos.y_off[i][j]=GetPrivateProfileInt(tmp_type, tmp_step, 0, ini_path);
+      m_efgio.m_configParam.user_config.pos.y_off[i][j] = GetPrivateProfileInt(tmp_type, tmp_step, 0, ini_path);
     }
   }
   m_efgio.m_configParam.user_config.pos.primary_n = GetPrivateProfileInt(_T("基本配置"), _T("主测角低"), 0, ini_path);
-  m_efgio.m_configParam.user_config.pos.primary_p=GetPrivateProfileInt(_T("基本配置"), _T("主测角高"), 0, ini_path);
-  m_efgio.m_configParam.user_config.pos.secondary_n=GetPrivateProfileInt(_T("基本配置"), _T("次测角低"), 0, ini_path);
-  m_efgio.m_configParam.user_config.pos.secondary_p=GetPrivateProfileInt(_T("基本配置"), _T("次测角高"), 0, ini_path);
-  m_efgio.m_configParam.user_config.pos.not_detected=GetPrivateProfileInt(_T("基本配置"), _T("未检出"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.primary_p = GetPrivateProfileInt(_T("基本配置"), _T("主测角高"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.secondary_n = GetPrivateProfileInt(_T("基本配置"), _T("次测角低"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.secondary_p = GetPrivateProfileInt(_T("基本配置"), _T("次测角高"), 0, ini_path);
+  m_efgio.m_configParam.user_config.pos.not_detected = GetPrivateProfileInt(_T("基本配置"), _T("未检出"), 0, ini_path);
   //时间
-  m_efgio.m_configParam.user_config.time.x_on=GetPrivateProfileInt(_T("基本配置"), _T("x吸料时间"), 0, ini_path);
-  m_efgio.m_configParam.user_config.time.x_off=GetPrivateProfileInt(_T("基本配置"), _T("x放料时间"), 0, ini_path);
-  m_efgio.m_configParam.user_config.time.y_on=GetPrivateProfileInt(_T("基本配置"), _T("y吸料时间"), 0, ini_path);
-  m_efgio.m_configParam.user_config.time.y_off=GetPrivateProfileInt(_T("基本配置"), _T("y放料时间"), 0, ini_path);
+  m_efgio.m_configParam.user_config.time.x_on = GetPrivateProfileInt(_T("基本配置"), _T("x吸料时间"), 0, ini_path);
+  m_efgio.m_configParam.user_config.time.x_off = GetPrivateProfileInt(_T("基本配置"), _T("x放料时间"), 0, ini_path);
+  m_efgio.m_configParam.user_config.time.y_on = GetPrivateProfileInt(_T("基本配置"), _T("y吸料时间"), 0, ini_path);
+  m_efgio.m_configParam.user_config.time.y_off = GetPrivateProfileInt(_T("基本配置"), _T("y放料时间"), 0, ini_path);
   m_efgio.m_configParam.user_config.time.blow = GetPrivateProfileInt(_T("基本配置"), _T("吹气时间"), 0, ini_path);
   m_efgio.m_configParam.user_config.time.clean = GetPrivateProfileInt(_T("基本配置"), _T("清理三孔时间"), 0, ini_path);
-  
+
   GetPrivateProfileString(_T("测量配置"), _T("流程卡"), _T(""), m_efgio.m_configParam.user_config.measure.card, MAX_CARD_LEN, ini_path);
 
   //m_efgio.m_configParam.user_config.measure.card= GetPrivateProfileInt(_T("测量配置"), _T("流程卡"), 0, ini_path);
-  m_efgio.m_configParam.user_config.measure.primary.type=GetPrivateProfileInt(_T("测量配置"), _T("主测量类型"),0, ini_path);
-  m_efgio.m_configParam.user_config.measure.primary.center_degree=GetPrivateProfileInt(_T("测量配置"), _T("中心角度"), 0, ini_path);
-  m_efgio.m_configParam.user_config.measure.primary.step_degree=GetPrivateProfileInt(_T("测量配置"), _T("步进角度"), 0, ini_path);
-  m_efgio.m_configParam.user_config.measure.secondary.type=GetPrivateProfileInt(_T("测量配置"), _T("次测量类型"), 0, ini_path);
-  m_efgio.m_configParam.user_config.measure.secondary.min_degree=GetPrivateProfileInt(_T("测量配置"), _T("最小角度"), 0, ini_path);
-  m_efgio.m_configParam.user_config.measure.secondary.max_degree=GetPrivateProfileInt(_T("测量配置"), _T("最大角度"), 0, ini_path);
-  m_efgio.m_configParam.user_config.measure.equivalent_angle.phi=GetPrivateProfileInt(_T("测量配置"), _T("等效角电轴"),0, ini_path);
-  m_efgio.m_configParam.user_config.measure.equivalent_angle.factor=GetPrivateProfileInt(_T("测量配置"), _T("等效角因子"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.primary.type = GetPrivateProfileInt(_T("测量配置"), _T("主测量类型"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.primary.center_degree = GetPrivateProfileInt(_T("测量配置"), _T("中心角度"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.primary.step_degree = GetPrivateProfileInt(_T("测量配置"), _T("步进角度"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.secondary.type = GetPrivateProfileInt(_T("测量配置"), _T("次测量类型"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.secondary.min_degree = GetPrivateProfileInt(_T("测量配置"), _T("最小角度"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.secondary.max_degree = GetPrivateProfileInt(_T("测量配置"), _T("最大角度"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.equivalent_angle.phi = GetPrivateProfileInt(_T("测量配置"), _T("等效角电轴"), 0, ini_path);
+  m_efgio.m_configParam.user_config.measure.equivalent_angle.factor = GetPrivateProfileInt(_T("测量配置"), _T("等效角因子"), 0, ini_path);
 
   //其他配置
   m_efgio.m_configParam.auto_run = GetPrivateProfileInt(_T("其他配置"), _T("自动运行"), 0, ini_path);
@@ -1420,7 +1463,7 @@ BOOL CMainFrame::StartMeasure(int out3, int out6)
   m_diIntCounterSnap.StartCaptureXRayOneShot();
 
   m_diIntCounterSnap.StartMeasure();
-  
+
   return TRUE;
 }
 // TRUE 在测量中，False 没有测量
@@ -1444,7 +1487,7 @@ void CMainFrame::OnUpdateChkAutoRun(CCmdUI *pCmdUI)
 {
   // TODO: 在此添加命令更新用户界面处理程序代码
 
-    pCmdUI->SetCheck(/*p_chk->IsVisible()*/m_efgio.m_configParam.auto_run);
+  pCmdUI->SetCheck(/*p_chk->IsVisible()*/m_efgio.m_configParam.auto_run);
 }
 
 
@@ -1460,4 +1503,15 @@ void CMainFrame::OnButtonHalfpage()
   int cy = GetSystemMetrics(SM_CYSCREEN);
   m_userFrame->SetSize(0, 0, rect.Width() / 2, rect.Height());
   m_userFrame->SetSize(0, 1, rect.Width() / 2, rect.Height());
+}
+
+
+void CMainFrame::OnBtnTestCalcDegree1()
+{
+  // TODO: 在此添加命令处理程序代码
+  AfxMessageBox(_T("xxxxxxxx"));
+  CDlgTestCalcDegree1 dlg;
+  dlg.DoModal();
+
+
 }

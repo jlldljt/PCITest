@@ -117,7 +117,9 @@
     <None Include="res\MFC_EFG_TIME_IO.rc2" />
     <None Include="res\MFC_EFG_TIME_IODoc.ico" />
     <None Include="res\Project1.bmp" />
-    <None Include="res\ribbon.mfcribbon-ms" />
+    <None Include="res\ribbon.mfcribbon-ms">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="res\run.ico" />
     <None Include="res\small1.bmp" />
     <None Include="res\start.bmp" />
@@ -168,6 +170,7 @@
     <ClInclude Include="DlgRun1.h" />
     <ClInclude Include="DlgT0.h" />
     <ClInclude Include="DlgT1.h" />
+    <ClInclude Include="DlgTestCalcDegree1.h" />
     <ClInclude Include="DlgXray.h" />
     <ClInclude Include="EfgAlg.h" />
     <ClInclude Include="EfgIO.h" />
@@ -231,6 +234,7 @@
     <ClCompile Include="DlgRun1.cpp" />
     <ClCompile Include="DlgT0.cpp" />
     <ClCompile Include="DlgT1.cpp" />
+    <ClCompile Include="DlgTestCalcDegree1.cpp" />
     <ClCompile Include="DlgXray.cpp" />
     <ClCompile Include="EfgAlg.cpp" />
     <ClCompile Include="EfgIO.cpp" />
