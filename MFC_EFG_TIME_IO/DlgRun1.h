@@ -51,7 +51,8 @@ protected:
 private:
   CBrush m_brush;
   CFont m_font;
-
+  //test
+  CFile m_file;
 public:
   CDC * m_laserdc;
   CBitmap *m_laserbm, *m_laseroldbm;

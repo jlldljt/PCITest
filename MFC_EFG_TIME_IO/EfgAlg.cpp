@@ -382,7 +382,175 @@ int EfgAlg::FitSinByLeastSquares(double * yi, int iNum, double * fityi, tagSinPa
   }
 
 //////////////////////////////////////////////////X laser///////////////////////////////////////////////////
+ //抛物线
+  /***********************************************************************************
+从txt文件里读取double型XY数据
+***********************************************************************************/
+int GetXY(const char* FileName, double* X, double* Y, int* Amount)
+{
+        FILE* File = fopen(FileName, "r");
+        if (!File)
+                return -1;
+        for (*Amount = 0; !feof(File); X++, Y++, (*Amount)++)
+                if (2 != fscanf(File, (const char*)"%lf %lf", X, Y))
+                        break;
+        fclose(File);
+        return 0;
+}
 
+/***********************************************************************************
+从double型XY数据中获取系数矩阵
+***********************************************************************************/
+int GetK(double* K, const double* X, const double* Y, int Amount)
+{
+        *(K + 10) = Amount;//第10位即左矩阵右下角即x^0=1，累加完就是Amount
+        *K = 0;
+        *(K + 1) = 0;
+        *(K + 2) = 0;
+        *(K + 3) = 0;
+        *(K + 6) = 0;
+        *(K + 7) = 0;
+        *(K + 11) = 0;
+        for ( ; Amount; Amount--, X++, Y++)//求和即Σ
+        {
+                *K += (*X) * (*X) * (*X) * (*X);
+                *(K + 1) += (*X) * (*X) * (*X);
+                *(K + 2) += (*X) * (*X);
+                *(K + 3) += (*X) * (*X) * (*Y);
+                *(K + 6) += (*X);
+                *(K + 7) += (*X) * (*Y);
+                *(K + 11) += (*Y);
+        }
+        *(K + 4) = *(K + 1);//一样的Σ元素
+        *(K + 5) = *(K + 2);
+        *(K + 8) = *(K + 2);
+        *(K + 9) = *(K + 6);
+        return 0;
+}
+
+/***********************************************************************************
+系数矩阵变换，解矩阵方程
+***********************************************************************************/
+int TransK(double* K)//应该是消元法把左矩阵化成单位矩阵，则右矩阵(K 3 7 11)即是解
+{
+        //
+        *(K + 5) = (*(K + 5)) * (*K) - (*(K + 4)) * (*(K + 1));
+        *(K + 6) = (*(K + 6)) * (*K) - (*(K + 4)) * (*(K + 2));
+        *(K + 7) = (*(K + 7)) * (*K) - (*(K + 4)) * (*(K + 3));
+        *(K + 4) = 0;
+        *(K + 9) = (*(K + 9)) * (*K) - (*(K + 8)) * (*(K + 1));
+        *(K + 10) = (*(K + 10)) * (*K) - (*(K + 8)) * (*(K + 2));
+        *(K + 11) = (*(K + 11)) * (*K) - (*(K + 8)) * (*(K + 3));
+        *(K + 8) = 0;
+        //
+        //
+        *(K + 10) = (*(K + 10)) * (*(K + 5)) - (*(K + 9)) * (*(K + 6));
+        *(K + 11) = (*(K + 11)) * (*(K + 5)) - (*(K + 9)) * (*(K + 7));
+        *(K + 9) = 0;
+        //
+        //
+        *(K + 5) = (*(K + 5)) * (*(K + 10));
+        *(K + 7) = (*(K + 7)) * (*(K + 10)) - (*(K + 6)) * (*(K + 11));
+        *(K + 6) = 0;
+        //
+        //
+        *K = (*K) * (*(K + 5));
+        *(K + 2) = (*(K + 2)) * (*(K + 5));
+        *(K + 3) = (*(K + 3)) * (*(K + 5)) - (*(K + 1)) * (*(K + 7));
+        *(K + 1) = 0;
+        //
+        //
+        *K = (*K) * (*(K + 10));
+        *(K + 3) = (*(K + 3)) * (*(K + 10)) - (*(K + 2)) * (*(K + 11));
+        *(K + 2) = 0;
+        //
+        //
+        if (0 != *(K + 00))
+        {
+                *(K + 3) /= *(K + 00);
+                *K = 1.0;
+        }
+        if (0 != *(K + 5))
+        {
+                *(K + 7) /= *(K + 5);
+                *(K + 5) = 1.0;
+        }
+        if (0 != *(K + 10))
+        {
+                *(K + 11) /= *(K + 10);
+                *(K + 10) = 1.0;
+        }
+        //
+        return 0;
+}
+
+/***********************************************************************************
+***********************************************************************************/
+int Cal(double * yi, int startCur, int endCur, double* ParaA, double* ParaB, double* ParaC)
+{
+	int len = endCur - startCur + 1;
+	double *BufferX = new double[len];
+	double *BufferY = new double[len];
+
+	for(int i=0;i<len;i++)
+	{
+		BufferX[i] = i;
+		BufferY[i] = yi[startCur + i];
+	}
+
+        double ParaK[12];
+        int Amount = len;
+        //GetXY(FileName, (double*)BufferX, (double*)BufferY, &Amount);
+        GetK((double*)ParaK, (const double*)BufferX, (const double*)BufferY, Amount);
+        TransK((double*)ParaK);
+        *ParaA = ParaK[3];
+        *ParaB = ParaK[7];
+        *ParaC = ParaK[11];
+
+		delete[] BufferX;
+		delete[] BufferY;
+
+        return 0;
+}
+  
+  
+  
+  
+  // 提取一般面积处的cur,后期可以考虑抛物线
+int GetMidCur(double * yi, int startCur, int endCur)
+{
+	//抛物线
+	/*double ParaA,ParaB,ParaC;
+	Cal(yi,startCur,endCur,&ParaA,&ParaB,&ParaC);
+	return -ParaB/(2*ParaA)+startCur;*/
+	//宽度中间
+	//double mid = (startCur+endCur)/2.0 +0.5;
+	//return mid;
+	//面积中间
+	double area=0;
+	int i;
+	for(i = startCur; i <= endCur; i++) 
+	{
+		area+=yi[i];
+	}
+	area/=2;
+	double tmp_area = 0;
+	for(i = startCur; i <= endCur; i++)
+	{
+		tmp_area+=yi[i];
+		if(tmp_area>=area)
+			break;
+	}
+
+	double d1 = area-tmp_area;
+	double d2 = area-(tmp_area-yi[i]);
+
+	if(d1<d2)
+		return i;
+	else
+		return i-1;
+
+}
 // 提取尖峰
 // 指定一个点，超过这个点一定数量的尖峰，认为合格。
 // 返回整顿后的数组大小
@@ -452,6 +620,8 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
       else if(outLimitCnt >= confirmNum) // 存
       {
        // Spike spike = { limitCur, i - 1 };
+		  //181215
+		max =  GetMidCur(yi, limitCur, i-1-ignoreCnt);
         SPIKE spike;
         spike.p.x = max;//(limitCur + i - 1) / 2;
         spike.p.y = yi[max];
@@ -519,19 +689,34 @@ BOOL EfgAlg::GetD1D2DM(double &D1, double &D2, double &DM, double &R1,int pluse_
 
   double d_D1 = p[1].p.x - p[0].p.x;
   double d_D2 = p[3].p.x - p[2].p.x;
-  double d_DM = p[2].p.x - p[1].p.x;
   D1 = d_D1 < 0 ? d_D1 + pluse_num : d_D1;
   D2 = d_D2 < 0 ? d_D2 + pluse_num : d_D2;
-  DM = d_DM < 0 ? d_DM + pluse_num : d_DM;
-  DM += (D1 + D2) / 2;
-  double d_R1 = p[2].p.x + D2 / 2;
-  R1 = d_R1 >= pluse_num ? d_R1 - pluse_num : d_R1;
-  D1 = D1 * 360 / pluse_num;
-  D2 = D2 * 360 / pluse_num;
-  DM = DM * 360 / pluse_num;
-  R1 = R1 * 360 / pluse_num;
+  double d_DM, d_R1;
+  if (D1 <= D2)
+  {
+	  d_DM = p[2].p.x - p[1].p.x;
+	  DM = d_DM < 0 ? d_DM + pluse_num : d_DM;
+	  DM += (D1 + D2) / 2;
+	  d_R1 = p[2].p.x + D2 / 2;
+
+  }
+  else
+  {
+	  
+  D2 = d_D1 < 0 ? d_D1 + pluse_num : d_D1;
+  D1 = d_D2 < 0 ? d_D2 + pluse_num : d_D2;
+	  d_DM = p[0].p.x - p[3].p.x;
+	  DM = d_DM < 0 ? d_DM + pluse_num : d_DM;
+	  DM += (D1 + D2) / 2;
+	  d_R1 = p[0].p.x + D2 / 2;
+  }
+	  R1 = d_R1 >= pluse_num ? d_R1 - pluse_num : d_R1;
+	  D1 = D1 * 360 / pluse_num;
+	  D2 = D2 * 360 / pluse_num;
+	  DM = DM * 360 / pluse_num;
+	  R1 = R1 * 360 / pluse_num;
   //D2在d1前面，调整
-  if (D2 < D1 || DM > 180)
+  if (DM > 180)
   {
     return FALSE;
   }

@@ -32,6 +32,11 @@ typedef struct  {
     double factor_w;//横向因子,平滑宽度
   }xray;
 
+  struct {
+	  int degree[2];//角度1 和 2
+	  int step[2];//对应角度12的步数
+  }u_auto;
+
   struct {  //电机相关
     struct {
       int pos;
@@ -135,6 +140,10 @@ typedef struct {
     int cur_pos;//当前片档位
     int cur_pos_step;//当前片档位
     int num;//测量数量
+	//测试用
+    double avg_D1, avg_D2, avg_DM, avg_R1, avg_pluse_num, avg_u_g, avg_A, avg_w, avg_t, avg_k;
+    double std_D1, std_D2, std_DM, std_R1, std_pluse_num, std_u_g, std_A, std_w, std_t, std_k;
+    double std2_D1, std2_D2, std2_DM, std2_R1, std2_pluse_num, std2_u_g, std2_A, std2_w, std2_t, std2_k;
   }measure;
 }EFG_ResultParam;
 
@@ -241,6 +250,7 @@ public:
   void MotoRun(int moto_index, double param);
   void MotoRunNoWait(int moto_index, double param);
   void MotoZero(int moto_index);
+  void UAutoRun(double degree);
   BOOL CheckMotoEnd(int moto_index);
   CString GetMeasureType(int index);
   void InitEfgIO(void);

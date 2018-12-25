@@ -243,9 +243,9 @@ UINT Thread_MainRun(LPVOID pParam)
       //pdlg->m_io->InitEfgIO();
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("启动静态测量"));
       while (END != pdlg->m_run.state.staticmeasure&&END != pdlg->m_run.state.turntable);
-      pdlg->m_io->m_resultParam.measure.max_pluse_num = 0;
-      pdlg->m_io->m_resultParam.measure.min_pluse_num = 100000;
-      pdlg->m_io->m_resultParam.measure.pluse_cnt = 0;
+ 
+	  memset(&pdlg->m_io->m_resultParam,0,sizeof(pdlg->m_io->m_resultParam));
+	  pdlg->m_io->m_resultParam.measure.min_pluse_num = 100000;
       pdlg->m_run.state.staticmeasure = START;
       pdlg->m_run.state.y = END;
       pdlg->m_run.state.turntable = END;
@@ -466,7 +466,10 @@ void CDlgRun1::OnInitialUpdate()
 
   InitGrid();
   UpdateGridWithRecalc();
-
+  //test
+  
+  m_file.Open(_T("test.txt"),CFile::modeCreate | CFile::modeWrite | CFile::shareDenyRead);
+  m_file.Seek(0,CFile::end);
 }
 
 
@@ -771,13 +774,13 @@ void CDlgRun1::ShowResult(BOOL sw)
   {
     //str_deg.Format(_T("类  别\t当 前 值\t平 均 值\t散    差\t测量总数：%d\r\n光轴\t%07.3lf\t%07.3lf\t%07.3lf\r\n电轴\t%07.3lf\t%3.3lf\t%3.3lf\r\n等效角\t%3.3f\t%3.3f\t%3.3f\r\n光轴0\t%3.3f\t%3.3f\t%3.3f\r\n电轴0\t%3.3f\t%3.3f\t%3.3f\r\n"),
 
-    str_deg.Format(_T("类  别\t当前值\t平均值\t散  差\t测量总数：%d\r\n光轴\t%06d\t%06d\t%06d\r\n电轴\t%06d\t%06d\t%06d\r\n等效角\t%06d\t%06d\t%06d\r\n光轴0\t%06d\t%06d\t%06d\r\n电轴0\t%06d\t%06d\t%06d\r\n"),
+    str_deg.Format(_T("类  别\t当前值\t平均值\t散  差\t测量总数：%d\r\n光轴\t%06d\t%06d\t%06.3f\r\n电轴\t%06d\t%06d\t%06.3f\r\n等效角\t%06d\t%06d\t%06.3f\r\n光轴0\t%06d\t%06d\t%06.3f\r\n电轴0\t%06d\t%06d\t%06.3f\r\n"),
       m_io->m_resultParam.measure.num,
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_theta1), DEG_TO_USER(m_io->m_resultParam.measure.avg_theta1), DEG_TO_USER(m_io->m_resultParam.measure.std_theta1),
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_phi1), DEG_TO_USER(m_io->m_resultParam.measure.avg_phi1), DEG_TO_USER(m_io->m_resultParam.measure.std_phi1),
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_equ), DEG_TO_USER(m_io->m_resultParam.measure.avg_equ), DEG_TO_USER(m_io->m_resultParam.measure.std_equ),
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_theta0), DEG_TO_USER(m_io->m_resultParam.measure.avg_theta0), DEG_TO_USER(m_io->m_resultParam.measure.std_theta0),
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_phi0), DEG_TO_USER(m_io->m_resultParam.measure.avg_phi0), DEG_TO_USER(m_io->m_resultParam.measure.std_phi0)
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_theta1), DEG_TO_USER(m_io->m_resultParam.measure.avg_theta1), (m_io->m_resultParam.measure.std_theta1)*3600,
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_phi1), DEG_TO_USER(m_io->m_resultParam.measure.avg_phi1), (m_io->m_resultParam.measure.std_phi1)*3600,
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_equ), DEG_TO_USER(m_io->m_resultParam.measure.avg_equ), (m_io->m_resultParam.measure.std_equ)*3600,
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_theta0), DEG_TO_USER(m_io->m_resultParam.measure.avg_theta0), (m_io->m_resultParam.measure.std_theta0)*3600,
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_phi0), DEG_TO_USER(m_io->m_resultParam.measure.avg_phi0), (m_io->m_resultParam.measure.std_phi0)*3600
     );
 
     str_pos = m_io->m_resultParam.measure.cur_pos;
@@ -787,8 +790,32 @@ void CDlgRun1::ShowResult(BOOL sw)
     m_io->ClearMeasureResult();
   }
   GetDlgItem(IDC_STATIC_RESULT)->SetWindowText(str_deg);
+  /////////////////////////////////////
+   str_deg.Format(_T("类  别\t当前值\t平均值\t散  差\r\nD1\t%06d\t%06d\t%06d\r\nD2\t%06d\t%06d\t%06d\r\nDM\t%06d\t%06d\t%06d\r\nR1\t%06d\t%06d\t%06d\r\n脉冲数\t%.0f\t%.1f\t%.1f\r\nug\t%06d\t%06d\t%06d\r\nA\t%.3f\t%.3f\t%.3f\r\nw\t%.3f\t%.3f\t%.3f\r\nt\t%.3f\t%.3f\t%.3f\r\nk\t%.3f\t%.3f\t%.3f\r\n"),
+      DEG_TO_USER(m_io->m_resultParam.measure.D1), DEG_TO_USER(m_io->m_resultParam.measure.avg_D1), DEG_TO_USER(m_io->m_resultParam.measure.std_D1),
+      DEG_TO_USER(m_io->m_resultParam.measure.D2), DEG_TO_USER(m_io->m_resultParam.measure.avg_D2), DEG_TO_USER(m_io->m_resultParam.measure.std_D2),
+      DEG_TO_USER(m_io->m_resultParam.measure.DM), DEG_TO_USER(m_io->m_resultParam.measure.avg_DM), DEG_TO_USER(m_io->m_resultParam.measure.std_DM),
+      DEG_TO_USER(m_io->m_resultParam.measure.R1), DEG_TO_USER(m_io->m_resultParam.measure.avg_R1), DEG_TO_USER(m_io->m_resultParam.measure.std_R1),
+      (m_io->m_resultParam.measure.pluse_num), (m_io->m_resultParam.measure.avg_pluse_num), (m_io->m_resultParam.measure.std_pluse_num),
+      DEG_TO_USER(m_io->m_resultParam.measure.u_g), DEG_TO_USER(m_io->m_resultParam.measure.avg_u_g), DEG_TO_USER(m_io->m_resultParam.measure.std_u_g),
+      (m_io->m_resultParam.measure.A), (m_io->m_resultParam.measure.avg_A), (m_io->m_resultParam.measure.std_A),
+      (m_io->m_resultParam.measure.w), (m_io->m_resultParam.measure.avg_w), (m_io->m_resultParam.measure.std_w),
+      (m_io->m_resultParam.measure.t), (m_io->m_resultParam.measure.avg_t), (m_io->m_resultParam.measure.std_t),
+      (m_io->m_resultParam.measure.k), (m_io->m_resultParam.measure.avg_k), (m_io->m_resultParam.measure.std_k)
+    );
   SetDlgItemText(IDC_SHOW_DEGREE, str_deg);
+
+
+   str_deg.Format(_T("%06.3f\t%06.3f\t%06.3f\t%06.3f\r\n"),
+      (m_io->m_resultParam.measure.D1), 
+      (m_io->m_resultParam.measure.D2), 
+      (m_io->m_resultParam.measure.DM), 
+      (m_io->m_resultParam.measure.R1));
+  m_file.Write(CStringA(str_deg).GetBuffer(),CStringA(str_deg).GetLength());
+  CStringA(str_deg).ReleaseBuffer();
+
   //SetDlgItemText(IDC_STATIC_RESULT, str_deg);
+   ///////////////
 
   OnTcnSelchangeTabPreview(NULL, NULL);
   //UpdateGrid();
@@ -825,13 +852,17 @@ void CDlgRun1::OnTcnSelchangeTabPreview(NMHDR *pNMHDR, LRESULT *pResult)
 //得到用户最终结果并刷新界面
 int CDlgRun1::CalcResult()
 {
-  if (-1 == GetMainFrame()->m_diIntCounterSnap.LaserFit())
+  if (-1 == GetMainFrame()->m_diIntCounterSnap.LaserFit()) {
     return -1;
+  }
+
   if (GetMainFrame()->m_viewBoard)
     GetMainFrame()->m_viewBoard->DrawToDC(m_laserdc, m_preview_rect);
 
-  if (-1 == GetMainFrame()->m_diIntCounterSnap.XrayFit())
+  if (-1 == GetMainFrame()->m_diIntCounterSnap.XrayFit()) {
     return -1;
+  }
+
   if (GetMainFrame()->m_viewBoard)
     GetMainFrame()->m_viewBoard->DrawToDC(m_xraydc, m_preview_rect);
 
@@ -863,7 +894,7 @@ int CDlgRun1::CalcResult()
     m_io->m_resultParam.measure.cur_equ
   );
 
-  // 累计
+  // 累计测出值
   m_io->m_resultParam.measure.num++;
 
   // 累计平均值，散差
@@ -901,6 +932,77 @@ int CDlgRun1::CalcResult()
     m_io->m_resultParam.measure.avg_equ,
     m_io->m_resultParam.measure.std_equ,
     m_io->m_resultParam.measure.std2_equ
+  );
+  //test
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.D1,
+    m_io->m_resultParam.measure.avg_D1,
+    m_io->m_resultParam.measure.std_D1,
+    m_io->m_resultParam.measure.std2_D1
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.D2,
+    m_io->m_resultParam.measure.avg_D2,
+    m_io->m_resultParam.measure.std_D2,
+    m_io->m_resultParam.measure.std2_D2
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.DM,
+    m_io->m_resultParam.measure.avg_DM,
+    m_io->m_resultParam.measure.std_DM,
+    m_io->m_resultParam.measure.std2_DM
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.R1,
+    m_io->m_resultParam.measure.avg_R1,
+    m_io->m_resultParam.measure.std_R1,
+    m_io->m_resultParam.measure.std2_R1
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.pluse_num,
+    m_io->m_resultParam.measure.avg_pluse_num,
+    m_io->m_resultParam.measure.std_pluse_num,
+    m_io->m_resultParam.measure.std2_pluse_num
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.u_g,
+    m_io->m_resultParam.measure.avg_u_g,
+    m_io->m_resultParam.measure.std_u_g,
+    m_io->m_resultParam.measure.std2_u_g
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.A,
+    m_io->m_resultParam.measure.avg_A,
+    m_io->m_resultParam.measure.std_A,
+    m_io->m_resultParam.measure.std2_A
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.w,
+    m_io->m_resultParam.measure.avg_w,
+    m_io->m_resultParam.measure.std_w,
+    m_io->m_resultParam.measure.std2_w
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.t,
+    m_io->m_resultParam.measure.avg_t,
+    m_io->m_resultParam.measure.std_t,
+    m_io->m_resultParam.measure.std2_t
+  );
+  alg.SortAvgStd(
+    m_io->m_resultParam.measure.num,
+    m_io->m_resultParam.measure.k,
+    m_io->m_resultParam.measure.avg_k,
+    m_io->m_resultParam.measure.std_k,
+    m_io->m_resultParam.measure.std2_k
   );
   //计算档位，在别的地方，或许在efgio
 

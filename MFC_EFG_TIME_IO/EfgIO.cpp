@@ -532,6 +532,27 @@ void CEfgIO::MotoZero(int moto_index)
 
 }
 
+void CEfgIO::UAutoRun(double degree)
+{
+	if(USER_TO_DEG(m_configParam.u_auto.degree[1]) < USER_TO_DEG(m_configParam.u_auto.degree[0])||m_configParam.u_auto.step[1] < m_configParam.u_auto.step[0])
+	{
+		AfxMessageBox(_T("u范围设置不正确"));
+		return;
+	}
+	if(degree < USER_TO_DEG(m_configParam.u_auto.degree[0])||degree > USER_TO_DEG(m_configParam.u_auto.degree[1]))
+	{
+		AfxMessageBox(_T("不在范围内"));
+		return;
+	}
+	double stepofdeg = abs(m_configParam.u_auto.step[0]-m_configParam.u_auto.step[1]) /
+		fabs(USER_TO_DEG(m_configParam.u_auto.degree[0])-USER_TO_DEG(m_configParam.u_auto.degree[1]));
+	double steps = (degree - USER_TO_DEG(m_configParam.u_auto.degree[0]))*stepofdeg+m_configParam.u_auto.step[0];
+
+	MotoZero(2);
+	Sleep(1000);
+	MotoRun(2, steps);
+}
+
 BOOL CEfgIO::CheckMotoEnd(int moto_index)
 {
   int sel = moto_index;

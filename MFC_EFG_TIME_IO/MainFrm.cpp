@@ -772,11 +772,28 @@ void CMainFrame::OnButtonSnap()
   // TODO: 在此添加命令处理程序代码
 
   // 开启一次捕捉
-  m_diIntCounterSnap.BindCard(m_deviceNumber, m_timeIOCtrl, m_viewBoard);
-  m_diIntCounterSnap.StartDiIntLaserCircle(0);
-  m_diIntCounterSnap.StartCaptureCircle(1);// TODO：
+	if (m_diIntCounterSnap.CheckStart() > 0) {
+    //AfxMessageBox(L"正在采集");
+    return;
+  }
 
-  Switch(VIEW_BOARD);
+  int index = m_efgio.GetCardIndex();
+
+  if (index < 0)
+    return;
+
+
+  m_diIntCounterSnap.BindCard(m_efgio.GetPCIDeviceNumber(index), m_efgio.GetPCI(index), m_viewBoard, &m_efgio);
+  m_diIntCounterSnap.StartDiIntLaserCircle(0);
+
+  m_diIntCounterSnap.StartMeasure();
+
+  return;
+  //m_diIntCounterSnap.BindCard(m_deviceNumber, m_timeIOCtrl, m_viewBoard);
+  //m_diIntCounterSnap.StartDiIntLaserCircle(0);
+  //m_diIntCounterSnap.StartCaptureCircle(1);// TODO：
+
+  //Switch(VIEW_BOARD);
 }
 
 
@@ -1233,6 +1250,14 @@ void CMainFrame::EfgParamLoad()
   m_efgio.m_configParam.xray.factor_h = _wtof(ret);
   GetPrivateProfileString(_T("X光"), _T("横向因子"), _T(""), ret, sizeof(ret), ini_path);
   m_efgio.m_configParam.xray.factor_w = _wtof(ret);
+  //u_auto
+  m_efgio.m_configParam.u_auto.degree[0] = GetPrivateProfileInt(_T("U自动参数"), _T("角度1"), 0, ini_path);
+  m_efgio.m_configParam.u_auto.step[0] = GetPrivateProfileInt(_T("U自动参数"), _T("步数1"), 0, ini_path);
+  
+  m_efgio.m_configParam.u_auto.degree[1] = GetPrivateProfileInt(_T("U自动参数"), _T("角度2"), 0, ini_path);
+  m_efgio.m_configParam.u_auto.step[1] = GetPrivateProfileInt(_T("U自动参数"), _T("步数2"), 0, ini_path);
+  
+
   //motor
   GetPrivateProfileString(_T("电机X"), _T("最大频率"), _T(""), ret, sizeof(ret), ini_path);
   m_efgio.m_configParam.motor.x.max_freq = _wtof(ret);
@@ -1344,6 +1369,16 @@ void CMainFrame::EfgParamSave()
   WritePrivateProfileString(_T("X光"), _T("纵向因子"), str, ini_path);
   str.Format(_T("%.3f"), m_efgio.m_configParam.xray.factor_w);
   WritePrivateProfileString(_T("X光"), _T("横向因子"), str, ini_path);
+  //u_auto
+  str.Format(_T("%d"), m_efgio.m_configParam.u_auto.degree[0]);
+  WritePrivateProfileString(_T("U自动参数"), _T("角度1"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.u_auto.step[0]);
+  WritePrivateProfileString(_T("U自动参数"), _T("步数1"), str, ini_path);
+
+  str.Format(_T("%d"), m_efgio.m_configParam.u_auto.degree[1]);
+  WritePrivateProfileString(_T("U自动参数"), _T("角度2"), str, ini_path);
+  str.Format(_T("%d"), m_efgio.m_configParam.u_auto.step[1]);
+  WritePrivateProfileString(_T("U自动参数"), _T("步数2"), str, ini_path);
   //motor
   str.Format(_T("%.2f"), m_efgio.m_configParam.motor.x.max_freq);
   WritePrivateProfileString(_T("电机X"), _T("最大频率"), str, ini_path);

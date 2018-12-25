@@ -111,11 +111,11 @@ UINT LaserMsg(LPVOID pParam)
 CWinThread * gTrdAll = NULL;
 UINT AllMsg(LPVOID pParam)
 {
-	if(0 == SetThreadAffinityMask(GetCurrentThread(), 2))
-	  SetThreadAffinityMask(GetCurrentThread(), 2);
+	if(0 == SetThreadAffinityMask(GetCurrentThread(), 4))
+	  SetThreadAffinityMask(GetCurrentThread(), 3);
 
   //SetThreadAffinityMask(GetCurrentThread(), 1);
-#define FILTER_NUM 2//滤波 n-1次
+#define FILTER_NUM 1//滤波 n-1次
 	CDiIntCounterSnap* param = (CDiIntCounterSnap*)pParam;
 	//int delay = 0;
 	if (param->m_device < 0 || !param->m_card)
@@ -305,6 +305,95 @@ UINT UMsg(LPVOID pParam)
 
 	param->m_card->WriteDO(U_GATE, tmp_val=1);
 	AfxMessageBox(L"over");
+}
+CWinThread * gTrdCircle = NULL;
+UINT CircleMsg(LPVOID pParam)
+{
+	if(0 == SetThreadAffinityMask(GetCurrentThread(), 2))
+	  SetThreadAffinityMask(GetCurrentThread(), 2);
+
+  //SetThreadAffinityMask(GetCurrentThread(), 1);
+#define FILTER_NUM 4//滤波 n-1次
+	CDiIntCounterSnap* param = (CDiIntCounterSnap*)pParam;
+	//int delay = 0;
+	if (param->m_device < 0 || !param->m_card)
+		return FALSE;
+	double fparam0,tmpfparam0, fparam01, fparam02;
+	double fparam1,tmpfparam1, fparam11, fparam12;
+	int cnt;
+	int zero_flag = 0;
+	param->StartCaptureSin(OUT3_COUNTER, 1, OUT6_COUNTER, 150);
+	while (!param->m_counter.start);
+
+  double tmp_val;
+	param->m_card->ReadDi(LASER_CNT_GATE, fparam11, fparam12);//激光
+	param->m_card->ReadDi(TURNTABLE_ZERO, fparam01, fparam02);//零位
+
+	//读取计数器
+	for (int i = 0; i < SIN_CNT_NUM; i++) {
+		param->m_card->ReadT0(i+ LASER_CNT_START, fparam12, param->m_counter.counter[i][param->m_counter.index[0]]);
+	}
+	param->m_counter.index[0]++;
+
+
+	while(1){
+		param->m_card->ReadDi(LASER_CNT_GATE, fparam1, fparam12);
+		param->m_card->ReadDi(TURNTABLE_ZERO, fparam0, fparam02);
+		for(int i = 0; i < FILTER_NUM; i++)
+		{
+			cnt = 10;
+			while(cnt--);
+			param->m_card->ReadDi(LASER_CNT_GATE, tmpfparam1, fparam12);
+			fparam1+=tmpfparam1;
+			param->m_card->ReadDi(TURNTABLE_ZERO, tmpfparam0, fparam02);
+			fparam0+=tmpfparam0;
+		}
+		if (0==fparam0 || FILTER_NUM+1==fparam0) {
+
+			if (fparam0 != fparam01) {
+				fparam01 = fparam0;
+				//读取计数器
+				if(fparam0 == 0)//下降沿
+				{
+					switch(zero_flag) {
+					case 0:
+						zero_flag =1;
+						break;
+					case 1:
+						zero_flag = 2;
+						break;
+
+
+					}
+				}
+			}
+		}
+
+		if (1==zero_flag&&(0==fparam1 || FILTER_NUM+1==fparam1) && param->m_counter.index[0] <= LASER_SIN_NUM) {
+
+			if (fparam1 != fparam11) {
+				fparam11 = fparam1;
+				//读取计数器
+				if(fparam1 == 0)//下降沿
+				{
+					for (int i = 0; i < SIN_CNT_NUM; i++) {
+						param->m_card->ReadT0(i+ LASER_CNT_START, fparam12, param->m_counter.counter[i][param->m_counter.index[0]]);
+					}
+					param->m_counter.index[0]++;
+				}
+			}
+		}
+		//判断超市
+
+
+		if(2==zero_flag||!param->m_counter.start ||(param->m_counter.index[1] > XRAY_ONESHOT_NUM && param->m_counter.index[0] > LASER_SIN_NUM))
+			break;
+	}
+	param->m_counter.start=0;
+	param->m_counter.flag = 0;
+
+
+	return 0;
 }
 
 
@@ -703,7 +792,13 @@ int CDiIntCounterSnap::StartDiIntLaserSin(int channel)
 
 int CDiIntCounterSnap::StartDiIntLaserCircle(int channel)
 {
-	if (m_device < 0 || !m_card)
+	gTrdAll = AfxBeginThread(CircleMsg, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+	gTrdAll->m_bAutoDelete = TRUE;
+	gTrdAll->ResumeThread();
+	m_channel = channel;
+
+	return -1;
+	/*if (m_device < 0 || !m_card)
 		return -1;
 
 	PCIType type = m_card->m_type;
@@ -719,7 +814,7 @@ int CDiIntCounterSnap::StartDiIntLaserCircle(int channel)
 		break;
 	}
 
-	return -1;
+	return -1;*/
 
 }
 
@@ -1015,6 +1110,11 @@ int CDiIntCounterSnap::LaserFit()
 	EfgAlg alg;
 	struct tagSinParam param;
 	alg.FitSinByLeastSquares(m_counter.fit[0], m_counter.index[0]-1, m_counter.fit[1], param);
+	//
+	m_efgio->m_resultParam.measure.A=param.A;
+    m_efgio->m_resultParam.measure.w=param.w;
+    m_efgio->m_resultParam.measure.t=param.t;
+    m_efgio->m_resultParam.measure.k=param.k;
 
 	if (m_viewBoard) {
 		m_viewBoard->Erase();
@@ -1175,16 +1275,22 @@ int CDiIntCounterSnap::XrayFit()
 	  m_viewBoard->Erase();
 		m_viewBoard->DrawXRayOneShot();
 		CString str;
-		str.Format(L"num:%.0f D1:%.3f D2:%.3f DM:%.3f theta0:%.3f phi0:%.3f ug:%.3f", 
-      m_efgio->m_resultParam.measure.pluse_num,//m_counter.index[1]-1,
-      m_efgio->m_resultParam.measure.D1,
-      m_efgio->m_resultParam.measure.D2,
-      m_efgio->m_resultParam.measure.DM,
+		
+		str.Format(L"theta0:%.3f phi0:%.3f ug:%.3f", 
       m_efgio->m_resultParam.measure.cur_theta0,
       m_efgio->m_resultParam.measure.cur_phi0,
       m_efgio->m_resultParam.measure.u_g);
 
-		m_viewBoard->SetOutStr(str,10,540);
+		m_viewBoard->SetOutStr(str,10,510);
+
+		str.Format(L"num:%.0f D1:%.3f D2:%.3f DM:%.3f R1:%.3f", 
+      m_efgio->m_resultParam.measure.pluse_num,//m_counter.index[1]-1,
+      m_efgio->m_resultParam.measure.D1,
+      m_efgio->m_resultParam.measure.D2,
+      m_efgio->m_resultParam.measure.DM,
+      m_efgio->m_resultParam.measure.R1);
+
+		m_viewBoard->SetOutStr(str,10,550);
 
 	str.Format(L"最小转盘脉冲:%.0f 最大转盘脉冲:%.0f 次数:%d", 
       m_efgio->m_resultParam.measure.min_pluse_num,
@@ -1222,6 +1328,18 @@ int CDiIntCounterSnap::XrayFit()
         m_viewBoard->SetOutStr(str, point.x, 250+50*i);
 			}
 		}
+
+		for (int i = 0; i < (m_counter.index[1]-1); i+=3)
+			{
+        POINT point;
+		point.x=i/times;
+		point.y=m_efgio->m_configParam.xray.threshold*XRAY_Y_TIMES;
+				m_viewBoard->DrawPoint(point,RGB(255,255,0));
+       
+			}
+		
+
+
 		m_viewBoard->Invalidate();
 	}
 
