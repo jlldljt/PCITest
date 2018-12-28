@@ -1255,6 +1255,33 @@ int SortChip(sortchip* s_sort, int *degree)
 
 	return sortSN;
 }
+
+#define SORT_SEC(i) g_sort.centerangle + g_sort.sortvalue*((i) - sort_num / 2)
+void JudegSortWhich(double sec, int &which)
+{
+  int sort_num = g_sort.itemnum;//档位数量
+
+  //int *sort_sec = m_resultParam.degree.sort_sec;//各档位中间值
+  int step_sec = g_sort.sortvalue;
+
+  double d_sec = double(step_sec) / 2;
+  if (sec < SORT_SEC(0) - d_sec)
+  {
+    which = -1;
+    return;
+  }
+
+  int i;
+  for (i = 0; i < sort_num; i++)
+  {
+    if (sec < SORT_SEC(i) + d_sec)
+      break;
+  }
+
+  which = i;
+
+}
+
 //分档计算程序，使用到全局变量
 //返回档位值，供机械手分档
 //itemnum相关
@@ -1349,82 +1376,100 @@ int SortChipR1(sortchip* s_sort, int *degree)//_0614
 	}
 	if (1 == elecyes)//如果限定轴通过
 	{
-		if (g_sort.islongsqu)
-		{
-			if (angle[s_sort->sortsel1] >= (s_sort->centerangle - s_sort->sortvalue / 2))//如果检测轴大于预设值
-			{
-				switch ((angle[s_sort->sortsel1] - s_sort->centerangle + s_sort->sortvalue / 2) / s_sort->sortvalue + 1)//计算检测轴并分档（检测轴大于预设值
-				{
-				case 1:sortSN = 10; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 2:sortSN = 11; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 3:sortSN = 12; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 4:sortSN = 13; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 5:sortSN = 14; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 6:sortSN = 15; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 7:sortSN = 16; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 8:sortSN = 17; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 9:sortSN = 18; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				default:sortSN = g_sort.itemnum + sel1SN + 1; s_sort->sortnum[sortSN - 1]++; break;
-				}
-			}
-			else
-			{
-				switch ((s_sort->centerangle - s_sort->sortvalue / 2 - angle[s_sort->sortsel1] - 1) / s_sort->sortvalue + 1)//计算检测轴并分档（检测轴小于预设值
-				{
-				case 1:sortSN = 9; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 2:sortSN = 8; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 3:sortSN = 7; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 4:sortSN = 6; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 5:sortSN = 5; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 6:sortSN = 4; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 7:sortSN = 3; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 8:sortSN = 2; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 9:sortSN = 1; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				default:sortSN = g_sort.itemnum + sel1SN; s_sort->sortnum[sortSN - 1]++; break;
-				}
-			}
-		}
-		else
-		{
-			if (angle[s_sort->sortsel1] >= (s_sort->centerangle - s_sort->sortvalue / 2))//如果检测轴大于预设值
-			{
-				switch ((angle[s_sort->sortsel1] - s_sort->centerangle + s_sort->sortvalue / 2) / s_sort->sortvalue + 1)//计算检测轴并分档（检测轴大于预设值
-				{
-				case 1:sortSN = 13; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 2:sortSN = 14; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 3:sortSN = 15; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 4:sortSN = 16; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 5:sortSN = 17; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 6:sortSN = 18; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 7:sortSN = 19; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 8:sortSN = 20; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 9:sortSN = 21; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 10:sortSN = 22; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 11:sortSN = 23; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 12:sortSN = 24; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				default:sortSN = g_sort.itemnum + sel1SN + 1; s_sort->sortnum[sortSN - 1]++; break;
-				}
-			}
-			else
-			{
-				switch ((s_sort->centerangle - s_sort->sortvalue / 2 - angle[s_sort->sortsel1] - 1) / s_sort->sortvalue + 1)//计算检测轴并分档（检测轴小于预设值
-				{
-				case 1:sortSN = 12; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 2:sortSN = 11; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 3:sortSN = 10; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 4:sortSN = 9; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 5:sortSN = 8; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 6:sortSN = 7; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 7:sortSN = 6; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 8:sortSN = 5; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 9:sortSN = 4; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 10:sortSN = 3; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 11:sortSN = 2; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				case 12:sortSN = 1; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
-				default:sortSN = g_sort.itemnum + sel1SN; s_sort->sortnum[sortSN - 1]++; break;
-				}
-			}
-		}
+
+
+    JudegSortWhich(angle[s_sort->sortsel1], sortSN);
+    if (sortSN == -1)
+    {
+      sortSN = g_sort.itemnum + sel1SN; s_sort->sortnum[sortSN - 1]++;
+    }
+    else if (sortSN == g_sort.itemnum)
+    {
+      sortSN = g_sort.itemnum + sel1SN + 1; s_sort->sortnum[sortSN - 1]++;
+    }
+    else
+    {
+      sortSN++;
+      s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2);
+    }
+
+
+		//if (g_sort.islongsqu)
+		//{
+		//	if (angle[s_sort->sortsel1] >= (s_sort->centerangle - s_sort->sortvalue / 2))//如果检测轴大于预设值
+		//	{
+		//		switch ((angle[s_sort->sortsel1] - s_sort->centerangle + s_sort->sortvalue / 2) / s_sort->sortvalue + 1)//计算检测轴并分档（检测轴大于预设值
+		//		{
+		//		case 1:sortSN = 10; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 2:sortSN = 11; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 3:sortSN = 12; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 4:sortSN = 13; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 5:sortSN = 14; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 6:sortSN = 15; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 7:sortSN = 16; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 8:sortSN = 17; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 9:sortSN = 18; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		default:sortSN = g_sort.itemnum + sel1SN + 1; s_sort->sortnum[sortSN - 1]++; break;
+		//		}
+		//	}
+		//	else
+		//	{
+		//		switch ((s_sort->centerangle - s_sort->sortvalue / 2 - angle[s_sort->sortsel1] - 1) / s_sort->sortvalue + 1)//计算检测轴并分档（检测轴小于预设值
+		//		{
+		//		case 1:sortSN = 9; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 2:sortSN = 8; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 3:sortSN = 7; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 4:sortSN = 6; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 5:sortSN = 5; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 6:sortSN = 4; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 7:sortSN = 3; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 8:sortSN = 2; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 9:sortSN = 1; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		default:sortSN = g_sort.itemnum + sel1SN; s_sort->sortnum[sortSN - 1]++; break;
+		//		}
+		//	}
+		//}
+		//else
+		//{
+		//	if (angle[s_sort->sortsel1] >= (s_sort->centerangle - s_sort->sortvalue / 2))//如果检测轴大于预设值
+		//	{
+		//		switch ((angle[s_sort->sortsel1] - s_sort->centerangle + s_sort->sortvalue / 2) / s_sort->sortvalue + 1)//计算检测轴并分档（检测轴大于预设值
+		//		{
+		//		case 1:sortSN = 13; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 2:sortSN = 14; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 3:sortSN = 15; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 4:sortSN = 16; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 5:sortSN = 17; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 6:sortSN = 18; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 7:sortSN = 19; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 8:sortSN = 20; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 9:sortSN = 21; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 10:sortSN = 22; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 11:sortSN = 23; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 12:sortSN = 24; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		default:sortSN = g_sort.itemnum + sel1SN + 1; s_sort->sortnum[sortSN - 1]++; break;
+		//		}
+		//	}
+		//	else
+		//	{
+		//		switch ((s_sort->centerangle - s_sort->sortvalue / 2 - angle[s_sort->sortsel1] - 1) / s_sort->sortvalue + 1)//计算检测轴并分档（检测轴小于预设值
+		//		{
+		//		case 1:sortSN = 12; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 2:sortSN = 11; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 3:sortSN = 10; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 4:sortSN = 9; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 5:sortSN = 8; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 6:sortSN = 7; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 7:sortSN = 6; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 8:sortSN = 5; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 9:sortSN = 4; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 10:sortSN = 3; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 11:sortSN = 2; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		case 12:sortSN = 1; s_sort->sortnum[sortSN - 1]++; s_sort->sortsum++; SortAvgStd(s_sort->sortsum, angle, s_sort->sortavg, s_sort->sortstd, s_sort->std2); break;
+		//		default:sortSN = g_sort.itemnum + sel1SN; s_sort->sortnum[sortSN - 1]++; break;
+		//		}
+		//	}
+		//}
 
 
 	}

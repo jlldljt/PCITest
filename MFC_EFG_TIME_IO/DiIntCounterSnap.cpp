@@ -115,7 +115,7 @@ UINT AllMsg(LPVOID pParam)
 	  SetThreadAffinityMask(GetCurrentThread(), 3);
 
   //SetThreadAffinityMask(GetCurrentThread(), 1);
-#define FILTER_NUM 1//滤波 n-1次
+#define FILTER_NUM 1//滤波 n次
 	CDiIntCounterSnap* param = (CDiIntCounterSnap*)pParam;
 	//int delay = 0;
 	if (param->m_device < 0 || !param->m_card)
@@ -131,21 +131,21 @@ UINT AllMsg(LPVOID pParam)
   double tmp_val;
   param->m_efgio->WriteDo(XRAY_GATE, IO_ON);
   //param->m_card->WriteDO(XRAY_CTRL_GATE, tmp_val = 1);//guang
-	//kaishi
-	param->m_card->ReadDi(XRAY_CNT_GATE, fparam21, fparam22);//x
-	param->m_card->ReadDi(LASER_CNT_GATE, fparam11, fparam12);//激光
-	param->m_card->ReadDi(TURNTABLE_ZERO, fparam01, fparam02);//零位
+	////kaishi
+	//param->m_card->ReadDi(XRAY_CNT_GATE, fparam21, fparam22);//x
+	//param->m_card->ReadDi(LASER_CNT_GATE, fparam11, fparam12);//激光
+	//param->m_card->ReadDi(TURNTABLE_ZERO, fparam01, fparam02);//零位
 
-	//读取计数器
-	for (int i = 0; i < XRAY_CNT_NUM; i++) {
-		param->m_card->ReadT1(i+ XRAY_CNT_START, fparam22, param->m_counter.counter[SIN_CNT_NUM +i][param->m_counter.index[1]]);
-	}
-	param->m_counter.index[1]++;
+	////读取计数器
+	//for (int i = 0; i < XRAY_CNT_NUM; i++) {
+	//	param->m_card->ReadT1(i+ XRAY_CNT_START, fparam22, param->m_counter.counter[SIN_CNT_NUM +i][param->m_counter.index[1]]);
+	//}
+	//param->m_counter.index[1]++;
 
-	for (int i = 0; i < SIN_CNT_NUM; i++) {
-		param->m_card->ReadT0(i+ LASER_CNT_START, fparam12, param->m_counter.counter[i][param->m_counter.index[0]]);
-	}
-	param->m_counter.index[0]++;
+	//for (int i = 0; i < SIN_CNT_NUM; i++) {
+	//	param->m_card->ReadT0(i+ LASER_CNT_START, fparam12, param->m_counter.counter[i][param->m_counter.index[0]]);
+	//}
+	//param->m_counter.index[0]++;
 
 
 	while(1){
@@ -171,10 +171,29 @@ UINT AllMsg(LPVOID pParam)
 				if(fparam0 == 0)//下降沿
 				{
 					switch(zero_flag) {
-					case 0:
+					case 0://一个零位脉冲结束
 						zero_flag =1;
+            {
+              //start 记录第一次数据
+              param->m_card->ReadDi(XRAY_CNT_GATE, fparam21, fparam22);//x
+              param->m_card->ReadDi(LASER_CNT_GATE, fparam11, fparam12);//激光
+              param->m_card->ReadDi(TURNTABLE_ZERO, fparam01, fparam02);//零位
+
+                                                                        //读取计数器
+              for (int i = 0; i < XRAY_CNT_NUM; i++) {
+                param->m_card->ReadT1(i + XRAY_CNT_START, fparam22, param->m_counter.counter[SIN_CNT_NUM + i][param->m_counter.index[1]]);
+              }
+              param->m_counter.index[1]++;
+
+              for (int i = 0; i < SIN_CNT_NUM; i++) {
+                param->m_card->ReadT0(i + LASER_CNT_START, fparam12, param->m_counter.counter[i][param->m_counter.index[0]]);
+              }
+              param->m_counter.index[0]++;
+
+              continue;
+            }
 						break;
-					case 1:
+					case 1://两个零位脉冲结束
 						zero_flag = 2;
 						break;
 
@@ -1164,22 +1183,34 @@ int CDiIntCounterSnap::XrayFit()
 #ifndef  __DEBUG__
 
 
-
-	for (int i = m_counter.index[1] - 2; i > 0; i--) {
+  //计数器值的差，即每个脉冲下的计数值
+	for (int i = m_counter.index[1] - 2; i >= 0; i--) {
 		for (int j = 0; j < XRAY_CNT_NUM; j++) {
-			if(m_counter.counter[XRAY_CNT_START_INDEX+j][i] >= m_counter.counter[XRAY_CNT_START_INDEX+j][i+1])
-				m_counter.tmp_counter[XRAY_CNT_START_INDEX+j][i] = m_counter.counter[XRAY_CNT_START_INDEX+j][i] - m_counter.counter[XRAY_CNT_START_INDEX+j][i+1];
+			if(m_counter.counter[XRAY_CNT_START_INDEX+j][i] <= m_counter.counter[XRAY_CNT_START_INDEX+j][i+1])
+				m_counter.tmp_counter[XRAY_CNT_START_INDEX+j][i] = m_counter.counter[XRAY_CNT_START_INDEX+j][i+1] - m_counter.counter[XRAY_CNT_START_INDEX+j][i];
 			else
-
-				m_counter.tmp_counter[XRAY_CNT_START_INDEX+j][i] = 65536- m_counter.counter[XRAY_CNT_START_INDEX+j][i+1]+m_counter.counter[XRAY_CNT_START_INDEX+j][i] ;
+				m_counter.tmp_counter[XRAY_CNT_START_INDEX+j][i] = 65536- m_counter.counter[XRAY_CNT_START_INDEX+j][i]+m_counter.counter[XRAY_CNT_START_INDEX+j][i+1] ;
 		}
 	}
 	//for (int j = 0; j < XRAY_CNT_NUM; j++) {
 	//    m_counter.tmp_counter[XRAY_CNT_START_INDEX+j][0] = 65535-m_counter.counter[XRAY_CNT_START_INDEX+j][0];
 	//  }
 	//使用中断信号的话，一个是0计数一个是有计数，直接相加即可,相加不可，应该时本应0计数下的少量计数要加到本计数器后
-	int i, j;
-	if (m_counter.tmp_counter[XRAY_CNT_START_INDEX][0] > m_counter.tmp_counter[XRAY_CNT_START_INDEX+1][0])
+	
+  //比大小，确认哪个是真实的计数值
+  double tmp_sum[XRAY_CNT_NUM] = { 0,0 };
+
+  for (int i = 0; i < m_counter.index[1] - 1; i+=2)
+  {
+    for (int j = 0; j < XRAY_CNT_NUM; j++)
+    {
+      tmp_sum[j] += m_counter.tmp_counter[XRAY_CNT_START_INDEX + j][i];
+    }
+  }
+
+  int i, j;
+	//if (m_counter.tmp_counter[XRAY_CNT_START_INDEX][0] > m_counter.tmp_counter[XRAY_CNT_START_INDEX+1][0])
+	if (tmp_sum[0] > tmp_sum[1])
 	{
 		i = 1;
 		j = 0;
@@ -1190,7 +1221,7 @@ int CDiIntCounterSnap::XrayFit()
 		j = 1;
 	}
 
-
+  
 	for (; i <  m_counter.index[1]-2; i+=2)
 	{
 		m_counter.tmp_counter[XRAY_CNT_START_INDEX][i+1] += m_counter.tmp_counter[XRAY_CNT_START_INDEX][i];
