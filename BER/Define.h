@@ -87,6 +87,7 @@ typedef struct RunInfo
 	int nEfgStaSel;								//	EFG开始检测位置选择标记
 	int runCnt;
 	DWORD timRun[10][2];				    //  运行时间记录
+  bool closeShake;
 }RunInfo;
 
 //刷新缓存结构

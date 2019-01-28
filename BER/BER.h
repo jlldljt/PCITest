@@ -16,6 +16,7 @@
 #include "Device.h"
 #include "DlgMsg.h"
 #include "CSVFile.h"
+#include "DlgCheckStd.h"
 // CBERApp:
 // 有关此类的实现，请参阅 BER.cpp
 //

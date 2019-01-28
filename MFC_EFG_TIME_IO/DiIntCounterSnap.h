@@ -7,8 +7,8 @@
 
 #define LASER_SIN_NUM 180
 #define LASER_CIRCLE_NUM 200
-#define XRAY_ONESHOT_NUM 8000
-#define COUNTER_NUM 8010 // 必须大于以上宏定义
+#define XRAY_ONESHOT_NUM 15000
+#define COUNTER_NUM LASER_SIN_NUM+LASER_CIRCLE_NUM+XRAY_ONESHOT_NUM // 必须大于以上宏定义
 struct tagCounter {
   int start;
   bool flag;

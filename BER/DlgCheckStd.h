@@ -1,0 +1,49 @@
+#pragma once
+#include "StandardLib.h"
+
+// CDlgCheckStd 对话框
+
+
+class CDlgCheckStd : public CDialogEx
+{
+	DECLARE_DYNAMIC(CDlgCheckStd)
+
+public:
+	CDlgCheckStd(CWnd* pParent = NULL);   // 标准构造函数
+	virtual ~CDlgCheckStd();
+
+// 对话框数据
+	enum { IDD = IDD_DLG_CHECKSTD };
+
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+
+	DECLARE_MESSAGE_MAP()
+public:
+  virtual BOOL OnInitDialog();
+
+  CStandardLib *m_stdLib;
+
+  CString m_prevEditStr;
+  //标准系列的列表
+  CGridCtrl m_gridStdSeries;  
+  int m_seriesRowSel;
+  void InitGrid_StdSeries(void);
+  void UpdateGrid_StdSeries(void);
+  void OnBeginLabelEdit_StdSeries(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnEndLabelEdit_StdSeries(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnSelChanged_StdSeries(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnEndScroll_StdSeries(NMHDR * pNMHDR, LRESULT * pResult);
+  //标准片的列表
+  CGridCtrl m_gridStdLib;
+  void InitGrid_StdLib(void);
+  void UpdateGrid_StdLib(void);
+  void OnBeginLabelEdit_StdLib(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnEndLabelEdit_StdLib(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnSelChanged_StdLib(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnEndScroll_StdLib(NMHDR * pNMHDR, LRESULT * pResult);
+
+public:
+  afx_msg void OnBnClickedBtnSave();
+  afx_msg void OnBnClickedBtnReload();
+};

@@ -56,6 +56,7 @@ BEGIN_MESSAGE_MAP(CRun, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_PAUSE, &CRun::OnBnClickedBtnPause)
 	ON_BN_CLICKED(IDC_BTN_PMOVE, &CRun::OnBnClickedBtnPmove)
 	ON_BN_CLICKED(IDC_BTN_ENDFT, &CRun::OnBnClickedBtnEndft)
+  ON_BN_CLICKED(IDC_CHK_SHAKE, &CRun::OnBnClickedChkShake)
 END_MESSAGE_MAP()
 
 
@@ -595,12 +596,13 @@ BOOL CRun::RunInit()
 
   if ("" == card)
   {
-    status = AfxMessageBox(_T("是否抽检？"), MB_OKCANCEL);
-    if (status == 2)//取消
-    {
-      return FALSE;
-    }
-    else {}
+    //去掉抽检 by mmy 181017
+    //status = AfxMessageBox(_T("是否抽检？"), MB_OKCANCEL);
+    //if (status == 2)//取消
+    //{
+    //  return FALSE;
+    //}
+    //else {}
   }
   else
   {
@@ -996,6 +998,10 @@ BOOL CRun::CamView()
 void CRun::OnBnClickedBtnTestsplit()
 {
 	// TODO: 在此添加控件通知处理程序代码
+  CDlgCheckStd dlg;
+  dlg.DoModal();
+
+  return;
 #ifndef DEBUG_MODE
 	//if (glCamID>=0)
 	//{
@@ -1156,4 +1162,20 @@ void CRun::OnBnClickedBtnEndft()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	g_dlgDevice->EFGCut(true);
+}
+
+
+void CRun::OnBnClickedChkShake()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_SHAKE);
+  int nStat = pChk->GetCheck();
+  if (nStat)
+  {
+    gstuRun.closeShake = 1;
+  }
+  else
+  {
+    gstuRun.closeShake = 0;
+  }
 }

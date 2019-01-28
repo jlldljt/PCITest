@@ -36,6 +36,7 @@ public:
 	//基本操作
 	BOOL OpenCom(UINT comN);									//打开com
 	BOOL CloseCom();											//关闭com
+  void EnumerateSerialPorts(CStringArray & ports);
 	UINT ReadCom(char *&readBuff,char startChar,UINT recvLen,UINT *readLen);	//读com
 	UINT WriteCom(char *&writeBuff,UINT writeLen);				//写com
 	//com其他操作相关

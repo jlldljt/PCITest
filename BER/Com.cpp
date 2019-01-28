@@ -75,7 +75,32 @@ BOOL  CCom::CloseCom()
 	CloseHandle(m_struct_com.s_hd);
 	return 1;
 }
+// 枚举出pc上有效的串口号
+void CCom::EnumerateSerialPorts(CStringArray& ports)
+{
+  ports.RemoveAll();
+  HKEY   hKey;
 
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Hardware\\DeviceMap\\SerialComm"), NULL, KEY_READ, &hKey) == ERROR_SUCCESS)
+  {
+    TCHAR       szPortName[256], szComName[256];
+    DWORD       dwLong, dwSize;
+    int         nCount = 0;
+    while (true)
+    {
+      dwLong = dwSize = 256;
+      if (RegEnumValue(hKey, nCount, szPortName, &dwLong, NULL, NULL, (PUCHAR)szComName, &dwSize) == ERROR_NO_MORE_ITEMS)
+        break;
+      CString str;
+      //str.Format("%d",nCount);  
+
+      str.Format(_T("%s "), szComName);
+      ports.Add(str);
+      nCount++;
+    }
+    RegCloseKey(hKey);
+  }
+}
 //读端口函数
 //读取初始值后recvLen位，返回0
 //读取到初始值，返回1

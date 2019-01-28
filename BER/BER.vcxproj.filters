@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Sqlite">
+      <UniqueIdentifier>{f101506e-ea4f-455f-ba77-7da3e8ca4400}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl">
+      <UniqueIdentifier>{f1064505-8020-48f0-bf66-abe1385abc3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl\NewCellTypes">
+      <UniqueIdentifier>{e15270fb-4e27-49aa-9df0-b5e4905395a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl\Src">
+      <UniqueIdentifier>{43b8fb48-8fa2-42de-b3a4-4b7e699dba80}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -93,6 +105,60 @@
     <ClInclude Include="CSVFile.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sqlite\sqlite3.h">
+      <Filter>Sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCheckStd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridURLCell.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\CellRange.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCell.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\MemDC.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\TitleTip.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardLib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sqlite\database.h">
+      <Filter>Sqlite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BER.cpp">
@@ -145,6 +211,51 @@
     </ClCompile>
     <ClCompile Include="CSVFile.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sqlite\sqlite3.c">
+      <Filter>Sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCheckStd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridURLCell.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCell.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\TitleTip.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardLib.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sqlite\database.cpp">
+      <Filter>Sqlite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

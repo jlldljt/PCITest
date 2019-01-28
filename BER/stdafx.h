@@ -46,6 +46,8 @@
 #include "Picture.h"
 #include <time.h>
 #include "KSJ.h"
+#include "../gridctrl_demo/GridCtrl_src/GridCtrl.h"
+#include "../sqlite/database.h"
 using namespace KSJ_NAME_SPACE;
 //#include <Mmsystem.h>            
 //#pragma comment(lib, "Winmm.lib")  

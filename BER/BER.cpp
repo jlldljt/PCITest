@@ -308,7 +308,7 @@ UINT RunThread(LPVOID pParam)
 		if(gclsImgRcg.g_stu_square.nN > 10)
 		{}
 		else 
-		{if (gclsImgRcg.g_stu_square.bIsLap && bShk<6 && nCanShk == 1)//nN>0)//如果片重叠
+		{if (!gstuRun.closeShake && gclsImgRcg.g_stu_square.bIsLap && bShk<6 && nCanShk == 1)//nN>0)//如果片重叠
 		{
 			g_dlgRun->GetDlgItem(IDC_STAT_RUN)->SetWindowText(_T("抖动"));
 			g_dlgDevice->AxisMove(0x05,0,1);//抖动

@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFC_CountCircle", "MFC_Coun
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFC_EFG_TIME_IO", "MFC_EFG_TIME_IO\MFC_EFG_TIME_IO.vcxproj", "{95A77B9C-9441-4E6E-AEEF-2E7C50BCE9FE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BER", "BER\BER.vcxproj", "{29D35C16-239B-496A-91F8-575CB4E32344}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,16 @@ Global
 		{95A77B9C-9441-4E6E-AEEF-2E7C50BCE9FE}.Release|Win32.Build.0 = Release|Win32
 		{95A77B9C-9441-4E6E-AEEF-2E7C50BCE9FE}.Release|x64.ActiveCfg = Release|Win32
 		{95A77B9C-9441-4E6E-AEEF-2E7C50BCE9FE}.Release|x86.ActiveCfg = Release|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Debug|Win32.ActiveCfg = Debug|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Debug|Win32.Build.0 = Debug|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Debug|x64.ActiveCfg = Debug|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Debug|x86.ActiveCfg = Debug|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Release|Any CPU.ActiveCfg = Release|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Release|Win32.ActiveCfg = Release|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Release|Win32.Build.0 = Release|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Release|x64.ActiveCfg = Release|Win32
+		{29D35C16-239B-496A-91F8-575CB4E32344}.Release|x86.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

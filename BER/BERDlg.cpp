@@ -187,6 +187,7 @@ BOOL CBERDlg::SYSInit()
 	gstuSort.sortsum=0;//1~24档总片数
 	gstuRcgInfo.bChkPN=0;//区分方向标志初始化
 	gstuRun.runCnt = 0;
+  gstuRun.closeShake = 0;
 
 
 	for(int i=0;i<30;i++)//每档已分档片数置零
