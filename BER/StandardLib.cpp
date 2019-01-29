@@ -12,6 +12,8 @@ CStandardLib::CStandardLib(LPCTSTR path, int series_num, int std_num)
   Init(series_num, std_num);
 
   LoadSeries();
+
+  LoadSet();
 }
 
 
@@ -104,7 +106,25 @@ void CStandardLib::Init(int series_num, int std_num)
     }
   }
 
+  //创建标准库系列表
+  sql = "CREATE TABLE STDSET("  \
+    "ID INT PRIMARY KEY     NOT NULL," \
+    "电轴最大差值           INT," \
+    "光轴最大差值           INT," \
+    "库最小片数       INT," \
+    "对标测量次数       INT," \
+    "最小对标片数       INT," \
+    "密码        TEXT );";
 
+  isOk = sqlite.Writedb(std::string(sql));
+  //添加个系列
+  if (true == isOk)
+  {
+    sql = "INSERT INTO STDSET (ID,电轴最大差值,光轴最大差值,库最小片数,对标测量次数,最小对标片数,密码) "  \
+      "VALUES (1,30,10,30,2,5 ,'111111');";
+
+    isOk = sqlite.Writedb(std::string(sql));
+  }
   sqlite.Close();
 }
 
@@ -332,4 +352,145 @@ void CStandardLib::SetStd(CStdLib std)
   {
     m_lib.Add(std);
   }
+}
+
+void CStandardLib::SetStdChecked(CStdLib std)
+{
+  int count = m_checked.GetCount();
+
+  int i;
+
+  for (i = 0; i < count; i++)
+  {
+    if (m_checked[i].m_no == std.m_no)
+    {
+      m_checked[i] = std;
+      break;
+    }
+  }
+
+  if (i >= count)
+  {
+    m_checked.Add(std);
+  }
+}
+
+void CStandardLib::LoadSet()
+{
+  SQLiteWrapper sqlite;
+
+  if (!sqlite.Open(CW2A(m_sqlPath)))
+  {
+    return;
+  }
+
+  std::string sql = "SELECT 电轴最大差值,光轴最大差值,库最小片数,对标测量次数,最小对标片数,密码 FROM STDSET WHERE ID = 1;";
+
+  bool isOk = sqlite.Writedb(std::string(sql));
+  //添加个系列
+  if (true == isOk)
+  {
+    SQLiteStatement* stmt = sqlite.Readdb(sql);
+
+    if (stmt)
+    {
+      while (stmt->NextRow())
+      {
+        m_set.m_maxd_phi = stmt->ValueInt(0);
+        m_set.m_maxd_laser = stmt->ValueInt(1);
+        m_set.m_min_lib_num = stmt->ValueInt(2);
+        m_set.m_test_cnt = stmt->ValueInt(3);
+        m_set.m_min_test_num = stmt->ValueInt(4);
+        m_set.m_password = stmt->ValueString(5);
+
+      }
+    }
+    delete stmt;
+  }
+
+  sqlite.Close();
+}
+
+BOOL CStandardLib::CheckPassword(CString password)
+{
+  BOOL ret = FALSE;
+
+  SQLiteWrapper sqlite;
+
+  if (!sqlite.Open(CW2A(m_sqlPath)))
+  {
+    return ret;
+  }
+
+  std::string sql = "select ID from STDSET where 密码 = '" + std::string(CT2A(password)) + "';";
+
+  bool isOk = sqlite.Writedb(std::string(sql));
+  //添加个系列
+  if (true == isOk)
+  {
+    SQLiteStatement* stmt = sqlite.Readdb(sql);
+
+    if (stmt)
+    {
+      while (stmt->NextRow())
+      {
+        if (1 == stmt->ValueInt(0))
+        {
+          ret = TRUE;
+        }
+      }
+    }
+    delete stmt;
+  }
+
+  sqlite.Close();
+
+  return ret;
+}
+
+void CStandardLib::SaveSet(void)
+{
+  SQLiteWrapper sqlite;
+
+  if (!sqlite.Open(CW2A(m_sqlPath)))
+  {
+    return;
+  }
+
+  sqlite.Begin();
+
+  char s1[10];
+  char s2[10];
+  char s3[10];
+  char s4[10];
+  char s5[10];
+
+  itoa(m_set.m_maxd_phi, s1, 10);
+  itoa(m_set.m_maxd_laser, s2, 10);
+  itoa(m_set.m_min_lib_num, s3, 10);
+  itoa(m_set.m_test_cnt, s4, 10);
+  itoa(m_set.m_min_test_num, s5, 10);
+
+  std::string sql = "UPDATE STDSET SET 电轴最大差值 = " + std::string(s1) + ","\
+    + "光轴最大差值 = " + std::string(s2) + ", "\
+    + "库最小片数 = " + std::string(s3) + ", "\
+    + "对标测量次数 = " + std::string(s4) + ", "\
+    + "最小对标片数 = " + std::string(s5) + ", "\
+    + "密码 = '" + std::string(CT2A(m_set.m_password)) + "' "\
+    + "WHERE ID = 1;";
+
+  bool isOk = sqlite.Writedb(std::string(sql));
+
+  if (false == isOk)
+  {
+    AfxMessageBox(_T("保存失败"));
+  }
+  else
+  {
+    AfxMessageBox(_T("保存成功"));
+  }
+
+  sqlite.Commit();
+
+  sqlite.Close();
 }

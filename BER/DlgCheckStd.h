@@ -42,8 +42,18 @@ public:
   void OnEndLabelEdit_StdLib(NMHDR * pNMHDR, LRESULT * pResult);
   void OnSelChanged_StdLib(NMHDR * pNMHDR, LRESULT * pResult);
   void OnEndScroll_StdLib(NMHDR * pNMHDR, LRESULT * pResult);
+  // checked
+  CGridCtrl m_gridStdChecked;
+  void InitGrid_StdChecked(void);
+  void UpdateGrid_StdChecked(void);
+  void OnBeginLabelEdit_StdChecked(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnEndLabelEdit_StdChecked(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnSelChanged_StdChecked(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnEndScroll_StdChecked(NMHDR * pNMHDR, LRESULT * pResult);
 
 public:
   afx_msg void OnBnClickedBtnSave();
   afx_msg void OnBnClickedBtnReload();
+  afx_msg void OnBnClickedBtnStdChecking();
+  afx_msg void OnBnClickedBtnSet();
 };

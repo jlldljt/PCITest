@@ -136,6 +136,8 @@
     <ClInclude Include="Device.h" />
     <ClInclude Include="DlgCheckStd.h" />
     <ClInclude Include="DlgMsg.h" />
+    <ClInclude Include="DlgPassword.h" />
+    <ClInclude Include="DlgStdSet.h" />
     <ClInclude Include="Iiic.h" />
     <ClInclude Include="IMGRecognition.h" />
     <ClInclude Include="KSJ.h" />
@@ -178,6 +180,8 @@
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="DlgCheckStd.cpp" />
     <ClCompile Include="DlgMsg.cpp" />
+    <ClCompile Include="DlgPassword.cpp" />
+    <ClCompile Include="DlgStdSet.cpp" />
     <ClCompile Include="Iiic.cpp" />
     <ClCompile Include="IMGRecognition.cpp" />
     <ClCompile Include="KSJ.cpp" />

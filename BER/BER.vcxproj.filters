@@ -159,6 +159,12 @@
     <ClInclude Include="..\sqlite\database.h">
       <Filter>Sqlite</Filter>
     </ClInclude>
+    <ClInclude Include="DlgPassword.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgStdSet.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BER.cpp">
@@ -256,6 +262,12 @@
     </ClCompile>
     <ClCompile Include="..\sqlite\database.cpp">
       <Filter>Sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgPassword.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgStdSet.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

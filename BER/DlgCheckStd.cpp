@@ -6,8 +6,8 @@
 #include "DlgCheckStd.h"
 #include "afxdialogex.h"
 
-
-
+#include "DlgPassword.h"
+#include "DlgStdSet.h"
 
 // CDlgCheckStd 对话框
 
@@ -30,6 +30,7 @@ void CDlgCheckStd::DoDataExchange(CDataExchange* pDX)
   CDialogEx::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_GRID_STD_SERIES, m_gridStdSeries);
   DDX_Control(pDX, IDC_GRID_STD_LIB, m_gridStdLib);
+  DDX_Control(pDX, IDC_GRID_STD_CHECKED, m_gridStdChecked);
 }
 
 
@@ -44,8 +45,15 @@ BEGIN_MESSAGE_MAP(CDlgCheckStd, CDialogEx)
   ON_NOTIFY(GVN_SELCHANGED, IDC_GRID_STD_LIB, OnSelChanged_StdLib)
   ON_NOTIFY(GVN_ENDSCROLL, IDC_GRID_STD_LIB, OnEndScroll_StdLib)
 
+  ON_NOTIFY(GVN_BEGINLABELEDIT, IDC_GRID_STD_CHECKED, OnBeginLabelEdit_StdChecked)
+  ON_NOTIFY(GVN_ENDLABELEDIT, IDC_GRID_STD_CHECKED, OnEndLabelEdit_StdChecked)
+  ON_NOTIFY(GVN_SELCHANGED, IDC_GRID_STD_CHECKED, OnSelChanged_StdChecked)
+  ON_NOTIFY(GVN_ENDSCROLL, IDC_GRID_STD_CHECKED, OnEndScroll_StdChecked)
+
   ON_BN_CLICKED(IDC_BTN_SAVE, &CDlgCheckStd::OnBnClickedBtnSave)
   ON_BN_CLICKED(IDC_BTN_RELOAD, &CDlgCheckStd::OnBnClickedBtnReload)
+  ON_BN_CLICKED(IDC_BTN_STD_CHECKING, &CDlgCheckStd::OnBnClickedBtnStdChecking)
+  ON_BN_CLICKED(IDC_BTN_SET, &CDlgCheckStd::OnBnClickedBtnSet)
 END_MESSAGE_MAP()
 
 
@@ -99,6 +107,8 @@ BOOL CDlgCheckStd::OnInitDialog()
 
   InitGrid_StdLib();
 
+  InitGrid_StdChecked();
+
   UpdateGrid_StdSeries();
 
   return TRUE;  // return TRUE unless you set the focus to a control
@@ -110,12 +120,12 @@ void CDlgCheckStd::InitGrid_StdSeries(void)
   m_seriesRowSel = -1;
 
   m_gridStdSeries.SetTextBkColor(RGB(0xCC, 0xFF, 0xCC));//背景
-  m_gridStdSeries.SetRowCount(2); //初始为2行
+  m_gridStdSeries.SetRowCount(1); //初始为2行
 
-  for (int i = 1; i < 2; i++)
-  {
-    m_gridStdSeries.SetRowHeight(i, 30);
-  }
+  //for (int i = 1; i < 2; i++)
+  //{
+  //  m_gridStdSeries.SetRowHeight(i, 30);
+  //}
 
   m_gridStdSeries.SetColumnCount(5); //初始化为5列
   m_gridStdSeries.SetFixedRowCount(1); //表头为1行
@@ -275,12 +285,12 @@ void CDlgCheckStd::OnEndScroll_StdSeries(NMHDR * pNMHDR, LRESULT * pResult)
 void CDlgCheckStd::InitGrid_StdLib(void)
 {
   m_gridStdLib.SetTextBkColor(RGB(0xFF, 0xFF, 0xCC));//黄色背景
-  m_gridStdLib.SetRowCount(2); //初始为2行
+  m_gridStdLib.SetRowCount(1); //初始为2行
 
-  for (int i = 1; i < 2; i++)
-  {
-    m_gridStdLib.SetRowHeight(i, 30);
-  }
+  //for (int i = 1; i < 2; i++)
+  //{
+  //  m_gridStdLib.SetRowHeight(i, 30);
+  //}
 
   m_gridStdLib.SetColumnCount(3); //初始化为3列
   m_gridStdLib.SetFixedRowCount(1); //表头为1行
@@ -400,6 +410,103 @@ void CDlgCheckStd::OnEndScroll_StdLib(NMHDR * pNMHDR, LRESULT * pResult)
 {
 }
 
+void CDlgCheckStd::InitGrid_StdChecked(void)
+{
+  m_gridStdChecked.SetTextBkColor(RGB(0xFF, 0xFF, 0xCC));//黄色背景
+  m_gridStdChecked.SetRowCount(1); //初始为2行
+
+  //for (int i = 1; i < 2; i++)
+  //{
+  //  m_gridStdChecked.SetRowHeight(i, 30);
+  //}
+
+  m_gridStdChecked.SetColumnCount(3); //初始化为3列
+  m_gridStdChecked.SetFixedRowCount(1); //表头为1行
+  m_gridStdChecked.SetFixedColumnCount(1); //表头为1列
+  m_gridStdChecked.SetRowHeight(0, 30); //设置各行高         
+
+  GV_ITEM Item;
+  Item.mask = GVIF_TEXT | GVIF_FORMAT;
+  Item.nFormat = DT_CENTER | DT_WORDBREAK;
+  Item.strText.Format(_T("No"));
+  Item.row = 0;
+  Item.col = 0;
+  m_gridStdChecked.SetItem(&Item);
+
+  Item.strText.Format(_T("电"));
+  Item.row = 0;
+  Item.col = 1;
+  m_gridStdChecked.SetItem(&Item);
+
+  Item.strText.Format(_T("光"));
+  Item.row = 0;
+  Item.col = 2;
+  m_gridStdChecked.SetItem(&Item);
+
+
+  CRect cRect;
+  GetDlgItem(IDC_GRID_STD_LIB)->GetClientRect(&cRect);
+  m_gridStdChecked.SetColumnWidth(0, cRect.Width() / 3 * 1); //设置0列宽 
+  m_gridStdChecked.SetColumnWidth(1, cRect.Width() / 3 * 1); //设置0列宽 
+  m_gridStdChecked.SetColumnWidth(2, cRect.Width() / 3 * 1); //设置0列宽 
+
+  m_gridStdChecked.ExpandLastColumn();
+  m_gridStdChecked.SetColumnResize(FALSE);
+  m_gridStdChecked.SetRowResize(FALSE);
+  m_gridStdChecked.SetSingleRowSelection(TRUE);
+  m_gridStdChecked.SetEditable(FALSE);
+  //SetAutoSizeStyle
+  //m_gridStdSeries.EnableScrollBar();
+ // m_gridStdSeries.EnableScrollBarCtrl();
+  m_gridStdChecked.ShowBar(SB_HORZ, FALSE);
+}
+
+void CDlgCheckStd::UpdateGrid_StdChecked(void)
+{
+  int min = 1;
+  int max = m_gridStdChecked.GetRowCount();
+
+  int sort_num = m_stdLib->m_checked.GetCount();
+
+  for (int i = max; i >= min; i--)
+  {
+    m_gridStdChecked.DeleteRow(i);
+  }
+  int line = 1;
+
+  CString str;
+
+  for (int i = 0; i < sort_num; i++, line++)
+  {
+    str.Format(_T("%d"), m_stdLib->m_checked[i].m_no);
+    m_gridStdChecked.InsertRow(str, -1);
+    str.Format(_T("%d"), m_stdLib->m_checked[i].m_phi);
+    m_gridStdChecked.SetItemText(line, 1, str);
+    str.Format(_T("%d"), m_stdLib->m_checked[i].m_laser);
+    m_gridStdChecked.SetItemText(line, 2, str);
+  }
+
+  m_gridStdChecked.ExpandLastColumn();
+
+  m_gridStdChecked.Refresh();
+}
+
+void CDlgCheckStd::OnBeginLabelEdit_StdChecked(NMHDR * pNMHDR, LRESULT * pResult)
+{
+}
+
+void CDlgCheckStd::OnEndLabelEdit_StdChecked(NMHDR * pNMHDR, LRESULT * pResult)
+{
+}
+
+void CDlgCheckStd::OnSelChanged_StdChecked(NMHDR * pNMHDR, LRESULT * pResult)
+{
+}
+
+void CDlgCheckStd::OnEndScroll_StdChecked(NMHDR * pNMHDR, LRESULT * pResult)
+{
+}
+
 
 void CDlgCheckStd::OnBnClickedBtnSave()
 {
@@ -416,4 +523,109 @@ void CDlgCheckStd::OnBnClickedBtnReload()
   UpdateGrid_StdSeries();
 
   UpdateGrid_StdLib();
+
+  UpdateGrid_StdChecked();
+}
+
+
+void CDlgCheckStd::OnBnClickedBtnStdChecking()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_DYNNUM, &bFlag, 0);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+  for (int i = 0; i < nValue; i++)
+  {
+    gstuRun.chStmCmd &= ~(1 << 0);
+    g_dlgDevice->EFGCtrl(1);
+#ifndef DEBUG_COM
+    // 等待测量完成
+    while (!(gstuRun.chStmCmd & (1 << 0)))
+    {
+      Sleep(1);
+    }
+#endif
+    // 读屏幕
+    if (g_dlgScreen->RCGVGA())
+    {
+      CalcEquAngle(g_dlgScreen->degree);//DATE 180421
+      gstuSort.sortsn = SortChip(&gstuSort, g_dlgScreen->degree);//得到档位值
+      if (gstuSort.sortsn < 0)
+        gstuSort.sortsn = 29;
+
+      g_dlgDevice->SortSend(char(gstuSort.sortsn));
+      CString _degree;
+      _degree.Format(_T("%d\t%d\t%d\t%d\t%d\t%d\t%d\r\n"), gstuTrdStat._N, g_dlgScreen->degree[0] * 100000 + g_dlgScreen->degree[1] * 10000 + g_dlgScreen->degree[2] * 1000 + g_dlgScreen->degree[3] * 100 + g_dlgScreen->degree[4] * 10 + g_dlgScreen->degree[5],
+        g_dlgScreen->degree[6] * 100000 + g_dlgScreen->degree[7] * 10000 + g_dlgScreen->degree[8] * 1000 + g_dlgScreen->degree[9] * 100 + g_dlgScreen->degree[10] * 10 + g_dlgScreen->degree[11],
+        g_dlgScreen->degree[12] * 100000 + g_dlgScreen->degree[13] * 10000 + g_dlgScreen->degree[14] * 1000 + g_dlgScreen->degree[15] * 100 + g_dlgScreen->degree[16] * 10 + g_dlgScreen->degree[17],
+        g_dlgScreen->degree[18] * 100000 + g_dlgScreen->degree[19] * 10000 + g_dlgScreen->degree[20] * 1000 + g_dlgScreen->degree[21] * 100 + g_dlgScreen->degree[22] * 10 + g_dlgScreen->degree[23],
+        g_dlgScreen->degree[24] * 100000 + g_dlgScreen->degree[25] * 10000 + g_dlgScreen->degree[26] * 1000 + g_dlgScreen->degree[27] * 100 + g_dlgScreen->degree[28] * 10 + g_dlgScreen->degree[29],
+        gstuSort.sortsn);
+
+      gclsTxt.TXTAddStr(gstuPathInf.csPathTxt, _degree);
+
+      //流程卡记录：by mmy 171115
+      if (csv)
+      {
+        // CCSVFile csv(gstuPathInf.csPathExe + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
+        CStringArray arr;
+        CString str;
+        str.Format(_T("%d"), gstuTrdStat._N);
+        arr.Add(str);
+        str.Format(_T("%d"), g_dlgScreen->degree[0] * 100000 + g_dlgScreen->degree[1] * 10000 + g_dlgScreen->degree[2] * 1000 + g_dlgScreen->degree[3] * 100 + g_dlgScreen->degree[4] * 10 + g_dlgScreen->degree[5]);
+        arr.Add(str);
+        str.Format(_T("%d"), g_dlgScreen->degree[6] * 100000 + g_dlgScreen->degree[7] * 10000 + g_dlgScreen->degree[8] * 1000 + g_dlgScreen->degree[9] * 100 + g_dlgScreen->degree[10] * 10 + g_dlgScreen->degree[11]);
+        arr.Add(str);
+        str.Format(_T("%d"), g_dlgScreen->degree[12] * 100000 + g_dlgScreen->degree[13] * 10000 + g_dlgScreen->degree[14] * 1000 + g_dlgScreen->degree[15] * 100 + g_dlgScreen->degree[16] * 10 + g_dlgScreen->degree[17]);
+        arr.Add(str);
+        str.Format(_T("%d"), g_dlgScreen->degree[18] * 100000 + g_dlgScreen->degree[19] * 10000 + g_dlgScreen->degree[20] * 1000 + g_dlgScreen->degree[21] * 100 + g_dlgScreen->degree[22] * 10 + g_dlgScreen->degree[23]);
+        arr.Add(str);
+        str.Format(_T("%d"), g_dlgScreen->degree[24] * 100000 + g_dlgScreen->degree[25] * 10000 + g_dlgScreen->degree[26] * 1000 + g_dlgScreen->degree[27] * 100 + g_dlgScreen->degree[28] * 10 + g_dlgScreen->degree[29]);
+        arr.Add(str);
+        str.Format(_T("%d"), gstuSort.sortsn);
+        arr.Add(str);
+
+        csv->WriteData(arr);
+
+        arr.RemoveAll();
+      }
+
+
+      gstuRun.unSort[2] = gstuRun.unSort[1];
+      gstuRun.unSort[1] = gstuRun.unSort[0];
+      gstuRun.unSort[0] = gstuSort.sortsn + 1;
+      QueryPerformanceCounter(&l_lgint_end);
+      gstuRun.dRT = double(l_lgint_end.QuadPart - l_lgint_start.QuadPart) / l_lgint_freq.QuadPart;
+      l_lgint_start.QuadPart = l_lgint_end.QuadPart;
+      gstuTrdStat._N++;
+    }
+  }
+  AfxMessageBox(_T("动态检测完成"));
+
+
+
+
+
+}
+
+
+void CDlgCheckStd::OnBnClickedBtnSet()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  CDlgPassword dlg(m_stdLib);
+  int ret = dlg.DoModal();
+
+  if (IDOK == ret)
+  {
+    CDlgStdSet set(m_stdLib);
+    ret = set.DoModal();
+  }
+  else
+  {
+    AfxMessageBox(_T("密码错误"));
+  }
 }

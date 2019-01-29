@@ -25,6 +25,20 @@ public:
   int m_laser_n; //光低
 };
 
+class CStdSet {
+public:
+  CStdSet() : m_maxd_phi(0), m_maxd_laser(0), m_min_lib_num(0), m_test_cnt(0), m_min_test_num(0) {};
+  ~CStdSet() {};
+public:
+  //int m_no;      //ID
+  int m_maxd_phi;   //电轴最大差值
+  int m_maxd_laser;   //光轴最大差值
+  int m_min_lib_num; //库最小片数
+  int m_test_cnt; //对标测量次数
+  int m_min_test_num; //最小对标片数
+  CString m_password;
+};
+
 class CStandardLib
 {
 public:
@@ -42,7 +56,8 @@ public:
   CArray<CStdLib, CStdLib> m_lib;
   // 对标过的标准片
   CArray<CStdLib, CStdLib> m_checked;
-
+  // 配置
+  CStdSet m_set;
 
   // 初始化数据库
   void Init(int series_num, int std_num);
@@ -56,5 +71,13 @@ public:
   void SetSeries(CStdSeries std);
   // 设置当前系列标准片
   void SetStd(CStdLib std);
+  // 设置已测量的标准片
+  void SetStdChecked(CStdLib std);
+  // 加载配置
+  void LoadSet(/*int id*/);
+  // 检查密码
+  BOOL CheckPassword(CString password);
+  // 保存对标设置
+  void SaveSet(void);
 };
 
