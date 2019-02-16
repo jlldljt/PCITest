@@ -17,9 +17,32 @@
 #include "DlgMsg.h"
 #include "CSVFile.h"
 #include "DlgCheckStd.h"
+#include "DlgCpk.h"
 // CBERApp:
 // 有关此类的实现，请参阅 BER.cpp
 //
+
+
+#define USER_TO_SEC(deg) ((deg)/10000*3600+(deg)%10000/100*60+(deg)%100)
+#define DEG_TO_USER(deg) (SEC_TO_USER(DEG_TO_SEC(deg)))
+#define SEC_TO_USER(sec) (((int)sec)/3600*10000+((int)sec)%3600/60*100+((int)sec)%60)
+
+#define USER_TO_DEG(deg) ((deg)/10000+(deg)%10000/100/60.0+(deg)%100/3600.0)
+#define DEG_TO_SEC(deg) ((int)((deg)*3600))
+#define SEC_TO_DEG(sec) ((sec)/3600.0)
+//秒的度分秒
+#define S_DEG(sec) ((sec)/3600)
+#define S_MIN(sec) ((sec)%3600/60)
+#define S_SEC(sec) ((sec)%60)
+//度的度分秒
+#define D_DEG(deg) S_DEG((int)((deg)*3600))
+#define D_MIN(deg) S_MIN((int)((deg)*3600))
+#define D_SEC(deg) S_SEC((int)((deg)*3600))
+//用户输入的度分秒
+#define U_DEG(user) ((user)/10000)
+#define U_MIN(user) ((user)%10000/100)
+#define U_SEC(user) ((user)%100)
+
 
 
 class CBERApp : public CWinApp
@@ -72,6 +95,7 @@ extern UINT ComMsg(LPVOID pParam);
 void calparameter(double (*xy)[4],double *factor);
 extern double TimeRecord(unsigned int step, bool start);
 extern int CalcEquAngle(int *degree);
+extern void CalcAvgStd(const int sum, const double angle, double &avg, double &std, double &std2);
 
 //vlc播放视频的回调函数
 void CALLBACK RealDataCallBack0(LONG lRealHandle,DWORD dwDataType,BYTE *pBuffer,DWORD dwBufSize,void *pUser);

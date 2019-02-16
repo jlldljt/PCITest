@@ -11,6 +11,10 @@ public:
 	CDlgStdSet(CStandardLib * pLib = NULL, CWnd* pParent = NULL);   // 标准构造函数
 	virtual ~CDlgStdSet();
 
+  void OnCellNormal(int row, int col);
+
+  void OnCellCombo(int row, int col, CStringArray * strarr);
+
 // 对话框数据
 	enum { IDD = IDD_DLG_STD_SET };
 

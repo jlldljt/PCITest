@@ -50,6 +50,7 @@ public:
 	afx_msg void OnBnClickedBtnPmove();
 	afx_msg void OnBnClickedBtnEndft();
   afx_msg void OnBnClickedChkShake();
+  afx_msg void OnBnClickedBtnPrint();
 };
 
 

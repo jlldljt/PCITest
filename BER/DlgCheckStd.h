@@ -46,14 +46,26 @@ public:
   CGridCtrl m_gridStdChecked;
   void InitGrid_StdChecked(void);
   void UpdateGrid_StdChecked(void);
+  void ClearGrid_StdChecked(void);
+  void AddGrid_StdChecked(CStdLib std, bool laser, bool phi);
   void OnBeginLabelEdit_StdChecked(NMHDR * pNMHDR, LRESULT * pResult);
   void OnEndLabelEdit_StdChecked(NMHDR * pNMHDR, LRESULT * pResult);
   void OnSelChanged_StdChecked(NMHDR * pNMHDR, LRESULT * pResult);
   void OnEndScroll_StdChecked(NMHDR * pNMHDR, LRESULT * pResult);
-
+  //result
+  CGridCtrl m_gridStdResult;
+  void InitGrid_StdResult(void);
+  void UpdateGrid_StdResult(void);
+  void OnBeginLabelEdit_StdResult(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnEndLabelEdit_StdResult(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnSelChanged_StdResult(NMHDR * pNMHDR, LRESULT * pResult);
+  void OnEndScroll_StdResult(NMHDR * pNMHDR, LRESULT * pResult);
 public:
   afx_msg void OnBnClickedBtnSave();
   afx_msg void OnBnClickedBtnReload();
   afx_msg void OnBnClickedBtnStdChecking();
   afx_msg void OnBnClickedBtnSet();
+  afx_msg void OnBnClickedBtnClear();
+  afx_msg void OnBnClickedBtnConfirm();
+  afx_msg void OnBnClickedBtnStdModify();
 };

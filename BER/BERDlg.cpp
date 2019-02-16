@@ -1209,19 +1209,19 @@ BOOL CBERDlg::PreTranslateMessage(MSG* pMsg)
 	// TODO: 在此添加专用代码和/或调用基类
 	//判断是否为键盘消息
 	if(pMsg->message == WM_KEYDOWN)
-	if (WM_KEYFIRST <= pMsg->message && pMsg->message <= WM_KEYLAST)
+	//if (WM_KEYFIRST <= pMsg->message && pMsg->message <= WM_KEYLAST)
 	{
 		//判断是否按下键盘Enter键
 		switch(pMsg->wParam)
 		{
 		case VK_RETURN:
 			break;
-		/*case VK_SPACE:
-			g_dlgRun->OnBnClickedBtnRun();
-			break;*/
+    case VK_SPACE:
+      g_dlgDevice->EFGCtrl(true);
+      break;
 		case VK_ESCAPE:
-			OnCancel();
-			break;
+			//OnCancel();
+			return TRUE;
 		/*case 'X':
 			if(GetKeyState(VK_CONTROL)<0 )
 				g_dlgRun->OnBnClickedBtnStandard();*/

@@ -305,21 +305,21 @@ void  CTXT::DeleteDir(CString str,bool del)
 		if (finder.IsDots())  continue;//找到的是当前目录或上级目录则跳过
 		strdel=finder.GetFileName(); //获取找到的文件名
 		if(finder.IsDirectory())   //如果是文件夹
-		{ 
+		{
 			strdel=str + "\\" + strdel;//加上路径,注意加"\\"
 			DeleteDir(strdel,1); //递归删除文件夹
-		} 
+		}
 		else //不是文件夹
-		{ 
+		{
 			strdel=str + "\\" + strdel;
 			if(finder.IsReadOnly())//清除只读属性
-			{    
+			{
 				SetFileAttributes(strdel,GetFileAttributes(strdel)&(~FILE_ATTRIBUTE_READONLY));
 			}
 			DeleteFile(strdel); //删除文件(API)
-		} 
-	} 
-	finder.Close(); 
+		}
+	}
+	finder.Close();
 	if (del)
 	{
 		RemoveDirectory(str); //删除文件夹(API)

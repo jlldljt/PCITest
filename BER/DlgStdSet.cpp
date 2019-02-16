@@ -7,6 +7,8 @@
 #include "afxdialogex.h"
 
 
+#include "../gridctrl_demo/NewCellTypes/GridCellCombo.h"
+
 // CDlgStdSet 对话框
 
 IMPLEMENT_DYNAMIC(CDlgStdSet, CDialogEx)
@@ -21,6 +23,27 @@ CDlgStdSet::CDlgStdSet(CStandardLib * pLib, CWnd* pParent /*=NULL*/)
 
 CDlgStdSet::~CDlgStdSet()
 {
+}
+
+void CDlgStdSet::OnCellNormal(int row, int col)
+{
+  m_gridStdSet.SetCellType(row, col, RUNTIME_CLASS(CGridCell));
+  m_gridStdSet.SetItemState(row, col, m_gridStdSet.GetItemState(row, col) & ~GVIS_READONLY);
+  m_gridStdSet.Invalidate();
+}
+void CDlgStdSet::OnCellCombo(int row, int col, CStringArray* strarr)
+{
+  OnCellNormal(row, col);
+  if (!m_gridStdSet.SetCellType(row, col, RUNTIME_CLASS(CGridCellCombo)))
+    return;
+  //m_pGrid.SetItemText(row,col, _T("Option 1"));
+  CStringArray options;
+  CGridCellCombo *pCell = (CGridCellCombo*)m_gridStdSet.GetCell(row, col);
+  if (strarr->GetCount() > 0)
+  {
+    pCell->SetOptions(*strarr);
+  }
+  pCell->SetStyle(CBS_DROPDOWNLIST); //CBS_DROPDOWN, CBS_DROPDOWNLIST, CBS_SIMPLE
 }
 
 void CDlgStdSet::DoDataExchange(CDataExchange* pDX)
@@ -79,7 +102,7 @@ void CDlgStdSet::UpdateGrid_StdSet(void)
 
   int max = m_gridStdSet.GetRowCount();
 
- m_pLib->m_set;
+ //m_pLib->m_set;
 
   for (int i = max; i >= min; i--)
   {
@@ -93,6 +116,7 @@ void CDlgStdSet::UpdateGrid_StdSet(void)
   m_gridStdSet.InsertRow(_T("库最小片数"), -1);
   m_gridStdSet.InsertRow(_T("对标测量次数"), -1);
   m_gridStdSet.InsertRow(_T("最小对标片数"), -1);
+  m_gridStdSet.InsertRow(_T("对标选择"), -1);
   m_gridStdSet.InsertRow(_T("密码"), -1);
 
   str.Format(_T("%d"), m_pLib->m_set.m_maxd_phi);
@@ -105,7 +129,13 @@ void CDlgStdSet::UpdateGrid_StdSet(void)
   m_gridStdSet.SetItemText(4, 1, str);
   str.Format(_T("%d"), m_pLib->m_set.m_min_test_num);
   m_gridStdSet.SetItemText(5, 1, str);
-  m_gridStdSet.SetItemText(6, 1, m_pLib->m_set.m_password);
+  CStringArray array;
+  array.Add(_T("电轴"));
+  array.Add(_T("光轴"));
+  OnCellCombo(6, 1, &array);
+  m_gridStdSet.SetItemText(6, 1, m_pLib->m_set.m_type);
+  m_gridStdSet.SetItemText(7, 1, m_pLib->m_set.m_password);
+
 
   m_gridStdSet.ExpandLastColumn();
 
@@ -133,7 +163,7 @@ void CDlgStdSet::OnEndLabelEdit_StdSet(NMHDR * pNMHDR, LRESULT * pResult)
   CString csTemp;
   csTemp.Format(_T("%d"), val);
 
-  if (text != csTemp && row != 6)
+  if (text != csTemp && row != 6 && row != 7)
   {
     AfxMessageBox(_T("只能输入整数"));
     m_gridStdSet.SetItemText(row, col, m_prevEditStr);
@@ -146,17 +176,10 @@ void CDlgStdSet::OnEndLabelEdit_StdSet(NMHDR * pNMHDR, LRESULT * pResult)
   m_pLib->m_set.m_min_lib_num = _wtoi(m_gridStdSet.GetItemText(3, 1));
   m_pLib->m_set.m_test_cnt = _wtoi(m_gridStdSet.GetItemText(4, 1));
   m_pLib->m_set.m_min_test_num = _wtoi(m_gridStdSet.GetItemText(5, 1));
-  m_pLib->m_set.m_password = m_gridStdSet.GetItemText(6, 1);
+  m_pLib->m_set.m_type = m_gridStdSet.GetItemText(6, 1);
+  m_pLib->m_set.m_password = m_gridStdSet.GetItemText(7, 1);
 
   GetDlgItem(IDC_BTN_SAVE)->EnableWindow(TRUE);
-}
-
-void CDlgStdSet::OnSelChanged_StdSet(NMHDR * pNMHDR, LRESULT * pResult)
-{
-}
-
-void CDlgStdSet::OnEndScroll_StdSet(NMHDR * pNMHDR, LRESULT * pResult)
-{
 }
 
 
@@ -166,8 +189,6 @@ BEGIN_MESSAGE_MAP(CDlgStdSet, CDialogEx)
 
   ON_NOTIFY(GVN_BEGINLABELEDIT, IDC_GRID_STD_SET, OnBeginLabelEdit_StdSet)
   ON_NOTIFY(GVN_ENDLABELEDIT, IDC_GRID_STD_SET, OnEndLabelEdit_StdSet)
-  ON_NOTIFY(GVN_SELCHANGED, IDC_GRID_STD_SET, OnSelChanged_StdSet)
-  ON_NOTIFY(GVN_ENDSCROLL, IDC_GRID_STD_SET, OnEndScroll_StdSet)
 
 END_MESSAGE_MAP()
 

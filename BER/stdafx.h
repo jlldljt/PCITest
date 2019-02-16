@@ -48,6 +48,7 @@
 #include "KSJ.h"
 #include "../gridctrl_demo/GridCtrl_src/GridCtrl.h"
 #include "../sqlite/database.h"
+#include "CSVFile.h"
 using namespace KSJ_NAME_SPACE;
 //#include <Mmsystem.h>            
 //#pragma comment(lib, "Winmm.lib")  

@@ -1,5 +1,5 @@
 #pragma once
-#include "CSVFile.h"
+// #include "CSVFile.h"
 
 class CStdLib {
 public:
@@ -27,7 +27,7 @@ public:
 
 class CStdSet {
 public:
-  CStdSet() : m_maxd_phi(0), m_maxd_laser(0), m_min_lib_num(0), m_test_cnt(0), m_min_test_num(0) {};
+  CStdSet() : m_maxd_phi(0), m_maxd_laser(0), m_min_lib_num(0), m_test_cnt(0), m_min_test_num(0), m_password(""),m_type(""){};
   ~CStdSet() {};
 public:
   //int m_no;      //ID
@@ -37,6 +37,51 @@ public:
   int m_test_cnt; //对标测量次数
   int m_min_test_num; //最小对标片数
   CString m_password;
+  CString m_type;// 对标类型
+};
+
+typedef struct tagResult{
+  double m_avg;
+  double m_std;
+  double m_std2;
+}Result;
+
+class CStdResult {
+public:
+  CStdResult() 
+  { 
+    Clear();
+  };
+  ~CStdResult() {};
+public:
+  int m_sum;
+  Result m_checking_laser, m_checking_phi;
+  Result m_checked_laser, m_checked_phi;
+  double m_dLaser, m_dPhi;
+
+  void Clear(void)
+  {
+    m_sum = 0;
+    memset(&m_checking_laser, 0, sizeof(Result));
+    memset(&m_checking_phi, 0, sizeof(Result));
+    memset(&m_checked_laser, 0, sizeof(Result));
+    memset(&m_checked_phi, 0, sizeof(Result));
+    m_dLaser = 0;
+    m_dPhi = 0;
+  }
+  void AddCheck(Result &check_result, double angle);
+
+  void Add(CStdLib checking, CStdLib checked)
+  {
+    m_sum++;
+    AddCheck(m_checking_laser, checking.m_laser);
+    AddCheck(m_checking_phi, checking.m_phi);
+    AddCheck(m_checked_laser, checked.m_laser);
+    AddCheck(m_checked_phi, checked.m_phi);
+    m_dLaser = fabs(m_checking_laser.m_avg - m_checked_laser.m_avg);
+    m_dPhi = fabs(m_checking_phi.m_avg - m_checked_phi.m_avg);
+  }
+
 };
 
 class CStandardLib
@@ -54,10 +99,15 @@ public:
   int m_seriesNo;
   // 已加载系列的标准片
   CArray<CStdLib, CStdLib> m_lib;
-  // 对标过的标准片
+  // 对标的实测值
   CArray<CStdLib, CStdLib> m_checked;
+  int pass_num;
+  // 对标的标准值
+  CArray<CStdLib, CStdLib> m_checking;
   // 配置
   CStdSet m_set;
+  // 对标结果
+  CStdResult m_result;
 
   // 初始化数据库
   void Init(int series_num, int std_num);
@@ -72,6 +122,7 @@ public:
   // 设置当前系列标准片
   void SetStd(CStdLib std);
   // 设置已测量的标准片
+  void SetStdChecking(CStdLib std);
   void SetStdChecked(CStdLib std);
   // 加载配置
   void LoadSet(/*int id*/);
@@ -79,5 +130,10 @@ public:
   BOOL CheckPassword(CString password);
   // 保存对标设置
   void SaveSet(void);
+  // 清除对标
+  void ClearCheck();
+  UCHAR AddCheck(CStdLib checking, CStdLib checked);
+  // 检测是否已经检查过了
+  BOOL IsChecked(int no);
 };
 

@@ -1043,12 +1043,28 @@ int SortChip(sortchip* s_sort,int *degree)
 			default:s_sort->sortnum[26]++;sortSN=26;break;
 			}
 		}
-
 	}
 
 	return sortSN;
 }
+void CalcAvgStd(const int sum, const double angle, double &avg, double &std, double &std2)
+{
+  double n = sum;
 
+  double xi = angle;
+  //double avg;
+  if (1 == n)
+  {
+    avg = xi;//平均值
+    std2 = xi * xi;//标准偏差中间值
+  }
+  if (n > 1)
+  {
+    avg = (avg + xi / (n - 1)) / (n / (n - 1));//求平均值
+    std2 = (std2 + xi * xi / (n - 1)) / (n / (n - 1));//求标准差中间值
+    std = sqrt(abs(std2 - avg * avg)*n / (n - 1));//求标准差
+  }
+}
 //计算光轴平均值及标准方程
 void SortAvgStd(unsigned int sum,int *angle,double *avg,double *std,long double *std2)
 {

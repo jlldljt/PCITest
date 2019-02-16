@@ -102,6 +102,8 @@ void CCSVFile::WriteData(CStringArray &arr)
     // Separate this value from previous
     if (i > 0)
       WriteString(_T(","));
+    else
+      WriteString(_T("\n"));
     // We need special handling if string contains
     // comma or double quote
     bool bComma = (arr[i].Find(chComma) != -1);
@@ -131,5 +133,52 @@ void CCSVFile::WriteData(CStringArray &arr)
       WriteString(arr[i]);
     }
   }
-  WriteString(_T("\n"));
+  //WriteString(_T("\n"));
+  WriteString(_T(","));
+}
+
+void CCSVFile::WriteDataWithoutReturn(CStringArray &arr)
+{
+  static TCHAR chQuote = '"';
+  static TCHAR chComma = ',';
+
+  // Verify correct mode in debug build
+  ASSERT(m_nMode == modeWrite);
+
+  // Loop through each string in array
+  for (int i = 0; i < arr.GetCount(); i++)
+  {
+    // Separate this value from previous
+    if (i > 0)
+      WriteString(_T(","));
+    // We need special handling if string contains
+    // comma or double quote
+    bool bComma = (arr[i].Find(chComma) != -1);
+    bool bQuote = (arr[i].Find(chQuote) != -1);
+    if (bComma || bQuote)
+    {
+      Write(&chQuote, sizeof(TCHAR));
+      if (bQuote)
+      {
+        for (int j = 0; j < arr[i].GetLength(); j++)
+        {
+          // Pairs of quotes interpreted as single quote
+          if (arr[i][j] == chQuote)
+            Write(&chQuote, sizeof(TCHAR));
+          TCHAR ch = arr[i][j];
+          Write(&ch, sizeof(TCHAR));
+        }
+      }
+      else
+      {
+        WriteString(arr[i]);
+      }
+      Write(&chQuote, sizeof(TCHAR));
+    }
+    else
+    {
+      WriteString(arr[i]);
+    }
+  }
+  WriteString(_T(","));
 }

@@ -25,6 +25,12 @@
     <Filter Include="GridCtrl\Src">
       <UniqueIdentifier>{43b8fb48-8fa2-42de-b3a4-4b7e699dba80}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CPK">
+      <UniqueIdentifier>{5abdf0dd-2bac-44b5-96bd-889f378dc6f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CHECKSTD">
+      <UniqueIdentifier>{29ab7f78-71d7-4855-95d5-72a1074324e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -111,9 +117,6 @@
     <ClInclude Include="..\sqlite\sqlite3.h">
       <Filter>Sqlite</Filter>
     </ClInclude>
-    <ClInclude Include="DlgCheckStd.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.h">
       <Filter>GridCtrl\NewCellTypes</Filter>
     </ClInclude>
@@ -153,17 +156,32 @@
     <ClInclude Include="..\gridctrl_demo\GridCtrl_src\TitleTip.h">
       <Filter>GridCtrl\Src</Filter>
     </ClInclude>
-    <ClInclude Include="StandardLib.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\sqlite\database.h">
       <Filter>Sqlite</Filter>
     </ClInclude>
+    <ClInclude Include="CpkLib.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCheckStd.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCpkSet.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCpk.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
     <ClInclude Include="DlgPassword.h">
-      <Filter>头文件</Filter>
+      <Filter>CHECKSTD</Filter>
     </ClInclude>
     <ClInclude Include="DlgStdSet.h">
-      <Filter>头文件</Filter>
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardLib.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="TrendChart.h">
+      <Filter>CPK</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -221,9 +239,6 @@
     <ClCompile Include="..\sqlite\sqlite3.c">
       <Filter>Sqlite</Filter>
     </ClCompile>
-    <ClCompile Include="DlgCheckStd.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.cpp">
       <Filter>GridCtrl\NewCellTypes</Filter>
     </ClCompile>
@@ -257,17 +272,32 @@
     <ClCompile Include="..\gridctrl_demo\GridCtrl_src\TitleTip.cpp">
       <Filter>GridCtrl\Src</Filter>
     </ClCompile>
-    <ClCompile Include="StandardLib.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\sqlite\database.cpp">
       <Filter>Sqlite</Filter>
     </ClCompile>
-    <ClCompile Include="DlgPassword.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="CpkLib.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCpk.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCpkSet.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCheckStd.cpp">
+      <Filter>CHECKSTD</Filter>
     </ClCompile>
     <ClCompile Include="DlgStdSet.cpp">
-      <Filter>源文件</Filter>
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgPassword.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardLib.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="TrendChart.cpp">
+      <Filter>CPK</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

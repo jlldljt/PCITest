@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "StandardLib.h"
+#include "BER.h"
 
 //CStandardLib::CStandardLib()
 //{
@@ -109,19 +110,20 @@ void CStandardLib::Init(int series_num, int std_num)
   //创建标准库系列表
   sql = "CREATE TABLE STDSET("  \
     "ID INT PRIMARY KEY     NOT NULL," \
+    "对标选择               TEXT," \
     "电轴最大差值           INT," \
     "光轴最大差值           INT," \
-    "库最小片数       INT," \
-    "对标测量次数       INT," \
-    "最小对标片数       INT," \
-    "密码        TEXT );";
+    "库最小片数             INT," \
+    "对标测量次数           INT," \
+    "最小对标片数           INT," \
+    "密码                   TEXT );";
 
   isOk = sqlite.Writedb(std::string(sql));
   //添加个系列
   if (true == isOk)
   {
-    sql = "INSERT INTO STDSET (ID,电轴最大差值,光轴最大差值,库最小片数,对标测量次数,最小对标片数,密码) "  \
-      "VALUES (1,30,10,30,2,5 ,'111111');";
+    sql = "INSERT INTO STDSET (ID,对标选择,电轴最大差值,光轴最大差值,库最小片数,对标测量次数,最小对标片数,密码) "  \
+      "VALUES (1,'电轴',30,10,30,2,5 ,'111111');";
 
     isOk = sqlite.Writedb(std::string(sql));
   }
@@ -229,7 +231,7 @@ void CStandardLib::LoadSeries(void)
 
   m_series.RemoveAll();
 
-  m_checked.RemoveAll();
+  ClearCheck();
 
   m_lib.RemoveAll();
 
@@ -271,7 +273,7 @@ void CStandardLib::LoadLib(int seriesNo)
 {
   m_seriesNo = seriesNo;
 
-  m_checked.RemoveAll();
+  ClearCheck();
 
   m_lib.RemoveAll();
 
@@ -354,6 +356,27 @@ void CStandardLib::SetStd(CStdLib std)
   }
 }
 
+void CStandardLib::SetStdChecking(CStdLib std)
+{
+  int count = m_checking.GetCount();
+
+  int i;
+
+  for (i = 0; i < count; i++)
+  {
+    if (m_checking[i].m_no == std.m_no)
+    {
+      m_checking[i] = std;
+      break;
+    }
+  }
+
+  if (i >= count)
+  {
+    m_checking.Add(std);
+  }
+}
+
 void CStandardLib::SetStdChecked(CStdLib std)
 {
   int count = m_checked.GetCount();
@@ -384,7 +407,7 @@ void CStandardLib::LoadSet()
     return;
   }
 
-  std::string sql = "SELECT 电轴最大差值,光轴最大差值,库最小片数,对标测量次数,最小对标片数,密码 FROM STDSET WHERE ID = 1;";
+  std::string sql = "SELECT 电轴最大差值,光轴最大差值,库最小片数,对标测量次数,最小对标片数,密码,对标选择 FROM STDSET WHERE ID = 1;";
 
   bool isOk = sqlite.Writedb(std::string(sql));
   //添加个系列
@@ -402,6 +425,7 @@ void CStandardLib::LoadSet()
         m_set.m_test_cnt = stmt->ValueInt(3);
         m_set.m_min_test_num = stmt->ValueInt(4);
         m_set.m_password = stmt->ValueString(5);
+        m_set.m_type = stmt->ValueString(6);
 
       }
     }
@@ -476,6 +500,7 @@ void CStandardLib::SaveSet(void)
     + "库最小片数 = " + std::string(s3) + ", "\
     + "对标测量次数 = " + std::string(s4) + ", "\
     + "最小对标片数 = " + std::string(s5) + ", "\
+    + "对标选择 = '" + std::string(CT2A(m_set.m_type)) + "', "\
     + "密码 = '" + std::string(CT2A(m_set.m_password)) + "' "\
     + "WHERE ID = 1;";
 
@@ -493,4 +518,81 @@ void CStandardLib::SaveSet(void)
   sqlite.Commit();
 
   sqlite.Close();
+}
+
+void CStandardLib::ClearCheck()
+{
+  m_checked.RemoveAll();
+  m_checking.RemoveAll();
+  ASSERT(m_checked.GetCount()== m_checking.GetCount());
+  pass_num = 0;
+  m_result.Clear();
+}
+
+
+
+//返回值说明
+// 0x00 表示通过
+// 0x01 表示laser未通过
+// 0x02 表示phi未通过
+// 0x03 表示都未通过
+UCHAR CStandardLib::AddCheck(CStdLib checking, CStdLib checked)
+{
+  ASSERT(checking.m_no == checked.m_no);
+  UCHAR cnt = 0;
+
+  SetStdChecking(checking);
+  SetStdChecked(checked);
+
+  ASSERT(m_checking.GetCount() == m_checked.GetCount());
+
+  if (abs(checking.m_laser - checked.m_laser) > m_set.m_maxd_laser)
+    cnt |= 0x01;
+
+  if (abs(checking.m_phi - checked.m_phi) > m_set.m_maxd_phi)
+    cnt |= 0x02;
+
+  if(m_set.m_type == _T("光轴"))
+  {
+    if(!(cnt & 0x01))
+      pass_num++; 
+  }
+  else if(m_set.m_type == _T("电轴"))
+  {
+    if (!(cnt & 0x02))
+      pass_num++;
+  }
+      
+
+
+  m_result.Add(checking,checked);
+  return cnt;
+}
+
+BOOL CStandardLib::IsChecked(int no)
+{
+  int count_checking = m_checking.GetCount();
+  int count_checked = m_checked.GetCount();
+
+  ASSERT(count_checking == count_checked);
+
+  int count = count_checked;
+
+  int i;
+
+  for (i = 0; i < count; i++)
+  {
+    ASSERT(m_checking[i].m_no == m_checked[i].m_no);
+    if (m_checked[i].m_no == no)
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+void CStdResult::AddCheck(Result &check_result, double angle)
+{
+    CalcAvgStd(m_sum, angle, check_result.m_avg, check_result.m_std, check_result.m_std2);
 }

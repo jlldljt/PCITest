@@ -130,11 +130,15 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColorSpace.h" />
     <ClInclude Include="Com.h" />
+    <ClInclude Include="CpkLib.h" />
     <ClInclude Include="CSVFile.h" />
+    <ClInclude Include="TrendChart.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="DlgCheckStd.h" />
+    <ClInclude Include="DlgCpk.h" />
+    <ClInclude Include="DlgCpkSet.h" />
     <ClInclude Include="DlgMsg.h" />
     <ClInclude Include="DlgPassword.h" />
     <ClInclude Include="DlgStdSet.h" />
@@ -169,16 +173,21 @@
     <ClCompile Include="..\sqlite\database.cpp" />
     <ClCompile Include="..\sqlite\sqlite3.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="BER.cpp" />
     <ClCompile Include="BERDlg.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ColorSpace.cpp" />
     <ClCompile Include="Com.cpp" />
+    <ClCompile Include="CpkLib.cpp" />
     <ClCompile Include="CSVFile.cpp" />
+    <ClCompile Include="TrendChart.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="DlgCheckStd.cpp" />
+    <ClCompile Include="DlgCpk.cpp" />
+    <ClCompile Include="DlgCpkSet.cpp" />
     <ClCompile Include="DlgMsg.cpp" />
     <ClCompile Include="DlgPassword.cpp" />
     <ClCompile Include="DlgStdSet.cpp" />
