@@ -38,7 +38,7 @@ BOOL CTXT::TXTAddStr(LPCTSTR pathTXT,LPCTSTR strAdd)
 	//CString tmp(_T(".\\check\\SortDegree.txt"));
 	if(!l_file.Open(pathTXT,CFile::modeCreate | CFile::modeWrite|CFile::modeNoTruncate| CFile::shareDenyRead))
 		return 0;
-	char l_AnsiStr[MAX_PATH];  
+	char l_AnsiStr[1000];  
 	WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,strAdd,-1,l_AnsiStr,sizeof(l_AnsiStr),NULL,NULL); 
 	l_file.Seek(0,CFile::end);
 	l_file.Write(l_AnsiStr,CStringA(strAdd).GetLength());

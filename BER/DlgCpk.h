@@ -9,7 +9,7 @@ class CDlgCpk : public CDialogEx
 	DECLARE_DYNAMIC(CDlgCpk)
 
 public:
-	CDlgCpk(CWnd* pParent = NULL);   // 标准构造函数
+	CDlgCpk(CCpkLib *cpk, CWnd* pParent = NULL);   // 标准构造函数
 	virtual ~CDlgCpk();
 
 // 对话框数据
@@ -42,4 +42,7 @@ public:
   afx_msg void OnBnClickedBtnSet();
   virtual BOOL OnInitDialog();
   afx_msg void OnBnClickedBtnTest();
+  afx_msg void OnBnClickedBtnCalc();
+  afx_msg void OnBnClickedBtnTrendChart();
+//  afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 };

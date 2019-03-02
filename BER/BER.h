@@ -71,6 +71,7 @@ extern CTXT gclsTxt;
 extern CIMGRecognition gclsImgRcg;
 extern RecognitionInfo  gstuRcgInfo;
 extern PathInfo gstuPathInf;
+extern CCpkLib *g_pCpk;
 //
 //extern CPicture gclsPic;//pictrue类对象
 //extern SETTINGS_CAMERA gstuCamParam;//相机参数

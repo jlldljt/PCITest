@@ -7,7 +7,7 @@ CCpkLib::CCpkLib(LPCTSTR exePath)
 	m_exePath = exePath;
 
 	CFileFind find;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用  
-	
+
 	if (!find.FindFile(m_exePath + _T("\\CPK\\*.*")))
 	{
 		if (!CreateDirectory(m_exePath + _T("\\CPK\\"), NULL))
@@ -32,17 +32,18 @@ CCpkLib::CCpkLib(LPCTSTR exePath)
 
 CCpkLib::~CCpkLib()
 {
-	if (m_csv_plannedNo)
-	{
-		delete m_csv_plannedNo;
-		m_csv_plannedNo = NULL;
-	}
+	//if (m_csv_plannedNo)
+	//{
+	//	delete m_csv_plannedNo;
+	//	m_csv_plannedNo = NULL;
+	//}
 
-	if (m_csv_processCardNo)
-	{
-		delete m_csv_processCardNo;
-		m_csv_processCardNo = NULL;
-	}
+	//if (m_csv_processCardNo)
+	//{
+	//	delete m_csv_processCardNo;
+	//	m_csv_processCardNo = NULL;
+	//}
+	CloseCsv();
 }
 
 void CCpkLib::LoadPlannedNo(void)
@@ -70,12 +71,15 @@ void CCpkLib::LoadPlannedNo(void)
 
 BOOL CCpkLib::LoadProcessCardNo(CString plannedNo)
 {
+	CloseCsv();
+
 	CString path;
+
 	path = m_cpkPath +plannedNo+ _T("\\")+plannedNo+ _T(".csv");
 
 	CCSVFile *csv_plannedNo = new CCSVFile(path, CCSVFile::modeRead);
 
-	CProcessCard processCard;
+  CProcessCard processCard;
 
 	if (csv_plannedNo)
 	{
@@ -84,23 +88,51 @@ BOOL CCpkLib::LoadProcessCardNo(CString plannedNo)
 		csv_plannedNo->SeekToBegin();
 		while(csv_plannedNo->ReadData(arr))
 		{
-			if(arr.GetCount()==PLANNED_CSV_ROW_MAX){
-				processCard.no = arr[PLANNED_CSV_ROW_NO];
+      processCard.Reset();
+			//if(arr.GetCount()==PLANNED_CSV_ROW_MAX){
+			//	processCard.no = arr[PLANNED_CSV_ROW_NO];
+   //   
+			//	if(processCard.no == _T("流程卡"))
+			//		continue;
 
-				if(processCard.no == _T("流程卡"))
-					continue;
+			//	processCard.axis = arr[PLANNED_CSV_ROW_AXIS];
+			//	processCard.center = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_CENTER]));
+			//	processCard.usl = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_USL]));
+			//	processCard.lsl = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_LSL]));
+			//	processCard.avg = _ttof(arr[PLANNED_CSV_ROW_AVG]);
+			//	processCard.std = _ttof(arr[PLANNED_CSV_ROW_STD]);
+			//	processCard.cp = _ttof(arr[PLANNED_CSV_ROW_CP]);
+			//	processCard.ca = _ttof(arr[PLANNED_CSV_ROW_CA]);
+			//	processCard.cpk = _ttof(arr[PLANNED_CSV_ROW_CPK]);
+			//	m_arrProcessCardNo.Add(processCard);
+			//}
+      if (arr.GetCount() > PLANNED_CSV_ROW_NO) 
+        processCard.no = arr[PLANNED_CSV_ROW_NO];
 
-				processCard.axis = arr[PLANNED_CSV_ROW_AXIS];
-				processCard.center = _ttoi(arr[PLANNED_CSV_ROW_CENTER]);
-				processCard.usl = _ttoi(arr[PLANNED_CSV_ROW_USL]);
-				processCard.lsl = _ttoi(arr[PLANNED_CSV_ROW_LSL]);
-				processCard.avg = _ttof(arr[PLANNED_CSV_ROW_AVG]);
-				processCard.std = _ttof(arr[PLANNED_CSV_ROW_STD]);
-				processCard.cp = _ttof(arr[PLANNED_CSV_ROW_CP]);
-				processCard.ca = _ttof(arr[PLANNED_CSV_ROW_CA]);
-				processCard.cpk = _ttof(arr[PLANNED_CSV_ROW_CPK]);
-				m_arrProcessCardNo.Add(processCard);
-			}
+        if (processCard.no == _T("流程卡") || processCard.no == _T(""))
+          continue;
+
+      if (arr.GetCount() > PLANNED_CSV_ROW_AXIS)
+        processCard.axis = arr[PLANNED_CSV_ROW_AXIS];
+      if (arr.GetCount() > PLANNED_CSV_ROW_CENTER)
+        processCard.center = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_CENTER]));
+      if (arr.GetCount() > PLANNED_CSV_ROW_USL)
+        processCard.usl = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_USL]));
+      if (arr.GetCount() > PLANNED_CSV_ROW_LSL)
+        processCard.lsl = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_LSL]));
+      if (arr.GetCount() > PLANNED_CSV_ROW_AVG)
+        processCard.avg = _ttof(arr[PLANNED_CSV_ROW_AVG]);
+      if (arr.GetCount() > PLANNED_CSV_ROW_STD)
+        processCard.std = _ttof(arr[PLANNED_CSV_ROW_STD]);
+      if (arr.GetCount() > PLANNED_CSV_ROW_CP)
+        processCard.cp = _ttof(arr[PLANNED_CSV_ROW_CP]);
+      if (arr.GetCount() > PLANNED_CSV_ROW_CA)
+        processCard.ca = _ttof(arr[PLANNED_CSV_ROW_CA]);
+      if (arr.GetCount() > PLANNED_CSV_ROW_CPK)
+        processCard.cpk = _ttof(arr[PLANNED_CSV_ROW_CPK]);
+        
+        m_arrProcessCardNo.Add(processCard);
+      
 		}
 
 
@@ -173,6 +205,21 @@ void CCpkLib::SaveSet(void)
 	str.Format(_T("%d"), m_cpkSet.m_start_num);
 	WritePrivateProfileString(_T("CPK设定"), _T("起始数量"), str, m_iniPath);
 }
+void CCpkLib::CloseCsv()
+{
+	if (m_csv_plannedNo)
+	{
+		delete m_csv_plannedNo;
+		m_csv_plannedNo = NULL;
+	}
+
+	if (m_csv_processCardNo)
+	{
+		delete m_csv_processCardNo;
+		m_csv_processCardNo = NULL;
+	}
+}
+
 
 BOOL CCpkLib::OpenProcessCard(CString plannedNo, CString ProcessCardNo)
 {
@@ -301,14 +348,14 @@ BOOL CCpkLib::AddToPlannedCsv(CProcessCard processCard)
 		GetData(ch);
 		arr.Add(CA2T(ch));        // DATA
 		arr.Add(processCard.no);  //流程卡
-		/*str.Format(_T("%d"), processCard.center);
+		arr.Add(processCard.axis);
+		str.Format(_T("%d"), SEC_TO_USER(processCard.center));
 		arr.Add(str);
-		str.Format(_T("%d"), processCard.usl);
+		str.Format(_T("%d"), SEC_TO_USER(processCard.usl));
 		arr.Add(str);
-		str.Format(_T("%d"), processCard.lsl);
+		str.Format(_T("%d"), SEC_TO_USER(processCard.lsl));
 		arr.Add(str);
-		str.Format(_T("%d"), processCard.cpk_num);
-		arr.Add(str);
+		/*
 		str.Format(_T("%.3f"), processCard.avg);
 		arr.Add(str);
 		str.Format(_T("%.3f"), processCard.std);
@@ -331,20 +378,21 @@ BOOL CCpkLib::AddToPlannedCsv(CProcessCard processCard)
 
 BOOL CCpkLib::AddCpkToPlannedCsv(CProcessCard processCard)
 {
-	if (m_csv_plannedNo) {
+	if (m_csv_plannedNo) 
+	{
 		CStringArray arr;
 		CString str;
 		//char ch[30];
 		//GetData(ch);
 		//arr.Add(CA2T(ch));        // DATA
 		//arr.Add(processCard.no);  //流程卡
-		arr.Add(processCard.axis);
-		str.Format(_T("%d"), processCard.center);
-		arr.Add(str);
-		str.Format(_T("%d"), processCard.usl);
-		arr.Add(str);
-		str.Format(_T("%d"), processCard.lsl);
-		arr.Add(str);
+		//arr.Add(processCard.axis);
+		//str.Format(_T("%d"), processCard.center);
+		//arr.Add(str);
+		//str.Format(_T("%d"), processCard.usl);
+		//arr.Add(str);
+		//str.Format(_T("%d"), processCard.lsl);
+		//arr.Add(str);
 		str.Format(_T("%.3f"), processCard.avg);
 		arr.Add(str);
 		str.Format(_T("%.3f"), processCard.std);
@@ -367,20 +415,21 @@ BOOL CCpkLib::AddCpkToPlannedCsv(CProcessCard processCard)
 
 BOOL CCpkLib::AddToProcessCardCsv(CProcessData processData)
 {
-	if (m_csv_processCardNo) {
+	if (m_csv_processCardNo) 
+	{
 		CStringArray arr;
 		CString str;
 		str.Format(_T("%d"), processData.no);
 		arr.Add(str);
-		str.Format(_T("%.3f"), processData.laser);
+		str.Format(_T("%d"), SEC_TO_USER(processData.laser));
 		arr.Add(str);
-		str.Format(_T("%.3f"), processData.phi);
+		str.Format(_T("%d"), SEC_TO_USER(processData.phi));
 		arr.Add(str);
-		str.Format(_T("%.3f"), processData.equal);
+		str.Format(_T("%d"), SEC_TO_USER(processData.equal));
 		arr.Add(str);
-		str.Format(_T("%.3f"), processData.laser0);
+		str.Format(_T("%d"), SEC_TO_USER(processData.laser0));
 		arr.Add(str);
-		str.Format(_T("%.3f"), processData.phi0);
+		str.Format(_T("%d"), SEC_TO_USER(processData.phi0));
 		arr.Add(str);
 		str.Format(_T("%d"), processData.sort);
 		arr.Add(str);
@@ -405,87 +454,269 @@ BOOL CCpkLib::GetData(char* data)
 
 BOOL CCpkLib::CalcCpk(CString plannedNo, CString ProcessCardNo, CProcessCard & processCard)
 {
-  // 加载计划号。
-  CString path;
-  path = m_cpkPath + plannedNo + _T("\\") + plannedNo + _T(".csv");
+	// 加载计划号。
+	CString path;
+	path = m_cpkPath + plannedNo + _T("\\") + plannedNo + _T(".csv");
 
-  CCSVFile *csv = new CCSVFile(path, CCSVFile::modeRead);
+	CCSVFile *csv = new CCSVFile(path, CCSVFile::modeRead);
 
-  if (csv)
-  {
-    CStringArray arr;
-    csv->SeekToBegin();
-    while (csv->ReadData(arr))
-    {
-      if (arr.GetCount() > 5 ) {
-        processCard.no = arr[PLANNED_CSV_ROW_NO];
+	if (csv)
+	{
+		CStringArray arr;
+		csv->SeekToBegin();
+		while (csv->ReadData(arr))
+		{
+			if (arr.GetCount() > 5 ) {
+				processCard.no = arr[PLANNED_CSV_ROW_NO];
 
-        if (processCard.no == ProcessCardNo)
+				if (processCard.no == ProcessCardNo)
+				{
+
+					processCard.axis = arr[PLANNED_CSV_ROW_AXIS];
+					processCard.center = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_CENTER]));
+					processCard.usl = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_USL]));
+					processCard.lsl = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_LSL]));
+					processCard.avg = 0;//_ttof(arr[PLANNED_CSV_ROW_AVG]);
+					processCard.std = 0;//_ttof(arr[PLANNED_CSV_ROW_STD]);
+					processCard.cp = 0;//_ttof(arr[PLANNED_CSV_ROW_CP]);
+					processCard.ca = 0;//_ttof(arr[PLANNED_CSV_ROW_CA]);
+					processCard.cpk =0;// _ttof(arr[PLANNED_CSV_ROW_CPK]);
+
+					break;
+				}
+			}
+		}
+
+		delete csv;
+
+		csv = NULL;
+
+	}
+	else
+	{
+		return FALSE;
+	}
+	// 加载流程卡，计算CPK
+	path = m_cpkPath + plannedNo + _T("\\") + ProcessCardNo + _T(".csv");
+
+	csv = new CCSVFile(path, CCSVFile::modeRead);
+
+	CProcessData data;
+
+	int num = 0;
+
+	if (csv)
+	{
+		CStringArray arr;
+		csv->SeekToBegin();
+
+		double avg=0,std=0,std2=0;
+
+		while (csv->ReadData(arr))
+		{
+			if (arr.GetCount() == PROCESS_CSV_ROW_MAX) {
+
+				data.no = _ttoi(arr[PROCESS_CSV_ROW_NO]);
+				data.laser = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_LASER]));
+				data.phi = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_PHI]));
+				data.equal = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_EQUAL]));
+				data.laser0 = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_LASER0]));
+				data.phi0 = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_PHI0]));
+				data.sort = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_POS]));
+
+				double angle = 0;
+
+				if (processCard.axis == "光轴") 
+				{
+					angle = data.laser;
+				}
+				else if(processCard.axis == "电轴")
+				{
+					angle = data.phi;
+				}
+				else if(processCard.axis == "等效角度")
+				{
+					angle = data.equal;
+				}
+				else
+				{
+					AfxMessageBox(_T("所测角不对"));
+				}
+				
+				if(angle>=processCard.lsl&&angle<processCard.usl)
+				{
+					num++;
+					CalcAvgStd(num, angle, avg, std, std2);
+				}
+
+			}
+		}
+		delete csv;
+
+		csv = NULL;
+
+		processCard.avg = avg;//_ttof(arr[PLANNED_CSV_ROW_AVG]);
+		processCard.std = std;//_ttof(arr[PLANNED_CSV_ROW_STD]);
+
+		processCard.ca = (processCard.avg-processCard.center)*2/(processCard.usl-processCard.lsl);
+		processCard.cp = (processCard.usl-processCard.lsl)/6/processCard.std;
+		processCard.cpk = processCard.cp * fabs(1-processCard.ca);
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL CCpkLib::CalcCpk( CProcessCard & processCard)
+{
+	ASSERT(m_csv_plannedNo && m_csv_processCardNo);
+	// 加载计划号。
+
+	CCSVFile *csv = m_csv_plannedNo;
+
+	if (csv)
+	{
+		CStringArray arr;
+		csv->SeekToBegin();
+		// 遍历到ed
+		while (csv->ReadData(arr))
+		{
+			if (arr.GetCount() > 5 ) {
+				processCard.no = arr[PLANNED_CSV_ROW_NO];
+
+				//if (processCard.no == ProcessCardNo)
+				{
+
+					processCard.axis = arr[PLANNED_CSV_ROW_AXIS];
+					processCard.center = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_CENTER]));
+					processCard.usl = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_USL]));
+					processCard.lsl = USER_TO_SEC(_ttoi(arr[PLANNED_CSV_ROW_LSL]));
+					processCard.avg = 0;//_ttof(arr[PLANNED_CSV_ROW_AVG]);
+					processCard.std = 0;//_ttof(arr[PLANNED_CSV_ROW_STD]);
+					processCard.cp = 0;//_ttof(arr[PLANNED_CSV_ROW_CP]);
+					processCard.ca = 0;//_ttof(arr[PLANNED_CSV_ROW_CA]);
+					processCard.cpk =0;// _ttof(arr[PLANNED_CSV_ROW_CPK]);
+
+					//break;
+				}
+			}
+		}
+	}
+	// 加载流程卡，计算CPK
+	csv = m_csv_processCardNo;
+
+	CProcessData data;
+
+	int num = 0;
+
+	if (csv)
+	{
+		CStringArray arr;
+		csv->SeekToBegin();
+
+		double avg=0,std=0,std2=0;
+
+		while (csv->ReadData(arr))
+		{
+			if (arr.GetCount() == PROCESS_CSV_ROW_MAX) {
+
+				data.no = _ttoi(arr[PROCESS_CSV_ROW_NO]);
+				data.laser = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_LASER]));
+				data.phi = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_PHI]));
+				data.equal = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_EQUAL]));
+				data.laser0 = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_LASER0]));
+				data.phi0 = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_PHI0]));
+				data.sort = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_POS]));
+
+				double angle = 0;
+
+				if (processCard.axis == "光轴") 
+				{
+					angle = data.laser;
+				}
+				else if(processCard.axis == "电轴")
+				{
+					angle = data.phi;
+				}
+				else if(processCard.axis == "等效角度")
+				{
+					angle = data.equal;
+				}
+				else
+				{
+					AfxMessageBox(_T("所测角不对"));
+				}
+
+				if(angle>=processCard.lsl&&angle<processCard.usl&&data.sort<24)
+				{
+					num++;
+					CalcAvgStd(num, angle, avg, std, std2);
+				}
+
+			}
+		}
+		processCard.avg = avg;//_ttof(arr[PLANNED_CSV_ROW_AVG]);
+		processCard.std = std;//_ttof(arr[PLANNED_CSV_ROW_STD]);
+
+		processCard.ca = (processCard.avg-processCard.center)*2/(processCard.usl-processCard.lsl);
+		processCard.cp = (processCard.usl-processCard.lsl)/6/processCard.std;
+		processCard.cpk = processCard.cp * fabs(1-processCard.ca);
+		processCard.num = num;
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+BOOL CCpkLib::CalcTrend(CString plannedNo/*, CString ProcessCardNo*/, CArray<double, double> &arrCpk)
+{
+	// 加载计划号。
+	CString path;
+	path = m_cpkPath + plannedNo + _T("\\") + plannedNo + _T(".csv");
+
+	CCSVFile *csv = new CCSVFile(path, CCSVFile::modeRead);
+
+	arrCpk.RemoveAll();
+
+	if (csv)
+	{
+		csv->SeekToBegin();
+		CStringArray arr;
+		while (csv->ReadData(arr))
+		{
+			if (arr.GetCount() > 5 ) {
+
+				CProcessCard  processCard;
+
+				processCard.no = arr[PLANNED_CSV_ROW_NO];
+
+        if (processCard.no != _T("流程卡"))
         {
 
-          processCard.axis = arr[PLANNED_CSV_ROW_AXIS];
-          processCard.center = _ttoi(arr[PLANNED_CSV_ROW_CENTER]);
-          processCard.usl = _ttoi(arr[PLANNED_CSV_ROW_USL]);
-          processCard.lsl = _ttoi(arr[PLANNED_CSV_ROW_LSL]);
-          processCard.avg = 0;//_ttof(arr[PLANNED_CSV_ROW_AVG]);
-          processCard.std = 0;//_ttof(arr[PLANNED_CSV_ROW_STD]);
-          processCard.cp = 0;//_ttof(arr[PLANNED_CSV_ROW_CP]);
-          processCard.ca = 0;//_ttof(arr[PLANNED_CSV_ROW_CA]);
-          processCard.cpk =0;// _ttof(arr[PLANNED_CSV_ROW_CPK]);
+          CalcCpk(plannedNo, processCard.no, processCard);
 
-          break;
+          arrCpk.Add(processCard.cpk);
+
         }
-      }
-    }
+			}
+		}
 
-    delete csv;
+		delete csv;
 
-    csv = NULL;
+		csv = NULL;
 
-  }
-  // 加载流程卡，计算CPK
-  path = m_cpkPath + plannedNo + _T("\\") + plannedNo + _T(".csv");
+	}
+	else
+	{
+		return FALSE;
+	}
 
-  csv = new CCSVFile(path, CCSVFile::modeRead);
-
-  CProcessData data;
-
-  int num = 0;
-
-  if (csv)
-  {
-    CStringArray arr;
-    csv->SeekToBegin();
-    while (csv->ReadData(arr))
-    {
-      if (arr.GetCount() == PROCESS_CSV_ROW_MAX) {
-
-          data.no = _ttoi(arr[PROCESS_CSV_ROW_NO]);
-          data.laser = _ttof(arr[PROCESS_CSV_ROW_LASER]);
-          data.phi = _ttof(arr[PROCESS_CSV_ROW_PHI]);
-          data.equal = _ttof(arr[PROCESS_CSV_ROW_EQUAL]);
-          data.laser0 = _ttof(arr[PROCESS_CSV_ROW_LASER0]);
-          data.phi0 = _ttof(arr[PROCESS_CSV_ROW_PHI0]);
-          data.sort = _ttoi(arr[PROCESS_CSV_ROW_POS]);
-
-          num++;
-
-          if (processCard.axis == "光轴") 
-          {
-
-          }
-          //CalcAvgStd(num, angle, check_result.m_avg, check_result.m_std, check_result.m_std2);
-
-      }
-    }
-
-    delete csv;
-
-    csv = NULL;
-
-  }
-
-  
-
-  return TRUE;
+	return TRUE;
 }

@@ -183,6 +183,9 @@
     <ClInclude Include="TrendChart.h">
       <Filter>CPK</Filter>
     </ClInclude>
+    <ClInclude Include="StaticDraw.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BER.cpp">
@@ -295,6 +298,9 @@
     </ClCompile>
     <ClCompile Include="StandardLib.cpp">
       <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticDraw.cpp">
+      <Filter>CPK</Filter>
     </ClCompile>
     <ClCompile Include="TrendChart.cpp">
       <Filter>CPK</Filter>

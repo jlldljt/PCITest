@@ -132,7 +132,6 @@
     <ClInclude Include="Com.h" />
     <ClInclude Include="CpkLib.h" />
     <ClInclude Include="CSVFile.h" />
-    <ClInclude Include="TrendChart.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Device.h" />
@@ -154,8 +153,10 @@
     <ClInclude Include="Run.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="StandardLib.h" />
+    <ClInclude Include="StaticDraw.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TrendChart.h" />
     <ClInclude Include="TXT.h" />
   </ItemGroup>
   <ItemGroup>
@@ -182,7 +183,6 @@
     <ClCompile Include="Com.cpp" />
     <ClCompile Include="CpkLib.cpp" />
     <ClCompile Include="CSVFile.cpp" />
-    <ClCompile Include="TrendChart.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="DlgCheckStd.cpp" />
@@ -198,10 +198,12 @@
     <ClCompile Include="Run.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="StandardLib.cpp" />
+    <ClCompile Include="StaticDraw.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TrendChart.cpp" />
     <ClCompile Include="TXT.cpp" />
   </ItemGroup>
   <ItemGroup>

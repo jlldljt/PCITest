@@ -2,9 +2,8 @@
 class CTrendChart
 {
 public:
-  CTrendChart();
+  CTrendChart(CArray<double, double> &arrCpk);
   ~CTrendChart();
-
   void Show();
 };
 

@@ -7,7 +7,7 @@ CCSVFile::CCSVFile(LPCTSTR lpszFilename, Mode mode)
   : CStdioFile(lpszFilename, (mode == modeRead) ?
     CFile::modeRead | CFile::shareDenyWrite | CFile::typeText
     :
-    CFile::modeWrite | CFile::shareDenyWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::typeText)
+    CFile::modeReadWrite | CFile::shareDenyWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::typeText)
 {
   setlocale(LC_CTYPE, ("chs"));//解决CStudioFile的一个bug，在unicode下无法输出中文
   SeekToEnd();
@@ -23,7 +23,7 @@ CCSVFile::~CCSVFile(void)
 bool CCSVFile::ReadData(CStringArray &arr)
 {
   // Verify correct mode in debug build
-  ASSERT(m_nMode == modeRead);
+  //ASSERT(m_nMode == modeRead);
 
   // Read next line
   CString sLine;
@@ -135,6 +135,8 @@ void CCSVFile::WriteData(CStringArray &arr)
   }
   //WriteString(_T("\n"));
   WriteString(_T(","));
+
+  Flush();
 }
 
 void CCSVFile::WriteDataWithoutReturn(CStringArray &arr)
@@ -181,4 +183,6 @@ void CCSVFile::WriteDataWithoutReturn(CStringArray &arr)
     }
   }
   WriteString(_T(","));
+
+  Flush();
 }

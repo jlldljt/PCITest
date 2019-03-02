@@ -3,7 +3,7 @@
 
 class CStdLib {
 public:
-  CStdLib() : m_no(0), m_laser(0), m_phi(0){};
+  CStdLib() : m_no(-1), m_laser(0), m_phi(0){};
   CStdLib(int no, int laser, int phi) : m_no(no), m_laser(laser), m_phi(phi) {};
   ~CStdLib() {};
   int m_no;      //ID
@@ -13,7 +13,7 @@ public:
 
 class CStdSeries {
 public:
-  CStdSeries() : m_no(0), m_phi_p(0), m_phi_n(0), m_laser_p(0), m_laser_n(0) {};
+  CStdSeries() : m_no(-1), m_phi_p(0), m_phi_n(0), m_laser_p(0), m_laser_n(0) {};
   CStdSeries(int no, int phi_p, int phi_n, int laser_p, int laser_n)
     : m_no(no), m_phi_p(phi_p), m_phi_n(phi_n), m_laser_p(laser_p), m_laser_n(laser_n) {};
   ~CStdSeries() {};
@@ -33,7 +33,7 @@ public:
   //int m_no;      //ID
   int m_maxd_phi;   //电轴最大差值
   int m_maxd_laser;   //光轴最大差值
-  int m_min_lib_num; //库最小片数
+  int m_min_lib_num; //库最小片数，改成用来判断最低通过片数
   int m_test_cnt; //对标测量次数
   int m_min_test_num; //最小对标片数
   CString m_password;
@@ -88,7 +88,7 @@ class CStandardLib
 {
 public:
   //CStandardLib();
-  CStandardLib(LPCTSTR path, int series = 10,int std = 50);
+  CStandardLib(LPCTSTR path, int series = 20,int std = 10);
   ~CStandardLib();
 public:
   CString m_sqlPath;
@@ -123,7 +123,9 @@ public:
   void SetStd(CStdLib std);
   // 设置已测量的标准片
   void SetStdChecking(CStdLib std);
+  CStdLib GetStdChecking(int no);
   void SetStdChecked(CStdLib std);
+  CStdLib GetStdChecked(int no);
   // 加载配置
   void LoadSet(/*int id*/);
   // 检查密码

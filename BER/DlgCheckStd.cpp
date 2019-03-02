@@ -69,6 +69,7 @@ BOOL CDlgCheckStd::OnInitDialog()
   CDialogEx::OnInitDialog();
 
   // TODO:  在此添加额外的初始化
+  GetDlgItem(IDC_BTN_STD_MODIFY)->EnableWindow(false);
   /*CString datapath=_T("data.db");
   SQLiteWrapper sqlite;
   if (sqlite.Open(CW2A(datapath))) {
@@ -118,6 +119,8 @@ BOOL CDlgCheckStd::OnInitDialog()
   UpdateGrid_StdSeries();
 
   UpdateGrid_StdResult();
+
+  g_dlgDevice->EFGCut(false);
 
   return TRUE;  // return TRUE unless you set the focus to a control
                 // 异常: OCX 属性页应返回 FALSE
@@ -338,6 +341,7 @@ void CDlgCheckStd::InitGrid_StdLib(void)
   m_gridStdLib.ExpandLastColumn();
   m_gridStdLib.SetColumnResize(FALSE);
   m_gridStdLib.SetRowResize(FALSE);
+  m_gridStdLib.SetEditable(FALSE);
   //m_gridStdSeries.SetSingleRowSelection(TRUE);
   //SetAutoSizeStyle
   //m_gridStdSeries.EnableScrollBar();
@@ -633,6 +637,16 @@ void CDlgCheckStd::UpdateGrid_StdResult(void)
   str.Format(_T("%d"), SEC_TO_USER(m_stdLib->m_result.m_dLaser));
   m_gridStdResult.SetItemText(3, 2, str);
 
+  if (m_stdLib->m_result.m_dLaser > m_stdLib->m_set.m_maxd_laser)
+      m_gridStdResult.GetCell(3, 2)->SetBackClr(RGB(255, 0, 0));
+  else
+	  m_gridStdResult.GetCell(3, 2)->SetBackClr(RGB(255, 255, 255));
+
+  if (m_stdLib->m_result.m_dPhi> m_stdLib->m_set.m_maxd_phi)
+      m_gridStdResult.GetCell(3, 1)->SetBackClr(RGB(255, 0, 0));
+  else
+	  m_gridStdResult.GetCell(3, 1)->SetBackClr(RGB(255, 255, 255));
+
   m_gridStdResult.ExpandLastColumn();
 
   m_gridStdResult.Refresh();
@@ -677,27 +691,41 @@ void CDlgCheckStd::OnBnClickedBtnStdChecking()
   checking.m_laser = USER_TO_SEC(_wtoi(m_gridStdLib.GetItemText(row, 2)));
 
   if (m_stdLib->IsChecked(checking.m_no))
+  {
+	  AfxMessageBox(_T("该片已经测过了"));
     return;
+  }
 
 
-  if (row <= 0 && row >= num || checking.m_phi == 0 || checking.m_laser == 0)
+  if (row <= 0 && row >= num /*|| checking.m_phi == 0 || checking.m_laser == 0*/)
     return;
 
   CStdResult result;
 
+  //g_dlgDevice->EFGCut(true);
 
   for (int i = 0; i < m_stdLib->m_set.m_test_cnt; i++)
   {
-    gstuRun.chStmCmd &= ~(1 << 0);
+    //gstuRun.chStmCmd &= ~(1 << 0);
+	gstuRun.chStmCmd0 = 0;
     g_dlgDevice->EFGCtrl(1);
 
-#if 0
+#if 1
     // 等待测量完成
-    while (!(gstuRun.chStmCmd & (1 << 0)))
+	int cnt = 0;
+    while (!gstuRun.chStmCmd0)
     {
-      Sleep(1);
+      Sleep(100);
+	  //if(cnt++ > 100)
+	  //{
+		 // //AfxMessageBox(_T("该片已经测过了"),MB_OKCANCEL);
+		 // g_dlgDevice->EFGCut(true);
+	  //}
     }
-    
+
+	//if(cnt > 100)
+ //     g_dlgDevice->EFGCut(false);
+
     // 读屏幕
     if (g_dlgScreen->RCGVGA())
     {
@@ -720,9 +748,11 @@ void CDlgCheckStd::OnBnClickedBtnStdChecking()
 #endif
 
     result.Add(checking, checked);
-
+	Sleep(100);
   }
   
+  g_dlgDevice->EFGCtrl(false);
+
   checking.m_laser = result.m_checking_laser.m_avg;
   checking.m_phi = result.m_checking_phi.m_avg;
   checked.m_laser = result.m_checked_laser.m_avg;
@@ -731,7 +761,7 @@ void CDlgCheckStd::OnBnClickedBtnStdChecking()
 
     UCHAR ret = m_stdLib->AddCheck(checking, checked);
 
-    AddGrid_StdChecked(checked, ret&0x01, ret&0x20);
+    AddGrid_StdChecked(checked, ret&0x01, ret&0x02);
     
 
 
@@ -748,6 +778,8 @@ void CDlgCheckStd::OnBnClickedBtnSet()
 
   if (IDOK == ret)
   {
+	  GetDlgItem(IDC_BTN_STD_MODIFY)->EnableWindow(true);
+	  m_gridStdLib.SetEditable(TRUE);
     CDlgStdSet set(m_stdLib);
     ret = set.DoModal();
   }
@@ -770,19 +802,60 @@ void CDlgCheckStd::OnBnClickedBtnClear()
 
 void CDlgCheckStd::OnBnClickedBtnConfirm()
 {
-  // TODO: 在此添加控件通知处理程序代码
-  if (m_stdLib->m_result.m_dLaser <= m_stdLib->m_set.m_maxd_laser
-    && m_stdLib->m_result.m_dPhi <= m_stdLib->m_set.m_maxd_phi
-    && m_stdLib->pass_num >= m_stdLib->m_set.m_min_test_num)
-  {
-    // 通过
-    AfxMessageBox(_T("通过！"));
-  }
-  else
-  {
-    AfxMessageBox(_T("未通过！"));
-  }
+	// TODO: 在此添加控件通知处理程序代码
+	if(m_stdLib->m_checked.GetCount() < m_stdLib->m_set.m_min_test_num)
+	{
+		AfxMessageBox(_T("对标片数不够！"));
+		return;
+	}
+	CString msg;
+	// 记录对标数据
+	CString str, str_tmp;
+	CTime time;
+	time = CTime::GetCurrentTime();
+	str += time.Format("\r\n%Y/%m/%d");
+	str += time.Format("  %H:%M:%S");
+	str += time.Format("\r\n编号\t标准电轴\t标准光轴\t实测电轴\t实测光轴");
+	str += time.Format("\r\n--------------------------------------------------------------");
+	if(m_stdLib->m_checking.GetCount() == m_stdLib->m_checked.GetCount())
+	{
+		for(int i = 0; i < m_stdLib->m_checked.GetCount(); i++)
+		{
+			CStdLib checked = m_stdLib->m_checked[i];
+			CStdLib checking = m_stdLib->GetStdChecking(checked.m_no);
+			if(checking.m_no == checked.m_no)
+			{
+				str_tmp.Format(_T("\r\n%d\t%d\t%d\t%d\t%d\t")
+					, checking.m_no, SEC_TO_USER(checking.m_phi), SEC_TO_USER(checking.m_laser)
+					, SEC_TO_USER(checked.m_phi), SEC_TO_USER(checked.m_laser));
+				str += str_tmp;
+			}
+		}
 
+
+	}
+
+	if (m_stdLib->m_result.m_dLaser <= m_stdLib->m_set.m_maxd_laser
+		&& m_stdLib->m_result.m_dPhi <= m_stdLib->m_set.m_maxd_phi
+		&& m_stdLib->pass_num >= m_stdLib->m_set.m_min_lib_num)
+	{
+		// 通过
+		str += time.Format("\r\n========================通过==================================\r\n");
+
+		gclsTxt.TXTAddStr(gstuPathInf.csPathExe + _T("\\对标记录.txt"),str);
+
+		AfxMessageBox(_T("通过！"));
+
+		EndDialog(101);
+	}
+	else
+	{
+		str += time.Format("\r\n========================未通过================================\r\n");
+
+		gclsTxt.TXTAddStr(gstuPathInf.csPathExe + _T("\\对标记录.txt"),str);
+
+		AfxMessageBox(_T("未通过！"));
+	}
 }
 
 
@@ -809,6 +882,17 @@ void CDlgCheckStd::OnBnClickedBtnStdModify()
       m_gridStdLib.SetItemText(i,1,m_gridStdChecked.GetItemText(row, 1));
       m_gridStdLib.SetItemText(i,2,m_gridStdChecked.GetItemText(row, 2));
 
+	  CStdLib std;
+
+	  std.m_no = _wtoi(m_gridStdChecked.GetItemText(row, 0));
+	  std.m_phi = _wtoi(m_gridStdChecked.GetItemText(row, 1));
+	  std.m_laser = _wtoi(m_gridStdChecked.GetItemText(row, 2));
+
+	  m_stdLib->SetStd(std);
+
+	  GetDlgItem(IDC_BTN_SAVE)->EnableWindow(TRUE);
+
+	  break;
     }
   }
 

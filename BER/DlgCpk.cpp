@@ -11,15 +11,16 @@
 
 IMPLEMENT_DYNAMIC(CDlgCpk, CDialogEx)
 
-	CDlgCpk::CDlgCpk(CWnd* pParent /*=NULL*/)
+	CDlgCpk::CDlgCpk(CCpkLib *cpk, CWnd* pParent /*=NULL*/)
 	: CDialogEx(CDlgCpk::IDD, pParent)
 {
-	m_pCpk = new CCpkLib(gstuPathInf.csPathExe);
+	m_pCpk = cpk;//new CCpkLib(gstuPathInf.csPathExe);
 }
 
 CDlgCpk::~CDlgCpk()
 {
-	delete m_pCpk;
+	//delete m_pCpk;
+	m_pCpk = NULL;
 }
 
 void CDlgCpk::DoDataExchange(CDataExchange* pDX)
@@ -107,6 +108,9 @@ BEGIN_MESSAGE_MAP(CDlgCpk, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_SET, &CDlgCpk::OnBnClickedBtnSet)
 	ON_NOTIFY(GVN_SELCHANGED, IDC_GRID_PLANNED_NO, OnSelChanged_PlannedNo)
 	ON_BN_CLICKED(IDC_BTN_TEST, &CDlgCpk::OnBnClickedBtnTest)
+	ON_BN_CLICKED(IDC_BTN_CALC, &CDlgCpk::OnBnClickedBtnCalc)
+	ON_BN_CLICKED(IDC_BTN_TREND_CHART, &CDlgCpk::OnBnClickedBtnTrendChart)
+//	ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
 
@@ -125,7 +129,7 @@ void CDlgCpk::InitGrid_ProcessCardNo(void)
 	m_gridProcessCardNo.SetTextBkColor(RGB(0xFF, 0xFF, 0xCC));//背景
 	m_gridProcessCardNo.SetRowCount(1); //初始为1行
 
-	m_gridProcessCardNo.SetColumnCount(9); //初始化为9列
+	m_gridProcessCardNo.SetColumnCount(10); //初始化为9列
 	m_gridProcessCardNo.SetFixedRowCount(1); //表头为1行
 	m_gridProcessCardNo.SetFixedColumnCount(1); //表头为1列
 	m_gridProcessCardNo.SetRowHeight(0, 30); //设置各行高         
@@ -133,46 +137,50 @@ void CDlgCpk::InitGrid_ProcessCardNo(void)
 	GV_ITEM Item;
 	Item.mask = GVIF_TEXT | GVIF_FORMAT;
 	Item.nFormat = DT_CENTER | DT_WORDBREAK;
-	Item.strText.Format(_T("流程卡"));
+	Item.strText.Format(_T("No"));
 	Item.row = 0;
 	Item.col = 0;
 	m_gridProcessCardNo.SetItem(&Item); 
-	Item.strText.Format(_T("中心"));
+	Item.strText.Format(_T("流程卡"));
 	Item.col = 1;
-	m_gridProcessCardNo.SetItem(&Item);
-	Item.strText.Format(_T("上限"));
+	m_gridProcessCardNo.SetItem(&Item); 
+	Item.strText.Format(_T("中心"));
 	Item.col = 2;
 	m_gridProcessCardNo.SetItem(&Item);
-	Item.strText.Format(_T("下限"));
+	Item.strText.Format(_T("上限"));
 	Item.col = 3;
 	m_gridProcessCardNo.SetItem(&Item);
-	Item.strText.Format(_T("均值"));
+	Item.strText.Format(_T("下限"));
 	Item.col = 4;
 	m_gridProcessCardNo.SetItem(&Item);
-	Item.strText.Format(_T("散差"));
+	Item.strText.Format(_T("均值"));
 	Item.col = 5;
 	m_gridProcessCardNo.SetItem(&Item);
-	Item.strText.Format(_T("CP"));
+	Item.strText.Format(_T("散差"));
 	Item.col = 6;
 	m_gridProcessCardNo.SetItem(&Item);
-	Item.strText.Format(_T("CA"));
+	Item.strText.Format(_T("CP"));
 	Item.col = 7;
 	m_gridProcessCardNo.SetItem(&Item);
-	Item.strText.Format(_T("CPK"));
+	Item.strText.Format(_T("CA"));
 	Item.col = 8;
+	m_gridProcessCardNo.SetItem(&Item);
+	Item.strText.Format(_T("CPK"));
+	Item.col = 9;
 	m_gridProcessCardNo.SetItem(&Item);
 
 	CRect cRect;
 	GetDlgItem(IDC_GRID_PROCESS_CARD_NO)->GetClientRect(&cRect);
 	m_gridProcessCardNo.SetColumnWidth(0, cRect.Width() / 10 * 2); //设置0列宽 
-	m_gridProcessCardNo.SetColumnWidth(1, cRect.Width() / 10 * 1); //设置0列宽 
-	m_gridProcessCardNo.SetColumnWidth(2, cRect.Width() / 10 * 1); //设置0列宽 
-	m_gridProcessCardNo.SetColumnWidth(3, cRect.Width() / 10 * 1); //设置0列宽 
-	m_gridProcessCardNo.SetColumnWidth(4, cRect.Width() / 10 * 1); //设置0列宽 
-	m_gridProcessCardNo.SetColumnWidth(5, cRect.Width() / 10 * 1); //设置0列宽 
-	m_gridProcessCardNo.SetColumnWidth(6, cRect.Width() / 10 * 1); //设置0列宽 
-	m_gridProcessCardNo.SetColumnWidth(7, cRect.Width() / 10 * 1); //设置0列宽 
-	m_gridProcessCardNo.SetColumnWidth(8, cRect.Width() / 10 * 1); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(1, cRect.Width() / 10 * 2); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(2, cRect.Width() / 10 * 2); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(3, cRect.Width() / 10 * 2); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(4, cRect.Width() / 10 * 2); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(5, cRect.Width() / 10 * 2); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(6, cRect.Width() / 10 * 2); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(7, cRect.Width() / 10 * 2); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(8, cRect.Width() / 10 * 2); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(9, cRect.Width() / 10 * 2); //设置0列宽 
 
 	m_gridProcessCardNo.ExpandLastColumn();
 	m_gridProcessCardNo.SetColumnResize(FALSE);
@@ -182,7 +190,7 @@ void CDlgCpk::InitGrid_ProcessCardNo(void)
 	//SetAutoSizeStyle
 	//m_gridStdSeries.EnableScrollBar();
 	// m_gridStdSeries.EnableScrollBarCtrl();
-	m_gridProcessCardNo.ShowBar(SB_HORZ, FALSE);
+	//m_gridProcessCardNo.ShowBar(SB_HORZ, FALSE);
 }
 
 void CDlgCpk::UpdateGrid_ProcessCardNo(void)
@@ -202,23 +210,25 @@ void CDlgCpk::UpdateGrid_ProcessCardNo(void)
 
 	for (int i = 0; i < sort_num; i++, line++)
 	{
-		m_gridProcessCardNo.InsertRow(m_pCpk->m_arrProcessCardNo[i].no, -1);
-		str.Format(_T("%d"), m_pCpk->m_arrProcessCardNo[i].center);
-		m_gridProcessCardNo.SetItemText(line, 1, str);
-		str.Format(_T("%d"), m_pCpk->m_arrProcessCardNo[i].usl);
+		str.Format(_T("%d"), i);
+		m_gridProcessCardNo.InsertRow(str, -1);
+		m_gridProcessCardNo.SetItemText(line, 1, m_pCpk->m_arrProcessCardNo[i].no);//(m_pCpk->m_arrProcessCardNo[i].no, -1);
+		str.Format(_T("%d"), SEC_TO_USER(m_pCpk->m_arrProcessCardNo[i].center));
 		m_gridProcessCardNo.SetItemText(line, 2, str);
-		str.Format(_T("%d"), m_pCpk->m_arrProcessCardNo[i].lsl);
+		str.Format(_T("%d"), SEC_TO_USER(m_pCpk->m_arrProcessCardNo[i].usl));
 		m_gridProcessCardNo.SetItemText(line, 3, str);
-		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].avg);
+		str.Format(_T("%d"), SEC_TO_USER(m_pCpk->m_arrProcessCardNo[i].lsl));
 		m_gridProcessCardNo.SetItemText(line, 4, str);
-		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].std);
+		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].avg);
 		m_gridProcessCardNo.SetItemText(line, 5, str);
-		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].cp);
+		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].std);
 		m_gridProcessCardNo.SetItemText(line, 6, str);
-		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].ca);
+		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].cp);
 		m_gridProcessCardNo.SetItemText(line, 7, str);
-		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].cpk);
+		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].ca);
 		m_gridProcessCardNo.SetItemText(line, 8, str);
+		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].cpk);
+		m_gridProcessCardNo.SetItemText(line, 9, str);
 	}
 
 	m_gridProcessCardNo.ExpandLastColumn();
@@ -261,14 +271,14 @@ void CDlgCpk::OnBnClickedBtnTest()
 	CProcessCard processCard;
 	processCard.avg = 100;
 	processCard.ca = 1;
-	processCard.center = 100;
+	processCard.center = 120;
 	processCard.cp = 1;
 	processCard.cpk = 1;
 	processCard.axis = "光轴";
-	processCard.lsl = 1;
-	processCard.no = "12345";
+	processCard.lsl = 60;
+	processCard.no = test2;
 	processCard.std = 100;
-	processCard.usl = 5;
+	processCard.usl = 180;
 
 	//for (int i = 0; i < 1; i++)
 	//{
@@ -278,12 +288,12 @@ void CDlgCpk::OnBnClickedBtnTest()
 
 
 	CProcessData processData;
-	processData.equal = 100;
-	processData.laser = 100;
-	processData.laser0 = 100;
+	processData.equal = 120;
+	processData.laser = 60;
+	processData.laser0 = 60;
 	processData.no = 2;
-	processData.phi = 100;
-	processData.phi0 = 100;
+	processData.phi = 60;
+	processData.phi0 = 60;
 	processData.sort = 8;
 
 	for (int i = 0; i < 3; i++)
@@ -291,3 +301,58 @@ void CDlgCpk::OnBnClickedBtnTest()
 		m_pCpk->AddToProcessCardCsv(processData);
 	}
 }
+
+
+void CDlgCpk::OnBnClickedBtnCalc()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	//CCellRange sel = m_gridPlannedNo.GetSelectedCellRange();
+
+	//int row = sel.GetMinRow();
+
+	//CString text = m_gridPlannedNo.GetItemText(row, 0);
+
+	//m_arrProcessCardNo;
+}
+
+
+#include "TrendChart.h"
+
+void CDlgCpk::OnBnClickedBtnTrendChart()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CCellRange sel = m_gridPlannedNo.GetSelectedCellRange();
+
+	int row = sel.GetMinRow();
+
+	CString text = m_gridPlannedNo.GetItemText(row, 0);
+
+	CArray<double, double> arrCpk;
+
+  if (text == _T(""))
+  {
+    AfxMessageBox(_T("请选择计划号"));
+    return;
+  }
+#if 0
+	for(int i = 0;i<50;i++)
+	{
+		double r = rand()%3 + (double(rand()%100))/100;
+		arrCpk.Add(r);
+	}
+#else
+	m_pCpk->CalcTrend(text, arrCpk);
+#endif
+	CTrendChart trend(arrCpk);
+
+	trend.Show();
+
+}
+
+
+//BOOL CDlgCpk::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+//{
+//	// TODO: 在此添加消息处理程序代码和/或调用默认值
+//
+//	return CDialogEx::OnMouseWheel(nFlags, zDelta, pt);
+//}

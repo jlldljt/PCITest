@@ -51,7 +51,7 @@ void CStandardLib::Init(int series_num, int std_num)
       char s3[10];
       char s4[10];
       char s5[10];
-      itoa(cnt, s1, 10);
+      itoa(cnt+1, s1, 10);
       itoa(0, s2, 10);
       itoa(0, s3, 10);
       itoa(0, s4, 10);
@@ -90,7 +90,7 @@ void CStandardLib::Init(int series_num, int std_num)
           char s6[10];
           char s7[10];
           char s8[10];
-          itoa(cnt, s6, 10);
+          itoa(cnt+1, s6, 10);
           itoa(0, s7, 10);
           itoa(0, s8, 10);
           sql =
@@ -123,7 +123,7 @@ void CStandardLib::Init(int series_num, int std_num)
   if (true == isOk)
   {
     sql = "INSERT INTO STDSET (ID,对标选择,电轴最大差值,光轴最大差值,库最小片数,对标测量次数,最小对标片数,密码) "  \
-      "VALUES (1,'电轴',30,10,30,2,5 ,'111111');";
+      "VALUES (1,'电轴',30,10,5,2,5 ,'111111');";
 
     isOk = sqlite.Writedb(std::string(sql));
   }
@@ -376,7 +376,20 @@ void CStandardLib::SetStdChecking(CStdLib std)
     m_checking.Add(std);
   }
 }
+CStdLib CStandardLib::GetStdChecking(int no)
+{
+  int count = m_checking.GetCount();
 
+  int i;
+
+  for (i = 0; i < count; i++)
+  {
+    if (m_checking[i].m_no == no)
+    {
+      return m_checking[i];
+    }
+  }
+}
 void CStandardLib::SetStdChecked(CStdLib std)
 {
   int count = m_checked.GetCount();
@@ -395,6 +408,21 @@ void CStandardLib::SetStdChecked(CStdLib std)
   if (i >= count)
   {
     m_checked.Add(std);
+  }
+}
+
+CStdLib CStandardLib::GetStdChecked(int no)
+{
+  int count = m_checked.GetCount();
+
+  int i;
+
+  for (i = 0; i < count; i++)
+  {
+    if (m_checked[i].m_no == no)
+    {
+      return m_checked[i];
+    }
   }
 }
 

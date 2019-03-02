@@ -19,48 +19,48 @@ enum{
 	RESEND_COM,
 };
 enum fy{
-       d1 = 262,
-       d1_ = 277,
-       d2 = 294,
-       d2_ = 311,
-       d3 = 330,
-       d4 = 349,
-       d5 = 392,
-       d5_= 415,
-       d6 = 440,
-       d6_= 466,
-       d7 = 494,
-       z1 = 523,
-       z1_ = 554,
-       z2 = 578,
-       z2_ = 622,
-       z3 = 659,
-       z4 = 698,
-       z4_ = 740,
-       z5 = 784,
-       z5_ = 831,
-       z6 = 880,
-       z6_ = 932,
-       z7 = 988,
-       g1 = 1046,
-       g1_ = 1109,
-       g2 = 1175,
-       g2_ = 1245,
-       g3 = 1318,
-       g4 = 1397,
-       g4_ = 1480,
-       g5 = 1568,
-       g5_ = 1661,
-       g6 = 1760,
-       g6_ = 1865,
-       g7 = 1976,
-       yaya = 0
+	d1 = 262,
+	d1_ = 277,
+	d2 = 294,
+	d2_ = 311,
+	d3 = 330,
+	d4 = 349,
+	d5 = 392,
+	d5_= 415,
+	d6 = 440,
+	d6_= 466,
+	d7 = 494,
+	z1 = 523,
+	z1_ = 554,
+	z2 = 578,
+	z2_ = 622,
+	z3 = 659,
+	z4 = 698,
+	z4_ = 740,
+	z5 = 784,
+	z5_ = 831,
+	z6 = 880,
+	z6_ = 932,
+	z7 = 988,
+	g1 = 1046,
+	g1_ = 1109,
+	g2 = 1175,
+	g2_ = 1245,
+	g3 = 1318,
+	g4 = 1397,
+	g4_ = 1480,
+	g5 = 1568,
+	g5_ = 1661,
+	g6 = 1760,
+	g6_ = 1865,
+	g7 = 1976,
+	yaya = 0
 };
- 
+
 typedef struct yf
 {
-       enum fy s;
-       int t;
+	enum fy s;
+	int t;
 }yf;
 //运行数据定义
 typedef struct RunInfo
@@ -73,6 +73,7 @@ typedef struct RunInfo
 	BOOL bOverCam;								//	相机照相采集图像完成
 	//BOOL s_bool_start_imgrecognition;			// 	识别开始（Image_recognition_start）：0；1指示晶片准备好，识别任务可以开始
 	char chStmCmd;								//	Stm串口反馈
+	char chStmCmd0;                             //  stm反馈0，在未启动时测量完成信号
 	char chCmd[7];								//	串口命令
 	char chTmYMD[20];							//	用于年月日文件夹的建立
 	char chTmHMS[10];							//	用于时分秒图片开始时间的保存
@@ -87,7 +88,7 @@ typedef struct RunInfo
 	int nEfgStaSel;								//	EFG开始检测位置选择标记
 	int runCnt;
 	DWORD timRun[10][2];				    //  运行时间记录
-  bool closeShake;
+	bool closeShake;
 }RunInfo;
 
 //刷新缓存结构
@@ -153,13 +154,14 @@ struct threadstatus//线程状态全局结构
 
 struct sortchip//分档全局结构
 {
-	int centerangle,sortvalue,eleclow,elechigh;//预设值
-  int phi0, factor;//计算等效角的参数 DATE 180414
+	int centerangle,sortvalue,eleclow,elechigh,cutvalue;//预设值
+	int phi0, factor;//计算等效角的参数 DATE 180414
 	unsigned int sortnum[30],sortsum,sortsn,alertnum[30];//sortsum1~24档片数，sortsn分档值,sortsum已测出1~24档总片数
 	double sortavg[5],sortstd[5];//存取1~24档的平均值及标准偏差
 	int sortsel1,sortsel2;//标记测量轴及限定轴
 	long double std2[5];//计算标准偏差中间值
 	int checkout0,nocheckout;//测出0的次数（连续，不能测出
+	bool needCheck;
 };
 
 

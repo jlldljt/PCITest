@@ -1672,109 +1672,109 @@ void CScreen::OnBnClickedBtnVgastop()
 
 void CScreen::OnBnClickedBtnVgaprt()
 {
-  // TODO: 在此添加控件通知处理程序代码
-  UpdateData(TRUE);
-  CPrintDialog dlg(FALSE, PD_PAGENUMS);     //定义打印机
-  //dlg.GetDefaults();
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	CPrintDialog dlg(FALSE,PD_PAGENUMS);     //定义打印机
+	//dlg.GetDefaults();
+	
+	CDC dc;
+	if (dlg.DoModal() == IDCANCEL)             //获取用户对打印机的设置
+		return;
+	HDC hdcPrinter = dlg.GetPrinterDC();       //获得打印机的句柄	
 
-  CDC dc;
-  if (dlg.DoModal() == IDCANCEL)             //获取用户对打印机的设置
-    return;
-  HDC hdcPrinter = dlg.GetPrinterDC();       //获得打印机的句柄	
-
-  if (hdcPrinter == NULL)
-  {
-    MessageBox(_T("Buy a printer!"));
-  }
-  else
-  {
-    //GetDlgItem(IDC_PRINT)->EnableWindow(0);
-    CDC dcPrinter;                            //定义一个设备
-    dcPrinter.Attach(hdcPrinter);             //把打印机附于这个设备
-    dcPrinter.m_bPrinting = TRUE;
-    DOCINFO docinfo;                          //打印机属性
-    memset(&docinfo, 0, sizeof(docinfo));
-    docinfo.cbSize = sizeof(docinfo);
-    docinfo.lpszDocName = _T("SC-EFG");
-    CPrintInfo info;
-    info.m_rectDraw.SetRect(0, 0,
-      dcPrinter.GetDeviceCaps(HORZRES),
-      dcPrinter.GetDeviceCaps(VERTRES));//设置范围
-    if (dcPrinter.StartDoc(&docinfo) < 0)
-    {
-      MessageBox(_T("Printer wouldn't initalize"));
-    }
-    else
-    {
-      // start a page
-      if (dcPrinter.StartPage() < 0)
-      {
-        MessageBox(_T("Could not start page"));
-        dcPrinter.AbortDoc();
-      }
-      else
-      {
-        SetTextColor(dcPrinter, RGB(0, 255, 0));		  //设置打印机的字体颜色，其实还可以设置字体的			
-        DrawBmp(&dcPrinter, m_print_xx, m_print_yy);           //调用打印图片函数，标准的做法应该是还传一个要打印的图片的
-        CString str; //获取系统时间
-        CTime tm;
-        tm = CTime::GetCurrentTime();
-        str = tm.Format("%Y-%m-%d %X");
-        dcPrinter.TextOut(10, 10, str, str.GetLength());
-        dcPrinter.EndPage();            //结束这页
-        dcPrinter.EndDoc();             //结束      
-      }
-    }
-    dcPrinter.Detach();             //释放对象
-    dcPrinter.DeleteDC();           //释放设备
-  }
-  //DeleteObject(hdcPrinter);
+	if (hdcPrinter == NULL)
+	{
+		MessageBox(_T("Buy a printer!"));
+	}
+	else
+	{
+		//GetDlgItem(IDC_PRINT)->EnableWindow(0);
+		CDC dcPrinter;                            //定义一个设备
+		dcPrinter.Attach(hdcPrinter);             //把打印机附于这个设备
+		dcPrinter.m_bPrinting = TRUE;
+		DOCINFO docinfo;                          //打印机属性
+		memset(&docinfo, 0, sizeof(docinfo));
+		docinfo.cbSize = sizeof(docinfo);
+		docinfo.lpszDocName = _T("SC-EFG");
+		CPrintInfo info;
+		info.m_rectDraw.SetRect(0,0, 
+			dcPrinter.GetDeviceCaps(HORZRES), 
+			dcPrinter.GetDeviceCaps(VERTRES));//设置范围
+		if (dcPrinter.StartDoc(&docinfo) < 0)
+		{
+			MessageBox(_T("Printer wouldn't initalize"));
+		}
+		else
+		{
+			// start a page
+			if (dcPrinter.StartPage() < 0)
+			{
+				MessageBox(_T("Could not start page"));
+				dcPrinter.AbortDoc();
+			}
+			else
+			{
+				SetTextColor(dcPrinter,RGB(0, 255, 0));		  //设置打印机的字体颜色，其实还可以设置字体的			
+				DrawBmp(&dcPrinter,m_print_xx,m_print_yy);           //调用打印图片函数，标准的做法应该是还传一个要打印的图片的
+				CString str; //获取系统时间
+				CTime tm;
+				tm=CTime::GetCurrentTime();
+				str=tm.Format("%Y-%m-%d %X");
+				dcPrinter.TextOut(10, 10, str, str.GetLength());
+				dcPrinter.EndPage();            //结束这页
+				dcPrinter.EndDoc();             //结束      
+			}
+		}
+		dcPrinter.Detach();             //释放对象
+		dcPrinter.DeleteDC();           //释放设备
+	}
+	//DeleteObject(hdcPrinter);
 }
 
-void CScreen::DrawBmp(CDC*pDC, double xx, double yy)
+void CScreen::DrawBmp(CDC*pDC,double xx,double yy)
 {
 
-  SIZE s1;
-  s1.cx = pDC->GetDeviceCaps(HORZRES);
-  s1.cy = pDC->GetDeviceCaps(VERTRES);
-  pDC->SetMapMode(MM_ANISOTROPIC); //转化坐标映射模式
-  int xLogPixPerInch = pDC->GetDeviceCaps(LOGPIXELSX);  //得到设备每逻辑英寸的像素数量
-  int yLogPixPerInch = pDC->GetDeviceCaps(LOGPIXELSY);
-  float fWidth = (float)xLogPixPerInch / 96; //得到电脑屏幕映射到视窗大小比率
-  float fHeight = (float)yLogPixPerInch / 96; //一般得到的fWidth = fHeight 
-  CDC memDC;        //定义一个设备
-  CClientDC dc(this);      //获取客户
-  memDC.CreateCompatibleDC(&dc);
-  CBitmap m_bmp;//创建类成员
-  BITMAP bm;//存放位图信息的结构
-  //CString bmp_path =_T(".\\PIC\\screen.bmp");
-  //HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL,bmp_path,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);//创建bitmap指针
-  CString bmp_path = gstuPathInf.csPathExe + _T("\\PIC\\erzhihu.bmp");
-  HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL, bmp_path, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);//创建bitmap指针
-  //m_bmp.LoadBitmap(bmp_path);
-  if (hBitmap1 != NULL)
-  {
-    m_bmp.Attach(hBitmap1);//关联句柄和cbitmap关联
-    m_bmp.GetBitmap(&bm);//
-    CSize size = CSize(bm.bmWidth, bm.bmHeight);
-    pDC->SetWindowExt(size); //设置视窗大小
-    long xExt = (long)(fWidth * size.cx); //得到视窗大小
-    long yExt = (long)(fHeight * size.cy);
-    if (xExt > s1.cx)
-    {
+	SIZE s1;
+	s1.cx = pDC->GetDeviceCaps(HORZRES) ;
+	s1.cy = pDC->GetDeviceCaps(VERTRES) ;
+	pDC->SetMapMode(MM_ANISOTROPIC); //转化坐标映射模式
+	int xLogPixPerInch = pDC->GetDeviceCaps(LOGPIXELSX);  //得到设备每逻辑英寸的像素数量
+	int yLogPixPerInch = pDC->GetDeviceCaps(LOGPIXELSY);
+	float fWidth = (float)xLogPixPerInch / 96 ; //得到电脑屏幕映射到视窗大小比率
+	float fHeight = (float)yLogPixPerInch / 96; //一般得到的fWidth = fHeight 
+	CDC memDC;        //定义一个设备
+	CClientDC dc(this);      //获取客户
+	memDC.CreateCompatibleDC( &dc );
+	CBitmap m_bmp;//创建类成员
+	BITMAP bm;//存放位图信息的结构
+	//CString bmp_path =_T(".\\PIC\\screen.bmp");
+	//HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL,bmp_path,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);//创建bitmap指针
+	CString bmp_path = gstuPathInf.csPathExe +_T("\\PIC\\erzhihu.bmp"); 
+	HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL,bmp_path,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);//创建bitmap指针
+	//m_bmp.LoadBitmap(bmp_path);
+	if(hBitmap1!=NULL)
+	{
+		m_bmp.Attach(hBitmap1);//关联句柄和cbitmap关联
+		m_bmp.GetBitmap(&bm);//
+		CSize size = CSize(bm.bmWidth, bm.bmHeight);
+		pDC->SetWindowExt(size); //设置视窗大小
+		long xExt = (long)(fWidth * size.cx); //得到视窗大小
+		long yExt = (long)(fHeight * size.cy) ;
+		if(xExt>s1.cx)
+		{
 
-      yExt = yExt * s1.cx / xExt;
-      xExt = s1.cx;
-    }
-    //pDC->SetViewportExt((int)xExt, (int)yExt); //设置视窗大小(由电脑屏幕映射到视窗大小)
-    pDC->SetViewportExt((int)size.cx, (int)size.cy); //设置视窗大小(由电脑屏幕映射到视窗大小)
-    memDC.SelectObject(m_bmp);  //为设备选择对象
-    //pDC->BitBlt(40, 40,(int)xExt, (int)yExt, &memDC, 0, 0, SRCCOPY);             //把源以copy的形式装载到pDC设备中
-    pDC->StretchBlt(10, 40, (int)(xExt*xx), (int)(yExt*yy), &memDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
-    m_bmp.DeleteObject();
-  }
-  DeleteObject(hBitmap1);//记得删除	
-  memDC.DeleteDC();
+			yExt=yExt*s1.cx/xExt;
+			xExt=s1.cx;
+		}
+		//pDC->SetViewportExt((int)xExt, (int)yExt); //设置视窗大小(由电脑屏幕映射到视窗大小)
+		pDC->SetViewportExt((int)size.cx, (int)size.cy); //设置视窗大小(由电脑屏幕映射到视窗大小)
+		memDC.SelectObject( m_bmp );  //为设备选择对象
+		//pDC->BitBlt(40, 40,(int)xExt, (int)yExt, &memDC, 0, 0, SRCCOPY);             //把源以copy的形式装载到pDC设备中
+		pDC->StretchBlt(10, 40,(int)(xExt*xx), (int)(yExt*yy), &memDC, 0, 0,bm.bmWidth, bm.bmHeight, SRCCOPY);
+		m_bmp.DeleteObject();
+	}
+	DeleteObject(hBitmap1);//记得删除	
+	memDC.DeleteDC();	
 }
 
 

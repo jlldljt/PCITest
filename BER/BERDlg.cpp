@@ -20,13 +20,13 @@ class CAboutDlg : public CDialogEx
 public:
 	CAboutDlg();
 
-// 对话框数据
+	// 对话框数据
 	enum { IDD = IDD_ABOUTBOX };
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
-// 实现
+	// 实现
 protected:
 	DECLARE_MESSAGE_MAP()
 };
@@ -141,10 +141,10 @@ BEGIN_MESSAGE_MAP(CBERDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_NOTIFY(TCN_SELCHANGE, IDC_MAIN_TAB, &CBERDlg::OnTcnSelchangeMainTab)
-//	ON_BN_CLICKED(IDOK, &CBERDlg::OnBnClickedOk)
+	//	ON_BN_CLICKED(IDOK, &CBERDlg::OnBnClickedOk)
 	ON_WM_TIMER()
 	ON_WM_CLOSE()
-//	ON_WM_KEYDOWN()
+	//	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 
@@ -154,7 +154,7 @@ BOOL CBERDlg::SYSInit()
 {
 	CRect initRect;   // 标签控件客户区的位置和大小  
 	CString csInit;
-	
+
 	//tab控件初始化
 	m_tabMain.InsertItem(0, _T("运行")); 
 	m_tabMain.InsertItem(1, _T("调试"));  
@@ -187,7 +187,7 @@ BOOL CBERDlg::SYSInit()
 	gstuSort.sortsum=0;//1~24档总片数
 	gstuRcgInfo.bChkPN=0;//区分方向标志初始化
 	gstuRun.runCnt = 0;
-  gstuRun.closeShake = 0;
+	gstuRun.closeShake = 0;
 
 
 	for(int i=0;i<30;i++)//每档已分档片数置零
@@ -238,8 +238,8 @@ BOOL CBERDlg::SYSInit()
 	if( !ifFind )  //ini创建，仅此一次
 	{
 		//运行参考数据
-    WritePrivateProfileString(_T("分档设定"), _T("流程卡"), _T("0"), gstuPathInf.csPathIni);
-    WritePrivateProfileString(_T("分档设定"),_T("检测角：编号"),_T("0"),gstuPathInf.csPathIni);
+		WritePrivateProfileString(_T("分档设定"), _T("流程卡"), _T("0"), gstuPathInf.csPathIni);
+		WritePrivateProfileString(_T("分档设定"),_T("检测角：编号"),_T("0"),gstuPathInf.csPathIni);
 		WritePrivateProfileString(_T("分档设定"),_T("中心角度：度"),_T("0"),gstuPathInf.csPathIni);  
 		WritePrivateProfileString(_T("分档设定"),_T("中心角度：分"),_T("0"),gstuPathInf.csPathIni);  
 		WritePrivateProfileString(_T("分档设定"),_T("中心角度：秒"),_T("0"),gstuPathInf.csPathIni);  
@@ -292,52 +292,61 @@ BOOL CBERDlg::SYSInit()
 		//com口号
 		WritePrivateProfileString(_T("COM"),_T("口号"),_T("0"),gstuPathInf.csPathIni);  
 	}
-	
+
 	//读取ini文件
-  //GetPrivateProfileString(_T("分档设定"), _T("流程卡"), 0, strValue.GetBuffer(MAX_PATH), MAX_PATH, gstuPathInf.csPathIni);
-  //strValue.ReleaseBuffer();
-  //g_dlgRun->SetDlgItemText(IDC_EDIT_CARD, strValue);
+	//GetPrivateProfileString(_T("分档设定"), _T("流程卡"), 0, strValue.GetBuffer(MAX_PATH), MAX_PATH, gstuPathInf.csPathIni);
+	//strValue.ReleaseBuffer();
+	//g_dlgRun->SetDlgItemText(IDC_EDIT_CARD, strValue);
 
 	iniint=GetPrivateProfileInt(_T("分档设定"),_T("中心角度：度"),0,gstuPathInf.csPathIni)*10000+
 		GetPrivateProfileInt(_T("分档设定"),_T("中心角度：分"),0,gstuPathInf.csPathIni)*100+
-		GetPrivateProfileInt(_T("分档设定"),_T("中心角度：秒"),0,gstuPathInf.csPathIni);      
+		GetPrivateProfileInt(_T("分档设定"),_T("中心角度：秒"),0,gstuPathInf.csPathIni); 
+
 	g_dlgRun->SetDlgItemInt(IDC_EDT_MIDDEG,iniint);
+
 	iniint=GetPrivateProfileInt(_T("分档设定"),_T("分档值：分"),0,gstuPathInf.csPathIni)*100+
 		GetPrivateProfileInt(_T("分档设定"),_T("分档值：秒"),0,gstuPathInf.csPathIni);
 	g_dlgRun->SetDlgItemInt(IDC_EDT_SORTDEG,iniint);
-	  
+
+	iniint=GetPrivateProfileInt(_T("分档设定"),_T("切角值：秒"),0,gstuPathInf.csPathIni);
+	g_dlgRun->SetDlgItemInt(IDC_EDT_CUTDEG,iniint);
+
 	iniint=GetPrivateProfileInt(_T("分档设定"),_T("开始值：度"),0,gstuPathInf.csPathIni)*10000+
 		GetPrivateProfileInt(_T("分档设定"),_T("开始值：分"),0,gstuPathInf.csPathIni)*100+
 		GetPrivateProfileInt(_T("分档设定"),_T("开始值：秒"),0,gstuPathInf.csPathIni);
+
 	g_dlgRun->SetDlgItemInt(IDC_EDT_MINDEG,iniint); 
+
 	iniint=GetPrivateProfileInt(_T("分档设定"),_T("结束值：度"),0,gstuPathInf.csPathIni)*10000+
 		GetPrivateProfileInt(_T("分档设定"),_T("结束值：分"),0,gstuPathInf.csPathIni)*100+
 		GetPrivateProfileInt(_T("分档设定"),_T("结束值：秒"),0,gstuPathInf.csPathIni);
 	g_dlgRun->SetDlgItemInt(IDC_EDT_MAXDEG,iniint);  
 
-  iniint = GetPrivateProfileInt(_T("等效角设定"), _T("phi0：度"), 0, gstuPathInf.csPathIni) * 10000 +
-    GetPrivateProfileInt(_T("等效角设定"), _T("phi0：分"), 0, gstuPathInf.csPathIni) * 100 +
-    GetPrivateProfileInt(_T("等效角设定"), _T("phi0：秒"), 0, gstuPathInf.csPathIni);
-  g_dlgRun->SetDlgItemInt(IDC_EDT_PHI0, iniint);
+	iniint = GetPrivateProfileInt(_T("等效角设定"), _T("phi0：度"), 0, gstuPathInf.csPathIni) * 10000 +
+		GetPrivateProfileInt(_T("等效角设定"), _T("phi0：分"), 0, gstuPathInf.csPathIni) * 100 +
+		GetPrivateProfileInt(_T("等效角设定"), _T("phi0：秒"), 0, gstuPathInf.csPathIni);
+	g_dlgRun->SetDlgItemInt(IDC_EDT_PHI0, iniint);
 
-  iniint = GetPrivateProfileInt(_T("等效角设定"), _T("factor"), 0, gstuPathInf.csPathIni);
-  g_dlgRun->SetDlgItemInt(IDC_EDT_FACTOR, iniint);
-	 //预设值保存到全局变量
+	iniint = GetPrivateProfileInt(_T("等效角设定"), _T("factor"), 0, gstuPathInf.csPathIni);
+	
+	g_dlgRun->SetDlgItemInt(IDC_EDT_FACTOR, iniint);
+	//预设值保存到全局变量
 	gstuSort.centerangle=GetPrivateProfileInt(_T("分档设定"),_T("中心角度：度"),0,gstuPathInf.csPathIni)*3600+
 		GetPrivateProfileInt(_T("分档设定"),_T("中心角度：分"),0,gstuPathInf.csPathIni)*60+
 		GetPrivateProfileInt(_T("分档设定"),_T("中心角度：秒"),0,gstuPathInf.csPathIni);     
 	gstuSort.sortvalue=GetPrivateProfileInt(_T("分档设定"),_T("分档值：分"),0,gstuPathInf.csPathIni)*60+
-		GetPrivateProfileInt(_T("分档设定"),_T("分档值：秒"),0,gstuPathInf.csPathIni);
+		GetPrivateProfileInt(_T("分档设定"),_T("分档值：秒"),0,gstuPathInf.csPathIni);     
+	gstuSort.cutvalue=	GetPrivateProfileInt(_T("分档设定"),_T("切角值：秒"),0,gstuPathInf.csPathIni);
 	gstuSort.eleclow=GetPrivateProfileInt(_T("分档设定"),_T("开始值：度"),0,gstuPathInf.csPathIni)*3600+
 		GetPrivateProfileInt(_T("分档设定"),_T("开始值：分"),0,gstuPathInf.csPathIni)*60+
 		GetPrivateProfileInt(_T("分档设定"),_T("开始值：秒"),0,gstuPathInf.csPathIni);
 	gstuSort.elechigh=GetPrivateProfileInt(_T("分档设定"),_T("结束值：度"),0,gstuPathInf.csPathIni)*3600+
 		GetPrivateProfileInt(_T("分档设定"),_T("结束值：分"),0,gstuPathInf.csPathIni)*60+
 		GetPrivateProfileInt(_T("分档设定"),_T("结束值：秒"),0,gstuPathInf.csPathIni);
-  gstuSort.phi0 = GetPrivateProfileInt(_T("等效角设定"), _T("phi0：度"), 0, gstuPathInf.csPathIni) * 3600 +
-    GetPrivateProfileInt(_T("等效角设定"), _T("phi0：分"), 0, gstuPathInf.csPathIni) * 60 +
-    GetPrivateProfileInt(_T("等效角设定"), _T("phi0：秒"), 0, gstuPathInf.csPathIni);
-  gstuSort.factor = GetPrivateProfileInt(_T("等效角设定"), _T("factor"), 0, gstuPathInf.csPathIni);
+	gstuSort.phi0 = GetPrivateProfileInt(_T("等效角设定"), _T("phi0：度"), 0, gstuPathInf.csPathIni) * 3600 +
+		GetPrivateProfileInt(_T("等效角设定"), _T("phi0：分"), 0, gstuPathInf.csPathIni) * 60 +
+		GetPrivateProfileInt(_T("等效角设定"), _T("phi0：秒"), 0, gstuPathInf.csPathIni);
+	gstuSort.factor = GetPrivateProfileInt(_T("等效角设定"), _T("factor"), 0, gstuPathInf.csPathIni);
 	//初始化radio
 	gstuRcgInfo.bIsCir=1;
 	((CButton *)g_dlgRun->GetDlgItem(IDC_RAD_CIR))->SetCheck(TRUE);
@@ -353,19 +362,19 @@ BOOL CBERDlg::SYSInit()
 	//m_cmb_sort2.AddString(_T("原始光轴"));
 	//m_cmb_sort2.AddString(_T("原始电轴"));
 	g_dlgRun->m_cmb_sort2.AddString(_T("无"));
-	
+
 	gstuSort.sortsel1=GetPrivateProfileInt(_T("分档设定"),_T("检测角：编号"),0,gstuPathInf.csPathIni);
 	gstuSort.sortsel2=GetPrivateProfileInt(_T("分档设定"),_T("限定角：编号"),0,gstuPathInf.csPathIni);
 	g_dlgRun->m_cmb_sort1.SetCurSel(gstuSort.sortsel1);
 	g_dlgRun->m_cmb_sort2.SetCurSel(gstuSort.sortsel2);
 	//初始化Run页listcontrol控件
 	CRect listRect;
-	
+
 	g_dlgRun->m_listSort.GetClientRect(&listRect);
 	g_dlgRun->m_listSort.SetExtendedStyle(g_dlgRun->m_listSort.GetExtendedStyle() | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	g_dlgRun->m_listSort.InsertColumn(0, _T("档位"), LVCFMT_CENTER, listRect.Width()/8*2, 0);   
-    g_dlgRun->m_listSort.InsertColumn(1, _T("角度"), LVCFMT_CENTER, listRect.Width()/8*4, 1);   
-    g_dlgRun->m_listSort.InsertColumn(2, _T("片数"), LVCFMT_CENTER, listRect.Width()/8*2, 2);
+	g_dlgRun->m_listSort.InsertColumn(1, _T("角度"), LVCFMT_CENTER, listRect.Width()/8*4, 1);   
+	g_dlgRun->m_listSort.InsertColumn(2, _T("片数"), LVCFMT_CENTER, listRect.Width()/8*2, 2);
 
 	for(int i=0;i<24;i++)
 	{
@@ -432,28 +441,28 @@ BOOL CBERDlg::SYSInit()
 	TEMP2.Format(_T("  OEM ID: %u\n"), siSysInfo.dwOemId);
 	TEMP+=TEMP2;
 	TEMP2.Format(_T("  Number of processors: %u\n"), 
-		siSysInfo.dwNumberOfProcessors); 
+	siSysInfo.dwNumberOfProcessors); 
 	TEMP+=TEMP2;
 	TEMP2.Format(_T("  Page size: %u\n"), siSysInfo.dwPageSize); 
 	TEMP+=TEMP2;
 	TEMP2.Format(_T("  Processor type: %u\n"), siSysInfo.dwProcessorType); 
 	TEMP+=TEMP2;
 	TEMP2.Format(_T("  Minimum application address: %lx\n"), 
-		siSysInfo.lpMinimumApplicationAddress); 
+	siSysInfo.lpMinimumApplicationAddress); 
 	TEMP+=TEMP2;
 	TEMP2.Format(_T("  Maximum application address: %lx\n"), 
-		siSysInfo.lpMaximumApplicationAddress); 
+	siSysInfo.lpMaximumApplicationAddress); 
 	TEMP+=TEMP2;
 	TEMP2.Format(_T("  Active processor mask: %u\n"), 
-		siSysInfo.dwActiveProcessorMask); 
+	siSysInfo.dwActiveProcessorMask); 
 	TEMP+=TEMP2;
 	AfxMessageBox(TEMP);*/
 	gTrdCom=AfxBeginThread(ComMsg, NULL , THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
 	gTrdCom->m_bAutoDelete = TRUE;
 	gTrdCom->ResumeThread();
 
+	g_pCpk = new CCpkLib(gstuPathInf.csPathExe);
 
-	
 	return 1;
 }
 //
@@ -517,7 +526,7 @@ BOOL CBERDlg::DBGInit()
 	CString csInit;
 	//=====================CAMERA===========================
 	////debug_camera
-	
+
 	//tab控件初始化
 	g_dlgDebug->m_tabDebug.InsertItem(0, _T("相机调试")); 
 	g_dlgDebug->m_tabDebug.InsertItem(1, _T("屏幕调试")); 
@@ -548,7 +557,7 @@ BOOL CBERDlg::DBGInit()
 	//ini
 
 	int iniint=0;
-    
+
 	CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
 	BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);  
 	if( ifFind )  
@@ -579,8 +588,8 @@ BOOL CBERDlg::DBGInit()
 		g_dlgCamera->SetDlgItemInt(IDC_EDT_THRESHOLD,iniint);gstuRcgInfo.nThreshold = iniint;
 		iniint=GetPrivateProfileInt(_T("识别参数"),_T("特征允许误差"),0,gstuPathInf.csPathIni);
 		g_dlgCamera->SetDlgItemInt(IDC_EDT_FTOUTPOINT,iniint);gstuRcgInfo.nAllowDefect = iniint;
-		
-		
+
+
 	}
 	else
 		AfxMessageBox(_T("SYSEFG.ini没有创建"));
@@ -611,12 +620,12 @@ BOOL CBERDlg::DBGInit()
 	}
 	//初始化Debug页listcontrol控件
 	CRect listRect;
-	
+
 	g_dlgDevice->m_listDevice.GetClientRect(&listRect);
 	g_dlgDevice->m_listDevice.SetExtendedStyle(g_dlgDevice->m_listDevice.GetExtendedStyle() | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	g_dlgDevice->m_listDevice.InsertColumn(0, _T("档位"), LVCFMT_CENTER, listRect.Width()/8*2, 0);   
-    g_dlgDevice->m_listDevice.InsertColumn(1, _T("步数"), LVCFMT_CENTER, listRect.Width()/8*2, 1);   
-    g_dlgDevice->m_listDevice.InsertColumn(2, _T("说明"), LVCFMT_CENTER, listRect.Width()/8*4, 2);
+	g_dlgDevice->m_listDevice.InsertColumn(1, _T("步数"), LVCFMT_CENTER, listRect.Width()/8*2, 1);   
+	g_dlgDevice->m_listDevice.InsertColumn(2, _T("说明"), LVCFMT_CENTER, listRect.Width()/8*4, 2);
 
 	for(int i=0;i<30;i++)
 	{
@@ -727,16 +736,16 @@ BOOL CBERDlg::DBGInit()
 
 BOOL CBERDlg::SYSQuit()
 {
-	
+
 	//定时器
 	KillTimer(2);
 	gclsCom.CloseCom();
-	
+
 	//相机相关
 	/*if (glCamID >= 0)
 	{
-		NET_Logout(glCamID);
-		glCamID = -1;
+	NET_Logout(glCamID);
+	glCamID = -1;
 	}
 	gclsPic.FreePicture();*/
 	//全局指针
@@ -749,6 +758,8 @@ BOOL CBERDlg::SYSQuit()
 	g_font2.DeleteObject();
 	g_font3.DeleteObject();
 	TerminateThread(gTrdCom,0);
+
+	delete g_pCpk;
 	return 1;
 }
 
@@ -798,21 +809,21 @@ void CBERDlg::SurfaceRefresh()
 		}
 		if(gstuSort.nocheckout>9)
 		{
-			
+
 			//g_dlgRun->OnBnClickedRunStop();
 			g_dlgDevice->AlarmCtrl(1);
 			if(0 == gstuRefresh.alarm)
-			AfxMessageBox(_T("角度检测不出"));
+				AfxMessageBox(_T("角度检测不出"));
 			g_dlgDevice->AlarmCtrl(0);
 			gstuSort.nocheckout=0;
 		}
 		if(gstuSort.checkout0>9)
 		{
-			
+
 			//g_dlgRun->OnBnClickedRunPause();
 			g_dlgDevice->AlarmCtrl(1);
 			if(0 == gstuRefresh.alarm)
-			AfxMessageBox(_T("所测角检测不出"));
+				AfxMessageBox(_T("所测角检测不出"));
 			g_dlgDevice->AlarmCtrl(0);
 			gstuSort.checkout0=0;
 		}
@@ -837,24 +848,24 @@ void CBERDlg::SurfaceRefresh()
 		switch (gstuRun.unStatRun)
 		{
 		case 0://如果停止状态-》运行
-	#ifndef DEBUG_COM
+#ifndef DEBUG_COM
 			if((gstuRun.chStmCmd & (1<<2)))//等待下位机初始化完成
-	#endif
+#endif
 			{
 				gclsCom.stuInf.chWrtID=0x00;
 				gclsCom.stuInf.chRcvID=0x00;
 				g_dlgRun->SetDlgItemText(IDC_STAT_RUN,_T("下位机初始化完成"));
-				
+
 				gstuRun.chStmCmd &= ~(1<<0);
-				
+
 				g_dlgDevice->EFGCut(true);//_0728
-			/*	for(int i = 0; i<50 ; i++)
+				/*	for(int i = 0; i<50 ; i++)
 				{
-					g_dlgDevice->EFGCtrl(1);
-					Sleep(150);
+				g_dlgDevice->EFGCtrl(1);
+				Sleep(150);
 				}*/
-        /*CString card;
-        g_dlgRun->GetDlgItemText(IDC_EDIT_CARD, card);*/
+				/*CString card;
+				g_dlgRun->GetDlgItemText(IDC_EDIT_CARD, card);*/
 
 				gstuRun.unStatRun=2;
 				gTrdRun=AfxBeginThread(RunThread, NULL , THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
@@ -867,42 +878,46 @@ void CBERDlg::SurfaceRefresh()
 				g_dlgRun->GetDlgItem(IDC_BTN_RUN)->EnableWindow(1);
 				g_dlgRun->GetDlgItem(IDC_BTN_PAUSE)->EnableWindow(1);
 			}
-			
+
 			break;
 		case 2://如果运行状态-》退出
-	#ifndef DEBUG_COM
-				if((gstuRun.chStmCmd & (1<<2)) && 1==gstuRun.unTrdExitNum)
-	#endif
-				{
-          //流程卡记录
-          /*CString card;
-          g_dlgRun->GetDlgItemText(IDC_EDIT_CARD, card);*/
-          if (g_dlgRun->m_csvCard) {
-            //CCSVFile csv(gstuPathInf.csPathExe + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
-            CStringArray arr;
-            CString str;
-            CTime time;
-            time = CTime::GetCurrentTime();
-            arr.Add(_T("结束"));
-            arr.Add(time.Format("%Y/%m/%d"));
-            arr.Add(time.Format("%H:%M:%S"));
-            g_dlgRun->m_csvCard->WriteData(arr);
-            arr.RemoveAll();
+#ifndef DEBUG_COM
+			if((gstuRun.chStmCmd & (1<<2)) && 1==gstuRun.unTrdExitNum)
+#endif
+			{
+				//流程卡记录
+				/*CString card;
+				g_dlgRun->GetDlgItemText(IDC_EDIT_CARD, card);*/
+				if (g_dlgRun->m_csvCard) {
+					//CCSVFile csv(gstuPathInf.csPathExe + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
+					CStringArray arr;
+					CString str;
+					CTime time;
+					time = CTime::GetCurrentTime();
+					arr.Add(_T("结束"));
+					arr.Add(time.Format("%Y/%m/%d"));
+					arr.Add(time.Format("%H:%M:%S"));
+					g_dlgRun->m_csvCard->WriteData(arr);
+					arr.RemoveAll();
 
 
-            delete g_dlgRun->m_csvCard;
-            g_dlgRun->m_csvCard = NULL;
-          }
-          g_dlgRun->SetDlgItemText(IDC_EDIT_CARD, _T(""));
-					gstuRun.unTrdExitNum++;//线程退出数++，将下位机当做一个线程
-					g_dlgRun->SetDlgItemText(IDC_STAT_RUN,_T("下位机停止"));
-					gstuRun.bRunStatChg = 0;
-					g_dlgRun->GetDlgItem(IDC_BTN_RUN)->EnableWindow(1);
-					g_dlgRun->GetDlgItem(IDC_BTN_PAUSE)->EnableWindow(0);
-					gclsCom.stuInf.csRcv="";
-					gstuRefresh.bComUpdate=1;
+					delete g_dlgRun->m_csvCard;
+					g_dlgRun->m_csvCard = NULL;
 				}
-				
+				// 
+
+
+				g_dlgRun->SetDlgItemText(IDC_EDIT_PLANNED, _T(""));
+				g_dlgRun->SetDlgItemText(IDC_EDIT_CARD, _T(""));
+				gstuRun.unTrdExitNum++;//线程退出数++，将下位机当做一个线程
+				g_dlgRun->SetDlgItemText(IDC_STAT_RUN,_T("下位机停止"));
+				gstuRun.bRunStatChg = 0;
+				g_dlgRun->GetDlgItem(IDC_BTN_RUN)->EnableWindow(1);
+				g_dlgRun->GetDlgItem(IDC_BTN_PAUSE)->EnableWindow(0);
+				gclsCom.stuInf.csRcv="";
+				gstuRefresh.bComUpdate=1;
+			}
+
 			break;
 		default:
 			break;
@@ -959,7 +974,7 @@ void CBERDlg::SurfaceRefresh()
 			_sort.Format(_T("%d\t%d\r\n"),i,gstuSort.sortnum[i]);
 			gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,_sort);
 		}
-			//g_dlgRun->m_listSort.SetItemText(30,2,_sort);   
+		//g_dlgRun->m_listSort.SetItemText(30,2,_sort);   
 
 		//g_dlgDevice->EFGCut(false);//_0728
 
@@ -975,13 +990,13 @@ void CBERDlg::SurfaceRefresh()
 	{
 		g_dlgDevice->SetDlgItemTextW(IDC_MSG,_T("换片轴位置设置完成"));
 	}
-	
+
 	//
 	/*CString m_bmp_file=_T(".\\原图0.bmp");
 	CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
 	BOOL ifFind = findini.FindFile(m_bmp_file);  
 	if( !ifFind )  
-		return;
+	return;
 	CBitmap m_bmp;//创建类成员
 	BITMAP bm;//存放位图信息的结构
 	HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL,m_bmp_file,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);//创建bitmap指针
@@ -1011,17 +1026,22 @@ void CBERDlg::BtnCtl(bool ctl)
 	g_dlgRun->GetDlgItem(IDC_COMBO_SORT1)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_COMBO_SORT2)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_BTN_SORTSET)->EnableWindow(ctl);
+	g_dlgRun->GetDlgItem(IDC_EDT_CUTDEG)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_EDT_MIDDEG)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_EDT_SORTDEG)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_EDT_MINDEG)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_EDT_MAXDEG)->EnableWindow(ctl);
-  g_dlgRun->GetDlgItem(IDC_EDT_PHI0)->EnableWindow(ctl);
-  g_dlgRun->GetDlgItem(IDC_EDT_FACTOR)->EnableWindow(ctl);
+	g_dlgRun->GetDlgItem(IDC_EDT_PHI0)->EnableWindow(ctl);
+	g_dlgRun->GetDlgItem(IDC_EDT_FACTOR)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_EDT_TXTNM)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_RAD_SQU)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_RAD_CIR)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_BTN_STANDARD)->EnableWindow(ctl);
 	g_dlgRun->GetDlgItem(IDC_CHK_PN)->EnableWindow(ctl);
+	g_dlgRun->GetDlgItem(IDC_BTN_STDCHECK)->EnableWindow(ctl);
+	g_dlgRun->GetDlgItem(IDC_BTN_CPK)->EnableWindow(ctl);
+	g_dlgRun->GetDlgItem(IDC_EDIT_PLANNED)->EnableWindow(ctl);
+	g_dlgRun->GetDlgItem(IDC_EDIT_CARD)->EnableWindow(ctl);
 }
 
 BOOL CBERDlg::OnInitDialog()
@@ -1116,23 +1136,23 @@ void CBERDlg::OnTcnSelchangeMainTab(NMHDR *pNMHDR, LRESULT *pResult)
 	if(gstuRun.unStatRun==2)
 		m_tabMain.SetCurSel(0);
 	CRect tabRect; 
-    m_tabMain.GetClientRect(&tabRect);   
-    tabRect.left += 1;   
-    tabRect.right -= 1;   
-    tabRect.top += 22;   
-    tabRect.bottom -= 1;   
-    switch (m_tabMain.GetCurSel())   
-    {   
-    case 0:   
-        g_dlgRun->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);   
-        g_dlgDebug->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);   
-        break;
-    case 1:   
-        g_dlgRun->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);   
-        g_dlgDebug->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);   
-        break;   
-    default:   
-        break;   
+	m_tabMain.GetClientRect(&tabRect);   
+	tabRect.left += 1;   
+	tabRect.right -= 1;   
+	tabRect.top += 22;   
+	tabRect.bottom -= 1;   
+	switch (m_tabMain.GetCurSel())   
+	{   
+	case 0:   
+		g_dlgRun->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);   
+		g_dlgDebug->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);   
+		break;
+	case 1:   
+		g_dlgRun->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);   
+		g_dlgDebug->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);   
+		break;   
+	default:   
+		break;   
 	}
 	*pResult = 0;
 }
@@ -1225,13 +1245,13 @@ BOOL CBERDlg::PreTranslateMessage(MSG* pMsg)
 		/*case 'X':
 			if(GetKeyState(VK_CONTROL)<0 )
 				g_dlgRun->OnBnClickedBtnStandard();*/
-		default:
-			break;
+			default:
+				break;
+			}
+			//return TRUE;
+			//Sleep(100);
 		}
-		//return TRUE;
-		//Sleep(100);
-	}
-	return CDialogEx::PreTranslateMessage(pMsg);
+		return CDialogEx::PreTranslateMessage(pMsg);
 }
 
 

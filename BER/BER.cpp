@@ -17,7 +17,7 @@ threadstatus gstuTrdStat;//线程全局结构变量
 sortchip gstuSort;
 CFont g_font,g_font2,g_font3;
 CTXT gclsTxt;
-
+CCpkLib *g_pCpk;
 //识别
 //CIMGRecognition gclsImgRcg;
 RecognitionInfo  gstuRcgInfo;
@@ -146,7 +146,7 @@ UINT RunThread(LPVOID pParam)
 	int ln_count=0;//重发计数
 	while(1)
 	{
-		
+
 #ifndef DEBUG_COM
 		do{
 			if (gstuRun.bTrdExit)
@@ -160,13 +160,13 @@ UINT RunThread(LPVOID pParam)
 #else
 		Sleep(3000);
 #endif
-		
+
 		QueryPerformanceCounter(&l_lgint_start);
 		gstuRun.bOverRcg=0;
 		gclsImgRcg.g_stu_square.nN=0;
 		nN=0;
 		nCanShk = 0;
-		
+
 		TimeRecord(4,1);//启动拍照2，计时开始
 
 		DWORD dwCode = 0;
@@ -186,7 +186,7 @@ UINT RunThread(LPVOID pParam)
 			gTrdCam->Delete();
 			gTrdCam = NULL;
 		}
-		
+
 
 
 		gTrdCam=AfxBeginThread(CameraThread , NULL , THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
@@ -199,7 +199,7 @@ UINT RunThread(LPVOID pParam)
 		gTrdCam->ResumeThread();
 
 		TimeRecord(4,0);//线程启动，计时结束
-		
+
 		while(!gstuRun.bOverRcg)
 		{
 			if (gstuRun.bTrdExit)
@@ -270,7 +270,7 @@ UINT RunThread(LPVOID pParam)
 							CString csTmp;
 							csTmp.Format(_T("X:%d	Y:%d"),X,Y);
 							g_dlgRun->GetDlgItem(IDC_STAT_RUN)->SetWindowText(csTmp);
-							
+
 						}
 					}
 					else
@@ -282,14 +282,14 @@ UINT RunThread(LPVOID pParam)
 						CString csTmp;
 						csTmp.Format(_T("X:%d	Y:%d"),X,Y);
 						g_dlgRun->GetDlgItem(IDC_STAT_RUN)->SetWindowText(csTmp);
-						
+
 					}
 					nN++;
 				}
 #endif
 				Sleep(1);
 			}
-			
+
 		}
 
 #ifndef DEBUG_COM	
@@ -337,7 +337,7 @@ UINT RunThread(LPVOID pParam)
 #else
 		Sleep(2000);
 #endif
-		
+
 		if(0 == bShk)
 			Sleep(600);
 		else
@@ -355,48 +355,48 @@ UINT RunThread(LPVOID pParam)
 		}
 
 	}
-	
+
 	return 0;
 }
 
 UINT CameraThread(LPVOID pParam)
 {	
-/*#ifndef DEBUG_MODE
+	/*#ifndef DEBUG_MODE
 	if (glCamID>=0)
 	{
-		NET_SNAPCFG struSnapCfg;
-		gstuRun.bOverCam=0;
+	NET_SNAPCFG struSnapCfg;
+	gstuRun.bOverCam=0;
 
-		NET_ManualSnap(glCamID, &struSnapCfg, &gstuCamResult);
-		while(!gstuRun.bOverCam)//等待采集图像结束
-			Sleep(1);
-#endif
-		CString m_bmp_file=gstuPathInf.csPathExe + _T("\\PIC\\原图0.bmp");
+	NET_ManualSnap(glCamID, &struSnapCfg, &gstuCamResult);
+	while(!gstuRun.bOverCam)//等待采集图像结束
+	Sleep(1);
+	#endif
+	CString m_bmp_file=gstuPathInf.csPathExe + _T("\\PIC\\原图0.bmp");
 
-		CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
-		BOOL ifFind;
-		do{
-			ifFind = findini.FindFile(m_bmp_file); 
-			Sleep(1);
-		}while( !ifFind );
+	CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
+	BOOL ifFind;
+	do{
+	ifFind = findini.FindFile(m_bmp_file); 
+	Sleep(1);
+	}while( !ifFind );
 
-		//gstuRcgInfo.nPToL=2;//直线点距
-		//gstuRcgInfo.nDefectPToL=10;//缺陷点距
-		//gstuRcgInfo.nThreshold=30;//阀值
-		//char * chPath = (LPSTR)(LPCTSTR)m_bmp_file;
-		char chPath[MAX_PATH];
-		//WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,readPath,CStringA(m_bmp_file).GetLength(),NULL,NULL); 
-		WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,chPath,sizeof(chPath),NULL,NULL); 
-		gclsImgRcg.RCGBMPSPLIT(NULL,NULL,chPath,gstuRcgInfo.nPToL,gstuRcgInfo.nDefectPToL,gstuRcgInfo.nThreshold,0,gstuRcgInfo.bIsCir,gstuRcgInfo.bThrdAuto,gstuRcgInfo.bDelNoise);
+	//gstuRcgInfo.nPToL=2;//直线点距
+	//gstuRcgInfo.nDefectPToL=10;//缺陷点距
+	//gstuRcgInfo.nThreshold=30;//阀值
+	//char * chPath = (LPSTR)(LPCTSTR)m_bmp_file;
+	char chPath[MAX_PATH];
+	//WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,readPath,CStringA(m_bmp_file).GetLength(),NULL,NULL); 
+	WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,chPath,sizeof(chPath),NULL,NULL); 
+	gclsImgRcg.RCGBMPSPLIT(NULL,NULL,chPath,gstuRcgInfo.nPToL,gstuRcgInfo.nDefectPToL,gstuRcgInfo.nThreshold,0,gstuRcgInfo.bIsCir,gstuRcgInfo.bThrdAuto,gstuRcgInfo.bDelNoise);
 
-		if(0==gclsImgRcg.g_stu_square.nN && gclsImgRcg.g_stu_square.bIsLap)
-		gclsImgRcg.RCGBMP(NULL,NULL,chPath,gstuRcgInfo.nPToL,gstuRcgInfo.nDefectPToL,gstuRcgInfo.nThreshold,0,gstuRcgInfo.bIsCir,gstuRcgInfo.bThrdAuto,gstuRcgInfo.bDelNoise);
+	if(0==gclsImgRcg.g_stu_square.nN && gclsImgRcg.g_stu_square.bIsLap)
+	gclsImgRcg.RCGBMP(NULL,NULL,chPath,gstuRcgInfo.nPToL,gstuRcgInfo.nDefectPToL,gstuRcgInfo.nThreshold,0,gstuRcgInfo.bIsCir,gstuRcgInfo.bThrdAuto,gstuRcgInfo.bDelNoise);
 
-#ifndef DEBUG_MODE
+	#ifndef DEBUG_MODE
 	}
 	else
-		g_dlgRun->SetDlgItemText(IDC_STAT_RUN,_T("相机未连接"));
-#endif*/
+	g_dlgRun->SetDlgItemText(IDC_STAT_RUN,_T("相机未连接"));
+	#endif*/
 	//int takeCnt = 0;
 
 	//TimeRecord(2,1);//启动拍照识别，计时开始
@@ -448,7 +448,7 @@ UINT CameraThread(LPVOID pParam)
 			return 0;
 		}
 	}
-	
+
 	TimeRecord(2, 0);//拍照结束，计时结束
 	TimeRecord(3, 1);//识别开始，计时开始
 	//
@@ -506,7 +506,7 @@ UINT CameraThread(LPVOID pParam)
 
 UINT ScreenThread(LPVOID pParam)
 {
-  CCSVFile *csv = (CCSVFile*)pParam;
+	CCSVFile *csv = (CCSVFile*)pParam;
 	if(gstuTrdStat.unProcNum>2)
 		SetThreadAffinityMask(GetCurrentThread(),2);
 	else
@@ -522,7 +522,18 @@ UINT ScreenThread(LPVOID pParam)
 		do{
 			if (gstuRun.bTrdExit && 2==gstuRun.unTrdExitNum)//当退出时等待前面的线程都退出
 			{
+				// CPK
+				if(g_pCpk)
+				{
+					CProcessCard processCard;
+
+					g_pCpk->CalcCpk(processCard);
+
+					g_pCpk->AddCpkToPlannedCsv(processCard);
+				}
+
 				gstuRun.bTrdExit=0;
+
 				return 0;
 			}
 			if(!gstuRun.bTrdPause)
@@ -556,25 +567,36 @@ UINT ScreenThread(LPVOID pParam)
 			Sleep(1);
 		}while(! (gstuRun.chStmCmd & (1<<0)));//||(gstuRun.chStmCmd & (1<<6)) );//|| gstuRun.bTrdPause);//20150327
 
-// 		do{
-// 			if (gstuRun.bTrdExit && 2==gstuRun.unTrdExitNum)
-// 			{
-// 				gstuRun.bTrdExit=0;
-// 				return 0;
-// 			}
-// 			Sleep(1);
-// 		}while(gstuRun.bTrdPause);
+		// 		do{
+		// 			if (gstuRun.bTrdExit && 2==gstuRun.unTrdExitNum)
+		// 			{
+		// 				gstuRun.bTrdExit=0;
+		// 				return 0;
+		// 			}
+		// 			Sleep(1);
+		// 		}while(gstuRun.bTrdPause);
 #else
 		Sleep(3000);
 		do{
 			if (gstuRun.bTrdExit && 2==gstuRun.unTrdExitNum)
 			{
+				// CPK
+				if(g_pCpk)
+				{
+					CProcessCard processCard;
+
+					g_pCpk->CalcCpk(processCard);
+
+					g_pCpk->AddCpkToPlannedCsv(processCard);
+				}
+				//
 				gstuRun.bTrdExit=0;
+
 				return 0;
 			}
 			Sleep(1);
 		}while(gstuRun.bTrdPause);
-		
+
 #endif
 		gstuRun.chStmCmd &= ~(1<<0);
 #ifndef	DEBUG_SCREEN	
@@ -603,7 +625,7 @@ UINT ScreenThread(LPVOID pParam)
 		}
 		else if(g_dlgScreen->RCGVGA())
 		{
-      CalcEquAngle(g_dlgScreen->degree);//DATE 180421
+			CalcEquAngle(g_dlgScreen->degree);//DATE 180421
 			gstuSort.sortsn=SortChip(&gstuSort,g_dlgScreen->degree);//得到档位值
 			if(gstuSort.sortsn<0)
 				gstuSort.sortsn=29;
@@ -616,36 +638,74 @@ UINT ScreenThread(LPVOID pParam)
 				g_dlgScreen->degree[18]*100000+g_dlgScreen->degree[19]*10000+g_dlgScreen->degree[20]*1000+g_dlgScreen->degree[21]*100+g_dlgScreen->degree[22]*10+g_dlgScreen->degree[23],
 				g_dlgScreen->degree[24]*100000+g_dlgScreen->degree[25]*10000+g_dlgScreen->degree[26]*1000+g_dlgScreen->degree[27]*100+g_dlgScreen->degree[28]*10+g_dlgScreen->degree[29],
 				gstuSort.sortsn);
-				
+
 			gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,_degree);
 
-      //流程卡记录：by mmy 171115
-      if (csv)
-      {
-       // CCSVFile csv(gstuPathInf.csPathExe + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
-        CStringArray arr;
-        CString str;
-        str.Format(_T("%d"), gstuTrdStat._N);
-        arr.Add(str);
-        str.Format(_T("%d"), g_dlgScreen->degree[0] * 100000 + g_dlgScreen->degree[1] * 10000 + g_dlgScreen->degree[2] * 1000 + g_dlgScreen->degree[3] * 100 + g_dlgScreen->degree[4] * 10 + g_dlgScreen->degree[5]);
-        arr.Add(str);
-        str.Format(_T("%d"), g_dlgScreen->degree[6] * 100000 + g_dlgScreen->degree[7] * 10000 + g_dlgScreen->degree[8] * 1000 + g_dlgScreen->degree[9] * 100 + g_dlgScreen->degree[10] * 10 + g_dlgScreen->degree[11]);
-        arr.Add(str);
-        str.Format(_T("%d"), g_dlgScreen->degree[12] * 100000 + g_dlgScreen->degree[13] * 10000 + g_dlgScreen->degree[14] * 1000 + g_dlgScreen->degree[15] * 100 + g_dlgScreen->degree[16] * 10 + g_dlgScreen->degree[17]);
-        arr.Add(str);
-        str.Format(_T("%d"), g_dlgScreen->degree[18] * 100000 + g_dlgScreen->degree[19] * 10000 + g_dlgScreen->degree[20] * 1000 + g_dlgScreen->degree[21] * 100 + g_dlgScreen->degree[22] * 10 + g_dlgScreen->degree[23]);
-        arr.Add(str);
-        str.Format(_T("%d"), g_dlgScreen->degree[24] * 100000 + g_dlgScreen->degree[25] * 10000 + g_dlgScreen->degree[26] * 1000 + g_dlgScreen->degree[27] * 100 + g_dlgScreen->degree[28] * 10 + g_dlgScreen->degree[29]);
-        arr.Add(str);
-        str.Format(_T("%d"), gstuSort.sortsn);
-        arr.Add(str);
+			//流程卡记录：by mmy 171115
+			if (csv)
+			{
+				// CCSVFile csv(gstuPathInf.csPathExe + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
+				CStringArray arr;
+				CString str;
+				str.Format(_T("%d"), gstuTrdStat._N);
+				arr.Add(str);
+				str.Format(_T("%d"), g_dlgScreen->degree[0] * 100000 + g_dlgScreen->degree[1] * 10000 + g_dlgScreen->degree[2] * 1000 + g_dlgScreen->degree[3] * 100 + g_dlgScreen->degree[4] * 10 + g_dlgScreen->degree[5]);
+				arr.Add(str);
+				str.Format(_T("%d"), g_dlgScreen->degree[6] * 100000 + g_dlgScreen->degree[7] * 10000 + g_dlgScreen->degree[8] * 1000 + g_dlgScreen->degree[9] * 100 + g_dlgScreen->degree[10] * 10 + g_dlgScreen->degree[11]);
+				arr.Add(str);
+				str.Format(_T("%d"), g_dlgScreen->degree[12] * 100000 + g_dlgScreen->degree[13] * 10000 + g_dlgScreen->degree[14] * 1000 + g_dlgScreen->degree[15] * 100 + g_dlgScreen->degree[16] * 10 + g_dlgScreen->degree[17]);
+				arr.Add(str);
+				str.Format(_T("%d"), g_dlgScreen->degree[18] * 100000 + g_dlgScreen->degree[19] * 10000 + g_dlgScreen->degree[20] * 1000 + g_dlgScreen->degree[21] * 100 + g_dlgScreen->degree[22] * 10 + g_dlgScreen->degree[23]);
+				arr.Add(str);
+				str.Format(_T("%d"), g_dlgScreen->degree[24] * 100000 + g_dlgScreen->degree[25] * 10000 + g_dlgScreen->degree[26] * 1000 + g_dlgScreen->degree[27] * 100 + g_dlgScreen->degree[28] * 10 + g_dlgScreen->degree[29]);
+				arr.Add(str);
+				str.Format(_T("%d"), gstuSort.sortsn);
+				arr.Add(str);
 
-        csv->WriteData(arr);
+				csv->WriteData(arr);
 
-        arr.RemoveAll();
-      }
+				arr.RemoveAll();
+			}
 
-					
+			if(g_pCpk)
+			{
+				int *degree = g_dlgScreen->degree;
+				CProcessData processData;
+				processData.equal = (degree[12]*10+degree[13])*3600+(degree[14]*10+degree[15])*60+(degree[16]*10+degree[17]);
+				processData.laser = (degree[0]*10+degree[1])*3600+(degree[2]*10+degree[3])*60+(degree[4]*10+degree[5]);
+				processData.laser0 = (degree[18]*10+degree[19])*3600+(degree[20]*10+degree[21])*60+(degree[22]*10+degree[23]);
+				processData.no = gstuTrdStat._N;
+				processData.phi = (degree[6]*10+degree[7])*3600+(degree[8]*10+degree[9])*60+(degree[10]*10+degree[11]);
+				processData.phi0 = (degree[24]*10+degree[25])*3600+(degree[26]*10+degree[27])*60+(degree[28]*10+degree[29]);
+				processData.sort = gstuSort.sortsn;
+
+				g_pCpk->AddToProcessCardCsv(processData);
+
+				// cpk实时检查
+				CProcessCard processCard;
+
+				if(processData.no>g_pCpk->m_cpkSet.m_start_num)
+				{
+					g_pCpk->CalcCpk(processCard);
+
+					CString csCpk=_T(""),tmp;
+					tmp.Format( _T("cp %.3f "), processCard.cp);
+					csCpk+=tmp;
+					tmp.Format( _T("ca %.3f "), processCard.ca);
+					csCpk+=tmp;
+					tmp.Format( _T("cpk %.3f "), processCard.cpk);
+					csCpk+=tmp;
+					tmp.Format( _T("num %d "), processCard.num);
+					csCpk+=tmp;
+					if(processCard.cp < g_pCpk->m_cpkSet.m_min_cp||processCard.ca > g_pCpk->m_cpkSet.m_max_ca||processCard.cpk < g_pCpk->m_cpkSet.m_min_cpk)
+					{
+						csCpk += _T("超限");
+						g_dlgRun->OnBnClickedBtnPause();
+					}
+					g_dlgRun->SetDlgItemText(IDC_STATIC_CPK,csCpk);
+				}
+			}
+
 			gstuRun.unSort[2]=gstuRun.unSort[1];
 			gstuRun.unSort[1]=gstuRun.unSort[0];
 			gstuRun.unSort[0]=gstuSort.sortsn+1;
@@ -659,25 +719,25 @@ UINT ScreenThread(LPVOID pParam)
 #else
 		srand((int)time(0)); //模拟begin
 		int deg[30]={3,4,0,rand()%9,rand()%5,rand()%9,
-					2,2+rand()%3,rand()%5,rand()%9,rand()%5,rand()%9,
-					rand()%5,rand()%9,rand()%5,rand()%9,rand()%5,rand()%9,
-					rand()%5,rand()%9,rand()%5,rand()%9,rand()%5,rand()%9,
-					rand()%5,rand()%9,rand()%5,rand()%9,rand()%5,rand()%9};
+			2,2+rand()%3,rand()%5,rand()%9,rand()%5,rand()%9,
+			rand()%5,rand()%9,rand()%5,rand()%9,rand()%5,rand()%9,
+			rand()%5,rand()%9,rand()%5,rand()%9,rand()%5,rand()%9,
+			rand()%5,rand()%9,rand()%5,rand()%9,rand()%5,rand()%9};
 		for(int i=0;i<30;i++)
 			g_dlgScreen->degree[i]=deg[i];//模拟end
 		gstuSort.sortsn=SortChip(&gstuSort,g_dlgScreen->degree);//得到档位值
 		//gstuSort.sortsn ++ ;
 		unsigned int unTmpSN = 28;
 		/*if(gstuSort.sortsn<0 ||gstuSort.sortsn >29)
-			gstuSort.sortsn=29;
+		gstuSort.sortsn=29;
 		else if(gstuSort.sortsn<15 &&gstuSort.sortsn >1)
-			unTmpSN=1;
+		unTmpSN=1;
 		else if(gstuSort.sortsn<18 &&gstuSort.sortsn >14)
-			unTmpSN=19;
+		unTmpSN=19;
 		else if(gstuSort.sortsn<27 &&gstuSort.sortsn >19)
-			unTmpSN=29;
+		unTmpSN=29;
 		else
-			unTmpSN = gstuSort.sortsn;*/
+		unTmpSN = gstuSort.sortsn;*/
 		g_dlgDevice->SortSend(char(unTmpSN));
 		CString _degree;
 		_degree.Format(_T("%d\t%d\t%d\t%d\t%d\t%d\t%d\r\n"),gstuTrdStat._N,g_dlgScreen->degree[0]*100000+g_dlgScreen->degree[1]*10000+g_dlgScreen->degree[2]*1000+g_dlgScreen->degree[3]*100+g_dlgScreen->degree[4]*10+g_dlgScreen->degree[5],
@@ -699,8 +759,8 @@ UINT ScreenThread(LPVOID pParam)
 #endif
 
 	}
-	
-	
+
+
 	return 0;
 }
 
@@ -735,11 +795,11 @@ UINT CalibrationThread(LPVOID pParam)
 		g_dlgDevice->MHCtrl(0x01,1);
 		Sleep(1000);
 		g_dlgDevice->SNCtrl(0x01,0);
-		
+
 		AfxMessageBox(_T("运行完成按确定"));
 		g_dlgDevice->MHCtrl(0x01,0);
 		Sleep(1000);
-		
+
 		g_dlgDevice->AxisMove(0x02,0,1);
 		/////////////////////////////////////////////////////////////////
 		gstuRcgInfo.bClbPos=0;
@@ -799,57 +859,60 @@ UINT ComMsg(LPVOID pParam)
 	gstuRun.bPosSet==0;
 	while(gclsCom.m_struct_com.s_hd!=INVALID_HANDLE_VALUE)
 	{//在ontimer中会与按钮冲突
-			if(!gclsCom.RecvCharFromCom())
+		if(!gclsCom.RecvCharFromCom())
+		{
+			gstuRefresh.bComUpdate=1;
+			//if(gstuRun.unStatRun != 0)//如果不是停止态，解析
 			{
-				gstuRefresh.bComUpdate=1;
-				//if(gstuRun.unStatRun != 0)//如果不是停止态，解析
+				UINT unCmdTmp = gclsCom.RS232Parse();
+				if (2 == unCmdTmp)
 				{
-					UINT unCmdTmp = gclsCom.RS232Parse();
-					if (2 == unCmdTmp)
-					{
-						TimeRecord(1,1);//无片坐标到，开始计时
-						TimeRecord(5,1);
-						TimeRecord(6,0);//发出坐标到接收到下一个无片命令
-					}
-					if(unCmdTmp!=0)
-						gstuRun.chStmCmd = gstuRun.chStmCmd | (1<<(unCmdTmp-1));
+					TimeRecord(1,1);//无片坐标到，开始计时
+					TimeRecord(5,1);
+					TimeRecord(6,0);//发出坐标到接收到下一个无片命令
 				}
-				
-				/*switch(gclsCom.RS232Parse())
-				{
-				case 1://EFG检测完成
-					chStmCmd[1] = chStmCmd[1] | (1<<0);
-					break;
-				case 2://无片坐标
-					unCmd=2;
-					break;
-				case 3://初始化完成
-					unCmd=3;
-					break;
-				case 4://作业停止
-					unCmd=4;
-					break;
-				case 5://备料盘运行完成
-					unCmd=5;
-					break;
-				case 6://位置设定完毕
-					unCmd=6;
-					break;
-				default:
-					break;
-				case 2:
-						//g_struct_info_run.s_bool_stminit=1;			//标记下位机反馈初始化命令，告诉run线程做相应处理
-
-						break;
-					case 0:
-						//g_struct_info_com.s_bool_command_success=1;
-						//g_struct_info_run.ui_count_resend=0;//放在resendcom中做，会因为没时间判断到success=1而导致不执行
-						break;
-					default:
-						break;
-				}*/
+				if(unCmdTmp!=0)
+					gstuRun.chStmCmd = gstuRun.chStmCmd | (1<<(unCmdTmp-1));
+				else{
+					gstuRun.chStmCmd0 = 1;
+				}
 			}
-	#ifndef DEBUG_COM
+
+			/*switch(gclsCom.RS232Parse())
+			{
+			case 1://EFG检测完成
+			chStmCmd[1] = chStmCmd[1] | (1<<0);
+			break;
+			case 2://无片坐标
+			unCmd=2;
+			break;
+			case 3://初始化完成
+			unCmd=3;
+			break;
+			case 4://作业停止
+			unCmd=4;
+			break;
+			case 5://备料盘运行完成
+			unCmd=5;
+			break;
+			case 6://位置设定完毕
+			unCmd=6;
+			break;
+			default:
+			break;
+			case 2:
+			//g_struct_info_run.s_bool_stminit=1;			//标记下位机反馈初始化命令，告诉run线程做相应处理
+
+			break;
+			case 0:
+			//g_struct_info_com.s_bool_command_success=1;
+			//g_struct_info_run.ui_count_resend=0;//放在resendcom中做，会因为没时间判断到success=1而导致不执行
+			break;
+			default:
+			break;
+			}*/
+		}
+#ifndef DEBUG_COM
 		if((gstuRun.chStmCmd & (1<<3)))
 		{
 			gstuRun.chStmCmd &= ~(1<<3);
@@ -866,13 +929,13 @@ UINT ComMsg(LPVOID pParam)
 
 		if((gstuRun.chStmCmd & (1<<6)) &&!gstuRun.bTrdPause)
 		{
-			
+
 			if(gstuRun.unSort[0]>0)
-			g_dlgDevice->SortSend(char(gstuRun.unSort[0]-1));
+				g_dlgDevice->SortSend(char(gstuRun.unSort[0]-1));
 			//gstuRun.chStmCmd = gstuRun.chStmCmd | (1<<(1));
 			gstuRun.chStmCmd &= ~(1<<6);
 		}
-	#endif
+#endif
 		Sleep(10);
 	}
 	return 1;
@@ -930,39 +993,39 @@ void calparameter(double (*xy)[4],double *factor)
 //ret !0 failure
 int CalcEquAngle(int *degree)
 {
-  for (int i = 0; i < 30; i++) {
-    if (degree[i] > 60 || degree[i] < 0)
-      return -1;
-  }
+	for (int i = 0; i < 30; i++) {
+		if (degree[i] > 60 || degree[i] < 0)
+			return -1;
+	}
 
-  int angle[5] = {
-    (degree[0] * 10 + degree[1]) * 3600 + (degree[2] * 10 + degree[3]) * 60 + (degree[4] * 10 + degree[5]),//光轴
-    (degree[6] * 10 + degree[7]) * 3600 + (degree[8] * 10 + degree[9]) * 60 + (degree[10] * 10 + degree[11]),//电轴
-    (degree[12] * 10 + degree[13]) * 3600 + (degree[14] * 10 + degree[15]) * 60 + (degree[16] * 10 + degree[17]),//等效角
-    (degree[18] * 10 + degree[19]) * 3600 + (degree[20] * 10 + degree[21]) * 60 + (degree[22] * 10 + degree[23]),//原始光轴
-    (degree[24] * 10 + degree[25]) * 3600 + (degree[26] * 10 + degree[27]) * 60 + (degree[28] * 10 + degree[29])
-  };//原始电轴；保存测定出的角度，转换成秒
+	int angle[5] = {
+		(degree[0] * 10 + degree[1]) * 3600 + (degree[2] * 10 + degree[3]) * 60 + (degree[4] * 10 + degree[5]),//光轴
+		(degree[6] * 10 + degree[7]) * 3600 + (degree[8] * 10 + degree[9]) * 60 + (degree[10] * 10 + degree[11]),//电轴
+		(degree[12] * 10 + degree[13]) * 3600 + (degree[14] * 10 + degree[15]) * 60 + (degree[16] * 10 + degree[17]),//等效角
+		(degree[18] * 10 + degree[19]) * 3600 + (degree[20] * 10 + degree[21]) * 60 + (degree[22] * 10 + degree[23]),//原始光轴
+		(degree[24] * 10 + degree[25]) * 3600 + (degree[26] * 10 + degree[27]) * 60 + (degree[28] * 10 + degree[29])
+	};//原始电轴；保存测定出的角度，转换成秒
 
-  int t0 = (degree[0] * 10 + degree[1]) * 3600 + (degree[2] * 10 + degree[3]) * 60 + (degree[4] * 10 + degree[5])/* + g_sort.R1t[g_sort.R1Num]*/;//光轴//_0614
-  int e0 = (degree[6] * 10 + degree[7]) * 3600 + (degree[8] * 10 + degree[9]) * 60 + (degree[10] * 10 + degree[11])/* + g_sort.R1e[g_sort.R1Num]*/;//电轴
-  int equal_angle;
+	int t0 = (degree[0] * 10 + degree[1]) * 3600 + (degree[2] * 10 + degree[3]) * 60 + (degree[4] * 10 + degree[5])/* + g_sort.R1t[g_sort.R1Num]*/;//光轴//_0614
+	int e0 = (degree[6] * 10 + degree[7]) * 3600 + (degree[8] * 10 + degree[9]) * 60 + (degree[10] * 10 + degree[11])/* + g_sort.R1e[g_sort.R1Num]*/;//电轴
+	int equal_angle;
 
-  // 等效角 = 原始光轴 + （原始电轴 - 等效角电轴参数）/等效角因子
-  if (gstuSort.factor) {
-    equal_angle = t0 + double(e0 - gstuSort.phi0) * 1000 / gstuSort.factor + 0.5;
-  }
-  else {
-    equal_angle = 0;
-  }
+	// 等效角 = 原始光轴 + （原始电轴 - 等效角电轴参数）/等效角因子
+	if (gstuSort.factor) {
+		equal_angle = t0 + double(e0 - gstuSort.phi0) * 1000 / gstuSort.factor + 0.5;
+	}
+	else {
+		equal_angle = 0;
+	}
 
-  degree[12] = equal_angle / 3600 / 10;
-  degree[13] = equal_angle / 3600 % 10;
-  degree[14] = equal_angle % 3600 / 60 / 10;
-  degree[15] = equal_angle % 3600 / 60 % 10;
-  degree[16] = equal_angle % 60 / 10;
-  degree[17] = equal_angle % 60 % 10;
+	degree[12] = equal_angle / 3600 / 10;
+	degree[13] = equal_angle / 3600 % 10;
+	degree[14] = equal_angle % 3600 / 60 / 10;
+	degree[15] = equal_angle % 3600 / 60 % 10;
+	degree[16] = equal_angle % 60 / 10;
+	degree[17] = equal_angle % 60 % 10;
 
-  return 0;
+	return 0;
 }
 //分档计算程序，使用到全局变量
 //返回档位值，供机械手分档 0-29
@@ -970,7 +1033,7 @@ int SortChip(sortchip* s_sort,int *degree)
 {
 	bool elecyes=1;//限定轴通过标志
 	int sortSN=-1;//返回值，分档值
-	
+
 	int angle[5]={(degree[0]*10+degree[1])*3600+(degree[2]*10+degree[3])*60+(degree[4]*10+degree[5]),//光轴
 		(degree[6]*10+degree[7])*3600+(degree[8]*10+degree[9])*60+(degree[10]*10+degree[11]),//电轴
 		(degree[12]*10+degree[13])*3600+(degree[14]*10+degree[15])*60+(degree[16]*10+degree[17]),//等效角
@@ -1043,27 +1106,28 @@ int SortChip(sortchip* s_sort,int *degree)
 			default:s_sort->sortnum[26]++;sortSN=26;break;
 			}
 		}
+
 	}
 
 	return sortSN;
 }
 void CalcAvgStd(const int sum, const double angle, double &avg, double &std, double &std2)
 {
-  double n = sum;
+	double n = sum;
 
-  double xi = angle;
-  //double avg;
-  if (1 == n)
-  {
-    avg = xi;//平均值
-    std2 = xi * xi;//标准偏差中间值
-  }
-  if (n > 1)
-  {
-    avg = (avg + xi / (n - 1)) / (n / (n - 1));//求平均值
-    std2 = (std2 + xi * xi / (n - 1)) / (n / (n - 1));//求标准差中间值
-    std = sqrt(abs(std2 - avg * avg)*n / (n - 1));//求标准差
-  }
+	double xi = angle;
+	//double avg;
+	if (1 == n)
+	{
+		avg = xi;//平均值
+		std2 = xi * xi;//标准偏差中间值
+	}
+	if (n > 1)
+	{
+		avg = (avg + xi / (n - 1)) / (n / (n - 1));//求平均值
+		std2 = (std2 + xi * xi / (n - 1)) / (n / (n - 1));//求标准差中间值
+		std = sqrt(abs(std2 - avg * avg)*n / (n - 1));//求标准差
+	}
 }
 //计算光轴平均值及标准方程
 void SortAvgStd(unsigned int sum,int *angle,double *avg,double *std,long double *std2)
@@ -1094,7 +1158,7 @@ double TimeRecord(unsigned int step, bool start)
 	if (start)
 	{
 		gstuRun.timRun[step][0] = GetTickCount();
-		
+
 	} 
 	else
 	{
@@ -1142,9 +1206,9 @@ double TimeRecord(unsigned int step, bool start)
 		default:
 			break;
 		}
-				
+
 		gclsTxt.TXTAddStr(gstuPathInf.csPathLog,csRec);
 	}
 	return ldv_tim;
-	
+
 }

@@ -113,7 +113,7 @@ void CDlgStdSet::UpdateGrid_StdSet(void)
 
   m_gridStdSet.InsertRow(_T("电轴最大差值"), -1);
   m_gridStdSet.InsertRow(_T("光轴最大差值"), -1);
-  m_gridStdSet.InsertRow(_T("库最小片数"), -1);
+  m_gridStdSet.InsertRow(_T("最小通过片数"), -1);//m_gridStdSet.InsertRow(_T("库最小片数"), -1);
   m_gridStdSet.InsertRow(_T("对标测量次数"), -1);
   m_gridStdSet.InsertRow(_T("最小对标片数"), -1);
   m_gridStdSet.InsertRow(_T("对标选择"), -1);
