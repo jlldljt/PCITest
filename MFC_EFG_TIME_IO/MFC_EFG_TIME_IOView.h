@@ -44,7 +44,7 @@ public:
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 #endif
-
+	//virtual CMFC_EFG_TIME_IODoc* GetDocument() const;
 protected:
 
 // 生成的消息映射函数
@@ -56,7 +56,7 @@ protected:
 };
 
 #ifndef _DEBUG  // MFC_EFG_TIME_IOView.cpp 中的调试版本
-inline CMFC_EFG_TIME_IODoc* CMFC_EFG_TIME_IOView::GetDocument() const
-   { return reinterpret_cast<CMFC_EFG_TIME_IODoc*>(m_pDocument); }
+//inline CMFC_EFG_TIME_IODoc* CMFC_EFG_TIME_IOView::GetDocument() const
+//   { return reinterpret_cast<CMFC_EFG_TIME_IODoc*>(m_pDocument); }
 #endif
 

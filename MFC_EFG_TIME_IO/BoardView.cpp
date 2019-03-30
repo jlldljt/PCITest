@@ -225,7 +225,7 @@ void CBoardView::DrawXRayOneShot()
 
   pDC->FillSolidRect(&rect, RGB(255, 255, 255));
   int x, y;
-  int times = (GetMainFrame()->m_diIntCounterSnap.m_counter.index[1]-1)/WND_WIDTH;
+  double times = 1.0*(GetMainFrame()->m_diIntCounterSnap.m_counter.index[1]-1)/WND_WIDTH;
   //int deg = (GetMainFrame()->m_diIntCounterSnap.m_counter.index[1]-1)/8;//360°
   x = 0, y = 100*XRAY_Y_TIMES; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("100"), x + 10, y);
   x = 0, y = 200*XRAY_Y_TIMES; pDC->MoveTo(x, y); pDC->LineTo(x + 10, y); SetOutStr(_T("200"), x + 10, y);
@@ -266,24 +266,38 @@ void CBoardView::DrawXRayOneShot()
 //
 //    continue;
 //#endif
-    pen.CreatePen(PS_SOLID, 2, RGB(0, 0, 250));
+    pen.CreatePen(PS_SOLID, 2, RGB(150, 150, 250));
     pDC->SelectObject(&pen);
     pDC->MoveTo(i, 0);
 
 	int lineTo = 0;
 	for (int j = 0; j <  times; j++)
 	{
-		if(lineTo <GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][i*times + j])
-			lineTo =GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][i*times + j];
+		if(lineTo <GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][int(i*times) + j])
+			lineTo =GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][int(i*times) + j];
 	}
 	lineTo=lineTo*XRAY_Y_TIMES;
     pDC->LineTo(i, lineTo/*GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][i]*/);
-    pen.DeleteObject();
+    
+	//pDC->SetPixel(i, lineTo, RGB(0, 0, 250));
+	
+	pen.DeleteObject();
    /* pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
     pDC->SelectObject(&pen);
     pDC->MoveTo(i, 300);
     pDC->LineTo(i, GetMainFrame()->m_diIntCounterSnap.m_counter.counter[1][i] + 300);
     pen.DeleteObject();*/
+  }
+  for (int i = 0; i < WND_WIDTH/*(GetMainFrame()->m_diIntCounterSnap.m_counter.index[1]-1)/8*/; i++)
+  {
+	int lineTo = 0;
+	for (int j = 0; j <  times; j++)
+	{
+		if(lineTo <GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][int(i*times) + j])
+			lineTo =GetMainFrame()->m_diIntCounterSnap.m_counter.fit[0][int(i*times) + j];
+	}
+	lineTo=lineTo*XRAY_Y_TIMES;
+	pDC->SetPixel(i, lineTo, RGB(0, 0, 200));
   }
 
   pDC->SelectObject(ppen);

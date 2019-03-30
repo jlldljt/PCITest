@@ -190,6 +190,8 @@ int CMultiCardCtrl::Stop(const int cardSel)
   for (int i = 0; i < MAX_CHANNEL_NUM; i++) {
     m_card[cardSel]->StopDi(i);
     m_card[cardSel]->DeleteDi(i);
+	m_card[cardSel]->StopDO(i);
+    m_card[cardSel]->DeleteDO(i);
     m_card[cardSel]->StopT0(i);
     m_card[cardSel]->DeleteT0(i);
     m_card[cardSel]->StopT1(i);

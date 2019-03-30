@@ -348,6 +348,31 @@ int EfgAlg::FitSinByLeastSquares(double * yi, int iNum, double * fityi, tagSinPa
 
   return 0;
 }
+//smooth_width两边各cnt次数
+  void EfgAlg::Correct(double * yi, int iNum, int sub)
+  {
+	  double *tmp_yi=NULL;
+	  tmp_yi = new double[iNum];
+	  tmp_yi[0] = yi[0]; 
+	  double tmp_front = tmp_yi[0];
+	  double sub_sum = sub;
+
+	  for(int i = 1 ; i < iNum; i++)
+	  {
+		  tmp_front = tmp_yi[i-1];
+		  if(fabs(yi[i]-tmp_front)<=sub_sum ){
+			  sub_sum = sub;
+			  tmp_yi[i] = yi[i];
+		  }else{
+			  sub_sum += sub;
+			  tmp_yi[i] = tmp_front;
+		  }
+	  }
+
+	  memcpy(yi,tmp_yi,sizeof(double)*iNum);
+	  
+	  delete[] tmp_yi;
+  }
 
 //smooth_width两边各cnt次数
   void EfgAlg::Smooth(double * yi, int iNum, int smooth_width, int cnt)
@@ -520,9 +545,9 @@ int Cal(double * yi, int startCur, int endCur, double* ParaA, double* ParaB, dou
 int GetMidCur(double * yi, int startCur, int endCur)
 {
 	//抛物线
-	/*double ParaA,ParaB,ParaC;
+	double ParaA,ParaB,ParaC;
 	Cal(yi,startCur,endCur,&ParaA,&ParaB,&ParaC);
-	return -ParaB/(2*ParaA)+startCur;*/
+	return -ParaB/(2*ParaA)+startCur;
 	//宽度中间
 	//double mid = (startCur+endCur)/2.0 +0.5;
 	//return mid;
@@ -551,6 +576,95 @@ int GetMidCur(double * yi, int startCur, int endCur)
 		return i-1;
 
 }
+
+
+// 提取尖峰
+// 指定一个点，超过这个点一定数量的尖峰，认为合格。
+// 返回整顿后的数组大小
+  // ignore 忽略多少个连续不合格点，即认为合格,故confirmNum需包含不和格数量
+//int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int confirmNum/*确认数量*/, double ignore/*忽略值*/)
+//{
+//  int outLimitCnt = 0;// 超限点计数
+//  int ignoreCnt = 0; //忽略点计数181116
+//  //int cur = 0;
+//  // -1 没有累计到的超限点
+//  int limitCur = -1;// 第一个超限点
+//  //int limitCnt = 0;
+//  double d = 0;
+//  int max = 0;// 最大超限点
+//  confirmNum += ignore;
+//  m_spikes.RemoveAll();
+//
+//  for (int i = 0; i < iNum; i++)
+//  {
+//  //  if (ignore == yi[i])
+//  //  {
+//  //    if (-1 == limitCur)
+//  //    {
+//  //      ;
+//  //    }
+//  //    else
+//  //    {
+//  //      outLimitCnt++;
+//		//ignoreCnt++;
+//  //    }
+//  //    continue;
+//  //  }
+//
+//    d = yi[i] - threshold;
+//
+//    if (d > 0 && i < iNum-1)
+//    {
+//      if (-1 == limitCur)
+//      {
+//        limitCur = i;
+//        outLimitCnt = 1;
+//        max = i;
+//      }
+//      else
+//      {
+//        if (yi[max] < yi[i])
+//          max = i;
+//
+//        outLimitCnt++;
+//      }
+//	  ignoreCnt = 0;
+//    }
+//    else//d<=0
+//    {
+//      if (-1 == limitCur)
+//      {
+//        ;
+//      }
+//	  else if (ignore > ignoreCnt)
+//      {
+//
+//        outLimitCnt++;
+//		ignoreCnt++;
+//      
+//        continue;
+//      }
+//      else if(outLimitCnt >= confirmNum) // 存
+//      {
+//       // Spike spike = { limitCur, i - 1 };
+//		  //181215
+//		max =  GetMidCur(yi, limitCur, i-1-ignoreCnt);
+//        SPIKE spike;
+//        spike.p.x = max;//(limitCur + i - 1) / 2;
+//        spike.p.y = yi[max];
+//        spike.w = outLimitCnt;
+//        m_spikes.Add(spike);
+//      }
+//      limitCur = -1;
+//      outLimitCnt = 0;
+//	  ignoreCnt = 0;
+//    }
+//  }
+//
+//
+//  return 0;
+//}
+
 // 提取尖峰
 // 指定一个点，超过这个点一定数量的尖峰，认为合格。
 // 返回整顿后的数组大小
@@ -567,9 +681,17 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
   int max = 0;// 最大超限点
   confirmNum += ignore;
   m_spikes.RemoveAll();
+  bool lastOne = false;
 
-  for (int i = 0; i < iNum; i++)
+  for (int i = 0; /*i < iNum*/; i++)
   {
+	  if(i >= iNum &&limitCur!=-1)
+	  {
+		  i = 0;
+		  lastOne = true;
+	  }
+	  else
+		  break;
   //  if (ignore == yi[i])
   //  {
   //    if (-1 == limitCur)
@@ -586,7 +708,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
 
     d = yi[i] - threshold;
 
-    if (d > 0 && i < iNum-1)
+    if (d > 0 /*&& i < iNum-1*/)
     {
       if (-1 == limitCur)
       {
@@ -621,12 +743,53 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
       {
        // Spike spike = { limitCur, i - 1 };
 		  //181215
-		max =  GetMidCur(yi, limitCur, i-1-ignoreCnt);
-        SPIKE spike;
-        spike.p.x = max;//(limitCur + i - 1) / 2;
-        spike.p.y = yi[max];
-        spike.w = outLimitCnt;
-        m_spikes.Add(spike);
+		int lastCur = i-1-ignoreCnt;
+
+		if(lastCur <0)
+			lastCur=iNum-lastCur;
+
+		double * tmp_yi = new double[outLimitCnt];//防止跨边界
+		int point_num  =0;
+		if(lastCur >=limitCur)
+		{
+			memcpy(tmp_yi, yi, lastCur-limitCur+1);
+			point_num+=lastCur-limitCur+1;
+		}
+		else
+		{
+			memcpy(tmp_yi, yi, iNum - limitCur);
+			point_num+=iNum - limitCur;
+			memcpy(tmp_yi+iNum - limitCur, yi, lastCur+1);
+			point_num+=lastCur+1;
+		}
+
+		//max =  GetMidCur(yi, limitCur, lastCur);
+		max =  GetMidCur(yi, 0, point_num);
+
+		max+=limitCur;
+		max=max>=iNum?max-iNum:max;
+
+		delete tmp_yi;
+
+		if(lastOne == true)//第二次遍历，查找与第一个点的距离是否太小
+		{
+			SPIKE tmp =  m_spikes.GetAt(0);
+
+			int d1 = abs(max - tmp.p.x);
+			int d2 = iNum - d1;
+			if(d1<confirmNum+ignore || d2<confirmNum+ignore)
+				break;
+
+		}
+
+		if(max>=limitCur && max<=i-1-ignoreCnt)
+		{
+			SPIKE spike;
+			spike.p.x = max;//(limitCur + i - 1) / 2;
+			spike.p.y = yi[max];
+			spike.w = outLimitCnt;
+			m_spikes.Add(spike);
+		}
       }
       limitCur = -1;
       outLimitCnt = 0;

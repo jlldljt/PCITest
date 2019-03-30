@@ -141,7 +141,7 @@ using namespace std;
 
 		return 0;
 	}
-
+  // 获取网卡信息
 int test1()
 {
 	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
@@ -952,7 +952,7 @@ int  test5(void)
 	return 0;
 }
 
-//广播接收和回复
+//接收广播和回复
 int  test_udp(void)
 {
   SOCKET ConnectSocket = INVALID_SOCKET;
@@ -1063,12 +1063,128 @@ int  test_udp(void)
   WSACleanup();
 
 }
+
+//发送广播
+int  test_udp2(void)
+{
+  SOCKET ConnectSocket = INVALID_SOCKET;
+  WSADATA wsaData;
+  struct addrinfo *result = NULL,
+    *ptr = NULL,
+    hints;
+
+  int iResult;
+
+  // Initialize Winsock
+  iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+  if (iResult != 0) {
+    return -1;
+  }
+
+  ConnectSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if (ConnectSocket == INVALID_SOCKET) {
+    WSACleanup();
+    return -1;
+  }
+
+  const int opt = -1;
+  //int nb = 0;
+  //nb = setsockopt(ConnectSocket, SOL_SOCKET, SO_BROADCAST, (char*)&opt, sizeof(opt));
+  //if (nb == -1)
+  //{
+  //  return -1;
+  //}
+
+  int nb = 0;
+  nb = setsockopt(ConnectSocket, SOL_SOCKET, SO_BROADCAST, (char*)&opt, sizeof(opt));
+  if (nb == -1)
+  {
+    return -1;
+  }
+
+  if (ConnectSocket == INVALID_SOCKET) {
+    WSACleanup();
+    return -1;
+  }
+
+  /////////////////////////////////////////////////////////
+ // char * sbuf, int slen;
+  int ret = -1;
+  char rbuf[200] = { 0 };
+  int rlen = 200;
+
+  sockaddr_in senderAddr, destAddr, sourAddr;
+  /*设置源地址为本地广播地址*/
+  sourAddr.sin_family = AF_INET;
+  sourAddr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+  sourAddr.sin_port = htons(10);
+
+  //destAddr.sin_family = AF_INET;
+  //destAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  //destAddr.sin_port = htons(10);
+
+  //iResult = bind(ConnectSocket, (SOCKADDR *)& destAddr, sizeof(destAddr));
+  //if (iResult != 0) {
+  //  wprintf(L"bind failed with error %d\n", WSAGetLastError());
+  //  return 1;
+  //}
+
+  int addrSize = sizeof(sourAddr);
+
+  iResult = sendto(ConnectSocket, "are you npc", 11, 0, (SOCKADDR *)& sourAddr, sizeof(sourAddr));
+  if (iResult == SOCKET_ERROR) {
+    return -1;
+  }
+
+ // int timeout = 1000;
+ // ret = setsockopt(ConnectSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+  printf("start recv\n");
+  int timeout = 200;
+  ret = setsockopt(ConnectSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+  do {
+
+    iResult = recvfrom(ConnectSocket, rbuf, rlen, 0, (SOCKADDR *)& destAddr, &addrSize);
+
+    int error = WSAGetLastError();
+    if (iResult > 0)
+    {
+      printf(rbuf);
+    }
+    else if (WSAETIMEDOUT == error)
+    {
+      return 0;
+    }
+    else
+    {
+      return -1;
+    }
+  } while (true);
+
+  ////////////////////////////////////////////////////////
+
+}
+
+//在线升级管理
+void update(void)
+{
+  test_udp2();
+  printf("请确认npc列表中有升级的npc y/n \n");
+  int ret = getchar();
+  if (ret != 'y')
+    return;
+  ret = getchar();//接收回车
+  test3();
+}
 #include "exp.h"
-#include "vcwnd.h"
+//#include "vcwnd.h"
+
 int main()
 {
   //test3();
-  test_udp();
+  update();
+
+  printf("over");
   getchar();
 	return 1;
 }

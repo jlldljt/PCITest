@@ -68,8 +68,10 @@ UINT Thread_TurntableRun(LPVOID pParam)
   {
     switch (pdlg->m_run.state.turntable) {
     case START://测量
-      if (GetMainFrame()->StartMeasure(pdlg->m_param->laser.out3, pdlg->m_param->laser.out6))
-        pdlg->m_run.state.turntable = RUNNING;
+      if (GetMainFrame()->StartMeasure(pdlg->m_param->laser.out3, pdlg->m_param->laser.out6)) {
+        Sleep(50);
+		  pdlg->m_run.state.turntable = RUNNING;
+	  }
       break;
     case RUNNING:
       if (GetMainFrame()->CheckMeasure())
@@ -91,6 +93,7 @@ UINT Thread_TurntableRun(LPVOID pParam)
     case PAUSE:
       break;
     case STOP:
+	  while (!GetMainFrame()->CheckMeasure());
       pdlg->m_run.state.turntable = END;
       return 0;
     default:
@@ -208,6 +211,7 @@ UINT Thread_MainRun(LPVOID pParam)
       pdlg->m_run.state.x = START;
       pdlg->m_run.state.y = END;
       pdlg->m_run.state.turntable = END;
+	  pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
 
       gTrdXRun = AfxBeginThread(Thread_XRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
       gTrdXRun->m_bAutoDelete = TRUE;
@@ -223,6 +227,7 @@ UINT Thread_MainRun(LPVOID pParam)
 
       pdlg->m_run.state.mainrun = RUNNING;
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("正在运行"));
+	  ((CButton*)pdlg->GetDlgItem(IDC_BTN_CTRL))->EnableWindow(TRUE);
       break;
     case PAUSE:
       break;
@@ -230,11 +235,24 @@ UINT Thread_MainRun(LPVOID pParam)
       pdlg->m_run.state.x = STOP;
       pdlg->m_run.state.y = STOP;
       pdlg->m_run.state.turntable = STOP;
+	  Sleep(1000);
+	  if (END != pdlg->m_run.state.x)
+        pdlg->m_run.state.x = STOP;
+	  if (END != pdlg->m_run.state.y)
+        pdlg->m_run.state.y = STOP;
+	  if (END != pdlg->m_run.state.turntable)
+        pdlg->m_run.state.turntable = STOP;
       //gTrdXRun->ResumeThread();
       //gTrdYRun->ResumeThread();
       //gTrdTurntableRun->ResumeThread();
       //gTrdStaticMeasure->ResumeThread();
+	  while (!(END == pdlg->m_run.state.x&&END == pdlg->m_run.state.y&&END == pdlg->m_run.state.turntable));
+      
+	  pdlg->m_io->WriteDo(XRAY_GATE, IO_OFF);//打开光门
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T(""));
+
+	  
+	  ((CButton*)pdlg->GetDlgItem(IDC_BTN_CTRL))->EnableWindow(TRUE);
       return 0;
     case RUNNING:
       gTrdMainRun->SuspendThread();
@@ -250,6 +268,10 @@ UINT Thread_MainRun(LPVOID pParam)
       pdlg->m_run.state.y = END;
       pdlg->m_run.state.turntable = END;
 
+	  
+	  pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
+
+
       gTrdStaticMeasure = AfxBeginThread(Thread_StaticMeasure, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
       gTrdStaticMeasure->m_bAutoDelete = TRUE;
       gTrdStaticMeasure->ResumeThread();
@@ -261,13 +283,26 @@ UINT Thread_MainRun(LPVOID pParam)
 
       pdlg->m_run.state.mainrun = RUNNING;
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("正在静态测量"));
+	  ((CButton*)pdlg->GetDlgItem(IDC_CHK_STATICMEASURE))->EnableWindow(TRUE);
       break;
     case STATIC_MEASURE_STOP:
       //return 0;
+		
       pdlg->m_run.state.staticmeasure = STOP;
       pdlg->m_run.state.turntable = STOP;
+	  Sleep(1000);
+      if (END != pdlg->m_run.state.staticmeasure)
+      pdlg->m_run.state.staticmeasure = STOP;
+	  if (END != pdlg->m_run.state.turntable)
+      pdlg->m_run.state.turntable = STOP;
+	  	
       //gTrdTurntableRun->ResumeThread();
+	  while (!(END == pdlg->m_run.state.staticmeasure&&END == pdlg->m_run.state.turntable));
+ 
+	  pdlg->m_io->WriteDo(XRAY_GATE, IO_OFF);//关闭光门
+
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T(""));
+	  ((CButton*)pdlg->GetDlgItem(IDC_CHK_STATICMEASURE))->EnableWindow(TRUE);
       return 0;
     default:
       return 0;
@@ -727,6 +762,7 @@ void CDlgRun1::OnBnClickedBtnCtrl()
   // TODO: 在此添加控件通知处理程序代码
   CString str;
   GetDlgItemText(IDC_BTN_CTRL, str);
+	  ((CButton*)GetDlgItem(IDC_BTN_CTRL))->EnableWindow(FALSE);
   if ("开始" == str) {
     //SetTimer(0, 100, NULL);
     m_run.state.mainrun = START;
@@ -1024,6 +1060,7 @@ void CDlgRun1::OnBnClickedChkStaticmeasure()
   // TODO: 在此添加控件通知处理程序代码
   CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_STATICMEASURE);
   int nStat = pChk->GetCheck();
+  pChk->EnableWindow(FALSE);
   if (nStat)
   {
     m_run.state.mainrun = STATIC_MEASURE_START;
