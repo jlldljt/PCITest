@@ -1,7 +1,11 @@
 #include "stdafx.h"
 #include "WIN32WND.h"
 // 准备做截图
-
+HWND g_hWnd = NULL;
+HBITMAP g_hBm = NULL;
+HDC g_hDskDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
+RECT Rop2Rc = { 0 };
+BOOL g_bStart = FALSE;
 CWIN32WND::CWIN32WND()
 {
 }
@@ -25,46 +29,120 @@ static BUTON_STATUS g_dpBsL = Nothing;
 static POINT g_dpPntLDown = { 0, 0 };
 static POINT g_dpPntLUp = { 0, 0 };
 
-int MouseMsg(WPARAM wParam, POINT   pt)
+void ReFreshDesktopRect(RECT rect, BOOL bErase)
 {
-  if (wParam == WM_MOUSEMOVE)
+  HWND hWndDesk = GetDesktopWindow();
+  HDC hDC = ::GetWindowDC(hWndDesk);
+  FillRect(hDC, &rect, (HBRUSH)GetStockObject(WHITE_BRUSH));
+  if (bErase)
   {
-    //sprintf(strMsg, "WM_MOUSEMOVE: x= %d, y= %d\n", pkbhs->pt.x, pkbhs->pt.y);
-    //OutputDebugString(strMsg);
-    if (g_dpBsL == BtnDown)
-    {
-      g_dpPntLUp.x = pt.x;
-      g_dpPntLUp.y = pt.y;
-      //ClientToScreen(hWnd, &g_dpPntLUp);
-    }
+    RedrawWindow(hWndDesk, &rect, 0, RDW_INVALIDATE | RDW_ERASE);// 1 4
   }
-
-  //鼠标左击
-  if (wParam == WM_LBUTTONDOWN)
+  else
   {
-    //sprintf(strMsg, "WM_LBUTTONDOWN: x= %d, y= %d\n", pkbhs->pt.x, pkbhs->pt.y);
-    //OutputDebugString(strMsg);
-
-    g_dpPntLDown.x = pt.x;
-    g_dpPntLDown.y = pt.y;
-    g_dpPntLUp.x = pt.x;
-    g_dpPntLUp.y = pt.y;
-
-    g_dpBsL = BtnDown;
+    RedrawWindow(hWndDesk, &rect, 0, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);// 1 4 80 =0x85);
   }
-
-  if (wParam == WM_LBUTTONUP)
-  {
-    //sprintf(strMsg, "WM_LBUTTONDOWN: x= %d, y= %d\n", pkbhs->pt.x, pkbhs->pt.y);
-    //OutputDebugString(strMsg);
-    g_dpPntLUp.x = pt.x;
-    g_dpPntLUp.y = pt.y;
-
-    g_dpBsL = BtnUp;
-  }
-  return 0;
 }
 
+int MouseMsg(WPARAM wParam, POINT   pt)
+{
+  if (g_bStart)
+  {
+    if (wParam == WM_MOUSEMOVE)
+    {
+      //sprintf(strMsg, "WM_MOUSEMOVE: x= %d, y= %d\n", pkbhs->pt.x, pkbhs->pt.y);
+      //OutputDebugString(strMsg);
+      //int DrawMode = dc.GetROP2();
+
+      if (g_dpBsL == BtnDown)
+      {
+        g_dpPntLUp.x = pt.x;
+        g_dpPntLUp.y = pt.y;
+        //ClientToScreen(hWnd, &g_dpPntLUp);
+        RedrawWindow(g_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW /*| RDW_ERASE*/);
+        //return TRUE;
+       // RECT rect = { g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y };
+      }
+
+
+
+    }
+
+    //鼠标左击
+    if (wParam == WM_LBUTTONDOWN)
+    {
+      //sprintf(strMsg, "WM_LBUTTONDOWN: x= %d, y= %d\n", pkbhs->pt.x, pkbhs->pt.y);
+      //OutputDebugString(strMsg);
+
+
+      g_dpPntLDown.x = pt.x;
+      g_dpPntLDown.y = pt.y;
+      g_dpPntLUp.x = pt.x;
+      g_dpPntLUp.y = pt.y;
+      RedrawWindow(g_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+      g_dpBsL = BtnDown;
+      return TRUE;
+    }
+
+    if (wParam == WM_LBUTTONUP)
+    {
+      ///ReFreshDesktopRect({ g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y }, 1);
+      //sprintf(strMsg, "WM_LBUTTONDOWN: x= %d, y= %d\n", pkbhs->pt.x, pkbhs->pt.y);
+      //OutputDebugString(strMsg);
+      g_dpPntLUp.x = pt.x;
+      g_dpPntLUp.y = pt.y;
+      ///ReFreshDesktopRect({ g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y }, 1);
+      RedrawWindow(g_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+      g_dpBsL = BtnUp;
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+TCHAR g_path[MAX_PATH] = { '\0' };
+int KeyBoardMsg(DWORD vkCode, BOOL ctrl, BOOL alt)
+{
+  switch (vkCode)
+  {
+  case VK_ESCAPE:
+    if (!g_bStart)
+    {
+      exit(0);
+    }
+    else
+    {
+      g_bStart = FALSE;
+      g_dpPntLDown.x = 0;
+      g_dpPntLDown.y = 0;
+      g_dpPntLUp.x = 0;
+      g_dpPntLUp.y = 0;
+      RedrawWindow(g_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW /*| RDW_ERASE*/);
+    }
+    return TRUE;
+  case VK_TAB:
+    if (!g_bStart)
+    {
+      GetPathFromBrowse(g_path);
+      if (g_path==L"") {
+        wcscat_s(g_path, L".bmp");
+
+        savebmp({ g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y }, g_path);
+      }
+    }
+    return TRUE;
+  case VK_SPACE:
+    g_bStart = TRUE;
+    RedrawWindow(g_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW /*| RDW_ERASE*/);
+    return TRUE;
+  case VK_RETURN:
+    if(g_bStart)
+      testbmp({ g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y });
+    return TRUE;
+  default:
+    break;
+  } 
+  return FALSE;
+}
 
 ATOM WINAPI RegistMainWinClass(HINSTANCE hIns)
 {
@@ -124,6 +202,30 @@ LRESULT CALLBACK WndMainProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+  case WM_KEYDOWN:
+      //if (WM_KEYFIRST <= pMsg->message && pMsg->message <= WM_KEYLAST)
+    {
+      //判断是否按下键盘Enter键
+      switch (wParam)
+      {
+      case VK_RETURN:
+        //MessageBox(NULL, _T("enter"), _T("错误"), MB_OK | MB_ICONERROR);
+        break;
+      case VK_SPACE:
+        //testbmp({ g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y });
+
+        break;
+      case VK_ESCAPE:
+        //exit(0);
+        break;
+        /*case 'X':
+          if(GetKeyState(VK_CONTROL)<0 )
+            g_dlgRun->OnBnClickedBtnStandard();*/
+      default:
+        break;
+      }
+    }
+    break;
 	default:
 		lReturn = DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -187,6 +289,7 @@ void WINAPI OnRedrawDesk(HDC hDC)
 */
 void WINAPI OnRedrawWindow(HDC hDC)
 {
+#if 1
 	int nTop = TOP_SIDE;
 	int nLen = 0;
 	TCHAR szBuffer[BUFSIZ] = _T("");
@@ -200,7 +303,11 @@ void WINAPI OnRedrawWindow(HDC hDC)
 	cOldFont = SetTextColor(hDC, RGB(220, 10, 10));
 
 	// 输出鼠标指针移动位置
-	nLen = _stprintf_s(szBuffer, BUFSIZ, _T("鼠标 X 坐标 %d；Y 坐标 %d。"), g_pntMouse.x, g_pntMouse.y);
+  if(g_bStart)
+	nLen = _stprintf_s(szBuffer, BUFSIZ, _T("start"));
+  else
+	nLen = _stprintf_s(szBuffer, BUFSIZ, _T("stop "));
+//nLen = _stprintf_s(szBuffer, BUFSIZ, _T("鼠标 X 坐标 %d；Y 坐标 %d。"), g_pntMouse.x, g_pntMouse.y);
 
 	// 输出文字
 	TextOut(
@@ -285,14 +392,20 @@ void WINAPI OnRedrawWindow(HDC hDC)
 
 	SelectObject(hDC, hOldFont);
 	SetTextColor(hDC, cOldFont);
-
+#endif
 
   /////////////////////////////////////////
-  HDC hScrDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
+ // HDC hScrDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
+  //SelectObject(hDC,&pen);
+  int oldrop2 = SetROP2(g_hDskDC, R2_NOTXORPEN);//实现橡皮筋类的关键函数,同一个地方画两次相当于什么都没画
+  Rectangle(g_hDskDC, Rop2Rc.left, Rop2Rc.top, Rop2Rc.right, Rop2Rc.bottom);
 
-  Rectangle(hScrDC, g_dpPntLDown.x, g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y);
+  //HBRUSH oldbr = (HBRUSH)SelectObject(g_hDskDC,HBRUSH(GetStockObject(HOLLOW_BRUSH)));
+  Rectangle(g_hDskDC, g_dpPntLDown.x, g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y);
+  Rop2Rc = { g_dpPntLDown.x, g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y };
+  //SelectObject(g_hDskDC, oldbr);
 
-
+  SetROP2(g_hDskDC, oldrop2);
 
 }
 
@@ -399,11 +512,23 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	}
 	else
 	{
-    StartHook(hInstance, MouseMsg);
-
+    StartHook(hInstance, MouseMsg, KeyBoardMsg);
+    /*CreateWindowExW(
+      _In_ DWORD dwExStyle,
+      _In_opt_ LPCWSTR lpClassName,
+      _In_opt_ LPCWSTR lpWindowName,
+      _In_ DWORD dwStyle,
+      _In_ int X,
+      _In_ int Y,
+      _In_ int nWidth,
+      _In_ int nHeight,
+      _In_opt_ HWND hWndParent,
+      _In_opt_ HMENU hMenu,
+      _In_opt_ HINSTANCE hInstance,
+      _In_opt_ LPVOID lpParam);*/
 		hWnd = CreateWindowEx(0, MAIN_CLASSNAME,
-			_T("Hello World"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
-			0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL
+			_T("Hello World"), WS_OVERLAPPEDWINDOW, /*CW_USEDEFAULT,
+			0, CW_USEDEFAULT, 0,*/0,0,50,100, NULL, NULL, hInstance, NULL
 			);
 
 		if (hWnd == NULL)
@@ -413,6 +538,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 		}
 		else
 		{
+      g_hWnd = hWnd;
 			ShowWindow(hWnd, nCmdShow);
 			UpdateWindow(hWnd);
 

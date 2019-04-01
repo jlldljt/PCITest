@@ -7,6 +7,7 @@ enum PCIType {
   PCI1780U = 0,
   TMC12A,
   AC6641,
+  EFG_V1,
   NO_TYPE,
 };
 //TODO: Ôö¼Ó¿¨ÐÞ¸Ä

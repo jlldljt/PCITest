@@ -31,14 +31,17 @@ private:
 
 };
 
-
-void testbmp();
-
+void CopyBitmapToHdc(HDC hdc, RECT rect, HBITMAP bm);
+HBITMAP CopyScreenToBitmap(LPRECT lpRect);
+void testbmp(RECT rect);
+void savebmp(RECT rect, LPTSTR lpFileName);
 //////////////////////
 
-typedef int(*p_fn)(WPARAM wParam, POINT   pt);
+typedef int(*p_msfn)(WPARAM wParam, POINT   pt);
+typedef int(*p_kbfn)(DWORD vkCode, BOOL ctrl, BOOL alt);
 
 LRESULT CALLBACK LowLevelMouseProc(INT nCode, WPARAM wParam, LPARAM lParam);
 
-void StartHook(HINSTANCE hInst, p_fn fn);
+void StartHook(HINSTANCE hInst, p_msfn msfn, p_kbfn kbfn);
 void EndHook();
+void GetPathFromBrowse(TCHAR *path);
