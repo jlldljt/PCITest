@@ -1,3 +1,6 @@
+//空格 start ； esc stop 退出； tab 保存； enter 截图到clip
+
+
 #include "stdafx.h"
 #include "WIN32WND.h"
 // 准备做截图
@@ -123,10 +126,11 @@ int KeyBoardMsg(DWORD vkCode, BOOL ctrl, BOOL alt)
     if (!g_bStart)
     {
       GetPathFromBrowse(g_path);
-      if (g_path==L"") {
+      if (g_path!=L"") {
         wcscat_s(g_path, L".bmp");
 
         savebmp({ g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y }, g_path);
+        MessageBox(NULL, _T("save ok"), _T("提示"), MB_OK | MB_ICONINFORMATION);
       }
     }
     return TRUE;

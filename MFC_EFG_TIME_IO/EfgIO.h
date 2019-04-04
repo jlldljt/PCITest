@@ -2,6 +2,12 @@
 
 #include "MultiCardCtrl.h"
 
+// 修改
+#include "Com.h"
+#define USE_EFGV1 1
+//#define USE_AC6641 1
+
+
 #define MAX_SORT_NUM 50
 #define MAX_TYPE_NUM 2
 
@@ -144,6 +150,8 @@ typedef struct {
     double avg_D1, avg_D2, avg_DM, avg_R1, avg_pluse_num, avg_u_g, avg_A, avg_w, avg_t, avg_k;
     double std_D1, std_D2, std_DM, std_R1, std_pluse_num, std_u_g, std_A, std_w, std_t, std_k;
     double std2_D1, std2_D2, std2_DM, std2_R1, std2_pluse_num, std2_u_g, std2_A, std2_w, std2_t, std2_k;
+  //记录计数器数量
+    int cnt_num[5];
   }measure;
 }EFG_ResultParam;
 
@@ -202,12 +210,23 @@ enum EFG_T0Channel
 {
   LASER_CNT_START = 4,//激光计数起始channel
   //XRAY_CNT_START = 8,//x光计数起始channel
+  X_MOTOR_CHANNEL = 0,
+  Y_MOTOR_CHANNEL = 1,
+  U_MOTOR_CHANNEL = 2,
 };
 
 enum EFG_T1Channel
 {
   XRAY_CNT_START = 0,//x光计数起始channel
+
 };
+
+//enum EFGV1_T0Channel
+//{
+//  X_MOTOR_CHANNEL = 0,
+//  Y_MOTOR_CHANNEL = 1,
+//  U_MOTOR_CHANNEL = 2,
+//};
 
 class CEfgIO
 {
@@ -247,13 +266,26 @@ public:
   void WriteDo(AC6641_Channel channel, double param);
   void WritePort(AC6641_Port port, double param);
   double ReadT0(EFG_T0Channel channel);
+  void WriteT0(EFG_T0Channel channel, double param);
+  // 增加卡修改，不好用以上函数囊括的，在下面增加函数即可
   void MotoRun(int moto_index, double param);
+  int MotoRun(int moto_index, int param);
   void MotoRunNoWait(int moto_index, double param);
-  void MotoZero(int moto_index);
+  int MotoRunNoWait(int moto_index, int param);
+  int MotoZero(int moto_index);
   void UAutoRun(double degree);
   BOOL CheckMotoEnd(int moto_index);
-  CString GetMeasureType(int index);
   void InitEfgIO(void);
+
+  int StartMeasure(int cnt);
+  BOOL CheckMeasureEnd(void);
+  int GetCntDataNum(int no);// 获取所有计数值
+  int GetAllCntData(int no , char* buf, int len);// 获取所有计数值
+  int SetOut(int out3, int out6);
+
+
+
+  CString GetMeasureType(int index);
   // 获取当前角度的下料位置
   int GetCurOffPos(int &pos_num);
   // 判断主测角的档位 -1 低 ；=档位数 高

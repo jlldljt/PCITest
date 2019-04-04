@@ -148,6 +148,7 @@
     <ClInclude Include="AC6641_Ctrl.h" />
     <ClInclude Include="AC6641_DI.h" />
     <ClInclude Include="AC6641_DO.h" />
+    <ClInclude Include="Com.h" />
     <ClInclude Include="DlgParam.h" />
     <ClInclude Include="ComDef.h" />
     <ClInclude Include="CPCICtrl.h" />
@@ -174,6 +175,11 @@
     <ClInclude Include="DlgXray.h" />
     <ClInclude Include="EfgAlg.h" />
     <ClInclude Include="EfgIO.h" />
+    <ClInclude Include="EFGV1_Base.h" />
+    <ClInclude Include="EFGV1_Ctrl.h" />
+    <ClInclude Include="EFGV1_DI.h" />
+    <ClInclude Include="EFGV1_DO.h" />
+    <ClInclude Include="EFGV1_Motor.h" />
     <ClInclude Include="EventCounter.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFC_EFG_TIME_IO.h" />
@@ -212,6 +218,7 @@
     <ClCompile Include="AC6641_Ctrl.cpp" />
     <ClCompile Include="AC6641_DI.cpp" />
     <ClCompile Include="AC6641_DO.cpp" />
+    <ClCompile Include="Com.cpp" />
     <ClCompile Include="DlgParam.cpp" />
     <ClCompile Include="ComDef.cpp" />
     <ClCompile Include="CPCICtrl.cpp" />
@@ -238,6 +245,11 @@
     <ClCompile Include="DlgXray.cpp" />
     <ClCompile Include="EfgAlg.cpp" />
     <ClCompile Include="EfgIO.cpp" />
+    <ClCompile Include="EFGV1_Base.cpp" />
+    <ClCompile Include="EFGV1_Ctrl.cpp" />
+    <ClCompile Include="EFGV1_DI.cpp" />
+    <ClCompile Include="EFGV1_DO.cpp" />
+    <ClCompile Include="EFGV1_Motor.cpp" />
     <ClCompile Include="EventCounter.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFC_EFG_TIME_IO.cpp" />

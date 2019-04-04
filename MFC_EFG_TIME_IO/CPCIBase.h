@@ -22,6 +22,9 @@ enum TimeIOType {
   TMC12_COUNTER,
   AC6641_I,
   AC6641_O,
+  //EFGV1_I,
+  //EFGV1_O,
+  EFGV1_MOTOR,
 };
 //°å¿¨ÐÅÏ¢
 typedef struct tagDevInf
@@ -57,6 +60,7 @@ public:
   virtual BOOL StartT0(int no, int device, double param0 = 0, double param1 = 0) { return FALSE; };
   virtual BOOL StopT0(int no) { return FALSE; };
   virtual BOOL ReadT0(int no, double& param0, double &param1) { return FALSE; };
+  virtual BOOL WriteT0(int no, double param0 = 0, double param1 = 0) { return FALSE; };
   virtual BOOL RestartT0(int no) { return FALSE; };
   //T1 counter
   virtual BOOL CreateT1(int no, TimeIOType type, int device) { return FALSE; };

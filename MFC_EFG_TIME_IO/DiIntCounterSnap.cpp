@@ -107,8 +107,12 @@ UINT LaserMsg(LPVOID pParam)
 
 	return 0;
 }
-
+// 修改
 CWinThread * gTrdAll = NULL;
+#ifdef USE_EFGV1
+char g_tmp_counter[6][COUNTER_NUM*2]; // 测量时前4个激光，后两个x光
+#endif // USE_EFGV1
+
 UINT AllMsg(LPVOID pParam)
 {
 	if(0 == SetThreadAffinityMask(GetCurrentThread(), 4))
@@ -120,6 +124,42 @@ UINT AllMsg(LPVOID pParam)
 	//int delay = 0;
 	if (param->m_device < 0 || !param->m_card)
 		return FALSE;
+#ifdef USE_EFGV1
+  param->m_efgio->StartMeasure(1);
+  while (!param->m_efgio->CheckMeasureEnd());
+
+  for (int i = 0; i < 5; i++)// 获取所有计数器数量
+  {
+    param->m_efgio->GetCntDataNum(i);
+  }
+
+  param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[0];// 激光数量
+
+  for (int i = 0; i < 4; i++)
+  {
+    ASSERT(param->m_efgio->m_resultParam.measure.cnt_num[i]+3 < LASER_SIN_NUM);// 检验数量是否超标
+    int rdlen = param->m_efgio->GetAllCntData(i, (g_tmp_counter[i]), param->m_efgio->m_resultParam.measure.cnt_num[i]*2+6/*命令头4B+crc2B*/);//获取数据
+    ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[i] * 2 + 6); // 检验接收数量是否一致
+
+    if(param->m_counter.index[0] > param->m_efgio->m_resultParam.measure.cnt_num[i])// 激光数量存最小的
+      param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[i];
+
+  }
+
+  ASSERT(param->m_efgio->m_resultParam.measure.cnt_num[4]+3 < XRAY_ONESHOT_NUM);// 检验数量是否超标
+  int rdlen = param->m_efgio->GetAllCntData(4, (g_tmp_counter[4]), param->m_efgio->m_resultParam.measure.cnt_num[4]*2+6);//获取数据
+  ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[4] * 2 + 6); // 检验接收数量是否一致
+  param->m_counter.index[1] = param->m_efgio->m_resultParam.measure.cnt_num[4];// X光数量
+
+  for (int i = 0; i < 5; i++)//复制到原先的计数器数组中
+  {
+    for (int j = 0; j < param->m_efgio->m_resultParam.measure.cnt_num[i];j++)
+      param->m_counter.counter[i][j] = (g_tmp_counter[i][j+4]<<8)|(g_tmp_counter[i][j+1+4]);
+  }
+
+  
+
+#elif USE_AC6641
 	double fparam0=0,tmpfparam0=0, fparam01=0, fparam02=0;
 	double fparam1=0,tmpfparam1=0, fparam11=0, fparam12=0;
 	double fparam2=0,tmpfparam2=0, fparam21=0, fparam22=0;
@@ -239,6 +279,8 @@ UINT AllMsg(LPVOID pParam)
 		if(2==zero_flag||!param->m_counter.start ||(param->m_counter.index[1] > XRAY_ONESHOT_NUM && param->m_counter.index[0] > LASER_SIN_NUM))
 			break;
 	}
+
+#endif
 	param->m_counter.start=0;
 	param->m_counter.flag = 0;
 

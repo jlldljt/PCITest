@@ -243,10 +243,19 @@ double CEfgIO::ReadT0(EFG_T0Channel channel)
   GetPCI(m_on_card_no)->ReadT0(channel, fparam0, fparam1);
   return fparam1;
 }
+void CEfgIO::WriteT0(EFG_T0Channel channel, double param)
+{
+  double fparam0= param, fparam1;
+  GetPCI(m_on_card_no)->WriteT0(channel, fparam0, fparam1);
+  return;
+}
 //0 x;1 y;2 u
 #define MAX_STEP 65000
 void CEfgIO::MotoRun(int moto_index, double param)
 {
+#ifdef USE_EFGV1
+  MotoRun(moto_index,int(param));
+#elif USE_AC6641
   int sel = moto_index;
   int dst = param;
   switch (sel) {
@@ -380,10 +389,40 @@ void CEfgIO::MotoRun(int moto_index, double param)
     return;
   }
   Sleep(1);
+
+#endif
+}
+
+int CEfgIO::MotoRun(int moto_index, int param)
+{
+#ifdef USE_EFGV1
+  char sbuf[] = { 0x55, 'M', 'C', moto_index, param, param >> 8, param >> 16, param >> 24,0x00,0x00 };
+  int slen = sizeof(sbuf);
+  char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+
+  if (rdlen > 0 && crc)
+  {
+
+    while (!CheckMotoEnd(moto_index));
+    return 0;
+  }
+
+
+  return -1;
+#endif
 }
 
 void CEfgIO::MotoRunNoWait(int moto_index, double param)
 {
+#ifdef USE_EFGV1
+  MotoRunNoWait(moto_index, int(param));
+#elif USE_AC6641
+
   int sel = moto_index;
   int dst = param;
   switch (sel) {
@@ -449,10 +488,50 @@ void CEfgIO::MotoRunNoWait(int moto_index, double param)
     return;
   }
 
+#endif
 }
 
-void CEfgIO::MotoZero(int moto_index)
+int CEfgIO::MotoRunNoWait(int moto_index, int param)
 {
+#ifdef USE_EFGV1
+  char sbuf[] = { 0x55, 'M', 'C', moto_index, param>>24, param >>16, param >> 8, param >> 0,0x00,0x00 };
+  int slen = sizeof(sbuf);
+  char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+
+  if (rdlen > 0 && crc)
+  {
+    return 0;
+  }
+
+  return -1;
+#endif
+}
+
+int CEfgIO::MotoZero(int moto_index)
+{
+#ifdef USE_EFGV1
+
+  char sbuf[] = { 0x55,'M', 'Z', moto_index,0x00,0x00 };
+  int slen = sizeof(sbuf);
+  char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+
+  if (rdlen > 0 && crc)
+  {
+    return 0;
+  }
+  return -1;
+#elif USE_AC6641
+
   MotoRun(moto_index, 0);
   return;
   int sel = moto_index;
@@ -530,6 +609,8 @@ void CEfgIO::MotoZero(int moto_index)
     return;
   }
 
+#endif
+
 }
 
 void CEfgIO::UAutoRun(double degree)
@@ -555,6 +636,24 @@ void CEfgIO::UAutoRun(double degree)
 
 BOOL CEfgIO::CheckMotoEnd(int moto_index)
 {
+#ifdef USE_EFGV1
+  char sbuf[] = { 0x55, 'M',	'Q',moto_index, 0x00, 0x00 };
+  int slen = sizeof(sbuf);
+  char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+
+  if (rdlen > 8 && crc && rbuf[3]==0x00)
+  {
+    return TRUE;
+  }
+  return FALSE;
+
+#elif USE_AC6641
+
   int sel = moto_index;
   double val;
   switch (sel) {
@@ -571,6 +670,8 @@ BOOL CEfgIO::CheckMotoEnd(int moto_index)
     return TRUE;
   }
   return val ? TRUE : FALSE;
+
+#endif
 }
 
 CString CEfgIO::GetMeasureType(int index)
@@ -616,6 +717,104 @@ void CEfgIO::InitEfgIO(void)
   Sleep(m_configParam.user_config.time.y_off);//延时
   MotoRun(1, m_configParam.user_config.pos.y_wait);
 
+}
+int CEfgIO::StartMeasure(int cnt)
+{
+  char sbuf[] = { 0x55, 'E', 'S', cnt, 0x00, 0x00 };
+  int slen = sizeof(sbuf);
+  char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+
+  if (rdlen > 0 && crc)
+  {
+    return 0;
+  }
+
+  return -1;
+}
+BOOL CEfgIO::CheckMeasureEnd(void)
+{
+  char sbuf[] = { 0x55,'E', 'Q', 0x00, 0x00 };
+  int slen = sizeof(sbuf);
+  char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+
+  if (rdlen > 2 && crc && rbuf[2] == 1)
+  {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+// no 0 - 4
+// result in m_resultParam.measure.cnt_num[no]
+// return num>=0 success
+// return -1 failure
+int CEfgIO::GetCntDataNum(int no)
+{
+  char sbuf[] = { 0x55, 'C',	'N', no, 0x00 , 0x00 };
+  int slen = sizeof(sbuf);
+  char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+
+  if (rdlen > 5 && crc)
+  {
+    m_resultParam.measure.cnt_num[no] = (rbuf[3] << 8) | (rbuf[4] << 0);
+    return m_resultParam.measure.cnt_num[no];
+  }
+  return -1;
+}
+
+// no 0 - 4, buf the place of save , len the length of buf
+// return recvd len success
+// return -1 failure
+int CEfgIO::GetAllCntData(int no, char* buf, int len)
+{
+  char sbuf[] = { 0x55, 'C',	'D', no, 0x00 , 0x00 };
+  int slen = sizeof(sbuf);
+  char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, buf, len, &crc, 100/*1s*/);
+
+  if (rdlen > 5 && crc)
+  {
+    return rdlen;
+  }
+  return -1;
+}
+int CEfgIO::SetOut(int out3, int out6)
+{
+  char sbuf[] = { 0x55, 'F', 'O', out3 >> 8, out3, out6 >> 8,out6,0x00,0x00 };
+  int slen = sizeof(sbuf);
+  char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+
+  if (rdlen > 0 && crc)
+  {
+    return 0;
+  }
+
+  return -1;
 }
 //返回档位，pos_num返回该档位的计数值，pos_step返回该档位的位置
 int CEfgIO::GetCurOffPos(int &pos_num)

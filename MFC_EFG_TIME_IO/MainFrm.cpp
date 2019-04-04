@@ -1477,7 +1477,7 @@ void CMainFrame::EfgParamSave()
   str.Format(_T("%d"), m_efgio.m_configParam.auto_run);
   WritePrivateProfileString(_T("其他配置"), _T("自动运行"), str, ini_path);
 }
-
+// 修改，更换之后需要修改测量方式
 BOOL CMainFrame::StartMeasure(int out3, int out6)
 {
   if (m_diIntCounterSnap.CheckStart() > 0) {
@@ -1494,7 +1494,11 @@ BOOL CMainFrame::StartMeasure(int out3, int out6)
   m_diIntCounterSnap.BindCard(m_efgio.GetPCIDeviceNumber(index), m_efgio.GetPCI(index), m_viewBoard, &m_efgio);
   m_diIntCounterSnap.StartXRayAndLaser(0);
 
+#ifdef USE_EFGV1
+  m_efgio.SetOut(out3, out6);
+#elif USE_AC6641
   m_diIntCounterSnap.StartCaptureSin(OUT3_COUNTER, out3, OUT6_COUNTER, out6);// TODO：应该时5和4
+#endif
   m_diIntCounterSnap.StartCaptureXRayOneShot();
 
   m_diIntCounterSnap.StartMeasure();
@@ -1502,6 +1506,7 @@ BOOL CMainFrame::StartMeasure(int out3, int out6)
   return TRUE;
 }
 // TRUE 在测量中，False 没有测量
+// 修改
 BOOL CMainFrame::CheckMeasure()
 {
   if (m_diIntCounterSnap.CheckStart() > 0) {
