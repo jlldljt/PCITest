@@ -128,8 +128,8 @@ int KeyBoardMsg(DWORD vkCode, BOOL ctrl, BOOL alt)
       GetPathFromBrowse(g_path);
       if (g_path!=L"") {
         wcscat_s(g_path, L".bmp");
-
-        savebmp({ g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y }, g_path);
+		RECT rc = { g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y };
+        savebmp(rc, g_path);
         MessageBox(NULL, _T("save ok"), _T("ÌבÊ¾"), MB_OK | MB_ICONINFORMATION);
       }
     }
@@ -139,8 +139,11 @@ int KeyBoardMsg(DWORD vkCode, BOOL ctrl, BOOL alt)
     RedrawWindow(g_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW /*| RDW_ERASE*/);
     return TRUE;
   case VK_RETURN:
-    if(g_bStart)
-      testbmp({ g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y });
+	  if (g_bStart)
+	  {
+		  RECT rc = { g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y };
+		  testbmp(rc);
+	  }
     return TRUE;
   default:
     break;
@@ -406,7 +409,11 @@ void WINAPI OnRedrawWindow(HDC hDC)
 
   //HBRUSH oldbr = (HBRUSH)SelectObject(g_hDskDC,HBRUSH(GetStockObject(HOLLOW_BRUSH)));
   Rectangle(g_hDskDC, g_dpPntLDown.x, g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y);
-  Rop2Rc = { g_dpPntLDown.x, g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y };
+//  Rop2Rc = { g_dpPntLDown.x, g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y };
+  Rop2Rc.left = g_dpPntLDown.x;
+  Rop2Rc.top = g_dpPntLDown.y;
+  Rop2Rc.right = g_dpPntLUp.x;
+  Rop2Rc.bottom = g_dpPntLUp.y;
   //SelectObject(g_hDskDC, oldbr);
 
   SetROP2(g_hDskDC, oldrop2);

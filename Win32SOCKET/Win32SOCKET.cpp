@@ -20,7 +20,7 @@ using namespace std;
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <stdint.h>
 
 	// Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -405,13 +405,13 @@ test3connect:
   if (!isOta) {
 
     // send ota
-    UCHAR uchBuf[20] = { 0xF3, 0x04 };
+    UCHAR uchBuf[20] = { 0xF3, 0x04 ,0,0};
     uint16_t crc;
-    crc = getCRC16(uchBuf, 2);
-    memcpy_s(uchBuf + 2, sizeof(uchBuf), &crc, 2);
+    crc = getCRC16(uchBuf, 4);
+    memcpy_s(uchBuf + 4, sizeof(uchBuf), &crc, 2);
 
     // Send an initial buffer
-    iResult = send(ConnectSocket, (char*)uchBuf, 4, 0);
+    iResult = send(ConnectSocket, (char*)uchBuf, 6, 0);
     if (iResult == SOCKET_ERROR) {
       printf("send failed with error: %d\n", WSAGetLastError());
       closesocket(ConnectSocket);

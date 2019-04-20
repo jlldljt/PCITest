@@ -15,18 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Win32Project1\vcwnd.cpp">
+    <ClCompile Include="..\Win32WND\vcwnd.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Win32Project1\WIN32WND.cpp">
+    <ClCompile Include="..\Win32WND\WIN32WND.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Win32Project1\vcwnd.h">
+    <ClInclude Include="..\Win32WND\vcwnd.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Win32Project1\WIN32WND.h">
+    <ClInclude Include="..\Win32WND\WIN32WND.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
