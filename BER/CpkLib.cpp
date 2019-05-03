@@ -496,6 +496,10 @@ BOOL CCpkLib::CalcCpk(CString plannedNo, CString ProcessCardNo, CProcessCard & p
 	{
 		return FALSE;
 	}
+
+	if (processCard.no != ProcessCardNo)// 没有流程卡
+		return FALSE;
+
 	// 加载流程卡，计算CPK
 	path = m_cpkPath + plannedNo + _T("\\") + ProcessCardNo + _T(".csv");
 
@@ -515,7 +519,9 @@ BOOL CCpkLib::CalcCpk(CString plannedNo, CString ProcessCardNo, CProcessCard & p
 		while (csv->ReadData(arr))
 		{
 			if (arr.GetCount() == PROCESS_CSV_ROW_MAX) {
-
+				CString no = arr[PROCESS_CSV_ROW_NO];
+				if (no == _T("No"))
+					continue;
 				data.no = _ttoi(arr[PROCESS_CSV_ROW_NO]);
 				data.laser = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_LASER]));
 				data.phi = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_PHI]));
@@ -557,10 +563,18 @@ BOOL CCpkLib::CalcCpk(CString plannedNo, CString ProcessCardNo, CProcessCard & p
 
 		processCard.avg = avg;//_ttof(arr[PLANNED_CSV_ROW_AVG]);
 		processCard.std = std;//_ttof(arr[PLANNED_CSV_ROW_STD]);
-
-		processCard.ca = (processCard.avg-processCard.center)*2/(processCard.usl-processCard.lsl);
-		processCard.cp = (processCard.usl-processCard.lsl)/6/processCard.std;
-		processCard.cpk = processCard.cp * fabs(1-processCard.ca);
+		if (avg == 0 || std == 0)
+		{
+			processCard.ca = -1;
+			processCard.cp = -1;
+			processCard.cpk = -1;
+		}
+		else 
+		{
+			processCard.ca = (processCard.avg-processCard.center)*2/(processCard.usl-processCard.lsl);
+			processCard.cp = (processCard.usl-processCard.lsl)/6/processCard.std;
+			processCard.cpk = processCard.cp * fabs(1-processCard.ca);
+		}
 	}
 	else
 	{

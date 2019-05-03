@@ -11,6 +11,62 @@ EfgAlg::~EfgAlg()
 {
 }
 
+// Ò»Î¬ÂË²¨Æ÷ÐÅÏ¢½á¹¹Ìå
+typedef  struct{
+	double filterValue;  //k-1Ê±¿ÌµÄÂË²¨Öµ£¬¼´ÊÇk-1Ê±¿ÌµÄÖµ
+	double kalmanGain;   //   KalamnÔöÒæ
+	double A;   // x(n)=A*x(n-1)+u(n),u(n)~N(0,Q)
+	double H;   // z(n)=H*x(n)+w(n),w(n)~N(0,R)
+	double Q;   //Ô¤²â¹ý³ÌÔëÉùÆ«²îµÄ·½²î
+	double R;   //²âÁ¿ÔëÉùÆ«²î£¬(ÏµÍ³´î½¨ºÃÒÔºó£¬Í¨¹ý²âÁ¿Í³¼ÆÊµÑé»ñµÃ)
+	double P;   //¹À¼ÆÎó²îÐ­·½²î
+}  KalmanInfo;
+/**
+* @brief Init_KalmanInfo   ³õÊ¼»¯ÂË²¨Æ÷µÄ³õÊ¼Öµ
+* @param info  ÂË²¨Æ÷Ö¸Õë
+* @param Q Ô¤²âÔëÉù·½²î ÓÉÏµÍ³Íâ²¿²â¶¨¸ø¶¨
+* @param R ²âÁ¿ÔëÉù·½²î ÓÉÏµÍ³Íâ²¿²â¶¨¸ø¶¨
+*/
+void Init_KalmanInfo(KalmanInfo* info, double Q, double R, double filterValue)
+{
+	info->A = 1;  //±êÁ¿¿¨¶ûÂü
+	info->H = 15;  //
+	info->P = 1.85;  //ºóÑé×´Ì¬¹À¼ÆÖµÎó²îµÄ·½²îµÄ³õÊ¼Öµ£¨²»ÒªÎª0ÎÊÌâ²»´ó£©
+	info->Q = Q;    //Ô¤²â£¨¹ý³Ì£©ÔëÉù·½²î Ó°ÏìÊÕÁ²ËÙÂÊ£¬¿ÉÒÔ¸ù¾ÝÊµ¼ÊÐèÇó¸ø³ö
+	info->R = R;    //²âÁ¿£¨¹Û²â£©ÔëÉù·½²î ¿ÉÒÔÍ¨¹ýÊµÑéÊÖ¶Î»ñµÃ
+	info->filterValue = filterValue;// ²âÁ¿µÄ³õÊ¼Öµ 0 
+}
+double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement)
+{
+	//Ô¤²âÏÂÒ»Ê±¿ÌµÄÖµ
+	double predictValue = kalmanInfo->A* kalmanInfo->filterValue;   //xµÄÏÈÑé¹À¼ÆÓÉÉÏÒ»¸öÊ±¼äµãµÄºóÑé¹À¼ÆÖµºÍÊäÈëÐÅÏ¢¸ø³ö£¬´Ë´¦ÐèÒª¸ù¾Ý»ùÕ¾¸ß¶È×öÒ»¸öÐÞ¸Ä
+	
+	//ÇóÐ­·½²î
+	kalmanInfo->P = kalmanInfo->A*kalmanInfo->A*kalmanInfo->P + kalmanInfo->Q;  //¼ÆËãÏÈÑé¾ù·½²î p(n|n-1)=A^2*p(n-1|n-1)+q
+	double preValue = kalmanInfo->filterValue;  //¼ÇÂ¼ÉÏ´ÎÊµ¼Ê×ø±êµÄÖµ
+ 
+	//¼ÆËãkalmanÔöÒæ
+	kalmanInfo->kalmanGain = kalmanInfo->P*kalmanInfo->H / (kalmanInfo->P*kalmanInfo->H*kalmanInfo->H + kalmanInfo->R);  //Kg(k)= P(k|k-1) H¡¯ / (H P(k|k-1) H¡¯ + R)
+	//ÐÞÕý½á¹û£¬¼´¼ÆËãÂË²¨Öµ
+	kalmanInfo->filterValue = predictValue + (lastMeasurement - predictValue)*kalmanInfo->kalmanGain;  //ÀûÓÃ²ÐÓàµÄÐÅÏ¢¸ÄÉÆ¶Ôx(t)µÄ¹À¼Æ£¬¸ø³öºóÑé¹À¼Æ£¬Õâ¸öÖµÒ²¾ÍÊÇÊä³ö  X(k|k)= X(k|k-1)+Kg(k) (Z(k)-H X(k|k-1))
+	//¸üÐÂºóÑé¹À¼Æ
+	kalmanInfo->P = (1 - kalmanInfo->kalmanGain*kalmanInfo->H)*kalmanInfo->P;//¼ÆËãºóÑé¾ù·½²î  P[n|n]=(1-K[n]*H)*P[n|n-1]
+ 
+	return  kalmanInfo->filterValue;
+}
+
+void EfgAlg::KLM(double * yi, int iNum)
+{
+	KalmanInfo klm;
+	Init_KalmanInfo(&klm, 3, 3, yi[iNum-1]);
+	for(int i = 0; i < iNum; i++)
+	{
+		KalmanFilter(&klm, yi[i]);
+		yi[i] = klm.filterValue;
+	}
+	//KalmanFilter(&klm, yi[0]);
+	//yi[0] = klm.filterValue;
+}
 //¼ÆËã¹âÖáÆ½¾ùÖµ¼°±ê×¼·½³Ì
 double EfgAlg::Avg(int num, int *th)
 {
@@ -513,7 +569,7 @@ int TransK(double* K)//Ó¦¸ÃÊÇÏûÔª·¨°Ñ×ó¾ØÕó»¯³Éµ¥Î»¾ØÕó£¬ÔòÓÒ¾ØÕó(K 3 7 11)¼´ÊÇ½
 ***********************************************************************************/
 int Cal(double * yi, int startCur, int endCur, double* ParaA, double* ParaB, double* ParaC)
 {
-	int len = endCur - startCur + 1;
+	int len = endCur - startCur /*+ 1*/;
 	double *BufferX = new double[len];
 	double *BufferY = new double[len];
 
@@ -554,13 +610,13 @@ int GetMidCur(double * yi, int startCur, int endCur)
 	//Ãæ»ýÖÐ¼ä
 	double area=0;
 	int i;
-	for(i = startCur; i <= endCur; i++) 
+	for(i = startCur; i < endCur; i++) 
 	{
 		area+=yi[i];
 	}
 	area/=2;
 	double tmp_area = 0;
-	for(i = startCur; i <= endCur; i++)
+	for(i = startCur; i < endCur; i++)
 	{
 		tmp_area+=yi[i];
 		if(tmp_area>=area)
@@ -679,7 +735,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãÐÖµ*/, int co
   //int limitCnt = 0;
   double d = 0;
   int max = 0;// ×î´ó³¬ÏÞµã
-  confirmNum += ignore;
+  //confirmNum += ignore;
   m_spikes.RemoveAll();
   bool lastOne = false;
 
@@ -690,8 +746,14 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãÐÖµ*/, int co
 		  i = 0;
 		  lastOne = true;
 	  }
+	  else if(i < iNum && false == lastOne)
+	  {
+		  ;
+	  }
 	  else
+	  {
 		  break;
+	  }
   //  if (ignore == yi[i])
   //  {
   //    if (-1 == limitCur)
@@ -752,19 +814,19 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãÐÖµ*/, int co
 		int point_num  =0;
 		if(lastCur >=limitCur)
 		{
-			memcpy(tmp_yi, yi, lastCur-limitCur+1);
+			memcpy((char*)tmp_yi, (char*)(yi+limitCur), (lastCur-limitCur+1)*sizeof(double));
 			point_num+=lastCur-limitCur+1;
 		}
 		else
 		{
-			memcpy(tmp_yi, yi, iNum - limitCur);
+			memcpy((char*)tmp_yi, (char*)(yi+limitCur), (iNum - limitCur)*sizeof(double));
 			point_num+=iNum - limitCur;
-			memcpy(tmp_yi+iNum - limitCur, yi, lastCur+1);
+			memcpy((char*)(tmp_yi+iNum - limitCur), (char*)yi, (lastCur+1)*sizeof(double));
 			point_num+=lastCur+1;
 		}
 
 		//max =  GetMidCur(yi, limitCur, lastCur);
-		max =  GetMidCur(yi, 0, point_num);
+		max =  GetMidCur(tmp_yi, 0, point_num);
 
 		max+=limitCur;
 		max=max>=iNum?max-iNum:max;
@@ -781,8 +843,8 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãÐÖµ*/, int co
 				break;
 
 		}
-
-		if(max>=limitCur && max<=i-1-ignoreCnt)
+		
+		if(1/*max>=limitCur && max<=i-1-ignoreCnt*/)
 		{
 			SPIKE spike;
 			spike.p.x = max;//(limitCur + i - 1) / 2;

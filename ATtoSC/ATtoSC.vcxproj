@@ -106,28 +106,78 @@
     <None Include="res\ATtoSC.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\CellRange.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCell.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\MemDC.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\TitleTip.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridURLCell.h" />
+    <ClInclude Include="..\sqlite\database.h" />
+    <ClInclude Include="..\sqlite\sqlite3.h" />
     <ClInclude Include="ATtoSC.h" />
     <ClInclude Include="ATtoSCDlg.h" />
+    <ClInclude Include="CpkLib.h" />
     <ClInclude Include="CSVFile.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="DlgCheckStd.h" />
+    <ClInclude Include="DlgCpk.h" />
+    <ClInclude Include="DlgCpkSet.h" />
     <ClInclude Include="DlgMsg.h" />
+    <ClInclude Include="DlgPassword.h" />
+    <ClInclude Include="DlgStdSet.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Run.h" />
+    <ClInclude Include="StandardLib.h" />
+    <ClInclude Include="StaticDraw.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TrendChart.h" />
+    <ClInclude Include="TXT.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCell.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\TitleTip.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridURLCell.cpp" />
+    <ClCompile Include="..\sqlite\database.cpp" />
+    <ClCompile Include="..\sqlite\sqlite3.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="ATtoSC.cpp" />
     <ClCompile Include="ATtoSCDlg.cpp" />
     <ClCompile Include="ColorSpace.cpp" />
+    <ClCompile Include="CpkLib.cpp" />
     <ClCompile Include="CSVFile.cpp" />
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="DlgCheckStd.cpp" />
+    <ClCompile Include="DlgCpk.cpp" />
+    <ClCompile Include="DlgCpkSet.cpp" />
     <ClCompile Include="DlgMsg.cpp" />
+    <ClCompile Include="DlgPassword.cpp" />
+    <ClCompile Include="DlgStdSet.cpp" />
     <ClCompile Include="Run.cpp" />
+    <ClCompile Include="StandardLib.cpp" />
+    <ClCompile Include="StaticDraw.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TrendChart.cpp" />
+    <ClCompile Include="TXT.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ATtoSC.rc" />

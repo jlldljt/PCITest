@@ -114,7 +114,7 @@ void CRun::OnBnClickedBtnSortset()
 	int tmpSort = USER_TO_SEC(GetDlgItemInt(IDC_EDT_SORTDEG, 0, 1));
 	if (tmpSort>tmpCut || tmpCut%tmpSort)
 	{
-		AfxMessageBox(_T("分档角度与切角角度关系不对"));
+		AfxMessageBox(_T("分档角度与切角角度关系不对，分档角小于等于切角，且切角能被分档角整除"));
 		return;
 	}
 
@@ -123,19 +123,27 @@ void CRun::OnBnClickedBtnSortset()
 
 	//查看中心是否改变
 	int edt_value = USER_TO_SEC(GetDlgItemInt(IDC_EDT_MIDDEG,0,1));
-	int ini_value = USER_TO_SEC(GetPrivateProfileInt(_T("分档设定"),_T("中心角度：度"),0,gstuPathInf.csPathIni)*10000+
-		GetPrivateProfileInt(_T("分档设定"),_T("中心角度：分"),0,gstuPathInf.csPathIni)*100+
-		GetPrivateProfileInt(_T("分档设定"),_T("中心角度：秒"),0,gstuPathInf.csPathIni)); 
-
+	//int ini_value = USER_TO_SEC(GetPrivateProfileInt(_T("分档设定"),_T("中心角度：度"),0,gstuPathInf.csPathIni)*10000+
+	//	GetPrivateProfileInt(_T("分档设定"),_T("中心角度：分"),0,gstuPathInf.csPathIni)*100+
+	//	GetPrivateProfileInt(_T("分档设定"),_T("中心角度：秒"),0,gstuPathInf.csPathIni)); 
+	int ini_value = USER_TO_SEC(GetPrivateProfileInt(_T("对标设定"),_T("上一次对标中心角度"),0,gstuPathInf.csPathIni));
+	
 	if(edt_value != ini_value)
+	{
 		gstuSort.needCheck = 1;
-
+		AfxMessageBox(_T("与上次中心角度不一致，需要对标"));
+	}
+	else
+	{
+		gstuSort.needCheck = 0;
+		AfxMessageBox(_T("与上次中心角度一致，不用对标"));
+	}
 
 	int usl = edt_value-tmpSort/2+tmpCut;
 	int lsl = edt_value-tmpSort/2-tmpCut;
 
 	CString tmpStr;
-	tmpStr.Format(_T("usl : %d lsl : %d"),SEC_TO_USER(usl),SEC_TO_USER(lsl));
+	tmpStr.Format(_T("cpk usl : %d lsl : %d"),SEC_TO_USER(usl),SEC_TO_USER(lsl));
 	AfxMessageBox(tmpStr);
 
 	gstuSort.centerangle=GetDlgItemInt(IDC_EDT_MIDDEG,0,1)/10000*3600+GetDlgItemInt(IDC_EDT_MIDDEG,0,1)%10000/100*60+GetDlgItemInt(IDC_EDT_MIDDEG,0,1)%100;
@@ -607,6 +615,26 @@ BOOL CRun::RunInit()
 
 	int status = 0;
 
+	CString planned,process;
+
+	GetDlgItemText(IDC_EDIT_PLANNED, planned);
+
+	if ("" == planned)
+	{
+		AfxMessageBox(_T("计划号？"));
+
+		return FALSE;
+	}
+
+
+	GetDlgItemText(IDC_EDIT_CARD, process);
+
+	if ("" == process)
+	{
+		AfxMessageBox(_T("流程卡号？"));
+
+		return FALSE;
+	}
 	// 对标准
 	if(gstuSort.needCheck)
 	{
@@ -618,6 +646,10 @@ BOOL CRun::RunInit()
 				return FALSE;
 		}
 		gstuSort.needCheck=0;
+		CString str;
+		GetDlgItemText(IDC_EDT_MIDDEG,str);
+		WritePrivateProfileString(_T("对标设定"),_T("上一次对标中心角度"),str,gstuPathInf.csPathIni);  
+
 	}
 
 	/*	if(g_hDevice==INVALID_HANDLE_VALUE)
@@ -642,31 +674,31 @@ BOOL CRun::RunInit()
 	}
 	END_CATCH
 
-	CString planned,process;
+	//CString planned,process;
 
-	GetDlgItemText(IDC_EDIT_PLANNED, planned);
+	//GetDlgItemText(IDC_EDIT_PLANNED, planned);
 
-	if ("" == planned)
-	{
-		AfxMessageBox(_T("计划号？"));
+	//if ("" == planned)
+	//{
+	//	AfxMessageBox(_T("计划号？"));
 
-		return FALSE;
-	}
+	//	return FALSE;
+	//}
 
 
-	GetDlgItemText(IDC_EDIT_CARD, process);
+	//GetDlgItemText(IDC_EDIT_CARD, process);
 
-	if ("" == process)
-	{
-		//去掉抽检 by mmy 181017
-		//status = AfxMessageBox(_T("是否抽检？"), MB_OKCANCEL);
-		//if (status == 2)//取消
-		//{
-		//  return FALSE;
-		//}
-		//else {}
-	}
-	else
+	//if ("" == process)
+	//{
+	//	//去掉抽检 by mmy 181017
+	//	//status = AfxMessageBox(_T("是否抽检？"), MB_OKCANCEL);
+	//	//if (status == 2)//取消
+	//	//{
+	//	//  return FALSE;
+	//	//}
+	//	//else {}
+	//}
+	//else
 	{
 		// 创建cpk计划号、流程卡, 
     // 190327 可以重复创建
@@ -1275,7 +1307,7 @@ void CRun::OnBnClickedChkShake()
 void CRun::OnBnClickedBtnStdcheck()
 {
 	// TODO: 在此添加控件通知处理程序代码
-		CDlgCheckStd dlg;
+	CDlgCheckStd dlg;
 	int ret = dlg.DoModal();
 	if(ret != 101)
 	{
@@ -1283,7 +1315,9 @@ void CRun::OnBnClickedBtnStdcheck()
 		return;
 	}
 	gstuSort.needCheck=0;
-
+	CString str;
+	GetDlgItemText(IDC_EDT_MIDDEG,str);
+	WritePrivateProfileString(_T("对标设定"),_T("上一次对标中心角度"),str,gstuPathInf.csPathIni); 
 
 	return;
 }

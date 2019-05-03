@@ -181,6 +181,7 @@ void CDlgCheckStd::InitGrid_StdSeries(void)
   m_gridStdSeries.ExpandLastColumn();
   m_gridStdSeries.SetColumnResize(FALSE);
   m_gridStdSeries.SetRowResize(FALSE);
+  m_gridStdSeries.SetEditable(FALSE);
   //m_gridStdSeries.SetSingleRowSelection(TRUE);
   //SetAutoSizeStyle
   //m_gridStdSeries.EnableScrollBar();
@@ -780,6 +781,7 @@ void CDlgCheckStd::OnBnClickedBtnSet()
   {
 	  GetDlgItem(IDC_BTN_STD_MODIFY)->EnableWindow(true);
 	  m_gridStdLib.SetEditable(TRUE);
+	  m_gridStdSeries.SetEditable(TRUE);
     CDlgStdSet set(m_stdLib);
     ret = set.DoModal();
   }

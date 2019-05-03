@@ -81,6 +81,7 @@ public:
 
   CArray<SPIKE, SPIKE&> m_spikes;
   void Correct(double * yi, int iNum, int sub);
+  void KLM(double * yi, int iNum);
   void Smooth(double * yi, int iNum, int smooth_width, int cnt);
   // Ã·»°º‚∑Â
   int ExtractSpike(double * yi, int iNum, double threshold, int confirmNum, double ignore);

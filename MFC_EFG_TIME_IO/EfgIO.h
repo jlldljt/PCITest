@@ -155,27 +155,35 @@ typedef struct {
   }measure;
 }EFG_ResultParam;
 
-
+//按板卡的 修改
 enum EFG_IChannel
 {
   LASER_CNT_GATE= 1,//激光计数门控
   XRAY_CNT_GATE= 2,//x光计数门控
   TURNTABLE_ZERO = 4,//转盘零位
+  READY,
 };
 
 enum EFG_OChannel
 {
  // U_DIR = 0,//
-  U_EN = 1,//
-  XRAY_CTRL_GATE = 2,//光门
+  X_NOZZLE=1,
+  XRAY_GATE,
   U_GATE = 3,//
   U_OUTP = 4,//
   U_OUTN = 5,//
+
+  XRAY_CTRL_GATE,//光门
+  Y_NOZZLE,
+  U_EN,//
+  BLOW,
+  ALERT,
+  CLEAN,
 };
 //按序号
 enum AC6641_Channel
 {
-  X_DIR=4*8,
+  /*X_DIR=4*8,
   X_GO,
   X_NOZZLE=4*8+3,
   Y_DIR,
@@ -193,17 +201,17 @@ enum AC6641_Channel
   U_DIR=10*8,
   U_GO,
   //U_NOZZLE=10*8+3,
-  U_STATE = 11 * 8,
+  U_STATE = 11 * 8,*/
 };
 //按port
 enum AC6641_Port
 {
-  X_STEP_LOW=0,
+  /*X_STEP_LOW=0,
   X_STEP_HIGH=1,
   Y_STEP_LOW=2,
   Y_STEP_HIGH=3,
   U_STEP_LOW=8,
-  U_STEP_HIGH=9,
+  U_STEP_HIGH=9,*/
 };
 
 enum EFG_T0Channel
@@ -268,6 +276,7 @@ public:
   double ReadT0(EFG_T0Channel channel);
   void WriteT0(EFG_T0Channel channel, double param);
   // 增加卡修改，不好用以上函数囊括的，在下面增加函数即可
+  char GetMotoCh(int moto_index);
   void MotoRun(int moto_index, double param);
   int MotoRun(int moto_index, int param);
   void MotoRunNoWait(int moto_index, double param);

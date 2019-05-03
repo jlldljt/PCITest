@@ -28,6 +28,8 @@ int g_widthBytes;
 BYTE *g_lpGray=NULL;//保存二值化后的图像数据
 int head[10][8],height_num,width_num;//图片标志数据
 int g_shakeE;
+CTXT gclsTxt;
+CCpkLib* g_pCpk;
 
 RGBCAPTUREBUFFER pCaptureBuffer;//读屏幕中用到
 RGBBITMAP       RGBBitmap1;     //第一个采集事件位图信息
@@ -115,3 +117,21 @@ BOOL CATtoSCApp::InitInstance()
 	return FALSE;
 }
 
+void CalcAvgStd(const int sum, const double angle, double& avg, double& std, double& std2)
+{
+	double n = sum;
+
+	double xi = angle;
+	//double avg;
+	if (1 == n)
+	{
+		avg = xi;//平均值
+		std2 = xi * xi;//标准偏差中间值
+	}
+	if (n > 1)
+	{
+		avg = (avg + xi / (n - 1)) / (n / (n - 1));//求平均值
+		std2 = (std2 + xi * xi / (n - 1)) / (n / (n - 1));//求标准差中间值
+		std = sqrt(abs(std2 - avg * avg) * n / (n - 1));//求标准差
+	}
+}

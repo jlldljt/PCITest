@@ -2,7 +2,8 @@
 #include "afxcmn.h"
 #include "afxwin.h"
 
-
+int RCGVGA(void);//读屏幕
+void WaitVGAEnd(void);
 UINT TakeThread(LPVOID pParam);//线程函数
 UINT SortThread(LPVOID pParam);//线程函数
 UINT SortThreadWithZ(LPVOID pParam);//线程函数
@@ -84,4 +85,7 @@ afx_msg void OnEnChangeEditTimeX3();
 	afx_msg void OnEnChangeEditTimeY();
 	afx_msg void OnEnChangeEditTimeYf();
 	afx_msg void OnEnChangeEditTimeBlow();
+	afx_msg void OnBnClickedBtnPrint();
+	afx_msg void OnBnClickedBtnStdcheck();
+  afx_msg void OnBnClickedBtnCpk();
 };

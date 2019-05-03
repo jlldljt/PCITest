@@ -19,6 +19,30 @@
 
 //csv
 #include "CSVFile.h"
+#include "DlgCheckStd.h"
+#include "DlgCpk.h"
+
+
+#define USER_TO_SEC(deg) ((deg)/10000*3600+(deg)%10000/100*60+(deg)%100)
+#define DEG_TO_USER(deg) (SEC_TO_USER(DEG_TO_SEC(deg)))
+#define SEC_TO_USER(sec) (((int)sec)/3600*10000+((int)sec)%3600/60*100+((int)sec)%60)
+
+#define USER_TO_DEG(deg) ((deg)/10000+(deg)%10000/100/60.0+(deg)%100/3600.0)
+#define DEG_TO_SEC(deg) ((int)((deg)*3600))
+#define SEC_TO_DEG(sec) ((sec)/3600.0)
+//秒的度分秒
+#define S_DEG(sec) ((sec)/3600)
+#define S_MIN(sec) ((sec)%3600/60)
+#define S_SEC(sec) ((sec)%60)
+//度的度分秒
+#define D_DEG(deg) S_DEG((int)((deg)*3600))
+#define D_MIN(deg) S_MIN((int)((deg)*3600))
+#define D_SEC(deg) S_SEC((int)((deg)*3600))
+//用户输入的度分秒
+#define U_DEG(user) ((user)/10000)
+#define U_MIN(user) ((user)%10000/100)
+#define U_SEC(user) ((user)%100)
+
 typedef struct
 {
 	BITMAPINFOHEADER bmiHeader;	
@@ -46,7 +70,7 @@ struct sortchip//分档全局结构
 	bool islongsqu , chgsqu;//指定是否长方片
 	int itemnum;//规定多少档位
 	CString itemstr;
-	int centerangle,sortvalue,eleclow,elechigh;//预设值
+	int centerangle,sortvalue,eleclow,elechigh, cutvalue;//预设值
 	int et0,ek;//计算等效角的参数 180414
 	unsigned int sortnum[30],sortsum,sortsn,alertnum[30];//sortsum1~24档片数，sortsn分档值,sortsum已测出1~24档总片数
 	double sortavg[5],sortstd[5];//存取1~24档的平均值及标准偏差
@@ -55,6 +79,7 @@ struct sortchip//分档全局结构
 	int checkout0,nocheckout;//测出0的次数（连续，不能测出
 	int R1t[360],R1e[360],R1Num;//R1光轴修正，电轴修正
 	//CString R1tmp;
+	bool needCheck;
 };
 struct stuTime//分档全局结构
 {
@@ -91,8 +116,8 @@ extern CString pathSaveDegree;
 extern stuTime g_tim;
 extern HANDLE g_hDevice;//AC6641句柄
 extern int g_shakeE;
-
-
+extern CTXT gclsTxt;
+extern CCpkLib* g_pCpk;
 
 extern void AlertCtrl(bool stat);//控制警报
 
@@ -100,3 +125,5 @@ extern void AlertCtrl(bool stat);//控制警报
 int ShakePlatformUp();
 
 int ShakePlatformDown();
+
+void CalcAvgStd(const int sum, const double angle, double& avg, double& std, double& std2);

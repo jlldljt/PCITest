@@ -13,6 +13,24 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="CHECKSTD">
+      <UniqueIdentifier>{abe0f74e-03ff-4287-8852-59af4b750e7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl">
+      <UniqueIdentifier>{804834af-cae7-449f-99be-f7ffe0a5777b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl\NewCellTypes">
+      <UniqueIdentifier>{3305ae00-8306-4398-991f-3e8f8ef07797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl\Src">
+      <UniqueIdentifier>{49e62d71-3d99-42c0-8cae-92de7e442eff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sqlite">
+      <UniqueIdentifier>{b277b7bf-97c5-4a83-9e16-b6b9c1b675dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CPK">
+      <UniqueIdentifier>{678e8259-8631-4073-be92-c62408befade}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -51,6 +69,81 @@
     <ClInclude Include="CSVFile.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DlgCheckStd.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgPassword.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgStdSet.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardLib.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridURLCell.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\CellRange.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCell.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\MemDC.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\TitleTip.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sqlite\database.h">
+      <Filter>Sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sqlite\sqlite3.h">
+      <Filter>Sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="TXT.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CpkLib.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCpk.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCpkSet.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticDraw.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="TrendChart.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ATtoSC.cpp">
@@ -76,6 +169,75 @@
     </ClCompile>
     <ClCompile Include="CSVFile.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCheckStd.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgPassword.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgStdSet.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardLib.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridURLCell.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCell.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\TitleTip.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sqlite\database.cpp">
+      <Filter>Sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sqlite\sqlite3.c">
+      <Filter>Sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="TXT.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CpkLib.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCpk.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCpkSet.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticDraw.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="TrendChart.cpp">
+      <Filter>CPK</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

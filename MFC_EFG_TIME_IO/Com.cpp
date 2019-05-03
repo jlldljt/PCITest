@@ -121,6 +121,7 @@ BOOL  CCom::OpenCom(CString no)
 		m_base.dcb.StopBits=0;//一位停止位
 		SetCommState(m_base.hd,&m_base.dcb);
 		m_base.timeout.ReadIntervalTimeout=0;
+		m_base.timeout.ReadTotalTimeoutConstant=10;
 		SetCommTimeouts(m_base.hd,&m_base.timeout);
 		PurgeComm(m_base.hd,PURGE_TXABORT|PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
 
@@ -178,7 +179,7 @@ int  CCom::WriteCom(const char *buf,UINT len)
 	long Time1 = GetTickCount();
 
  	ClearCommError(m_base.hd,&m_base.error,&m_base.stat);
-	WriteFile(m_base.hd, buf,len,&wdlen,NULL);//发送
+	flag =WriteFile(m_base.hd, buf,len,&wdlen,NULL);//发送
 
   if (!flag)
   {
@@ -210,6 +211,7 @@ int CCom::SendCharToCom(const char* buf, UINT len)
 	if(wdlen !=len)//
 	{
 		flag=-1;
+		return flag;
 	}
 
   CString tmp;
@@ -242,16 +244,17 @@ int CCom::SendCharToCom(char* buf, UINT len, bool crc)
 int CCom::RecvCharFromCom(char *buf,UINT len,bool *crc,UINT timeout)
 {
 	//ccCriticalSection.Lock();
-	UINT rdlen;//读到的长度
+	ASSERT(buf&&len>0);
+	INT rdlen;//读到的长度
 	//UINT totalLen = 0;
-	UINT timeout_cnt = 0;
-  UINT offset = 0;
+	INT timeout_cnt = 0;
+  INT offset = 0;
   if (crc)
 	  *crc = 0;
 
 	while (1)
 	{
-		Sleep(10);
+		//Sleep(10);
     rdlen = ReadCom(buf+ offset, len- offset);
 		if (rdlen>=0)
 		{
@@ -295,7 +298,7 @@ int CCom::RecvCharFromCom(char *buf,UINT len,bool *crc,UINT timeout)
 		//{
 		//	*crc = 1;
 		//}
-    if(buf[offset -1]== crcresult)
+    if(buf[offset -1]== (char)(crcresult&0xff))
     {
     	*crc = 1;
     }

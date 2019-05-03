@@ -110,7 +110,7 @@ UINT LaserMsg(LPVOID pParam)
 // 修改
 CWinThread * gTrdAll = NULL;
 #ifdef USE_EFGV1
-char g_tmp_counter[6][COUNTER_NUM*2]; // 测量时前4个激光，后两个x光
+unsigned char g_tmp_counter[6][COUNTER_NUM*2]; // 测量时前4个激光，后两个x光
 #endif // USE_EFGV1
 
 UINT AllMsg(LPVOID pParam)
@@ -125,6 +125,8 @@ UINT AllMsg(LPVOID pParam)
 	if (param->m_device < 0 || !param->m_card)
 		return FALSE;
 #ifdef USE_EFGV1
+	while (!param->m_counter.start);
+
   param->m_efgio->StartMeasure(1);
   while (!param->m_efgio->CheckMeasureEnd());
 
@@ -135,26 +137,27 @@ UINT AllMsg(LPVOID pParam)
 
   param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[0];// 激光数量
 
-  for (int i = 0; i < 4; i++)
-  {
-    ASSERT(param->m_efgio->m_resultParam.measure.cnt_num[i]+3 < LASER_SIN_NUM);// 检验数量是否超标
-    int rdlen = param->m_efgio->GetAllCntData(i, (g_tmp_counter[i]), param->m_efgio->m_resultParam.measure.cnt_num[i]*2+6/*命令头4B+crc2B*/);//获取数据
-    ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[i] * 2 + 6); // 检验接收数量是否一致
+  //for (int i = 0; i < 4; i++)
+  //{
+  //  ASSERT(param->m_efgio->m_resultParam.measure.cnt_num[i]+3 < LASER_SIN_NUM);// 检验数量是否超标
+  //  int rdlen = param->m_efgio->GetAllCntData(i, (g_tmp_counter[i]), param->m_efgio->m_resultParam.measure.cnt_num[i]*2+6/*命令头4B+crc2B*/);//获取数据
+  //  ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[i] * 2 + 6); // 检验接收数量是否一致
 
-    if(param->m_counter.index[0] > param->m_efgio->m_resultParam.measure.cnt_num[i])// 激光数量存最小的
-      param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[i];
+  //  if(param->m_counter.index[0] > param->m_efgio->m_resultParam.measure.cnt_num[i])// 激光数量存最小的
+  //    param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[i];
 
-  }
+ // }
 
   ASSERT(param->m_efgio->m_resultParam.measure.cnt_num[4]+3 < XRAY_ONESHOT_NUM);// 检验数量是否超标
-  int rdlen = param->m_efgio->GetAllCntData(4, (g_tmp_counter[4]), param->m_efgio->m_resultParam.measure.cnt_num[4]*2+6);//获取数据
-  ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[4] * 2 + 6); // 检验接收数量是否一致
+  int rdlen = param->m_efgio->GetAllCntData(4, (char*)(g_tmp_counter[4]), param->m_efgio->m_resultParam.measure.cnt_num[4]+6);//获取数据
+  //ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[4] + 6); // 检验接收数量是否一致
   param->m_counter.index[1] = param->m_efgio->m_resultParam.measure.cnt_num[4];// X光数量
 
   for (int i = 0; i < 5; i++)//复制到原先的计数器数组中
   {
     for (int j = 0; j < param->m_efgio->m_resultParam.measure.cnt_num[i];j++)
-      param->m_counter.counter[i][j] = (g_tmp_counter[i][j+4]<<8)|(g_tmp_counter[i][j+1+4]);
+		param->m_counter.counter[i][j] = g_tmp_counter[i][j+4];
+      //param->m_counter.counter[i][j] = (g_tmp_counter[i][j+4]<<8)|(g_tmp_counter[i][j+1+4]);
   }
 
   
@@ -295,6 +298,7 @@ UINT AllMsg(LPVOID pParam)
 	return 0;
 }
 
+#ifndef USE_EFGV1
 CWinThread * gTrdU = NULL;
 UINT UMsg(LPVOID pParam)
 {
@@ -368,6 +372,8 @@ UINT UMsg(LPVOID pParam)
 	param->m_card->WriteDO(U_GATE, tmp_val=1);
 	AfxMessageBox(L"over");
 }
+#endif
+
 CWinThread * gTrdCircle = NULL;
 UINT CircleMsg(LPVOID pParam)
 {
@@ -1218,15 +1224,22 @@ int CDiIntCounterSnap::LaserFit()
 #define XRAY_CNT_START_INDEX 4
 int CDiIntCounterSnap::XrayFit()
 {
-	if (!m_card || m_counter.start || m_counter.index[1] > XRAY_ONESHOT_NUM+1)
+
+
+
+
+#ifdef USE_EFGV1
+	if (!m_card || m_counter.start || m_counter.index[1] > XRAY_ONESHOT_NUM|| m_counter.index[1] <0)
 		return -1;
-
-
-
+	memcpy(m_counter.tmp_counter[XRAY_CNT_START_INDEX], m_counter.counter[XRAY_CNT_START_INDEX], sizeof(double)*m_counter.index[1]);
+	memcpy(m_counter.fit[0], m_counter.counter[XRAY_CNT_START_INDEX], sizeof(double)*m_counter.index[1]);
+	int sin_num = (m_counter.index[1]-1)/*/SMALL*/;
+#else
+#ifndef  __DEBUG__
+	if (!m_card || m_counter.start || m_counter.index[1] > XRAY_ONESHOT_NUM+1|| m_counter.index[1] <0)
+		return -1;
 	memset(m_counter.tmp_counter, 0, sizeof(m_counter.tmp_counter));
 	memset(m_counter.fit, 0, sizeof(m_counter.fit));
-#ifndef  __DEBUG__
-
 
 	//计数器值的差，即每个脉冲下的计数值
 	//for (int i = m_counter.index[1] - 2; i >= 0; i--) {
@@ -1323,6 +1336,7 @@ int CDiIntCounterSnap::XrayFit()
 		m_counter.fit[0][i] = 100 * sin(i * (2 * PI) / sin_num * 2 + PI) + 300;
 	}
 #endif // __DEBUG__
+#endif
 	//TODO：调试拟合
 	EfgAlg alg;
 #if 1 // 用于记录这些点
@@ -1353,7 +1367,9 @@ int CDiIntCounterSnap::XrayFit()
 	// alg.FitSinByLeastSquares(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[2], param);
 
 	//alg.Correct(m_counter.fit[0], sin_num,3);//平滑
-
+	if(sin_num <=0)
+		return -1;
+	alg.KLM(m_counter.fit[0], sin_num);
 	alg.Smooth(m_counter.fit[0], sin_num,m_efgio->m_configParam.xray.factor_w,m_efgio->m_configParam.xray.factor_h);//平滑
 	alg.ExtractSpike(m_counter.fit[0], sin_num,// 100, 3, -1);
 		m_efgio->m_configParam.xray.threshold,
@@ -1361,7 +1377,7 @@ int CDiIntCounterSnap::XrayFit()
 		m_efgio->m_configParam.xray.ignore);
 
 	//转盘脉冲数
-	m_efgio->m_resultParam.measure.pluse_num = m_counter.index[1] - 1;
+	m_efgio->m_resultParam.measure.pluse_num = sin_num;//m_counter.index[1] - 1;
 	m_efgio->m_resultParam.measure.pluse_cnt++;
 
 	if(m_efgio->m_resultParam.measure.pluse_num > m_efgio->m_resultParam.measure.max_pluse_num)
@@ -1432,7 +1448,7 @@ int CDiIntCounterSnap::XrayFit()
 		//      }
 		//#endif
 		///TODO：调试拟合
-		double times = 1.0*(m_counter.index[1]-1)/WND_WIDTH;
+		double times = 1.0*(sin_num/*m_counter.index[1]-1*/)/WND_WIDTH;
 		//if(times<1)
 		//	times=1;
 		int num = alg.GetSpikesNumber();
@@ -1453,7 +1469,7 @@ int CDiIntCounterSnap::XrayFit()
 			}
 		}
 
-		for (int i = 0; i < (m_counter.index[1]-1); i+=3)
+		for (int i = 0; i < sin_num/*(m_counter.index[1]-1)*/; i+=1/*3*/)
 		{
 			POINT point;
 			point.x=i/times;
@@ -1563,7 +1579,7 @@ int CDiIntCounterSnap::StopDiInt()
 	return -1;
 }
 
-
+#ifndef USE_EFGV1
 int CDiIntCounterSnap::StartURunTrd(double step, double acc, double speed)
 {
 	// TODO: 发开启转盘零位计数器，上升沿触发脉冲
@@ -1584,3 +1600,4 @@ int CDiIntCounterSnap::StartURunTrd(double step, double acc, double speed)
 
 	return 0;
 }
+#endif

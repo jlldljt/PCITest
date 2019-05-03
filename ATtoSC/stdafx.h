@@ -37,7 +37,10 @@
 
 #include <afxcontrolbars.h>     // 功能区和控件条的 MFC 支持
 
-
+#include "../gridctrl_demo/GridCtrl_src/GridCtrl.h"
+#include "../sqlite/database.h"
+#include "CSVFile.h"
+#include "TXT.h"
 
 
 

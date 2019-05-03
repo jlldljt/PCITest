@@ -90,7 +90,7 @@ BOOL CEfgIO::StopPCI(int cardNo)
   else
     return FALSE;
 }
-//打开efg所需要的卡
+//打开efg所需要的卡，修改
 BOOL CEfgIO::CardOn()
 {
   if (TRUE == m_on)
@@ -102,7 +102,7 @@ BOOL CEfgIO::CardOn()
   //启动tmc12a
   int index = -1;
   for (int i = 0; i < count; i++) {
-    if (TMC12A == GetPCIType(i)) {//查找tmc12a板卡
+    if (EFG_V1/*TMC12A*/ == GetPCIType(i)) {//查找tmc12a板卡
       index = i;
       break;
     }
@@ -113,9 +113,9 @@ BOOL CEfgIO::CardOn()
   }
   if (FALSE == RunPCI(index))
     return FALSE;
-  //启动ac6641
-  int index_io = -1;
-  for (int i = 0; i < count; i++) {
+  //启动ac6641  efgv1不需要额外io板
+ int index_io = -1;
+ /*  for (int i = 0; i < count; i++) {
     if (AC6641 == GetPCIType(i)) {//查找tmc12a板卡
       index_io = i;
       break;
@@ -127,7 +127,7 @@ BOOL CEfgIO::CardOn()
   }
   if (FALSE == RunPCI(index_io))
     return FALSE;
-
+	*/
   m_on = TRUE;
   m_on_card_no = index;
   m_on_iocard_no = index_io;
@@ -143,8 +143,8 @@ BOOL CEfgIO::CardOff()
 
   if (FALSE == StopPCI(m_on_card_no))
     return FALSE;
-  if (FALSE == StopPCI(m_on_iocard_no))
-    return FALSE;
+  /*if (FALSE == StopPCI(m_on_iocard_no))
+    return FALSE;*/
   m_on = FALSE;
   m_on_card_no = -1;
   m_on_iocard_no = -1;
@@ -181,7 +181,7 @@ int CEfgIO::GetOut6()
 
 double CEfgIO::ReadDi(EFG_IChannel channel)
 {
-  ASSERT(-1 != m_on_iocard_no);
+  ASSERT(-1 != m_on_card_no);
   double fparam0, fparam1;
   GetPCI(m_on_card_no)->ReadDi(channel, fparam0, fparam1);
   return fparam0;
@@ -203,7 +203,7 @@ double CEfgIO::ReadDi(AC6641_Channel channel)
 
 void CEfgIO::WriteDo(EFG_OChannel channel, double param)
 {
-  ASSERT(-1 != m_on_iocard_no);
+  ASSERT(-1 != m_on_card_no);
   GetPCI(m_on_card_no)->WriteDO(channel, param);
 }
 
@@ -393,17 +393,43 @@ void CEfgIO::MotoRun(int moto_index, double param)
 #endif
 }
 
+char CEfgIO::GetMotoCh(int moto_index)
+{
+	char moto;
+	switch(moto_index)
+	{
+	case 0:
+		moto='X';
+		break;
+		
+	case 1:
+		moto='Y';
+		break;
+		
+	case 2:
+		moto='U';
+		break;
+		
+	default:
+		moto='X';
+		break;
+		
+	}
+	return moto;
+}
+
 int CEfgIO::MotoRun(int moto_index, int param)
 {
 #ifdef USE_EFGV1
-  char sbuf[] = { 0x55, 'M', 'C', moto_index, param, param >> 8, param >> 16, param >> 24,0x00,0x00 };
+
+  char sbuf[9] = { 0x55, 'M', GetMotoCh(moto_index), 'M', param >> 24, param >> 16, param >> 8, param,0x00 };
   int slen = sizeof(sbuf);
-  char rbuf[100] = { 0 };
+  unsigned char rbuf[100] = { 0 };
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
   if (rdlen > 0 && crc)
   {
@@ -494,14 +520,14 @@ void CEfgIO::MotoRunNoWait(int moto_index, double param)
 int CEfgIO::MotoRunNoWait(int moto_index, int param)
 {
 #ifdef USE_EFGV1
-  char sbuf[] = { 0x55, 'M', 'C', moto_index, param>>24, param >>16, param >> 8, param >> 0,0x00,0x00 };
+  char sbuf[9] = { 0x55, 'M', GetMotoCh(moto_index), 'C', param>>24, param >>16, param >> 8, param >> 0,0x00 };
   int slen = sizeof(sbuf);
-  char rbuf[100] = { 0 };
+  unsigned char rbuf[100] = { 0 };
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
   if (rdlen > 0 && crc)
   {
@@ -516,14 +542,14 @@ int CEfgIO::MotoZero(int moto_index)
 {
 #ifdef USE_EFGV1
 
-  char sbuf[] = { 0x55,'M', 'Z', moto_index,0x00,0x00 };
+  char sbuf[9] = { 0x55,'M', GetMotoCh(moto_index), 'Z',0x00,0x00 };
   int slen = sizeof(sbuf);
-  char rbuf[100] = { 0 };
+  unsigned char rbuf[100] = { 0 };
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
   if (rdlen > 0 && crc)
   {
@@ -637,16 +663,16 @@ void CEfgIO::UAutoRun(double degree)
 BOOL CEfgIO::CheckMotoEnd(int moto_index)
 {
 #ifdef USE_EFGV1
-  char sbuf[] = { 0x55, 'M',	'Q',moto_index, 0x00, 0x00 };
+  char sbuf[9] = { 0x55, 'M',GetMotoCh(moto_index),	'Q', 0x00, 0x00 };
   int slen = sizeof(sbuf);
-  char rbuf[100] = { 0 };
+  unsigned char rbuf[100] = { 0 };
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
-  if (rdlen > 8 && crc && rbuf[3]==0x00)
+  if (rdlen > 8 && crc && rbuf[4]==0x00)
   {
     return TRUE;
   }
@@ -688,27 +714,27 @@ CString CEfgIO::GetMeasureType(int index)
     return _T("无");
   }
 }
-
+// 修改
 void CEfgIO::InitEfgIO(void)
 {
   //MotoZero(2); 
   MotoZero(0);
   MotoZero(1);
 
-  WriteDo(X_DIR, IO_OFF);
-  WriteDo(X_GO, IO_OFF);
+  //WriteDo(X_DIR, IO_OFF);
+  //WriteDo(X_GO, IO_OFF);
   WriteDo(X_NOZZLE, IO_OFF);
-  WriteDo(Y_DIR, IO_OFF);
-  WriteDo(Y_GO, IO_OFF);
+  //WriteDo(Y_DIR, IO_OFF);
+  //WriteDo(Y_GO, IO_OFF);
   WriteDo(Y_NOZZLE, IO_OFF);
   WriteDo(BLOW, IO_OFF);
   WriteDo(XRAY_GATE, IO_OFF);
-  WriteDo(X_FULL_CURRENT, IO_OFF);
-  WriteDo(Y_FULL_CURRENT, IO_OFF);
+  //WriteDo(X_FULL_CURRENT, IO_OFF);
+  //WriteDo(Y_FULL_CURRENT, IO_OFF);
   WriteDo(ALERT, IO_OFF);
   WriteDo(CLEAN, IO_OFF);
-  WriteDo(U_DIR, IO_OFF);
-  WriteDo(U_GO, IO_OFF);
+  //WriteDo(U_DIR, IO_OFF);
+ // WriteDo(U_GO, IO_OFF);
 
   WriteDo(Y_NOZZLE, IO_ON);
   MotoRun(0, m_configParam.user_config.pos.x_wait);
@@ -720,14 +746,14 @@ void CEfgIO::InitEfgIO(void)
 }
 int CEfgIO::StartMeasure(int cnt)
 {
-  char sbuf[] = { 0x55, 'E', 'S', cnt, 0x00, 0x00 };
+  char sbuf[9] = { 0x55, 'E', 'S', 0, 0x00, 0x00 };
   int slen = sizeof(sbuf);
-  char rbuf[100] = { 0 };
+  unsigned char rbuf[100] = { 0 };
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
   if (rdlen > 0 && crc)
   {
@@ -738,16 +764,16 @@ int CEfgIO::StartMeasure(int cnt)
 }
 BOOL CEfgIO::CheckMeasureEnd(void)
 {
-  char sbuf[] = { 0x55,'E', 'Q', 0x00, 0x00 };
+  char sbuf[9] = { 0x55,'E', 'Q', 0x00, 0x00 };
   int slen = sizeof(sbuf);
-  char rbuf[100] = { 0 };
+  unsigned char rbuf[100] = { 0 };
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
-  if (rdlen > 2 && crc && rbuf[2] == 1)
+  if (rdlen > 2 && crc && rbuf[3] == 0)
   {
     return TRUE;
   }
@@ -761,18 +787,18 @@ BOOL CEfgIO::CheckMeasureEnd(void)
 // return -1 failure
 int CEfgIO::GetCntDataNum(int no)
 {
-  char sbuf[] = { 0x55, 'C',	'N', no, 0x00 , 0x00 };
+  char sbuf[9] = { 0x55, 'C',	'N', no, 0x00 , 0x00 };
   int slen = sizeof(sbuf);
-  char rbuf[100] = { 0 };
+  unsigned char rbuf[100] = { 0 };
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
   if (rdlen > 5 && crc)
   {
-    m_resultParam.measure.cnt_num[no] = (rbuf[3] << 8) | (rbuf[4] << 0);
+    m_resultParam.measure.cnt_num[no] = (rbuf[4] << 8) | (rbuf[5]);
     return m_resultParam.measure.cnt_num[no];
   }
   return -1;
@@ -783,9 +809,9 @@ int CEfgIO::GetCntDataNum(int no)
 // return -1 failure
 int CEfgIO::GetAllCntData(int no, char* buf, int len)
 {
-  char sbuf[] = { 0x55, 'C',	'D', no, 0x00 , 0x00 };
+  char sbuf[9] = { 0x55, 'C',	'D', no, 0x00 , 0x00 };
   int slen = sizeof(sbuf);
-  char rbuf[100] = { 0 };
+  unsigned char rbuf[100] = { 0 };
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
@@ -800,14 +826,14 @@ int CEfgIO::GetAllCntData(int no, char* buf, int len)
 }
 int CEfgIO::SetOut(int out3, int out6)
 {
-  char sbuf[] = { 0x55, 'F', 'O', out3 >> 8, out3, out6 >> 8,out6,0x00,0x00 };
+  char sbuf[9] = { 0x55, 'F', 'O', out3 >> 8, out3, out6 >> 8,out6,0x00,0x00 };
   int slen = sizeof(sbuf);
-  char rbuf[100] = { 0 };
+  unsigned char rbuf[100] = { 0 };
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, rbuf, rlen, &crc);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
   if (rdlen > 0 && crc)
   {

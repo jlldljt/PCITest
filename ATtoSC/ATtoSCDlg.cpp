@@ -267,7 +267,7 @@ BOOL CATtoSCDlg::OnInitDialog()
 		WritePrivateProfileString(_T("长方片分档步数"),strValue,_T("0"),strFilePath);
 		}*/
 	}
-
+	g_sort.needCheck = 1;
 	//写入ini文件中相应字段
 	g_sort.islongsqu=GetPrivateProfileInt(_T("分档设定"),_T("长方片"),0,strFilePath);    
 	//itemnum相关
@@ -320,6 +320,8 @@ BOOL CATtoSCDlg::OnInitDialog()
 	m_Tab.SetCurSel(0);
 	//初始化变量
 
+  g_pCpk = new CCpkLib(g_path);
+
 	//AC初始化
 	g_hDevice=AC6641_OpenDevice(0);
 	if(g_hDevice==INVALID_HANDLE_VALUE)
@@ -346,6 +348,7 @@ BOOL CATtoSCDlg::OnInitDialog()
 		ioData=0x03;
 		AC6641_DO(g_hDevice,10,ioData);
 	}
+
 
 	return TRUE;
 }
@@ -463,6 +466,7 @@ void CATtoSCDlg::OnClose()
 	//
 	//stopVGA(m_hWnd, &hRGBCapture1, pCaptureBuffer1);
 	m_Debug.OnBnClickedStopVga();
+  delete g_pCpk;
 	CDialogEx::OnCancel();
 	CDialogEx::OnClose();
 }

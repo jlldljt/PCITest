@@ -49,6 +49,231 @@ BOOL TXTReadRowStr(LPCTSTR pathTXT, CString& str, UINT row);
 
 BOOL Split(char* source, char*& dest, char division, UINT iSub);
 
+int RCGVGA(void)//读屏幕
+{
+	//CCSVFile* csv = (CCSVFile*)pParam;
+	int rechecknum = 0;//重测次数
+	//while (1)
+	//{
+
+	//	while (1)//等待EFG检测完
+	//	{
+	//		if (g_status._CHK2 && 1 == g_status.SORT_END)
+	//			break;
+	//		if (1 == g_status.SCR_STOP)
+	//		{
+	//			g_status.SOT_STOP = 1;//控制分档线程停止
+	//			g_status.SCR_STOP = 0;
+	//			return 0;
+	//		}
+	//		Sleep(1);
+	//	}
+	//	g_status._CHK2 = 0;
+	//	g_status.SORT_END = 0;
+		//
+		Sleep(200);
+		if (!g_status._DEBUGSCR)
+		{
+			vga_critical.Lock();
+			while (1)
+			{
+
+				DWORD width = RGBBitmap1.bmiHeader.biWidth;
+				DWORD height = -RGBBitmap1.bmiHeader.biHeight;
+
+				pDest.pdata = new TARGB32[width * height];//b,g,r,a  4个8位组成一个像素
+				pDest.height = height;
+				pDest.width = width;
+				pDest.byte_width = width << 2;
+
+				g_height = height;
+				g_width = width;
+				g_lpGray = new BYTE[g_height * g_width];
+
+				int iW = width, iH = height;
+				//DECODE_RGB_TO_BGRA((const TUInt8 *)pCaptureBuffer.LpVoidBuffer, pDest);
+				//SaveImageToFile(_T("screen_photo\\yuanshi.bmp"), iW, iH, (BYTE *)pDest.pdata);//保存采集图像
+
+				DECODE_RGB_TO_GRAY((const TUInt8*)pCaptureBuffer.LpVoidBuffer, pDest);//转灰度:输入lpVoidBuffer，输出pDest
+
+				//SaveImageToFile(_T("screen_photo\\huidu.bmp"), iW, iH, (BYTE *)pDest.pdata);//保存灰度图像
+				DECODE_THRESHOLD(pDest, pDest, g_lpGray, m_VGAthreshold);//转二值化，pDest里存的是0-255的二值化图片，lpGray存的是0-1的二值化数据
+
+				//SaveImageToFile(_T("screen_photo\\erzhihu.bmp"), iW, iH, (BYTE *)pDest.pdata);//保存二值化图像
+				delete[] pDest.pdata;
+				pDest.pdata = NULL;
+				LoadMark(g_path + _T("\\check\\qz_42.txt"));
+
+				FindOrigin2(g_lpGray);
+				if (height_num > 100 || width_num > 200 || (height_num < 0 && width_num < 0))
+				{
+					if (rechecknum > 20)
+					{
+						AlertCtrl(1);
+						//AfxMessageBox(_T("分档值没读到，继续吗？"));
+						int status = AfxMessageBox(_T("分档值没读到，继续吗？"), MB_OKCANCEL);
+						if (status == 2)//取消
+						{
+							delete[]g_lpGray;
+							g_lpGray = NULL;
+							vga_critical.Unlock();
+							for (int i = 0; i < 30; i++)
+								degree[i] = 0;//模拟end
+							g_sort.sortsn = g_sort.itemnum + 6;
+							return 0;
+						}
+
+						rechecknum = 0;
+						AlertCtrl(0);
+					}
+					rechecknum++;
+					//delete []g_lpGray;
+					//g_lpGray=NULL;
+				}
+				else
+				{
+					rechecknum = 0;
+					//g_status._CHK1=1;//供分档线程
+					break;
+				}
+			}
+			g_num = new int[10 * 10 * 8];
+			GetNumber();
+
+			ScanDegreeDynamic2(g_lpGray, g_path + _T("\\check\\positionDynamic.txt"));//获得degree[]
+			g_sort.R1Num = DOUBLE(degree[0] * 100 + degree[1] * 10 + degree[2] + degree[3] * 0.1 + degree[4] * 0.01 + degree[5] * 0.001);
+
+			ScanDegree2(g_lpGray, g_path + _T("\\check\\position.txt"));//获得degree[]
+			delete[]g_num;
+			delete[]g_lpGray;
+			g_lpGray = NULL;
+			g_num = NULL;
+			vga_critical.Unlock();
+		}
+		else
+		{
+			srand((int)time(0)); //模拟begin
+			int deg[30] = { 3,4,0,rand() % 9,rand() % 5,rand() % 9,
+				2,2 + rand() % 3,rand() % 5,rand() % 9,rand() % 5,rand() % 9,
+				rand() % 5,rand() % 9,rand() % 5,rand() % 9,rand() % 5,rand() % 9,
+				rand() % 5,rand() % 9,rand() % 5,rand() % 9,rand() % 5,rand() % 9,
+				rand() % 5,rand() % 9,rand() % 5,rand() % 9,rand() % 5,rand() % 9 };
+			for (int i = 0; i < 30; i++)
+				degree[i] = deg[i];//模拟end
+		}
+		CalcEquAngle(); // DATE:180421
+		g_sort.sortsn = SortChipR1(&g_sort, degree);//得到档位值
+		if (g_sort.sortsn <= 0)
+			g_sort.sortsn = g_sort.itemnum + 6;
+		//g_status._SCREND = 1;//置位标记，供分档线程
+		///*culTime2=CTime::GetCurrentTime();
+		//if(culTime2.GetDay()!=culTime1.GetDay())
+		//g_time.end=24;
+		//else
+		//g_time.end=0;
+
+		//g_time.end=(g_time.end+culTime2.GetHour())*3600+culTime2.GetMinute()*60+culTime2.GetSecond();
+		//g_time.sum=g_time.end-g_time.start-g_time.pause_sum;
+		//g_time.avg=double(g_time.sum)/double(g_sort.sortsum+g_sort.sortnum[24]+g_sort.sortnum[25]+g_sort.sortnum[26]+g_sort.sortnum[27]+g_sort.sortnum[28]+g_sort.sortnum[29]);
+		//*/updatesort = 1;
+		//g_status._SHOW = 1;
+	//	//==============//保存角度到文件
+	//	//CStdioFile file;
+	//	//file.Open(pathSaveDegree,CFile::modeCreate|CFile::modeNoTruncate|CFile::modeWrite);
+	//	CString _degree;
+	//	_degree.Format(_T("%d\t%d\t%d\t%d\t%d\t%d\t%d\r\n"), g_status._N, degree[0] * 100000 + degree[1] * 10000 + degree[2] * 1000 + degree[3] * 100 + degree[4] * 10 + degree[5],
+	//		degree[6] * 100000 + degree[7] * 10000 + degree[8] * 1000 + degree[9] * 100 + degree[10] * 10 + degree[11],
+	//		degree[12] * 100000 + degree[13] * 10000 + degree[14] * 1000 + degree[15] * 100 + degree[16] * 10 + degree[17],
+	//		degree[18] * 100000 + degree[19] * 10000 + degree[20] * 1000 + degree[21] * 100 + degree[22] * 10 + degree[23],
+	//		degree[24] * 100000 + degree[25] * 10000 + degree[26] * 1000 + degree[27] * 100 + degree[28] * 10 + degree[29],
+	//		g_sort.sortsn);
+	//	//file.Seek(0,CFile::end);
+	//	//file.WriteString( _degree );
+	//	//file.Close();
+	//	//
+	//	CFile myFile;
+	//	myFile.Open(pathSaveDegree, CFile::modeCreate | CFile::modeWrite | CFile::modeNoTruncate);
+	//	char szANSIString[MAX_PATH];
+	//	WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, _degree, -1, szANSIString, sizeof(szANSIString), NULL, NULL);
+	//	myFile.Seek(0, CFile::end);
+	//	//myFile.Write(szANSIString,_sort.GetLength()*2-98);
+	//	myFile.Write(szANSIString, CStringA(_degree).GetLength());
+	//	myFile.Close();
+	//	//流程卡记录：by mmy 171115
+	//	if (csv)
+	//	{
+	//		// CCSVFile csv(g_path + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
+	//		CStringArray arr;
+	//		CString str;
+	//		str.Format(_T("%d"), g_status._N);
+	//		arr.Add(str);
+	//		str.Format(_T("%d"), degree[0] * 100000 + degree[1] * 10000 + degree[2] * 1000 + degree[3] * 100 + degree[4] * 10 + degree[5]);
+	//		arr.Add(str);
+	//		str.Format(_T("%d"), degree[6] * 100000 + degree[7] * 10000 + degree[8] * 1000 + degree[9] * 100 + degree[10] * 10 + degree[11]);
+	//		arr.Add(str);
+	//		str.Format(_T("%d"), degree[12] * 100000 + degree[13] * 10000 + degree[14] * 1000 + degree[15] * 100 + degree[16] * 10 + degree[17]);
+	//		arr.Add(str);
+	//		str.Format(_T("%d"), degree[18] * 100000 + degree[19] * 10000 + degree[20] * 1000 + degree[21] * 100 + degree[22] * 10 + degree[23]);
+	//		arr.Add(str);
+	//		str.Format(_T("%d"), degree[24] * 100000 + degree[25] * 10000 + degree[26] * 1000 + degree[27] * 100 + degree[28] * 10 + degree[29]);
+	//		arr.Add(str);
+	//		str.Format(_T("%d"), g_sort.sortsn);
+	//		arr.Add(str);
+
+	//		csv->WriteData(arr);
+
+	//		arr.RemoveAll();
+	//	}
+	//	//多片提醒
+	//	/*if(g_sort.sortnum[g_sort.sortsn-1]>60)
+	//	{
+	//	//g_sort.alertnum[g_sort.sortsn-1]++;
+	//	CString tmp;
+	//	tmp.Format(_T("%d档片太多了"),g_sort.sortsn);
+	//	int status=0;
+	//	AlertCtrl(1);
+	//	status=AfxMessageBox(tmp);
+	//	g_sort.sortnum[g_sort.sortsn-1]=0;
+	//	AlertCtrl(0);
+	//	}*/
+	//}
+	//return 0;
+		return 1;
+}
+void WaitVGAEnd(void)
+{
+	while (1)//等待EFG检测完并置位标记
+	{
+		if ((AC6641_DI(g_hDevice, 6) & 0x02) )//当高电平且chk1、2都是0的时候，检测开始
+		{
+			Sleep(50);
+			if ((AC6641_DI(g_hDevice, 6) & 0x02) )
+			{
+				Sleep(50);
+				if ((AC6641_DI(g_hDevice, 6) & 0x02) )
+				{
+					while (1)
+					{
+						if (!(AC6641_DI(g_hDevice, 6) & 0x02))//当低时检测结束
+						{
+							Sleep(40);
+							if (!(AC6641_DI(g_hDevice, 6) & 0x02))//当低时检测结束
+							{
+								Sleep(40);
+								if (!(AC6641_DI(g_hDevice, 6) & 0x02))//三次防抖，防止在检测时出现干扰导致度屏幕先读
+									break;
+							}
+						}
+						Sleep(1);
+					}
+					break;
+				}
+			}
+
+		}
+
+	}
+}
 //线程函数
 UINT TakeThread(LPVOID pParam)//取片X轴
 {
@@ -557,6 +782,16 @@ UINT ScreenThread(LPVOID pParam)//读屏幕
 				break;
 			if (1 == g_status.SCR_STOP)
 			{
+        // CPK 190503 复制自ber
+        if (g_pCpk)
+        {
+          CProcessCard processCard;
+
+          g_pCpk->CalcCpk(processCard);
+
+          g_pCpk->AddCpkToPlannedCsv(processCard);
+        }
+
 				g_status.SOT_STOP = 1;//控制分档线程停止
 				g_status.SCR_STOP = 0;
 				return 0;
@@ -566,88 +801,89 @@ UINT ScreenThread(LPVOID pParam)//读屏幕
 		g_status._CHK2 = 0;
 		g_status.SORT_END = 0;
 		//
-		Sleep(200);
-		if (!g_status._DEBUGSCR)
-		{
-			vga_critical.Lock();
-			while (1)
-			{
+		//Sleep(200);
+		//if (!g_status._DEBUGSCR)
+		//{
+		//	vga_critical.Lock();
+		//	while (1)
+		//	{
 
-				DWORD width = RGBBitmap1.bmiHeader.biWidth;
-				DWORD height = -RGBBitmap1.bmiHeader.biHeight;
+		//		DWORD width = RGBBitmap1.bmiHeader.biWidth;
+		//		DWORD height = -RGBBitmap1.bmiHeader.biHeight;
 
-				pDest.pdata = new TARGB32[width*height];//b,g,r,a  4个8位组成一个像素
-				pDest.height = height;
-				pDest.width = width;
-				pDest.byte_width = width << 2;
+		//		pDest.pdata = new TARGB32[width*height];//b,g,r,a  4个8位组成一个像素
+		//		pDest.height = height;
+		//		pDest.width = width;
+		//		pDest.byte_width = width << 2;
 
-				g_height = height;
-				g_width = width;
-				g_lpGray = new BYTE[g_height*g_width];
+		//		g_height = height;
+		//		g_width = width;
+		//		g_lpGray = new BYTE[g_height*g_width];
 
-				int iW = width, iH = height;
-				//DECODE_RGB_TO_BGRA((const TUInt8 *)pCaptureBuffer.LpVoidBuffer, pDest);
-				//SaveImageToFile(_T("screen_photo\\yuanshi.bmp"), iW, iH, (BYTE *)pDest.pdata);//保存采集图像
+		//		int iW = width, iH = height;
+		//		//DECODE_RGB_TO_BGRA((const TUInt8 *)pCaptureBuffer.LpVoidBuffer, pDest);
+		//		//SaveImageToFile(_T("screen_photo\\yuanshi.bmp"), iW, iH, (BYTE *)pDest.pdata);//保存采集图像
 
-				DECODE_RGB_TO_GRAY((const TUInt8 *)pCaptureBuffer.LpVoidBuffer, pDest);//转灰度:输入lpVoidBuffer，输出pDest
+		//		DECODE_RGB_TO_GRAY((const TUInt8 *)pCaptureBuffer.LpVoidBuffer, pDest);//转灰度:输入lpVoidBuffer，输出pDest
 
-				//SaveImageToFile(_T("screen_photo\\huidu.bmp"), iW, iH, (BYTE *)pDest.pdata);//保存灰度图像
-				DECODE_THRESHOLD(pDest, pDest, g_lpGray, m_VGAthreshold);//转二值化，pDest里存的是0-255的二值化图片，lpGray存的是0-1的二值化数据
+		//		//SaveImageToFile(_T("screen_photo\\huidu.bmp"), iW, iH, (BYTE *)pDest.pdata);//保存灰度图像
+		//		DECODE_THRESHOLD(pDest, pDest, g_lpGray, m_VGAthreshold);//转二值化，pDest里存的是0-255的二值化图片，lpGray存的是0-1的二值化数据
 
-				//SaveImageToFile(_T("screen_photo\\erzhihu.bmp"), iW, iH, (BYTE *)pDest.pdata);//保存二值化图像
-				delete[] pDest.pdata;
-				pDest.pdata = NULL;
-				LoadMark(g_path + _T("\\check\\qz_42.txt"));
+		//		//SaveImageToFile(_T("screen_photo\\erzhihu.bmp"), iW, iH, (BYTE *)pDest.pdata);//保存二值化图像
+		//		delete[] pDest.pdata;
+		//		pDest.pdata = NULL;
+		//		LoadMark(g_path + _T("\\check\\qz_42.txt"));
 
-				FindOrigin2(g_lpGray);
-				if (height_num > 100 || width_num > 200 || (height_num < 0 && width_num < 0))
-				{
-					if (rechecknum > 20)
-					{
-						AlertCtrl(1);
-						AfxMessageBox(_T("分档值没读到，继续吗？"));
-						rechecknum = 0;
-						AlertCtrl(0);
-					}
-					rechecknum++;
-					//delete []g_lpGray;
-					//g_lpGray=NULL;
-				}
-				else
-				{
-					rechecknum = 0;
-					//g_status._CHK1=1;//供分档线程
-					break;
-				}
-			}
-			g_num = new int[10 * 10 * 8];
-			GetNumber();
+		//		FindOrigin2(g_lpGray);
+		//		if (height_num > 100 || width_num > 200 || (height_num < 0 && width_num < 0))
+		//		{
+		//			if (rechecknum > 20)
+		//			{
+		//				AlertCtrl(1);
+		//				AfxMessageBox(_T("分档值没读到，继续吗？"));
+		//				rechecknum = 0;
+		//				AlertCtrl(0);
+		//			}
+		//			rechecknum++;
+		//			//delete []g_lpGray;
+		//			//g_lpGray=NULL;
+		//		}
+		//		else
+		//		{
+		//			rechecknum = 0;
+		//			//g_status._CHK1=1;//供分档线程
+		//			break;
+		//		}
+		//	}
+		//	g_num = new int[10 * 10 * 8];
+		//	GetNumber();
 
-			ScanDegreeDynamic2(g_lpGray, g_path + _T("\\check\\positionDynamic.txt"));//获得degree[]
-			g_sort.R1Num = DOUBLE(degree[0] * 100 + degree[1] * 10 + degree[2] + degree[3] * 0.1 + degree[4] * 0.01 + degree[5] * 0.001);
+		//	ScanDegreeDynamic2(g_lpGray, g_path + _T("\\check\\positionDynamic.txt"));//获得degree[]
+		//	g_sort.R1Num = DOUBLE(degree[0] * 100 + degree[1] * 10 + degree[2] + degree[3] * 0.1 + degree[4] * 0.01 + degree[5] * 0.001);
 
-			ScanDegree2(g_lpGray, g_path + _T("\\check\\position.txt"));//获得degree[]
-			delete[]g_num;
-			delete[]g_lpGray;
-			g_lpGray = NULL;
-			g_num = NULL;
-			vga_critical.Unlock();
-		}
-		else
-		{
-			srand((int)time(0)); //模拟begin
-			int deg[30] = { 3,4,0,rand() % 9,rand() % 5,rand() % 9,
-				2,2 + rand() % 3,rand() % 5,rand() % 9,rand() % 5,rand() % 9,
-				rand() % 5,rand() % 9,rand() % 5,rand() % 9,rand() % 5,rand() % 9,
-				rand() % 5,rand() % 9,rand() % 5,rand() % 9,rand() % 5,rand() % 9,
-				rand() % 5,rand() % 9,rand() % 5,rand() % 9,rand() % 5,rand() % 9 };
-			for (int i = 0; i < 30; i++)
-				degree[i] = deg[i];//模拟end
-		}
-    CalcEquAngle(); // DATE:180421
-		g_sort.sortsn = SortChipR1(&g_sort, degree);//得到档位值
-		if (g_sort.sortsn <= 0)
-			g_sort.sortsn = g_sort.itemnum + 6;
+		//	ScanDegree2(g_lpGray, g_path + _T("\\check\\position.txt"));//获得degree[]
+		//	delete[]g_num;
+		//	delete[]g_lpGray;
+		//	g_lpGray = NULL;
+		//	g_num = NULL;
+		//	vga_critical.Unlock();
+		//}
+		//else
+		//{
+		//	srand((int)time(0)); //模拟begin
+		//	int deg[30] = { 3,4,0,rand() % 9,rand() % 5,rand() % 9,
+		//		2,2 + rand() % 3,rand() % 5,rand() % 9,rand() % 5,rand() % 9,
+		//		rand() % 5,rand() % 9,rand() % 5,rand() % 9,rand() % 5,rand() % 9,
+		//		rand() % 5,rand() % 9,rand() % 5,rand() % 9,rand() % 5,rand() % 9,
+		//		rand() % 5,rand() % 9,rand() % 5,rand() % 9,rand() % 5,rand() % 9 };
+		//	for (int i = 0; i < 30; i++)
+		//		degree[i] = deg[i];//模拟end
+		//}
+  //  CalcEquAngle(); // DATE:180421
+		//g_sort.sortsn = SortChipR1(&g_sort, degree);//得到档位值
+		//if (g_sort.sortsn <= 0)
+		//	g_sort.sortsn = g_sort.itemnum + 6;
+		RCGVGA();
 		g_status._SCREND = 1;//置位标记，供分档线程
 		/*culTime2=CTime::GetCurrentTime();
 		if(culTime2.GetDay()!=culTime1.GetDay())
@@ -719,6 +955,46 @@ UINT ScreenThread(LPVOID pParam)//读屏幕
 		g_sort.sortnum[g_sort.sortsn-1]=0;
 		AlertCtrl(0);
 		}*/
+    if (g_pCpk)
+    {
+      //int* degree = degree;
+      CProcessData processData;
+      processData.equal = (degree[12] * 10 + degree[13]) * 3600 + (degree[14] * 10 + degree[15]) * 60 + (degree[16] * 10 + degree[17]);
+      processData.laser = (degree[0] * 10 + degree[1]) * 3600 + (degree[2] * 10 + degree[3]) * 60 + (degree[4] * 10 + degree[5]);
+      processData.laser0 = (degree[18] * 10 + degree[19]) * 3600 + (degree[20] * 10 + degree[21]) * 60 + (degree[22] * 10 + degree[23]);
+      processData.no = g_status._N;
+      processData.phi = (degree[6] * 10 + degree[7]) * 3600 + (degree[8] * 10 + degree[9]) * 60 + (degree[10] * 10 + degree[11]);
+      processData.phi0 = (degree[24] * 10 + degree[25]) * 3600 + (degree[26] * 10 + degree[27]) * 60 + (degree[28] * 10 + degree[29]);
+      processData.sort = g_sort.sortsn;
+
+      g_pCpk->AddToProcessCardCsv(processData);
+
+      // cpk实时检查
+      CProcessCard processCard;
+
+      if (processData.no > g_pCpk->m_cpkSet.m_start_num)
+      {
+        g_pCpk->CalcCpk(processCard);
+
+        CString csCpk = _T(""), tmp;
+        tmp.Format(_T("cp %.3f "), processCard.cp);
+        csCpk += tmp;
+        tmp.Format(_T("ca %.3f "), processCard.ca);
+        csCpk += tmp;
+        tmp.Format(_T("cpk %.3f "), processCard.cpk);
+        csCpk += tmp;
+        tmp.Format(_T("num %d "), processCard.num);
+        csCpk += tmp;
+        if (processCard.cp < g_pCpk->m_cpkSet.m_min_cp || processCard.ca > g_pCpk->m_cpkSet.m_max_ca || processCard.cpk < g_pCpk->m_cpkSet.m_min_cpk)
+        {
+          csCpk += _T("超限");
+          ((CATtoSCDlg*)(AfxGetApp()->m_pMainWnd))->m_Run.OnBnClickedRunPause();
+          //g_dlgRun->OnBnClickedBtnPause();
+        }
+        ((CATtoSCDlg*)(AfxGetApp()->m_pMainWnd))->m_Run.SetDlgItemText(IDC_RUN_SHOW, csCpk);
+      }
+    }
+
 	}
 	return 0;
 }
@@ -1544,6 +1820,9 @@ BEGIN_MESSAGE_MAP(CRun, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT_TIME_YF, &CRun::OnEnChangeEditTimeYf)
 	ON_EN_CHANGE(IDC_EDIT_TIME_BLOW, &CRun::OnEnChangeEditTimeBlow)
 	ON_EN_CHANGE(IDC_EDIT_TIME_Z, &CRun::OnEnChangeEditTimeZ)
+	ON_BN_CLICKED(IDC_BTN_PRINT, &CRun::OnBnClickedBtnPrint)
+	ON_BN_CLICKED(IDC_BTN_STDCHECK, &CRun::OnBnClickedBtnStdcheck)
+  ON_BN_CLICKED(IDC_BTN_CPK, &CRun::OnBnClickedBtnCpk)
 END_MESSAGE_MAP()
 
 
@@ -1678,9 +1957,13 @@ BOOL CRun::OnInitDialog()
 		GetPrivateProfileInt(_T("分档设定"), _T("中心角度：分"), 0, strFilePath) * 100 +
 		GetPrivateProfileInt(_T("分档设定"), _T("中心角度：秒"), 0, strFilePath);
 	SetDlgItemInt(IDC_DEG, iniint);
+
 	iniint = GetPrivateProfileInt(_T("分档设定"), _T("分档值：分"), 0, strFilePath) * 100 +
 		GetPrivateProfileInt(_T("分档设定"), _T("分档值：秒"), 0, strFilePath);
 	SetDlgItemInt(IDC_SORT, iniint);
+
+	iniint = GetPrivateProfileInt(_T("分档设定"), _T("切角值：秒"), 0, strFilePath);
+	SetDlgItemInt(IDC_EDT_CUTDEG, iniint);
 
 	iniint = GetPrivateProfileInt(_T("分档设定"), _T("开始值：度"), 0, strFilePath) * 10000 +
 		GetPrivateProfileInt(_T("分档设定"), _T("开始值：分"), 0, strFilePath) * 100 +
@@ -1705,6 +1988,8 @@ BOOL CRun::OnInitDialog()
 		GetPrivateProfileInt(_T("分档设定"), _T("中心角度：秒"), 0, strFilePath);
 	g_sort.sortvalue = GetPrivateProfileInt(_T("分档设定"), _T("分档值：分"), 0, strFilePath) * 60 +
 		GetPrivateProfileInt(_T("分档设定"), _T("分档值：秒"), 0, strFilePath);
+	g_sort.cutvalue = GetPrivateProfileInt(_T("分档设定"), _T("切角值：秒"), 0, strFilePath);
+	
 	g_sort.eleclow = GetPrivateProfileInt(_T("分档设定"), _T("开始值：度"), 0, strFilePath) * 3600 +
 		GetPrivateProfileInt(_T("分档设定"), _T("开始值：分"), 0, strFilePath) * 60 +
 		GetPrivateProfileInt(_T("分档设定"), _T("开始值：秒"), 0, strFilePath);
@@ -1852,6 +2137,10 @@ BOOL CRun::OnInitDialog()
 void CRun::OnBnClickedRunStart()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	CString strValue = _T("");
+	CString strFilePath;
+	strFilePath = g_path + _T("\\SortSet.ini");
+
 	int status = 0;
 	/*	if(g_hDevice==INVALID_HANDLE_VALUE)
 	{
@@ -1859,26 +2148,100 @@ void CRun::OnBnClickedRunStart()
 	return;
 	}*/
 	//流程卡记录：by mmy 171115
-	CString card;
-	GetDlgItemText(IDC_EDIT_CARD, card);
+	//CString card;
+	CString planned, process;
 
-	if ("" == card)
+	GetDlgItemText(IDC_EDIT_PLANNED, planned);
+
+	if ("" == planned)
 	{
-		status = AfxMessageBox(_T("是否抽检？"), MB_OKCANCEL);
-		if (status == 2)//取消
-		{
-			return;
-		}
-		else {}
-		//AfxMessageBox(_T("请输入流程卡号"));
-		//return;
+		AfxMessageBox(_T("计划号？"));
+
+		return;
 	}
-	else
+	GetDlgItemText(IDC_EDIT_CARD, process);
+
+	if ("" == process)
 	{
+		AfxMessageBox(_T("流程卡号？"));
+
+		return;
+	}
+	// 对标准
+	if (g_sort.needCheck)
+	{
+		CDlgCheckStd dlg;
+		int ret = dlg.DoModal();
+		if (ret != 101)
+		{
+			if (1 == AfxMessageBox(_T("对标准未通过"), MB_OKCANCEL))
+				return;
+		}
+		g_sort.needCheck = 0;
+		CString str;
+		GetDlgItemText(IDC_DEG, str);
+		WritePrivateProfileString(_T("对标设定"), _T("上一次对标中心角度"), str, strFilePath);
+
+	}
+  //流程卡记录：190503复制自BER
+  TRY
+  {
+    if (!m_csvAllCard)
+      m_csvAllCard = new CCSVFile(g_path + _T("\\data\\流程卡.csv"), CCSVFile::modeWrite);
+
+  }
+    CATCH(CFileException, e)
+  {
+    CString str;
+    e->GetErrorMessage(str.GetBufferSetLength(256), 256);
+    str.ReleaseBufferSetLength(256);
+    AfxMessageBox(str);
+    return;
+  }
+  END_CATCH
+	
+	//if ("" == process)
+	//{
+	//	//AfxMessageBox(_T("流程卡号？"));
+
+	//	status = AfxMessageBox(_T("是否抽检？"), MB_OKCANCEL);
+	//	if (status == 2)//取消
+	//	{
+	//		return;
+	//	}
+	//	else {}
+	//	//AfxMessageBox(_T("请输入流程卡号"));
+	//	//return;
+	//}
+	//else
+	{
+    // 创建cpk计划号、流程卡, 
+    // 190503 复制自BER
+    if (!g_pCpk->OpenProcessCard(planned, process)) {}
+    GetDlgItemText(IDC_EDIT_CARD, process);
+    CProcessCard processCard;
+    processCard.no = process;
+    CString axis;
+    GetDlgItemText(IDC_COMBO_SORT1, axis);
+    processCard.axis = axis;
+    processCard.center = g_sort.centerangle;
+
+    int tmpCut = USER_TO_SEC(GetDlgItemInt(IDC_EDT_CUTDEG, 0, 1));
+    int tmpSort = USER_TO_SEC(GetDlgItemInt(IDC_EDT_SORTDEG, 0, 1));
+
+    processCard.usl = processCard.center - tmpSort / 2 + tmpCut;
+    processCard.lsl = processCard.center - tmpSort / 2 - tmpCut;
+
+    CString tmpStr;
+    tmpStr.Format(_T("usl : %d lsl : %d"), SEC_TO_USER(processCard.usl), SEC_TO_USER(processCard.lsl));
+    AfxMessageBox(tmpStr);
+
+
+    g_pCpk->AddToPlannedCsv(processCard);
 
 		TRY
 		{
-			m_csvCard = new CCSVFile(g_path + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
+			m_csvCard = new CCSVFile(g_path + _T("\\data\\") + process + _T(".csv"), CCSVFile::modeWrite);
 		}
 		CATCH(CFileException, e)
 		{
@@ -1900,7 +2263,7 @@ void CRun::OnBnClickedRunStart()
 
 	arr.Add(time.Format("%Y/%m/%d"));
 	arr.Add(time.Format("%H:%M:%S"));
-	arr.Add(card);
+	arr.Add(process);
 	m_csvAllCard->WriteData(arr);
 	arr.RemoveAll();
 
@@ -2253,6 +2616,13 @@ void CRun::OnBnClickedRunStop()
 void CRun::OnBnClickedSortSet()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	CString strValue = _T("");
+	CString strFilePath;
+	/*GetModuleFileName(NULL,strFilePath.GetBufferSetLength(MAX_PATH+1),MAX_PATH);
+	strFilePath.ReleaseBuffer();
+	int pos = strFilePath.ReverseFind('\\'); */
+	strFilePath = g_path + _T("\\SortSet.ini");
+
 	//判断预设值度分秒是否在0~60之间
 	if (((GetDlgItemInt(IDC_DEG, 0, 1) / 10000 <= 60 ? 0 : 1) + (GetDlgItemInt(IDC_DEG, 0, 1) / 10000 >= 0 ? 0 : 1) +
 		(GetDlgItemInt(IDC_DEG, 0, 1) % 10000 / 100 <= 60 ? 0 : 1) + (GetDlgItemInt(IDC_DEG, 0, 1) % 10000 / 100 >= 0 ? 0 : 1) +
@@ -2296,7 +2666,35 @@ void CRun::OnBnClickedSortSet()
 		AfxMessageBox(_T("等效角参数phi0有误"));
 		return;
 	}
-	
+	//查看分档角度是否大于切角角度
+	int tmpCut = USER_TO_SEC(GetDlgItemInt(IDC_EDT_CUTDEG, 0, 1));
+	int tmpSort = USER_TO_SEC(GetDlgItemInt(IDC_SORT, 0, 1));
+	if (tmpSort > tmpCut || tmpCut % tmpSort)
+	{
+		AfxMessageBox(_T("分档角度与切角角度关系不对，分档角小于等于切角，且切角能被分档角整除"));
+		return;
+	}
+	//查看中心是否改变
+	int edt_value = USER_TO_SEC(GetDlgItemInt(IDC_DEG, 0, 1));
+	int ini_value = USER_TO_SEC(GetPrivateProfileInt(_T("对标设定"), _T("上一次对标中心角度"), 0, strFilePath));
+
+	if (edt_value != ini_value)
+	{
+		g_sort.needCheck = 1;
+		AfxMessageBox(_T("与上次中心角度不一致，需要对标"));
+	}
+	else
+	{
+		g_sort.needCheck = 0;
+		AfxMessageBox(_T("与上次中心角度一致，不用对标"));
+	}
+
+	int usl = edt_value - tmpSort / 2 + tmpCut;
+	int lsl = edt_value - tmpSort / 2 - tmpCut;
+
+	CString tmpStr;
+	tmpStr.Format(_T("cpk usl : %d lsl : %d"), SEC_TO_USER(usl), SEC_TO_USER(lsl));
+	AfxMessageBox(tmpStr);
 	//将预设值保存到全局变量
 	g_sort.centerangle = GetDlgItemInt(IDC_DEG, 0, 1) / 10000 * 3600 + GetDlgItemInt(IDC_DEG, 0, 1) % 10000 / 100 * 60 + GetDlgItemInt(IDC_DEG, 0, 1) % 100;
 	g_sort.sortvalue = GetDlgItemInt(IDC_SORT, 0, 1) / 100 * 60 + GetDlgItemInt(IDC_SORT, 0, 1) % 100;
@@ -2309,12 +2707,12 @@ void CRun::OnBnClickedSortSet()
 	g_sort.ek = GetDlgItemInt(IDC_PARAM_K, 0, 1);
 	
 	//保存到ini
-	CString strValue = _T("");
-	CString strFilePath;
-	/*GetModuleFileName(NULL,strFilePath.GetBufferSetLength(MAX_PATH+1),MAX_PATH);
-	strFilePath.ReleaseBuffer();
-	int pos = strFilePath.ReverseFind('\\'); */
-	strFilePath = g_path + _T("\\SortSet.ini");
+	//CString strValue = _T("");
+	//CString strFilePath;
+	///*GetModuleFileName(NULL,strFilePath.GetBufferSetLength(MAX_PATH+1),MAX_PATH);
+	//strFilePath.ReleaseBuffer();
+	//int pos = strFilePath.ReverseFind('\\'); */
+	//strFilePath = g_path + _T("\\SortSet.ini");
 
 	CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
 	BOOL ifFind = findini.FindFile(strFilePath);
@@ -2338,6 +2736,10 @@ void CRun::OnBnClickedSortSet()
 		WritePrivateProfileString(_T("分档设定"),_T("结束值：分"),_T("0"),strFilePath);
 		WritePrivateProfileString(_T("分档设定"),_T("结束值：秒"),_T("0"),strFilePath);*/
 	}
+
+	GetDlgItemText(IDC_EDIT_PLANNED, strValue);
+	WritePrivateProfileString(_T("分档设定"), _T("计划号"), strValue, strFilePath);
+
 
 	GetDlgItemText(IDC_EDIT_CARD, strValue);
 	WritePrivateProfileString(_T("分档设定"), _T("流程卡"), strValue, strFilePath);
@@ -2373,6 +2775,8 @@ void CRun::OnBnClickedSortSet()
 	WritePrivateProfileString(_T("分档设定"), _T("分档值：分"), strValue, strFilePath);
 	strValue.Format(_T("%d"), GetDlgItemInt(IDC_SORT, 0, 1) % 100);
 	WritePrivateProfileString(_T("分档设定"), _T("分档值：秒"), strValue, strFilePath);
+	strValue.Format(_T("%d"), GetDlgItemInt(IDC_EDT_CUTDEG, 0, 1) % 100);
+	WritePrivateProfileString(_T("分档设定"), _T("切角值：秒"), strValue, strFilePath);
 
 	strValue.Format(_T("%d"), GetDlgItemInt(IDC_PARAM_T0, 0, 1) / 10000);
 	WritePrivateProfileString(_T("等效角设定"), _T("T0：度"), strValue, strFilePath);
@@ -2897,4 +3301,194 @@ void CRun::OnEnChangeEditTimeZ()
 	CString strValue;
 	strValue.Format(_T("%d"), g_tim.onZ);
 	WritePrivateProfileString(_T("等待时间"), _T("Z轴取料"), strValue, strFilePath);
+}
+
+void CRun::OnBnClickedBtnPrint()
+{
+	// TODO: 在此添加控件通知处理程序代码
+		// TODO: 在此添加控件通知处理程序代码
+	 // CTrendChart trend;
+
+  //trend.Show();
+
+  //return;
+
+	int count = this->m_runlist.GetItemCount(), page, row = 0;
+
+	int i, j;
+
+	page = count / 40 + 1;
+
+	CPrintDialog print(false);
+
+	if (print.DoModal() == IDOK)
+	{
+		CDC printed;
+
+		printed.Attach(print.GetPrinterDC());
+
+		DOCINFO pdoc;
+
+		memset(&pdoc, 0, sizeof(pdoc));
+
+		pdoc.cbSize = sizeof(pdoc);
+
+		pdoc.lpszDocName = L"pdoc";
+
+		pdoc.lpszDatatype = NULL;
+
+		pdoc.fwType = NULL;
+
+		pdoc.lpszOutput = NULL;
+
+		if (printed.StartDoc(&pdoc) >= 0)
+		{
+			LOGFONT logfont;
+
+			memset(&logfont, 0, sizeof(LOGFONT));
+
+			logfont.lfHeight = 75;
+
+			CFont font;
+
+			CFont* oldfont = NULL;
+
+			if (font.CreateFontIndirect(&logfont))
+
+				oldfont = (CFont*)printed.SelectObject(&font);
+
+			CRect rectPrint(0, 0,
+
+				printed.GetDeviceCaps(HORZRES),
+
+				printed.GetDeviceCaps(VERTRES));
+
+			printed.DPtoLP(&rectPrint);
+
+			CSize sizeText(75, 75);
+
+			sizeText = printed.GetTextExtent(_T("00"), 2);
+
+			int xMax = rectPrint.Width();
+
+			int xStep = rectPrint.Width() / 12;
+
+			int yMax = rectPrint.Height() / 2;
+
+			int yStep = rectPrint.Height() / 2 / ((count + 1) / 2 + 5);
+
+			int xl = xStep;
+
+			int xr = rectPrint.Width() / 2 + xStep;
+
+			for (j = 1; j <= page; j++)
+			{
+				printed.StartPage();
+
+				CString pageHead, pageBottom;
+
+				pageHead.Format(_T("测量结果"));
+
+				printed.TextOut(xStep * 5, yStep * 1, pageHead); //打印页眉
+
+				CString title;//设置标题栏
+
+				title.Format(_T("序号     角度     数量"));
+
+				printed.TextOut(xl, yStep * 2, title); //打印标题
+
+				printed.TextOut(xr, yStep * 2, title); //打印标题
+
+				CString stt;
+
+				stt.Format(_T("________________________________"));
+
+				printed.TextOut(xl, yStep * 2 + sizeText.cy, stt); //打印stt
+
+				printed.TextOut(xr, yStep * 2 + sizeText.cy, stt); //打印stt
+
+				for (i = 1; (i < 40 / 2) && (row < count / 2); i++) //打印list
+				{
+					CString record(_T(""));
+
+					record += this->m_runlist.GetItemText(row, 0) + L"     ";
+
+					record += this->m_runlist.GetItemText(row, 1) + L"     ";
+
+					record += this->m_runlist.GetItemText(row, 2);
+
+					printed.TextOut(xl, yStep * (2 + i), record);
+
+					printed.TextOut(xl, yStep * (2 + i) + sizeText.cy, stt);
+
+					row++;
+				}
+				for (i = 1; (i < 40 / 2) && (row < count); i++)
+				{
+					CString record(_T(""));
+
+					record += this->m_runlist.GetItemText(row, 0) + L"     ";
+
+					record += this->m_runlist.GetItemText(row, 1) + L"     ";
+
+					record += this->m_runlist.GetItemText(row, 2);
+
+					printed.TextOut(xr, yStep * (2 + i), record);
+
+					printed.TextOut(xr, yStep * (2 + i) + sizeText.cy, stt);
+
+					row++;
+				}
+				pageBottom.Format(_T("共%d页   第%d页"), page, j);
+
+				printed.TextOut(xStep * 5, yMax - yStep, pageBottom);// 打印页脚
+
+				printed.EndPage();//此页结束
+			}
+
+			if (oldfont != NULL)
+
+				printed.SelectObject(oldfont);
+
+			font.DeleteObject();
+
+			printed.EndDoc();
+		}
+		printed.Detach();
+
+		printed.DeleteDC();
+	}
+}
+
+
+void CRun::OnBnClickedBtnStdcheck()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CString strValue = _T("");
+	CString strFilePath;
+	strFilePath = g_path + _T("\\SortSet.ini");
+
+	CDlgCheckStd dlg;
+	int ret = dlg.DoModal();
+	if (ret != 101)
+	{
+		AfxMessageBox(_T("对标准未通过"));
+		return;
+	}
+	g_sort.needCheck = 0;
+	CString str;
+	GetDlgItemText(IDC_DEG, str);
+	WritePrivateProfileString(_T("对标设定"), _T("上一次对标中心角度"), str, strFilePath);
+
+	return;
+}
+
+
+void CRun::OnBnClickedBtnCpk()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  CDlgCpk dlg(g_pCpk);
+  dlg.DoModal();
+
+  return;
 }

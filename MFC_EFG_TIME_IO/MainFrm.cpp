@@ -1037,7 +1037,7 @@ void CMainFrame::OnButtonUrun()
   //	AfxMessageBox(L"正在采集");
   //	return;
   //}
-
+	#ifndef USE_EFGV1
 #ifndef __DEBUG__
   //DevInf dev;
   ////combo init // combo必须禁止自动排序，或者 会对应不起来
@@ -1074,6 +1074,7 @@ void CMainFrame::OnButtonUrun()
 
 
   m_diIntCounterSnap.StartURunTrd(_wtof(val_ustep), 1, 2);
+#endif
 #endif
 }
 
