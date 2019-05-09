@@ -305,18 +305,18 @@ BOOL CATtoSCDlg::OnInitDialog()
 
 
 	//tab控件初始化
-	CRect tabRect;   // 标签控件客户区的位置和大小   
-	m_Tab.InsertItem(0, _T("运行")); 
-	m_Tab.InsertItem(1, _T("调试"));  
-	m_Run.Create(IDD_RUN, &m_Tab);   
+	CRect tabRect;   // 标签控件客户区的位置和大小
+	m_Tab.InsertItem(0, _T("运行"));
+	m_Tab.InsertItem(1, _T("调试"));
+	m_Run.Create(IDD_RUN, &m_Tab);
 	m_Debug.Create(IDD_DEBUG, &m_Tab);
 	m_Tab.GetClientRect(&tabRect);
-	tabRect.left += 1;                  
-	tabRect.right -= 1;   
-	tabRect.top += 22;   
-	tabRect.bottom -= 1;   
-	m_Run.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(),SWP_SHOWWINDOW);   
-	m_Debug.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(),SWP_HIDEWINDOW); 
+	tabRect.left += 1;
+	tabRect.right -= 1;
+	tabRect.top += 22;
+	tabRect.bottom -= 1;
+	m_Run.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(),SWP_SHOWWINDOW);
+	m_Debug.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(),SWP_HIDEWINDOW);
 	m_Tab.SetCurSel(0);
 	//初始化变量
 
@@ -348,7 +348,6 @@ BOOL CATtoSCDlg::OnInitDialog()
 		ioData=0x03;
 		AC6641_DO(g_hDevice,10,ioData);
 	}
-
 
 	return TRUE;
 }

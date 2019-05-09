@@ -21,7 +21,7 @@
 const GLfloat Pi = 3.1415926536f;
 //     //////////////////////////////////////////////// MY test//////////////////////////////////////////////////
 //
-#define SUB 10
+#define SUB 11
 #if SUB ==1
 //第一课 
 ///////////////////////////////
@@ -224,7 +224,7 @@ OpenGL 规定堆栈的容量至少可以 容纳 32 个矩阵，某些 OpenGL 实
  // 太阳、地球和月亮 
  // 假设每个月都是 30 天 
  // 一年 12 个月，共是 360 天 
-static int day = 200; // day 的变化：从 0 到 359 
+static int day = 30; // day 的变化：从 0 到 359 
 void myDisplay(void)
 {/*还有一个需要注意的细节：OpenGL 把三维坐标中的物体绘制到二维屏幕，绘制的顺序是按照代 码的顺序来进行的。因此后绘制的物体会遮住先绘制的物体，即使后绘制的物体在先绘制的物体 的“后面”也是如此。使用深度测试可以解决这一问题。使用的方法是：1、以 GL_DEPTH_TEST 为参数调用 glEnable 函数，启动深度测试。2、在必要时（通常是每次绘制画面开始时），清空深 度缓冲，即：glClear(GL_DEPTH_BUFFER_BIT);其中，glClear(GL_COLOR_BUFFER_BIT)与 glClear(GL_DEPTH_BUFFER_BIT)可以合并写为： glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 且后者的运行速度可能比前者快。 */
  
@@ -233,10 +233,10 @@ void myDisplay(void)
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(75, 1, 1, 400000000);//设置可视空间
+  gluPerspective(75, 1, 10000, 400000000);//设置可视空间
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  gluLookAt(0, -200000000, 200000000, 0, 0, 0, 0, 0, 1);
+  gluLookAt(0,0, 400000000, 0, 0, 0, 0, 1, 0); //gluLookAt(0, -200000000, 200000000, 0, 0, 0, 0, 0, 1);
 
   // 绘制红色的“太阳” 
   glColor3f(1.0f, 0.0f, 0.0f);
@@ -254,8 +254,71 @@ void myDisplay(void)
 
   glFlush();
 }
-#endif
+#elif SUB== 11
+
+// 太阳、地球和月亮 
+// 假设每个月都是 30 天 
+// 一年 12 个月，共是 360 天 
+static int day = 200; // day 的变化：从 0 到 359 
+void myDisplay(void)
+{
+  glEnable(GL_DEPTH_TEST);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(75, 1, 10000, 400000000);//设置可视空间
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  gluLookAt(0, 200000000, 200000000, 0, 0, 0, 0, 1, 0); //gluLookAt(0, -200000000, 200000000, 0, 0, 0, 0, 0, 1);
+
+  // 绘制红色的“太阳” 
+  glColor3f(1.0f, 0.0f, 0.0f);
+  glutSolidSphere(69600000, 20, 20);//绘制球体
+  // 绘制蓝色的“地球” 
+  glColor3f(0.0f, 0.0f, 1.0f);
+  glRotatef(day / 360.0 * 360.0, 0.0f, 0.0f, -1.0f);
+  glTranslatef(150000000, 0.0f, 0.0f);
+  glutSolidSphere(15945000, 20, 20);
+  // 绘制黄色的“月亮” 
+  glColor3f(1.0f, 1.0f, 0.0f);
+  glRotatef(day / 30.0 * 360.0 - day / 360.0 * 360.0, 0.0f, 0.0f, -1.0f);
+  glTranslatef(38000000, 0.0f, 0.0f);
+  glutSolidSphere(4345000, 20, 20);
+
+  glFlush();
+  /****************************************************
+   这里的内容照搬上一课的，只因为使用了双缓冲，补上最后这句
+  *****************************************************/
+  glutSwapBuffers();
+}
+
+void myIdle(void)
+{
+  /* 新的函数，在空闲时调用，作用是把日期往后移动一天并重新绘制，达到动画效果 */
+  ++day;
+  if (day >= 360)
+    day = 0;
+  myDisplay();
+  _sleep(100);
+}
+
 int main(int argc, char* argv[])
+{
+  glutInit(&argc, argv);
+  //GLUT_SINGLE单缓存， GLUT_DOUBLE 双缓存（此时需要在绘制完成时使用glutSwapBuffers 交换缓冲区）
+  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE); // 修改了参数为 GLUT_DOUBLE 
+  glutInitWindowPosition(100, 100);
+  glutInitWindowSize(400, 400);
+  glutCreateWindow("太阳，地球和月亮");   // 改了窗口标题 
+  glutDisplayFunc(&myDisplay);
+  //glutIdleFunc  表示cpu空闲时做某事
+  glutIdleFunc(&myIdle);               // 新加入了这句 
+  glutMainLoop();
+  return 0;
+}
+#endif
+int main1(int argc, char* argv[])
 {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
