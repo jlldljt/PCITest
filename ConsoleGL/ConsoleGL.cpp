@@ -300,7 +300,7 @@ void myIdle(void)
   if (day >= 360)
     day = 0;
   myDisplay();
-  _sleep(100);
+  _sleep(100);//由于使用cpu刷新频率很快，需要加延时，显卡的垂直同步也可以解决这个问题
 }
 
 int main(int argc, char* argv[])
