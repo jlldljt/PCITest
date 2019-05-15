@@ -141,7 +141,12 @@ int KeyBoardMsg(DWORD vkCode, BOOL ctrl, BOOL alt)
   case VK_RETURN:
 	  if (g_bStart)
 	  {
-		  RECT rc = { g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y };
+      
+		  RECT rc = { min(g_dpPntLDown.x,g_dpPntLUp.x)+1 ,
+        min(g_dpPntLDown.y, g_dpPntLUp.y)+1, 
+        max(g_dpPntLDown.x,g_dpPntLUp.x)-1, 
+        max(g_dpPntLDown.y, g_dpPntLUp.y)-1 };
+ 
 		  testbmp(rc);
 	  }
     return TRUE;
@@ -537,8 +542,13 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
       _In_opt_ HMENU hMenu,
       _In_opt_ HINSTANCE hInstance,
       _In_opt_ LPVOID lpParam);*/
+#define WS_MYSTYLE (WS_OVERLAPPED     | \
+                             WS_CAPTION        | \
+                             WS_SYSMENU        | \
+                             WS_THICKFRAME)
+
 		hWnd = CreateWindowEx(0, MAIN_CLASSNAME,
-			_T("Hello World"), WS_OVERLAPPEDWINDOW, /*CW_USEDEFAULT,
+			_T("Hello World"), WS_MYSTYLE/*WS_OVERLAPPEDWINDOW*/, /*CW_USEDEFAULT,
 			0, CW_USEDEFAULT, 0,*/0,0,50,100, NULL, NULL, hInstance, NULL
 			);
 

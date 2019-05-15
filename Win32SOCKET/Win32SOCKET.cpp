@@ -422,7 +422,9 @@ test3connect:
 
     printf("restart and reconnect");
     getchar();
-
+    closesocket(ConnectSocket);
+    ConnectSocket = INVALID_SOCKET;
+    WSACleanup();
     goto test3connect;
   }
   else
@@ -468,7 +470,7 @@ test3connect:
   delete wpath;
   getchar();
 	//crc
-	UCHAR uchBuf[20] = { 0xF3, 0x01, 0x6C, 0x81, 0x03, 0x00 };
+	UCHAR uchBuf[20] = { 0xF3, 0x06, 0x6C, 0x81, 0x03, 0x00 };
 	memcpy_s(uchBuf + 2, sizeof(uchBuf), &size, 4);
 	uint16_t crc;
 	crc = getCRC16(uchBuf, 6);
