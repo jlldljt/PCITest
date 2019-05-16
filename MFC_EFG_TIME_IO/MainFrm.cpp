@@ -1496,7 +1496,8 @@ BOOL CMainFrame::StartMeasure(int out3, int out6)
   m_diIntCounterSnap.StartXRayAndLaser(0);
 
 #ifdef USE_EFGV1
-  m_efgio.SetOut(out3, out6);
+m_efgio.SetOut(out3, out6);
+Sleep(100);
 #elif USE_AC6641
   m_diIntCounterSnap.StartCaptureSin(OUT3_COUNTER, out3, OUT6_COUNTER, out6);// TODO：应该时5和4
 #endif

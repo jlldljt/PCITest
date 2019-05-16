@@ -520,7 +520,7 @@ void CEfgIO::MotoRunNoWait(int moto_index, double param)
 int CEfgIO::MotoRunNoWait(int moto_index, int param)
 {
 #ifdef USE_EFGV1
-  char sbuf[9] = { 0x55, 'M', GetMotoCh(moto_index), 'C', param>>24, param >>16, param >> 8, param >> 0,0x00 };
+  char sbuf[9] = { 0x55, 'M', GetMotoCh(moto_index), 'M', param>>24, param >>16, param >> 8, param >> 0,0x00 };
   int slen = sizeof(sbuf);
   unsigned char rbuf[100] = { 0 };
   int rlen = 100;
@@ -555,6 +555,7 @@ int CEfgIO::MotoZero(int moto_index)
   {
     return 0;
   }
+ 
   return -1;
 #elif USE_AC6641
 
@@ -816,17 +817,18 @@ int CEfgIO::GetAllCntData(int no, char* buf, int len)
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, buf, len, &crc, 100/*1s*/);
+  rdlen = m_com.SendAndRecv(sbuf, slen, buf, len, &crc, 10/*100ms*/);
 
   if (rdlen > 5 && crc)
   {
     return rdlen;
   }
+  ASSERT(1);
   return -1;
 }
 int CEfgIO::SetOut(int out3, int out6)
 {
-  char sbuf[9] = { 0x55, 'F', 'O', out3 >> 8, out3, out6 >> 8,out6,0x00,0x00 };
+  char sbuf[9] = { 0x55, 'F', 'S',0x00,out3, out3 >> 8,out6,  out6 >> 8,0x00 };
   int slen = sizeof(sbuf);
   unsigned char rbuf[100] = { 0 };
   int rlen = 100;

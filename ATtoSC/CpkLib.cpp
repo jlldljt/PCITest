@@ -636,7 +636,9 @@ BOOL CCpkLib::CalcCpk( CProcessCard & processCard)
 		while (csv->ReadData(arr))
 		{
 			if (arr.GetCount() == PROCESS_CSV_ROW_MAX) {
-
+				CString no = arr[PROCESS_CSV_ROW_NO];
+				if (no == _T("No"))
+					continue;
 				data.no = _ttoi(arr[PROCESS_CSV_ROW_NO]);
 				data.laser = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_LASER]));
 				data.phi = USER_TO_SEC(_ttoi(arr[PROCESS_CSV_ROW_PHI]));

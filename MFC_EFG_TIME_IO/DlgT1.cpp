@@ -322,7 +322,7 @@ void CDlgT1::OnBnClickedButtonStart()
       GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(FALSE);
 
 	  if(fparam0 == 4)
-		  SetTimer(0, 40, NULL);
+		  SetTimer(0, 200, NULL);
     }
   }
   else {

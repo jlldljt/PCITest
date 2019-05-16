@@ -733,7 +733,7 @@ void CDlgCheckStd::OnBnClickedBtnStdChecking()
     // ∂¡∆¡ƒª
     if (RCGVGA())
     {
-		int* degree = degree;//g_dlgScreen->degree;
+		//int* degree = degree;//g_dlgScreen->degree;
 
         checked.m_no = checking.m_no;
         checked.m_laser = (degree[0] * 10 + degree[1]) * 3600 + (degree[2] * 10 + degree[3]) * 60 + (degree[4] * 10 + degree[5])/* + g_sort.R1t[g_sort.R1Num]*/;//π‚÷·//_0614

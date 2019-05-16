@@ -2,7 +2,7 @@
 <DI0>
     <Device>0</Device>
     <ComboData>0</ComboData>
-    <Param0>-1</Param0>
+    <Param0>0</Param0>
     <Param1>-9.2559631349317831e+061</Param1>
     <Start>true</Start>
 </DI0>
@@ -10,7 +10,7 @@
 <DO0>
     <Device>0</Device>
     <ComboData>6</ComboData>
-    <Param0>-1</Param0>
+    <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </DO0>
@@ -34,7 +34,7 @@
 <DI1>
     <Device>0</Device>
     <ComboData>0</ComboData>
-    <Param0>-1</Param0>
+    <Param0>1</Param0>
     <Param1>-9.2559631349317831e+061</Param1>
     <Start>true</Start>
 </DI1>
@@ -42,7 +42,7 @@
 <DO1>
     <Device>0</Device>
     <ComboData>6</ComboData>
-    <Param0>-1</Param0>
+    <Param0>1</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </DO1>
@@ -66,7 +66,7 @@
 <DI2>
     <Device>0</Device>
     <ComboData>0</ComboData>
-    <Param0>-1</Param0>
+    <Param0>1</Param0>
     <Param1>-9.2559631349317831e+061</Param1>
     <Start>true</Start>
 </DI2>
@@ -74,7 +74,7 @@
 <DO2>
     <Device>0</Device>
     <ComboData>6</ComboData>
-    <Param0>-1</Param0>
+    <Param0>1</Param0>
     <Param1>0</Param1>
     <Start>true</Start>
 </DO2>
@@ -105,10 +105,10 @@
 
 <DO3>
     <Device>0</Device>
-    <ComboData>-1</ComboData>
-    <Param0>0</Param0>
+    <ComboData>6</ComboData>
+    <Param0>1</Param0>
     <Param1>0</Param1>
-    <Start>false</Start>
+    <Start>true</Start>
 </DO3>
 
 <T03>
@@ -137,10 +137,10 @@
 
 <DO4>
     <Device>0</Device>
-    <ComboData>-1</ComboData>
-    <Param0>0</Param0>
+    <ComboData>6</ComboData>
+    <Param0>1</Param0>
     <Param1>0</Param1>
-    <Start>false</Start>
+    <Start>true</Start>
 </DO4>
 
 <T04>
@@ -169,10 +169,10 @@
 
 <DO5>
     <Device>0</Device>
-    <ComboData>-1</ComboData>
-    <Param0>0</Param0>
+    <ComboData>6</ComboData>
+    <Param0>1</Param0>
     <Param1>0</Param1>
-    <Start>false</Start>
+    <Start>true</Start>
 </DO5>
 
 <T05>
@@ -201,10 +201,10 @@
 
 <DO6>
     <Device>0</Device>
-    <ComboData>-1</ComboData>
-    <Param0>0</Param0>
+    <ComboData>6</ComboData>
+    <Param0>1</Param0>
     <Param1>0</Param1>
-    <Start>false</Start>
+    <Start>true</Start>
 </DO6>
 
 <T06>
@@ -457,7 +457,7 @@
 
 <DO14>
     <Device>0</Device>
-    <ComboData>-1</ComboData>
+    <ComboData>6</ComboData>
     <Param0>0</Param0>
     <Param1>0</Param1>
     <Start>false</Start>

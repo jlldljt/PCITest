@@ -54,6 +54,12 @@ protected:
 	CWinThread* p_screen;
 	CWinThread* p_display;
 	DECLARE_MESSAGE_MAP()
+private:
+	enum 
+	{
+		RUN_START = 1,
+		RUN_STOP,
+	};
 public:
   CCSVFile *m_csvCard;
   CCSVFile *m_csvAllCard;
@@ -88,4 +94,7 @@ afx_msg void OnEnChangeEditTimeX3();
 	afx_msg void OnBnClickedBtnPrint();
 	afx_msg void OnBnClickedBtnStdcheck();
   afx_msg void OnBnClickedBtnCpk();
+  afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
+
+extern int degree[30];

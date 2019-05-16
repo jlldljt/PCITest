@@ -137,27 +137,27 @@ UINT AllMsg(LPVOID pParam)
 
   param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[0];// 激光数量
 
-  //for (int i = 0; i < 4; i++)
-  //{
-  //  ASSERT(param->m_efgio->m_resultParam.measure.cnt_num[i]+3 < LASER_SIN_NUM);// 检验数量是否超标
-  //  int rdlen = param->m_efgio->GetAllCntData(i, (g_tmp_counter[i]), param->m_efgio->m_resultParam.measure.cnt_num[i]*2+6/*命令头4B+crc2B*/);//获取数据
-  //  ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[i] * 2 + 6); // 检验接收数量是否一致
+  for (int i = 0; i < 4; i++)
+  {
+    ASSERT(param->m_efgio->m_resultParam.measure.cnt_num[i]+3 < LASER_SIN_NUM);// 检验数量是否超标
+    int rdlen = param->m_efgio->GetAllCntData(i, (char*)(g_tmp_counter[i]), param->m_efgio->m_resultParam.measure.cnt_num[i]*2+6/*命令头4B+crc2B*/);//获取数据
+    //ASSERT(rdlen == param->m_efgio->m_resultParam.measusre.cnt_num[i] * 2 + 6); // 检验接收数量是否一致
 
-  //  if(param->m_counter.index[0] > param->m_efgio->m_resultParam.measure.cnt_num[i])// 激光数量存最小的
-  //    param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[i];
+    if(param->m_counter.index[0] > param->m_efgio->m_resultParam.measure.cnt_num[i])// 激光数量存最小的
+      param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[i];
 
- // }
+  }
 
   ASSERT(param->m_efgio->m_resultParam.measure.cnt_num[4]+3 < XRAY_ONESHOT_NUM);// 检验数量是否超标
-  int rdlen = param->m_efgio->GetAllCntData(4, (char*)(g_tmp_counter[4]), param->m_efgio->m_resultParam.measure.cnt_num[4]+6);//获取数据
+  int rdlen = param->m_efgio->GetAllCntData(4, (char*)(g_tmp_counter[4]), param->m_efgio->m_resultParam.measure.cnt_num[4]*2+6);//获取数据
   //ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[4] + 6); // 检验接收数量是否一致
   param->m_counter.index[1] = param->m_efgio->m_resultParam.measure.cnt_num[4];// X光数量
 
   for (int i = 0; i < 5; i++)//复制到原先的计数器数组中
   {
     for (int j = 0; j < param->m_efgio->m_resultParam.measure.cnt_num[i];j++)
-		param->m_counter.counter[i][j] = g_tmp_counter[i][j+4];
-      //param->m_counter.counter[i][j] = (g_tmp_counter[i][j+4]<<8)|(g_tmp_counter[i][j+1+4]);
+		//param->m_counter.counter[i][j] = g_tmp_counter[i][j+4];
+      param->m_counter.counter[i][j] = (g_tmp_counter[i][j*2+4+1]<<8)|(g_tmp_counter[i][j*2+4]);
   }
 
   
@@ -1150,8 +1150,8 @@ int CDiIntCounterSnap::LaserFit()
 			else
 				m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = 65536 - m_counter.counter[LASER_CNT_START_INDEX+j][i+1]+m_counter.counter[LASER_CNT_START_INDEX+j][i];
 			*/
-			double dec = fabs(m_counter.counter[LASER_CNT_START_INDEX+j][i] -m_counter.counter[LASER_CNT_START_INDEX+j][i+1]);
-			m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = dec > 32768 ? 65536 - dec : dec;
+			double dec = m_counter.counter[LASER_CNT_START_INDEX+j][i];//fabs(m_counter.counter[LASER_CNT_START_INDEX+j][i] -m_counter.counter[LASER_CNT_START_INDEX+j][i+1]);
+			m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = dec;//dec > 32768 ? 65536 - dec : dec;
 		}
 	}
 	//for (int j = 0; j < SIN_CNT_NUM; j++) {

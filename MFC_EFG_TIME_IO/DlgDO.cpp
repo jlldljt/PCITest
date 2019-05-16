@@ -45,7 +45,7 @@ void CDlgDO::SetDlg(TimeIOType type)
     GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
     GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
     GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(TRUE);
-    SetTimer(0, 40, NULL);
+    SetTimer(0, 200, NULL);
     break;  
   case AC6641_I:
       SetDlgItemText(IDC_STATIC_PARAM0, L"输入值8位");
@@ -53,7 +53,7 @@ void CDlgDO::SetDlg(TimeIOType type)
       GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
       GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
       //GetDlgItem(IDC_EDIT_PARAM1)->EnableWindow(TRUE);
-      SetTimer(0, 40, NULL);
+      SetTimer(0, 200, NULL);
       break;  
     case AC6641_O:
       SetDlgItemText(IDC_STATIC_PARAM0, L"输出值8位");

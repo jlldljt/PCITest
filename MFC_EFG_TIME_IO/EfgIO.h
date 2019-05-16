@@ -158,27 +158,26 @@ typedef struct {
 //按板卡的 修改
 enum EFG_IChannel
 {
+  READY=0,
   LASER_CNT_GATE= 1,//激光计数门控
   XRAY_CNT_GATE= 2,//x光计数门控
   TURNTABLE_ZERO = 4,//转盘零位
-  READY,
 };
 
 enum EFG_OChannel
 {
  // U_DIR = 0,//
-  X_NOZZLE=1,
+  CLEAN=1,
   XRAY_GATE,
-  U_GATE = 3,//
-  U_OUTP = 4,//
-  U_OUTN = 5,//
-
-  XRAY_CTRL_GATE,//光门
-  Y_NOZZLE,
-  U_EN,//
-  BLOW,
   ALERT,
-  CLEAN,
+  BLOW=4,
+  X_NOZZLE,
+  Y_NOZZLE,
+  U_GATE,//
+  U_OUTP,//
+  U_OUTN,//
+  XRAY_CTRL_GATE,//光门
+  U_EN,//
 };
 //按序号
 enum AC6641_Channel

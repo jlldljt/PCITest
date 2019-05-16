@@ -10,7 +10,6 @@
 extern threadstatus g_status;
 extern sortchip g_sort;
 //extern runtime g_time;
-extern int degree[30];
 extern bool updatesort;
 extern HANDLE g_hDevice;
 int g_sortgroup[30] = { 1000 };
@@ -284,8 +283,15 @@ UINT TakeThread(LPVOID pParam)//取片X轴
 	int nNoBlowN = 0;
 	while (1)
 	{
-		while (!yOver)
+		while (!yOver){
 			Sleep(1);
+			if (1 == g_status.TAK_STOP)
+			{
+				g_status.CHK_STOP = 1;//控制检测线程停止
+				g_status.TAK_STOP = 0;
+				return 0;
+			}
+		}
 		ReturnZero(1);//归零
 		ac6641_critical.Lock();
 		AC6641_DO(g_hDevice, 5, AC6641_DI(g_hDevice, 5) & 0xfd);//停止测试低电平
@@ -536,6 +542,7 @@ UINT SortThread(LPVOID pParam)//分档Y轴
 				break;
 			if (1 == g_status.SOT_STOP)
 			{
+				MotorCtrl(2, 1, g_status.Ywait);//转动到等待
 				g_status.DSP_STOP = 1;//控制显示线程停止
 				g_status.SOT_STOP = 0;
 				return 0;
@@ -1823,6 +1830,7 @@ BEGIN_MESSAGE_MAP(CRun, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_PRINT, &CRun::OnBnClickedBtnPrint)
 	ON_BN_CLICKED(IDC_BTN_STDCHECK, &CRun::OnBnClickedBtnStdcheck)
   ON_BN_CLICKED(IDC_BTN_CPK, &CRun::OnBnClickedBtnCpk)
+  ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -2081,7 +2089,10 @@ BOOL CRun::OnInitDialog()
 			delete[] cTmp; cTmp = NULL;
 		}
 		else
+		{
 			AfxMessageBox(_T("R1读取失败，重新打开程序"));
+			exit(0);
+		}
 	}
 	g_tim.onX = GetPrivateProfileInt(_T("等待时间"), _T("X轴取料"), 0, strFilePath);
 	g_tim.offX = GetPrivateProfileInt(_T("等待时间"), _T("X轴上料"), 0, strFilePath);
@@ -2222,7 +2233,7 @@ void CRun::OnBnClickedRunStart()
     CProcessCard processCard;
     processCard.no = process;
     CString axis;
-    GetDlgItemText(IDC_COMBO_SORT1, axis);
+    GetDlgItemText(IDC_SORT_SEL1, axis);
     processCard.axis = axis;
     processCard.center = g_sort.centerangle;
 
@@ -2521,6 +2532,7 @@ void CRun::OnBnClickedRunStart()
 	GetDlgItem(IDC_DEG_MAX)->EnableWindow(0);
 	GetDlgItem(IDC_CHK_LONG_SQU)->EnableWindow(0);
 	GetDlgItem(IDC_SORT_SET)->EnableWindow(0);
+	GetDlgItem(IDC_EDT_CUTDEG)->EnableWindow(0);
   GetDlgItem(IDC_PARAM_T0)->EnableWindow(0);
   GetDlgItem(IDC_PARAM_K)->EnableWindow(0);
 }
@@ -2560,55 +2572,57 @@ void CRun::OnBnClickedRunStop()
 	//g_status.SCR_STOP=1;
 	//g_status.SOT_STOP=1;
 	g_status.TAK_STOP = 1;
-	while (1)//当全部线程退出之后退出线程
-	{
-		if ((!g_status.CHK_STOP) && (!g_status.DSP_STOP) && (!g_status.SCR_STOP) && (!g_status.SOT_STOP) && (!g_status.TAK_STOP) && (!g_status.SOT2_STOP) && (!g_status.CY_STOP))
-		{
-			Sleep(5);
-			if ((!g_status.CHK_STOP) && (!g_status.DSP_STOP) && (!g_status.SCR_STOP) && (!g_status.SOT_STOP) && (!g_status.TAK_STOP) && (!g_status.SOT2_STOP) && (!g_status.CY_STOP))
-			{
-				break;
-			}
-		}
-		Sleep(1);
-	}
-	//g_status._N=0;
-	AC6641_DO(g_hDevice, 5, AC6641_DI(g_hDevice, 5) | 0x02);//开始测试高电平
-	//流程卡记录
-	//CString card;
-	//GetDlgItemText(IDC_EDIT_CARD, card);
-	if (m_csvCard) {
-		//CCSVFile csv(g_path + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
-		CStringArray arr;
-		CString str;
-		CTime time;
-		time = CTime::GetCurrentTime();
-		arr.Add(_T("结束"));
-		arr.Add(time.Format("%Y/%m/%d"));
-		arr.Add(time.Format("%H:%M:%S"));
-		m_csvCard->WriteData(arr);
-		arr.RemoveAll();
+	SetTimer(RUN_STOP, 300, NULL);
+	//while (1)//当全部线程退出之后退出线程
+	//{
+	//	if ((!g_status.CHK_STOP) && (!g_status.DSP_STOP) && (!g_status.SCR_STOP) && (!g_status.SOT_STOP) && (!g_status.TAK_STOP) && (!g_status.SOT2_STOP) && (!g_status.CY_STOP))
+	//	{
+	//		Sleep(5);
+	//		if ((!g_status.CHK_STOP) && (!g_status.DSP_STOP) && (!g_status.SCR_STOP) && (!g_status.SOT_STOP) && (!g_status.TAK_STOP) && (!g_status.SOT2_STOP) && (!g_status.CY_STOP))
+	//		{
+	//			break;
+	//		}
+	//	}
+	//	Sleep(1);
+	//}
+	////g_status._N=0;
+	//AC6641_DO(g_hDevice, 5, AC6641_DI(g_hDevice, 5) | 0x02);//开始测试高电平
+	////流程卡记录
+	////CString card;
+	////GetDlgItemText(IDC_EDIT_CARD, card);
+	//if (m_csvCard) {
+	//	//CCSVFile csv(g_path + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
+	//	CStringArray arr;
+	//	CString str;
+	//	CTime time;
+	//	time = CTime::GetCurrentTime();
+	//	arr.Add(_T("结束"));
+	//	arr.Add(time.Format("%Y/%m/%d"));
+	//	arr.Add(time.Format("%H:%M:%S"));
+	//	m_csvCard->WriteData(arr);
+	//	arr.RemoveAll();
 
-		delete m_csvCard;
-		m_csvCard = NULL;
-	}
-	SetDlgItemText(IDC_EDIT_CARD, _T(""));
-	GetDlgItem(IDC_RUN_START)->EnableWindow(1);
-	g_status._RUN = 0;//标记进入停止状态
-	GetDlgItem(IDC_RUN_STOP)->EnableWindow(0);
-	GetDlgItem(IDC_RUN_PAUSE)->EnableWindow(0);
-	//设置区禁止修改
-	GetDlgItem(IDC_EDIT_CARD)->EnableWindow(1);
-	GetDlgItem(IDC_SORT_SEL1)->EnableWindow(1);
-	GetDlgItem(IDC_DEG)->EnableWindow(1);
-	GetDlgItem(IDC_SORT)->EnableWindow(1);
-	GetDlgItem(IDC_SORT_SEL2)->EnableWindow(1);
-	GetDlgItem(IDC_DEG_MIN)->EnableWindow(1);
-	GetDlgItem(IDC_DEG_MAX)->EnableWindow(1);
-	GetDlgItem(IDC_CHK_LONG_SQU)->EnableWindow(1);
-	GetDlgItem(IDC_SORT_SET)->EnableWindow(1);
-  GetDlgItem(IDC_PARAM_T0)->EnableWindow(1);
-  GetDlgItem(IDC_PARAM_K)->EnableWindow(1);
+	//	delete m_csvCard;
+	//	m_csvCard = NULL;
+	//}
+	//SetDlgItemText(IDC_EDIT_CARD, _T(""));
+	//GetDlgItem(IDC_RUN_START)->EnableWindow(1);
+	//g_status._RUN = 0;//标记进入停止状态
+	//GetDlgItem(IDC_RUN_STOP)->EnableWindow(0);
+	//GetDlgItem(IDC_RUN_PAUSE)->EnableWindow(0);
+	////设置区禁止修改
+	//GetDlgItem(IDC_EDIT_CARD)->EnableWindow(1);
+	//GetDlgItem(IDC_SORT_SEL1)->EnableWindow(1);
+	//GetDlgItem(IDC_DEG)->EnableWindow(1);
+	//GetDlgItem(IDC_SORT)->EnableWindow(1);
+	//GetDlgItem(IDC_SORT_SEL2)->EnableWindow(1);
+	//GetDlgItem(IDC_DEG_MIN)->EnableWindow(1);
+	//GetDlgItem(IDC_DEG_MAX)->EnableWindow(1);
+	//GetDlgItem(IDC_CHK_LONG_SQU)->EnableWindow(1);
+	//GetDlgItem(IDC_SORT_SET)->EnableWindow(1);
+	//GetDlgItem(IDC_EDT_CUTDEG)->EnableWindow(1);
+ // GetDlgItem(IDC_PARAM_T0)->EnableWindow(1);
+ // GetDlgItem(IDC_PARAM_K)->EnableWindow(1);
 }
 
 
@@ -3491,4 +3505,78 @@ void CRun::OnBnClickedBtnCpk()
   dlg.DoModal();
 
   return;
+}
+
+
+void CRun::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	switch (nIDEvent)
+	{
+	case RUN_START:
+		
+		break;
+	case RUN_STOP:
+		{
+			while (1)//当全部线程退出之后退出线程
+			{
+				if ((!g_status.CHK_STOP) && (!g_status.DSP_STOP) && (!g_status.SCR_STOP) && (!g_status.SOT_STOP) && (!g_status.TAK_STOP) && (!g_status.SOT2_STOP) && (!g_status.CY_STOP))
+				{
+					Sleep(5);
+					if ((!g_status.CHK_STOP) && (!g_status.DSP_STOP) && (!g_status.SCR_STOP) && (!g_status.SOT_STOP) && (!g_status.TAK_STOP) && (!g_status.SOT2_STOP) && (!g_status.CY_STOP))
+					{
+						break;
+					}
+				}
+				CString str;
+				str.Format(_T("CHK %d DSP %d SCR %d SOT %d TAK %d SOT2 %d CY %d"),
+					g_status.CHK_STOP,g_status.DSP_STOP,g_status.SCR_STOP,g_status.SOT_STOP,g_status.TAK_STOP,g_status.SOT2_STOP,g_status.CY_STOP);
+				GetDlgItem(IDC_RUN_SHOW)->SetWindowText(str);
+				return;
+			}
+			//g_status._N=0;
+			AC6641_DO(g_hDevice, 5, AC6641_DI(g_hDevice, 5) | 0x02);//开始测试高电平
+			//流程卡记录
+			//CString card;
+			//GetDlgItemText(IDC_EDIT_CARD, card);
+			if (m_csvCard) {
+				//CCSVFile csv(g_path + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
+				CStringArray arr;
+				CString str;
+				CTime time;
+				time = CTime::GetCurrentTime();
+				arr.Add(_T("结束"));
+				arr.Add(time.Format("%Y/%m/%d"));
+				arr.Add(time.Format("%H:%M:%S"));
+				m_csvCard->WriteData(arr);
+				arr.RemoveAll();
+
+				delete m_csvCard;
+				m_csvCard = NULL;
+			}
+			SetDlgItemText(IDC_EDIT_CARD, _T(""));
+			GetDlgItem(IDC_RUN_START)->EnableWindow(1);
+			g_status._RUN = 0;//标记进入停止状态
+			GetDlgItem(IDC_RUN_STOP)->EnableWindow(0);
+			GetDlgItem(IDC_RUN_PAUSE)->EnableWindow(0);
+			//设置区禁止修改
+			GetDlgItem(IDC_EDIT_CARD)->EnableWindow(1);
+			GetDlgItem(IDC_SORT_SEL1)->EnableWindow(1);
+			GetDlgItem(IDC_DEG)->EnableWindow(1);
+			GetDlgItem(IDC_SORT)->EnableWindow(1);
+			GetDlgItem(IDC_SORT_SEL2)->EnableWindow(1);
+			GetDlgItem(IDC_DEG_MIN)->EnableWindow(1);
+			GetDlgItem(IDC_DEG_MAX)->EnableWindow(1);
+			GetDlgItem(IDC_CHK_LONG_SQU)->EnableWindow(1);
+			GetDlgItem(IDC_SORT_SET)->EnableWindow(1);
+			GetDlgItem(IDC_EDT_CUTDEG)->EnableWindow(1);
+		  GetDlgItem(IDC_PARAM_T0)->EnableWindow(1);
+		  GetDlgItem(IDC_PARAM_K)->EnableWindow(1);
+	KillTimer(RUN_STOP);
+		}
+		break;
+	default:
+		break;
+	}
+	//CDialogEx::OnTimer(nIDEvent);
 }

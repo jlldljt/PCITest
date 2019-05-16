@@ -71,7 +71,7 @@ void CDlgT0::SetDlg(TimeIOType type)
     GetDlgItem(IDC_EDIT_PARAM0)->EnableWindow(TRUE);
     GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
     GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
-    SetTimer(0, 40, NULL);
+    SetTimer(0, 200, NULL);
     break;
 
   case ONE_SHOT:
@@ -390,7 +390,7 @@ void CDlgT0::OnBnClickedButtonStart()
       GetDlgItem(IDC_BUTTON_CREATE)->EnableWindow(FALSE);
 
 	  if(fparam0 == 4)
-		  SetTimer(0, 40, NULL);
+		  SetTimer(0, 200, NULL);
 
     }
   }

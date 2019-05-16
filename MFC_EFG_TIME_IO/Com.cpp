@@ -114,7 +114,7 @@ BOOL  CCom::OpenCom(CString no)
 	{
 		SetupComm(m_base.hd,2048,2048);//分配缓冲区
 		GetCommState(m_base.hd,&m_base.dcb);//读取DCB结构
-		m_base.dcb.BaudRate=115200;//波特率为9600
+		m_base.dcb.BaudRate=460800;//波特率为9600
 		m_base.dcb.ByteSize=8;//数据位为8位
 		m_base.dcb.fParity=1;//奇偶校验
 		m_base.dcb.Parity=NOPARITY;//ODDPARITY;
@@ -214,14 +214,14 @@ int CCom::SendCharToCom(const char* buf, UINT len)
 		return flag;
 	}
 
-  CString tmp;
-  tmp = "\r\n";
-  m_info.str += tmp;
-  for (UINT j = 0; j < wdlen; j++)
-  {
-    tmp.Format(_T("%02X"), (UCHAR)buf[j]);
-    m_info.str += tmp;
-  }
+  //CString tmp;
+  //tmp = "\r\n";
+  //m_info.str += tmp;
+  //for (UINT j = 0; j < wdlen; j++)
+  //{
+  //  tmp.Format(_T("%02X"), (UCHAR)buf[j]);
+  //  m_info.str += tmp;
+  //}
 
 	//ccCriticalSection.Unlock();
 	return flag;
@@ -301,18 +301,21 @@ int CCom::RecvCharFromCom(char *buf,UINT len,bool *crc,UINT timeout)
     if(buf[offset -1]== (char)(crcresult&0xff))
     {
     	*crc = 1;
-    }
+    }else
+	{
+		*crc = 0;
+	}
 	}
 	
 
-	CString tmp;
-	tmp="\r\n";
-	m_info.str+= tmp;
-	for (UINT j=0; j< offset; j++)
-	{
-		tmp.Format(_T("%02X"),(UCHAR)buf[j]);
-		m_info.str+= tmp;
-	}
+	//CString tmp;
+	//tmp="\r\n";
+	//m_info.str+= tmp;
+	//for (UINT j=0; j< offset; j++)
+	//{
+	//	tmp.Format(_T("%02X"),(UCHAR)buf[j]);
+	//	m_info.str+= tmp;
+	//}
 
 	//ccCriticalSection.Unlock();
 	return offset;
@@ -410,8 +413,8 @@ int CCom::SendAndRecv(const char* sbuf, int slen, char* rbuf, int rlen, bool *cr
     
   ccCriticalSection.Unlock();
 
-  if (flagw)
-    return flagw;
-  else
+  if (flagr)
     return flagr;
+  else
+    return flagw;
 }

@@ -41,7 +41,7 @@ void CDlgDI::SetDlg(TimeIOType type)
     SetDlgItemText(IDC_STATIC_PARAM0, L"µçÆ½");
     GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
     GetDlgItem(IDC_COMBO_TYPE)->EnableWindow(FALSE);
-    SetTimer(0, 40, NULL);
+    SetTimer(0, 200, NULL);
     break;
   case INTERRUPT_DI:
     SetDlgItemText(IDC_STATIC_PARAM0, L"ÖÐ¶Ïcnt");

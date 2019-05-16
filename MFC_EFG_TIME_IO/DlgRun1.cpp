@@ -29,11 +29,13 @@ UINT Thread_YRun(LPVOID pParam)
     case START://拿料
       if (PAUSE == pdlg->m_run.state.turntable)//如果y停止，启动y
       {
+		  Sleep(100);
         pdlg->m_io->MotoZero(MOTOR_Y);//回零
         pdlg->m_io->WriteDo(Y_NOZZLE, IO_ON);//打开吸嘴
         Sleep(pdlg->m_param->user_config.time.y_on);//延时
         pdlg->m_io->MotoRun(MOTOR_Y, pdlg->m_param->user_config.pos.y_wait);//移动到等待位置
         pdlg->m_run.state.turntable = END;
+		Sleep(100);
         pdlg->m_io->MotoRun(MOTOR_Y, pdlg->m_result->measure.cur_pos_step);//移动到档位
 
         pdlg->m_run.state.y = END;
@@ -121,7 +123,7 @@ UINT Thread_XRun(LPVOID pParam)
     switch (pdlg->m_run.state.x)
     {
     case START://等料
-      if (pdlg->m_io->ReadDi(READY)) {//如果有料
+      if (1/*pdlg->m_io->ReadDi(READY)*/) {//如果有料
         pdlg->m_io->MotoZero(MOTOR_X);//回零
         pdlg->m_io->WriteDo(X_NOZZLE, IO_ON);//打开吸嘴
         Sleep(pdlg->m_param->user_config.time.x_on);//延时
@@ -206,7 +208,8 @@ UINT Thread_MainRun(LPVOID pParam)
     switch (pdlg->m_run.state.mainrun) {
     case START://启动
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("正在启动"));
-      while (END != pdlg->m_run.state.x&&END != pdlg->m_run.state.y&&END != pdlg->m_run.state.turntable);
+      //while (END != pdlg->m_run.state.x&&END != pdlg->m_run.state.y&&END != pdlg->m_run.state.turntable);
+	  ASSERT(!gTrdXRun&&!gTrdYRun&&!gTrdTurntableRun);
       pdlg->m_io->InitEfgIO();
       pdlg->m_run.state.x = START;
       pdlg->m_run.state.y = END;
@@ -214,16 +217,26 @@ UINT Thread_MainRun(LPVOID pParam)
 	  pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
 
       gTrdXRun = AfxBeginThread(Thread_XRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-      gTrdXRun->m_bAutoDelete = TRUE;
-      gTrdXRun->ResumeThread();
+	  ASSERT (gTrdXRun);
+	  gTrdXRun->m_bAutoDelete = FALSE;
+	  gTrdXRun->ResumeThread();
+
+      //gTrdXRun->m_bAutoDelete = TRUE;
+      //gTrdXRun->ResumeThread();
 
       gTrdYRun = AfxBeginThread(Thread_YRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-      gTrdYRun->m_bAutoDelete = TRUE;
-      gTrdYRun->ResumeThread();
+	  ASSERT (gTrdYRun);
+	  gTrdYRun->m_bAutoDelete = FALSE;
+	  gTrdYRun->ResumeThread();
+      //gTrdYRun->m_bAutoDelete = TRUE;
+      //gTrdYRun->ResumeThread();
 
       gTrdTurntableRun = AfxBeginThread(Thread_TurntableRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-      gTrdTurntableRun->m_bAutoDelete = TRUE;
-      gTrdTurntableRun->ResumeThread();
+	  ASSERT (gTrdTurntableRun);
+	  gTrdTurntableRun->m_bAutoDelete = FALSE;
+	  gTrdTurntableRun->ResumeThread();
+      //gTrdTurntableRun->m_bAutoDelete = TRUE;
+      //gTrdTurntableRun->ResumeThread();
 
       pdlg->m_run.state.mainrun = RUNNING;
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("正在运行"));
@@ -235,19 +248,35 @@ UINT Thread_MainRun(LPVOID pParam)
       pdlg->m_run.state.x = STOP;
       pdlg->m_run.state.y = STOP;
       pdlg->m_run.state.turntable = STOP;
-	  Sleep(1000);
-	  if (END != pdlg->m_run.state.x)
-        pdlg->m_run.state.x = STOP;
-	  if (END != pdlg->m_run.state.y)
-        pdlg->m_run.state.y = STOP;
-	  if (END != pdlg->m_run.state.turntable)
-        pdlg->m_run.state.turntable = STOP;
-      //gTrdXRun->ResumeThread();
-      //gTrdYRun->ResumeThread();
-      //gTrdTurntableRun->ResumeThread();
-      //gTrdStaticMeasure->ResumeThread();
-	  while (!(END == pdlg->m_run.state.x&&END == pdlg->m_run.state.y&&END == pdlg->m_run.state.turntable));
+	 
+	  while (1)
+	  {
+	    DWORD dwCodeX,dwCodeY,dwCodeTurntable; 
+		GetExitCodeThread(gTrdXRun->m_hThread , &dwCodeX);
+		GetExitCodeThread(gTrdYRun->m_hThread , &dwCodeY);
+		GetExitCodeThread(gTrdTurntableRun->m_hThread , &dwCodeTurntable);
+
+		if(dwCodeTurntable != STILL_ACTIVE &&dwCodeY != STILL_ACTIVE &&dwCodeX != STILL_ACTIVE)
+			break;
+
+	    if (dwCodeX == STILL_ACTIVE && STOP != pdlg->m_run.state.x )
+          pdlg->m_run.state.x = STOP;
+
+	    if (dwCodeY == STILL_ACTIVE && STOP != pdlg->m_run.state.y)
+          pdlg->m_run.state.y = STOP;
+
+	    if (dwCodeTurntable == STILL_ACTIVE && STOP != pdlg->m_run.state.turntable)
+          pdlg->m_run.state.turntable = STOP;
+	
+	  };
       
+	  gTrdXRun->Delete();
+	  gTrdYRun->Delete();
+	  gTrdTurntableRun->Delete();
+	  gTrdXRun = NULL;
+	  gTrdYRun = NULL;
+	  gTrdTurntableRun = NULL;
+			  
 	  pdlg->m_io->WriteDo(XRAY_GATE, IO_OFF);//打开光门
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T(""));
 
@@ -260,8 +289,8 @@ UINT Thread_MainRun(LPVOID pParam)
     case STATIC_MEASURE_START:
       //pdlg->m_io->InitEfgIO();
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("启动静态测量"));
-      while (END != pdlg->m_run.state.staticmeasure&&END != pdlg->m_run.state.turntable);
- 
+      //while (END != pdlg->m_run.state.staticmeasure&&END != pdlg->m_run.state.turntable);
+ ASSERT(!gTrdStaticMeasure&&!gTrdTurntableRun);
 	  memset(&pdlg->m_io->m_resultParam,0,sizeof(pdlg->m_io->m_resultParam));
 	  pdlg->m_io->m_resultParam.measure.min_pluse_num = 100000;
       pdlg->m_run.state.staticmeasure = START;
@@ -272,13 +301,22 @@ UINT Thread_MainRun(LPVOID pParam)
 	  pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
 
 
-      gTrdStaticMeasure = AfxBeginThread(Thread_StaticMeasure, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-      gTrdStaticMeasure->m_bAutoDelete = TRUE;
-      gTrdStaticMeasure->ResumeThread();
+      //gTrdStaticMeasure = AfxBeginThread(Thread_StaticMeasure, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+      //gTrdStaticMeasure->m_bAutoDelete = TRUE;
+      //gTrdStaticMeasure->ResumeThread();
+	  gTrdStaticMeasure = AfxBeginThread(Thread_StaticMeasure, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+	  ASSERT (gTrdStaticMeasure);
+	  gTrdStaticMeasure->m_bAutoDelete = FALSE;
+	  gTrdStaticMeasure->ResumeThread();
+      //gTrdTurntableRun = AfxBeginThread(Thread_TurntableRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+      //gTrdTurntableRun->m_bAutoDelete = TRUE;
+      //gTrdTurntableRun->ResumeThread();
 
       gTrdTurntableRun = AfxBeginThread(Thread_TurntableRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-      gTrdTurntableRun->m_bAutoDelete = TRUE;
-      gTrdTurntableRun->ResumeThread();
+	  ASSERT (gTrdTurntableRun);
+	  gTrdTurntableRun->m_bAutoDelete = FALSE;
+	  gTrdTurntableRun->ResumeThread();
+
 
 
       pdlg->m_run.state.mainrun = RUNNING;
@@ -290,14 +328,36 @@ UINT Thread_MainRun(LPVOID pParam)
 		
       pdlg->m_run.state.staticmeasure = STOP;
       pdlg->m_run.state.turntable = STOP;
-	  Sleep(1000);
-      if (END != pdlg->m_run.state.staticmeasure)
-      pdlg->m_run.state.staticmeasure = STOP;
-	  if (END != pdlg->m_run.state.turntable)
-      pdlg->m_run.state.turntable = STOP;
-	  	
-      //gTrdTurntableRun->ResumeThread();
-	  while (!(END == pdlg->m_run.state.staticmeasure&&END == pdlg->m_run.state.turntable));
+	  //Sleep(1000);
+   //   if (END != pdlg->m_run.state.staticmeasure)
+   //   pdlg->m_run.state.staticmeasure = STOP;
+	  //if (END != pdlg->m_run.state.turntable)
+   //   pdlg->m_run.state.turntable = STOP;
+	  //	
+   //   //gTrdTurntableRun->ResumeThread();
+	  //while (!(END == pdlg->m_run.state.staticmeasure&&END == pdlg->m_run.state.turntable));
+	  while (1)
+	  {
+	    DWORD dwCodeStaticMeasure,dwCodeTurntable; 
+		GetExitCodeThread(gTrdStaticMeasure->m_hThread , &dwCodeStaticMeasure);
+		GetExitCodeThread(gTrdTurntableRun->m_hThread , &dwCodeTurntable);
+
+		if(dwCodeTurntable != STILL_ACTIVE &&dwCodeStaticMeasure != STILL_ACTIVE)
+			break;
+
+	    if (dwCodeStaticMeasure == STILL_ACTIVE && STOP != pdlg->m_run.state.staticmeasure )
+          pdlg->m_run.state.staticmeasure = STOP;
+
+	    if (dwCodeTurntable == STILL_ACTIVE && STOP != pdlg->m_run.state.turntable)
+          pdlg->m_run.state.turntable = STOP;
+	
+	  };
+      
+	  gTrdStaticMeasure->Delete();
+	  gTrdTurntableRun->Delete();
+	  gTrdStaticMeasure = NULL;
+	  gTrdTurntableRun = NULL;
+
  
 	  pdlg->m_io->WriteDo(XRAY_GATE, IO_OFF);//关闭光门
 
