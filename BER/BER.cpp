@@ -540,7 +540,7 @@ UINT ScreenThread(LPVOID pParam)
 			{
 				QueryPerformanceCounter(&l_lgint_end);
 				double tmpRT=double(l_lgint_end.QuadPart-l_lgint_start.QuadPart)/double(l_lgint_freq.QuadPart);	
-				if(tmpRT>10)
+				if(tmpRT>20)//190522 反测4次超过10s，改成20s
 				{
 					//
 					gclsCom.CloseCom();
