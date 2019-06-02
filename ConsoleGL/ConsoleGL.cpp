@@ -21,7 +21,7 @@
 const GLfloat Pi = 3.1415926536f;
 //     //////////////////////////////////////////////// MY test//////////////////////////////////////////////////
 //
-#define SUB 11
+#define SUB 12
 #if SUB ==1
 //第一课 
 ///////////////////////////////
@@ -317,6 +317,135 @@ int main(int argc, char* argv[])
   glutMainLoop();
   return 0;
 }
+
+#elif SUB== 12
+/* 光照，需要指定顶点的法线向量，用于光的放射计算
+ 与指定点的颜色类似，法线向量一旦被指定，除非再指定新的法线向量，否则以后指定的所有顶点都将以这一向量作为自己的法线向量。
+ 使用 glColor* 函数可以指定颜 色，而使用 glNormal* 函数则可以指定法线向量。
+ 注意：
+ 使用 glTranslate*函数或者 glRotate*函数可以改变物体的外观，但法线向量并不会 随之改变。
+ 然而，使用 glScale*函数，对每一坐标轴进行不同程度的缩放，很有可能导 致法线向量的不正确，虽然 OpenGL 提供了一些措施来修正这一问题，但由此也带来了 各种开销。
+ 因此，在使用了法线向量的场合，应尽量避免使用 glScale*函数。即使使用， 也最好保证各坐标轴进行等比例缩放
+ */
+/*控制光源
+在 OpenGL 中，仅仅支持有限数量的光源。使用 GL_LIGHT0 表示第 0 号光源，GL_LIGHT1 表示 第1号光源，依次类推，OpenGL至少会支持8个光源，即GL_LIGHT0到GL_LIGHT7。使用glEnable 函数可以开启它们。例如，glEnable(GL_LIGHT0);可以开启第 0 号光源。使用 glDisable 函数则可 以关闭光源
+每一个光源都可以设置其属性，这一动作是通过 glLight*函数完成的。glLight*函数具有三个参数， 第一个参数指明是设置哪一个光源的属性，第二个参数指明是设置该光源的哪一个属性，第三个 参数则是指明把该属性值设置成多少。
+关于法线向量。球体表面任何一点的法线向量，就是球心到该点的向量。如果使用 glutSolidSphere 函数来绘制球体，则该函数会自动的指定这些法线向量，不必再手工指出。如果是自己指定若干 的顶点来绘制一个球体，则需要自己指定法线响亮。
+*/
+/*控制材质
+材质与光源相似，也需要设置众多的属性。不同的是，光源是通过 glLight*函数来设置 的，而材质则是通过 glMaterial*函数来设置的。 
+glMaterial*函数有三个参数。第一个参数表示指定哪一面的属性。可以是 GL_FRONT、 GL_BACK 或者 GL_FRONT_AND_BACK。分别表示设置“正面”“背面”的材质，或者两 面同时设置。（关于“正面”“背面”的内容需要参看前些课程的内容）第二、第三个参数与 glLight*函数的第二、三个参数作用类似。
+*/
+/*选择光照模型
+，光照模型包括四个部分的内容：全局环境光线（即那些充分散射，无法分清究竟来自哪个光源的光线）的强度、观察点位置是在较近位置还是在无限远处、物体正面与背面是否分别计算光 照、镜面颜色（即 GL_SPECULAR 属性所指定的颜色)的计算是否从其它光照计算中分离出来， 并在纹理操作以后在进行应用。 
+以上四方面的内容都通过同一个函数 glLightModel*来进行设置。该函数有两个参数，第一个表示 要设置的项目，第二个参数表示要设置成的值。
+*/
+/*
+，OpenGL 默认是关闭光照处理的。要打开光照处理功能，使 用下面的语句： glEnable(GL_LIGHTING); 要关闭光照处理功能，使用 glDisable(GL_LIGHTING);即可。
+*/
+//#include <gl/glut.h> 
+
+#define WIDTH 400 
+#define HEIGHT 400 
+
+static GLfloat angle = 0.0f;
+
+void myDisplay(void) {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // 创建透视效果视图     
+  glMatrixMode(GL_PROJECTION);     
+  glLoadIdentity();     
+  gluPerspective(90.0f, 1.0f, 1.0f, 20.0f);     
+  glMatrixMode(GL_MODELVIEW);     
+  glLoadIdentity();     
+  gluLookAt(0.0, 5.0, -10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0); 
+
+  // 定义太阳光源，它是一种白色的光源     
+  {     
+    GLfloat sun_light_position[] = {0.0f, 0.0f, 0.0f, 1.0f};     
+    GLfloat sun_light_ambient[]  = {0.0f, 0.0f, 0.0f, 1.0f};     
+    GLfloat sun_light_diffuse[]  = {1.0f, 1.0f, 1.0f, 1.0f};     
+    GLfloat sun_light_specular[] = {1.0f, 1.0f, 1.0f, 1.0f}; 
+
+  glLightfv(GL_LIGHT0, GL_POSITION, sun_light_position);     
+  glLightfv(GL_LIGHT0, GL_AMBIENT, sun_light_ambient);     
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, sun_light_diffuse);     
+  glLightfv(GL_LIGHT0, GL_SPECULAR, sun_light_specular);
+
+  glEnable(GL_LIGHT0);     
+  glEnable(GL_LIGHTING);     
+  glEnable(GL_DEPTH_TEST);
+}
+
+// 定义太阳的材质并绘制太阳     
+  {         
+    GLfloat sun_mat_ambient[]  = {0.0f, 0.0f, 0.0f, 1.0f};         
+  GLfloat sun_mat_diffuse[]  = {0.0f, 0.0f, 0.0f, 1.0f};         
+  GLfloat sun_mat_specular[] = {0.0f, 0.0f, 0.0f, 1.0f};         
+  GLfloat sun_mat_emission[] = {0.5f, 0.0f, 0.0f, 1.0f};         
+  GLfloat sun_mat_shininess  = 0.0f; 
+
+glMaterialfv(GL_FRONT, GL_AMBIENT, sun_mat_ambient);         
+glMaterialfv(GL_FRONT, GL_DIFFUSE, sun_mat_diffuse);         
+glMaterialfv(GL_FRONT, GL_SPECULAR, sun_mat_specular);         
+glMaterialfv(GL_FRONT, GL_EMISSION, sun_mat_emission);         
+glMaterialf(GL_FRONT, GL_SHININESS, sun_mat_shininess);
+
+glutSolidSphere(2.0, 40, 32);     
+  }
+
+// 定义地球的材质并绘制地球     
+  {         
+    GLfloat earth_mat_ambient[]  = {0.0f, 0.0f, 0.5f, 1.0f};         
+    GLfloat earth_mat_diffuse[]  = {0.0f, 0.0f, 0.5f, 1.0f};         
+    GLfloat earth_mat_specular[] = {0.0f, 0.0f, 1.0f, 1.0f};         
+    GLfloat earth_mat_emission[] = {0.0f, 0.0f, 0.0f, 1.0f};         
+    GLfloat earth_mat_shininess  = 30.0f; 
+
+glMaterialfv(GL_FRONT, GL_AMBIENT, earth_mat_ambient);         
+glMaterialfv(GL_FRONT, GL_DIFFUSE, earth_mat_diffuse);         
+glMaterialfv(GL_FRONT, GL_SPECULAR, earth_mat_specular);         
+glMaterialfv(GL_FRONT, GL_EMISSION, earth_mat_emission);         
+glMaterialf(GL_FRONT, GL_SHININESS, earth_mat_shininess);
+
+glRotatef(angle, 0.0f, -1.0f, 0.0f);         
+glTranslatef(5.0f, 0.0f, 0.0f);         
+glutSolidSphere(2.0, 40, 32);     
+  }
+
+glutSwapBuffers(); 
+} 
+void myIdle(void) {
+  angle += 1.0f;    
+  if (angle >= 360.0f)         
+    angle = 0.0f;
+  myDisplay();
+  _sleep(100);
+}
+
+int main(int argc, char* argv[]) 
+{ 
+  glutInit(&argc, argv);     
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);    
+  glutInitWindowPosition(200, 200);    
+  glutInitWindowSize(WIDTH, HEIGHT);    
+  glutCreateWindow("OpenGL 光照演示");   
+  glutDisplayFunc(&myDisplay);    
+  glutIdleFunc(&myIdle);    
+  glutMainLoop();     
+  return 0; 
+}
+
+#elif SUB== 13
+/*显示列表，用于存放需要重复绘制的内容，减少cpu开销
+使用显示列表一般有四个步骤：分配显示列表编号、创建显示列表、调用显示列表、销毁显示列 表。
+使用 glGenLists 函数来自动分 配一个没有使用的显示列表编号。 glGenLists 函数有一个参数 i，表示要分配 i 个连续的未使用的显示列表编号。返回的是分配的若 干连续编号中最小的一个。
+可以使用 glIsList 函数判断一个编号是否已经被用作显示列表。
+使用 glNewList 开始装 入，使用 glEndList 结束装入。
+*/
+
+
 #endif
 int main1(int argc, char* argv[])
 {
