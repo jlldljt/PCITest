@@ -1,0 +1,314 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Sqlite">
+      <UniqueIdentifier>{f101506e-ea4f-455f-ba77-7da3e8ca4400}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl">
+      <UniqueIdentifier>{f1064505-8020-48f0-bf66-abe1385abc3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl\NewCellTypes">
+      <UniqueIdentifier>{e15270fb-4e27-49aa-9df0-b5e4905395a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GridCtrl\Src">
+      <UniqueIdentifier>{43b8fb48-8fa2-42de-b3a4-4b7e699dba80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CPK">
+      <UniqueIdentifier>{5abdf0dd-2bac-44b5-96bd-889f378dc6f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CHECKSTD">
+      <UniqueIdentifier>{29ab7f78-71d7-4855-95d5-72a1074324e2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\ZPJ.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\ZPJ.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Run.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Define.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Device.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Com.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGRecognition.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TXT.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorSpace.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="rgbdefs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PX1000API.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Picture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LSNetSDK.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Iiic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgMsg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KSJ.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVFile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sqlite\sqlite3.h">
+      <Filter>Sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridURLCell.h">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\CellRange.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCell.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\MemDC.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\TitleTip.h">
+      <Filter>GridCtrl\Src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sqlite\database.h">
+      <Filter>Sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="CpkLib.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCheckStd.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCpkSet.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCpk.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgPassword.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgStdSet.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardLib.h">
+      <Filter>CHECKSTD</Filter>
+    </ClInclude>
+    <ClInclude Include="TrendChart.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticDraw.h">
+      <Filter>CPK</Filter>
+    </ClInclude>
+    <ClInclude Include="ZPJ.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ZPJDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Run.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Device.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGRecognition.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TXT.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Com.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorSpace.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Picture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Iiic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgMsg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="KSJ.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CSVFile.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sqlite\sqlite3.c">
+      <Filter>Sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridURLCell.cpp">
+      <Filter>GridCtrl\NewCellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCell.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\TitleTip.cpp">
+      <Filter>GridCtrl\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sqlite\database.cpp">
+      <Filter>Sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="CpkLib.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCpk.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCpkSet.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCheckStd.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgStdSet.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgPassword.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardLib.cpp">
+      <Filter>CHECKSTD</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticDraw.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="TrendChart.cpp">
+      <Filter>CPK</Filter>
+    </ClCompile>
+    <ClCompile Include="ZPJ.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ZPJDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ZPJ.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

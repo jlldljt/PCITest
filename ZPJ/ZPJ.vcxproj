@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F8FB4FE0-414C-4B31-A4AE-D96ECEC12099}</ProjectGuid>
+    <RootNamespace>ZPJ</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <PlatformToolset>v100</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <PlatformToolset>v100</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>.\lib\rtsp;.\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\include\rtsp;.\include\vlc;.\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>.\include\rtsp;.\include\vlc;.\include;$(IncludePath)</IncludePath>
+    <LibraryPath>.\lib\rtsp;.\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>PX1000.lib;LSunNetSDK.lib;libvlc.lib;libvlccore.lib;uafxcwd.lib;Libcmtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>uafxcwd.lib;Libcmtd.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>false</OptimizeReferences>
+      <AdditionalDependencies>PX1000.lib;LSunNetSDK.lib;libvlc.lib;libvlccore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\ZPJ.ico" />
+    <None Include="res\ZPJ.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\CellRange.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCell.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\MemDC.h" />
+    <ClInclude Include="..\gridctrl_demo\GridCtrl_src\TitleTip.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.h" />
+    <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridURLCell.h" />
+    <ClInclude Include="..\sqlite\database.h" />
+    <ClInclude Include="..\sqlite\sqlite3.h" />
+    <ClInclude Include="ZPJ.h" />
+    <ClInclude Include="ZPJDlg.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="ColorSpace.h" />
+    <ClInclude Include="Com.h" />
+    <ClInclude Include="CpkLib.h" />
+    <ClInclude Include="CSVFile.h" />
+    <ClInclude Include="Debug.h" />
+    <ClInclude Include="Define.h" />
+    <ClInclude Include="Device.h" />
+    <ClInclude Include="DlgCheckStd.h" />
+    <ClInclude Include="DlgCpk.h" />
+    <ClInclude Include="DlgCpkSet.h" />
+    <ClInclude Include="DlgMsg.h" />
+    <ClInclude Include="DlgPassword.h" />
+    <ClInclude Include="DlgStdSet.h" />
+    <ClInclude Include="Iiic.h" />
+    <ClInclude Include="IMGRecognition.h" />
+    <ClInclude Include="KSJ.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="LSNetSDK.h" />
+    <ClInclude Include="Picture.h" />
+    <ClInclude Include="PX1000API.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="rgbdefs.h" />
+    <ClInclude Include="Run.h" />
+    <ClInclude Include="Screen.h" />
+    <ClInclude Include="StandardLib.h" />
+    <ClInclude Include="StaticDraw.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="TrendChart.h" />
+    <ClInclude Include="TXT.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCell.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCellBase.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridCtrl.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\GridDropTarget.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\InPlaceEdit.cpp" />
+    <ClCompile Include="..\gridctrl_demo\GridCtrl_src\TitleTip.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCheck.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellCombo.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellDateTime.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.cpp" />
+    <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridURLCell.cpp" />
+    <ClCompile Include="..\sqlite\database.cpp" />
+    <ClCompile Include="..\sqlite\sqlite3.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ZPJ.cpp" />
+    <ClCompile Include="ZPJDlg.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ColorSpace.cpp" />
+    <ClCompile Include="Com.cpp" />
+    <ClCompile Include="CpkLib.cpp" />
+    <ClCompile Include="CSVFile.cpp" />
+    <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="Device.cpp" />
+    <ClCompile Include="DlgCheckStd.cpp" />
+    <ClCompile Include="DlgCpk.cpp" />
+    <ClCompile Include="DlgCpkSet.cpp" />
+    <ClCompile Include="DlgMsg.cpp" />
+    <ClCompile Include="DlgPassword.cpp" />
+    <ClCompile Include="DlgStdSet.cpp" />
+    <ClCompile Include="Iiic.cpp" />
+    <ClCompile Include="IMGRecognition.cpp" />
+    <ClCompile Include="KSJ.cpp" />
+    <ClCompile Include="Picture.cpp" />
+    <ClCompile Include="Run.cpp" />
+    <ClCompile Include="Screen.cpp" />
+    <ClCompile Include="StandardLib.cpp" />
+    <ClCompile Include="StaticDraw.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TrendChart.cpp" />
+    <ClCompile Include="TXT.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ZPJ.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="ZPJ.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
