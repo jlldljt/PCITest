@@ -349,8 +349,10 @@ BOOL CBERDlg::SYSInit()
 		GetPrivateProfileInt(_T("等效角设定"), _T("phi0：秒"), 0, gstuPathInf.csPathIni);
 	gstuSort.factor = GetPrivateProfileInt(_T("等效角设定"), _T("factor"), 0, gstuPathInf.csPathIni);
 	//初始化radio
-	gstuRcgInfo.bIsCir=1;
-	((CButton *)g_dlgRun->GetDlgItem(IDC_RAD_CIR))->SetCheck(TRUE);
+  gstuRcgInfo.bIsCir=0;
+	((CButton *)g_dlgRun->GetDlgItem(IDC_RAD_SQU))->SetCheck(TRUE);
+	/*gstuRcgInfo.bIsCir=1;
+	((CButton *)g_dlgRun->GetDlgItem(IDC_RAD_CIR))->SetCheck(TRUE);*/
 	//初始化组合框
 	g_dlgRun->m_cmb_sort1.AddString(_T("光轴"));
 	g_dlgRun->m_cmb_sort1.AddString(_T("电轴"));
@@ -421,7 +423,7 @@ BOOL CBERDlg::SYSInit()
 	IIICStartConnect();mmy201608*/
 	gnChannel = gclsCamera.GetKsj(KSJ_UC500M_MRYY);
 	if (0 > gnChannel)
-		AfxMessageBox(_T("KSJ_UC500M_MRYY 相机打开失败	,请检查是否连接该相机"));
+		AfxMessageBox(_T("凯士佳 相机打开失败	,请检查是否连接该相机"));
 	//获取信息
 	SYSTEM_INFO siSysInfo;
 
@@ -604,7 +606,7 @@ BOOL CBERDlg::DBGInit()
 	gclsCom.OpenCom(l_int);
 	if(gclsCom.stuInf.bComOpen)
 	{
-		SetTimer(READ_COM, 10, NULL);
+		//SetTimer(READ_COM, 10, NULL);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_COM,l_int);//将打开com的语句放sysinit会出错，原因是device的tab页面在dbginit中初始化，而在sys中还没有，导致找不到页面
 	}
 	//ini文件初始化或读取

@@ -442,9 +442,93 @@ int main(int argc, char* argv[])
 使用显示列表一般有四个步骤：分配显示列表编号、创建显示列表、调用显示列表、销毁显示列 表。
 使用 glGenLists 函数来自动分 配一个没有使用的显示列表编号。 glGenLists 函数有一个参数 i，表示要分配 i 个连续的未使用的显示列表编号。返回的是分配的若 干连续编号中最小的一个。
 可以使用 glIsList 函数判断一个编号是否已经被用作显示列表。
-使用 glNewList 开始装 入，使用 glEndList 结束装入。
-*/
+使用 glNewList 开始装 入，使用 glEndList 结束装入。显示列表只能装入 一部分OpenGL 函数，而不能装入其它内容。
+使用 glCallList 函数可以调用一个显示列表，
+使用 glCallLists 函数可以调用一系列的显示列表，在使用该函数前，需要用 glListBase 函数来设置一个偏移量
+注：“调用显示列表”这个动作本身也可以被装在另一个显示列表中。
+销毁显示列表可以回收资源。使用 glDeleteLists 来销毁一串编号连续的显示列表。
 
+*/
+#define ColoredVertex(c, v) do{ glColor3fv(c); glVertex3fv(v); }while(0) 
+
+GLfloat angle = 0.0f;
+
+void myDisplay(void)
+{
+  static int list = 0;
+  if (list == 0)
+  {
+    // 如果显示列表不存在，则创建 
+    /* GLfloat
+        PointA[] = {-0.5, -5*sqrt(5)/48,  sqrt(3)/6},
+        PointB[] = { 0.5, -5*sqrt(5)/48,  sqrt(3)/6},
+        PointC[] = {   0, -5*sqrt(5)/48, -sqrt(3)/3},
+        PointD[] = {   0, 11*sqrt(6)/48,          0}; */
+        // 2007 年 4 月 27 日修改 
+    GLfloat
+      PointA[] = { 0.5f, -sqrt(6.0f) / 12, -sqrt(3.0f) / 6 },
+      PointB[] = { -0.5f, -sqrt(6.0f) / 12, -sqrt(3.0f) / 6 },
+      PointC[] = { 0.0f, -sqrt(6.0f) / 12,  sqrt(3.0f) / 3 },
+      PointD[] = { 0.0f,   sqrt(6.0f) / 4,             0 };
+    GLfloat
+      ColorR[] = { 1, 0, 0 },
+      ColorG[] = { 0, 1, 0 },
+      ColorB[] = { 0, 0, 1 },
+      ColorY[] = { 1, 1, 0 };
+
+    list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    glBegin(GL_TRIANGLES);
+    // 平面 ABC 
+    ColoredVertex(ColorR, PointA);
+    ColoredVertex(ColorG, PointB);
+    ColoredVertex(ColorB, PointC);
+    // 平面 ACD 
+    ColoredVertex(ColorR, PointA);
+    ColoredVertex(ColorB, PointC);
+    ColoredVertex(ColorY, PointD);
+    // 平面 CBD 
+    ColoredVertex(ColorB, PointC);
+    ColoredVertex(ColorG, PointB);
+    ColoredVertex(ColorY, PointD);
+    // 平面 BAD 
+    ColoredVertex(ColorG, PointB);
+    ColoredVertex(ColorR, PointA);
+    ColoredVertex(ColorY, PointD);
+    glEnd();
+    glEndList();
+
+    glEnable(GL_DEPTH_TEST);
+  }
+  // 已经创建了显示列表，在每次绘制正四面体时将调用它 
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glPushMatrix();
+  glRotatef(angle, 1, 0.5, 0);
+  glCallList(list);
+  glPopMatrix();
+  glutSwapBuffers();
+}
+
+void myIdle(void)
+{
+  ++angle;
+  if (angle >= 360.0f)
+    angle = 0.0f;
+  myDisplay();
+}
+
+int main(int argc, char* argv[])
+{
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+  glutInitWindowPosition(200, 200);
+  glutInitWindowSize(WIDTH, HEIGHT);
+  glutCreateWindow("OpenGL 窗口");
+  glutDisplayFunc(&myDisplay);
+  glutIdleFunc(&myIdle);
+  glutMainLoop();
+  return 0;
+}
 
 #endif
 int main1(int argc, char* argv[])
