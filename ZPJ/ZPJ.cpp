@@ -853,89 +853,34 @@ UINT CalibrationThread(LPVOID pParam)
 	g_dlgCamera->SetDlgItemText(IDC_SELECT_RESULT,_T("校准完成"));
 	return 1;
 }
+#define COM_BUF_LEN 1024
+char com_recv_buf[COM_BUF_LEN];
+UINT com_recv_len;
 
 UINT ComMsg(LPVOID pParam)
 {
+   bool crc;
 	gstuRun.bPosSet==0;
-	while(gclsCom.m_struct_com.s_hd!=INVALID_HANDLE_VALUE)
+	while(gclsCom.m_struct_com.hd!=INVALID_HANDLE_VALUE)
 	{//在ontimer中会与按钮冲突
-		if(!gclsCom.RecvCharFromCom())
-		{
-			gstuRefresh.bComUpdate=1;
-			//if(gstuRun.unStatRun != 0)//如果不是停止态，解析
-			{
-				UINT unCmdTmp = gclsCom.RS232Parse();
-				if (2 == unCmdTmp)
-				{
-					TimeRecord(1,1);//无片坐标到，开始计时
-					TimeRecord(5,1);
-					TimeRecord(6,0);//发出坐标到接收到下一个无片命令
-				}
-				if(unCmdTmp!=0)
-					gstuRun.chStmCmd = gstuRun.chStmCmd | (1<<(unCmdTmp-1));
-				else{
-					gstuRun.chStmCmd0 = 1;
-				}
-			}
-
-			/*switch(gclsCom.RS232Parse())
-			{
-			case 1://EFG检测完成
-			chStmCmd[1] = chStmCmd[1] | (1<<0);
-			break;
-			case 2://无片坐标
-			unCmd=2;
-			break;
-			case 3://初始化完成
-			unCmd=3;
-			break;
-			case 4://作业停止
-			unCmd=4;
-			break;
-			case 5://备料盘运行完成
-			unCmd=5;
-			break;
-			case 6://位置设定完毕
-			unCmd=6;
-			break;
-			default:
-			break;
-			case 2:
-			//g_struct_info_run.s_bool_stminit=1;			//标记下位机反馈初始化命令，告诉run线程做相应处理
-
-			break;
-			case 0:
-			//g_struct_info_com.s_bool_command_success=1;
-			//g_struct_info_run.ui_count_resend=0;//放在resendcom中做，会因为没时间判断到success=1而导致不执行
-			break;
-			default:
-			break;
-			}*/
-		}
-#ifndef DEBUG_COM
-		if((gstuRun.chStmCmd & (1<<3)))
-		{
-			gstuRun.chStmCmd &= ~(1<<3);
-			//g_dlgDevice->SetDlgItemTextW(IDC_MSG,_T("XY轴位置设置完成"));
-			gstuRun.bPosSet=1;
-		}
-
-		if((gstuRun.chStmCmd & (1<<5)))
-		{
-			gstuRun.chStmCmd &= ~(1<<5);
-			//g_dlgDevice->SetDlgItemTextW(IDC_MSG,_T("换片轴位置设置完成"));
-			gstuRun.bPosSet=2;
-		}
-
-		if((gstuRun.chStmCmd & (1<<6)) &&!gstuRun.bTrdPause)
-		{
-
-			if(gstuRun.unSort[0]>0)
-				g_dlgDevice->SortSend(char(gstuRun.unSort[0]-1));
-			//gstuRun.chStmCmd = gstuRun.chStmCmd | (1<<(1));
-			gstuRun.chStmCmd &= ~(1<<6);
-		}
-#endif
+    com_recv_len = gclsCom.RecvCharFromCom(com_recv_buf, COM_BUF_LEN, &crc, 5);
+    if (com_recv_len > 0 && crc)
+    {
+      gstuRefresh.bComUpdate = 1;
+      //打印到str
+      CString tmp;
+      tmp = "\r\n";
+      gclsCom.stuInf.str += tmp;
+      for (UINT j = 0; j < com_recv_len; j++)
+      {
+        tmp.Format(_T("%02X"), (UCHAR)com_recv_buf[j]);
+        gclsCom.stuInf.str += tmp;
+      }
+      if (gclsCom.stuInf.str.GetLength() > 1000) {
+        gclsCom.stuInf.str = gclsCom.stuInf.str.Right(500);
+      }
+    }
+			
 		Sleep(10);
 	}
 	return 1;

@@ -532,10 +532,10 @@ BOOL CBERDlg::DBGInit()
 
 	//tab控件初始化
 	g_dlgDebug->m_tabDebug.InsertItem(0, _T("相机调试")); 
-	g_dlgDebug->m_tabDebug.InsertItem(1, _T("屏幕调试")); 
+	//g_dlgDebug->m_tabDebug.InsertItem(1, _T("屏幕调试")); 
 	g_dlgDebug->m_tabDebug.InsertItem(2, _T("机构调试"));  
 	g_dlgCamera->Create(IDD_DIALOG_CAMERA, &g_dlgDebug->m_tabDebug);   
-	g_dlgScreen->Create(IDD_DIALOG_SCREEN, &g_dlgDebug->m_tabDebug);
+	//g_dlgScreen->Create(IDD_DIALOG_SCREEN, &g_dlgDebug->m_tabDebug);
 	g_dlgDevice->Create(IDD_DIALOG_DEVICE, &g_dlgDebug->m_tabDebug);
 	g_dlgDebug->m_tabDebug.GetClientRect(&dbgRect);//tab控件大小
 	dbgRect.left += 1;                  
@@ -543,7 +543,7 @@ BOOL CBERDlg::DBGInit()
 	dbgRect.top += 22;   
 	dbgRect.bottom -= 1;   
 	g_dlgCamera->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(),SWP_SHOWWINDOW);   
-	g_dlgScreen->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(),SWP_HIDEWINDOW); 
+	//g_dlgScreen->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(),SWP_HIDEWINDOW); 
 	g_dlgDevice->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(),SWP_HIDEWINDOW);
 	g_dlgDebug->m_tabDebug.SetCurSel(0);
 	//combobox必须放在tab控件之后
@@ -773,215 +773,215 @@ void CBERDlg::SurfaceRefresh()
 	{
 		gstuRefresh.bComUpdate=0;
 		g_dlgDevice->GetDlgItem(IDC_EDIT_RS232_RECEIVE)->SetRedraw(FALSE);
-		g_dlgDevice->GetDlgItem(IDC_EDIT_RS232_RECEIVE)->SetWindowText(gclsCom.stuInf.csRcv);
+		g_dlgDevice->GetDlgItem(IDC_EDIT_RS232_RECEIVE)->SetWindowText(gclsCom.stuInf.str);
 		g_dlgDevice->m_edtRs232Rcv.LineScroll(g_dlgDevice->m_edtRs232Rcv.GetLineCount(),0);
 		g_dlgDevice->GetDlgItem(IDC_EDIT_RS232_RECEIVE)->SetRedraw(true);
 	}
 	//调试刷新运行数据
-	if (gstuRefresh.unN != gstuTrdStat._N)
-	{
-		gstuRefresh.unN = gstuTrdStat._N;
-
-		CString _degree,_sort,_avg,_std,tmp;
-		for(int i=0;i<5;i++)
-		{
-			tmp.Format(_T("%02d°%02d'%02d\""),int((gstuSort.sortavg[i])+0.5)/3600,int((gstuSort.sortavg[i])+0.5)%3600/60,int((gstuSort.sortavg[i])+0.5)%60);
-			_avg+=tmp+_T("\r\n");
-			tmp.Format(_T("%02d°%02d'%02d\""),int((gstuSort.sortstd[i])+0.5)/3600,int((gstuSort.sortstd[i])+0.5)%3600/60,int((gstuSort.sortstd[i])+0.5)%60);
-			_std+=tmp+_T("\r\n");
-		}
-		g_dlgRun->GetDlgItem(IDC_SHOW_AVG)->SetWindowText(_avg);
-		g_dlgRun->GetDlgItem(IDC_SHOW_STD)->SetWindowText(_std);
-		_degree.Format(_T("光轴角度：%d\r\n电轴角度：%d\r\n等效角度：%d\r\n原始光轴：%d\r\n原始电轴：%d"),g_dlgScreen->degree[0]*100000+g_dlgScreen->degree[1]*10000+g_dlgScreen->degree[2]*1000+g_dlgScreen->degree[3]*100+g_dlgScreen->degree[4]*10+g_dlgScreen->degree[5],
-			g_dlgScreen->degree[6]*100000+g_dlgScreen->degree[7]*10000+g_dlgScreen->degree[8]*1000+g_dlgScreen->degree[9]*100+g_dlgScreen->degree[10]*10+g_dlgScreen->degree[11],
-			g_dlgScreen->degree[12]*100000+g_dlgScreen->degree[13]*10000+g_dlgScreen->degree[14]*1000+g_dlgScreen->degree[15]*100+g_dlgScreen->degree[16]*10+g_dlgScreen->degree[17],
-			g_dlgScreen->degree[18]*100000+g_dlgScreen->degree[19]*10000+g_dlgScreen->degree[20]*1000+g_dlgScreen->degree[21]*100+g_dlgScreen->degree[22]*10+g_dlgScreen->degree[23],
-			g_dlgScreen->degree[24]*100000+g_dlgScreen->degree[25]*10000+g_dlgScreen->degree[26]*1000+g_dlgScreen->degree[27]*100+g_dlgScreen->degree[28]*10+g_dlgScreen->degree[29]);
-		g_dlgRun->GetDlgItem(IDC_SHOW_DEG)->SetWindowText(_degree);
-		//_degree.Format(_T("运行总时间：%d分\r\n平均时间：%.1f秒"),g_time.sum/60,g_time.avg);
-		//g_dlgRun->GetDlgItem(IDC_RUN_SHOW)->SetWindowText(_degree);
-		if(gstuSort.sortsn!=-1)
-		{
-			_sort="";
-			_sort.Format(_T("%d"),gstuSort.sortnum[gstuSort.sortsn]);
-			g_dlgRun->m_listSort.SetItemText(gstuSort.sortsn,2,_sort);   
-			_sort.Format(_T("%d"),gstuRefresh.unN);//gstuSort.sortsum);
-			g_dlgRun->m_listSort.SetItemText(30,2,_sort);   
-
-			//UpdateData(1);
-		}
-		if(gstuSort.nocheckout>9)
-		{
-
-			//g_dlgRun->OnBnClickedRunStop();
-			g_dlgDevice->AlarmCtrl(1);
-			if(0 == gstuRefresh.alarm)
-				AfxMessageBox(_T("角度检测不出"));
-			g_dlgDevice->AlarmCtrl(0);
-			gstuSort.nocheckout=0;
-		}
-		if(gstuSort.checkout0>9)
-		{
-
-			//g_dlgRun->OnBnClickedRunPause();
-			g_dlgDevice->AlarmCtrl(1);
-			if(0 == gstuRefresh.alarm)
-				AfxMessageBox(_T("所测角检测不出"));
-			g_dlgDevice->AlarmCtrl(0);
-			gstuSort.checkout0=0;
-		}
-		g_dlgRun->SetDlgItemInt(IDC_PIC_SORT,gstuRun.unSort[0],0);
-		g_dlgRun->SetDlgItemInt(IDC_PIC_SORT2,gstuRun.unSort[1],0);
-		g_dlgRun->SetDlgItemInt(IDC_PIC_SORT3,gstuRun.unSort[2],0);
-		tmp.Format(_T("%.2f秒"),gstuRun.dRT);
-		g_dlgRun->SetDlgItemText(IDC_TIME_RUN,tmp);
-	}
-	/*CString csText;
-	csText.Format(_T("%d"),18);
-	g_dlgRun->GetDlgItem(IDC_PIC_SORT)->SetWindowText(csText);
-	g_dlgRun->GetDlgItem(IDC_PIC_SORT2)->SetWindowText(csText);
-	g_dlgRun->GetDlgItem(IDC_PIC_SORT3)->SetWindowText(csText);
-	g_dlgRun->GetDlgItem(IDC_TIME_RUN)->SetWindowText(_T("220"));*/
-
-
-	//刷新运行状态
-	if(gstuRun.bRunStatChg)
-	{
-		int status;
-		switch (gstuRun.unStatRun)
-		{
-		case 0://如果停止状态-》运行
-#ifndef DEBUG_COM
-			if((gstuRun.chStmCmd & (1<<2)))//等待下位机初始化完成
-#endif
-			{
-				gclsCom.stuInf.chWrtID=0x00;
-				gclsCom.stuInf.chRcvID=0x00;
-				g_dlgRun->SetDlgItemText(IDC_STAT_RUN,_T("下位机初始化完成"));
-
-				gstuRun.chStmCmd &= ~(1<<0);
-
-				g_dlgDevice->EFGCut(true);//_0728
-				/*	for(int i = 0; i<50 ; i++)
-				{
-				g_dlgDevice->EFGCtrl(1);
-				Sleep(150);
-				}*/
-				/*CString card;
-				g_dlgRun->GetDlgItemText(IDC_EDIT_CARD, card);*/
-
-				gstuRun.unStatRun=2;
-				gTrdRun=AfxBeginThread(RunThread, NULL , THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
-				gTrdRun->m_bAutoDelete = TRUE;
-				gTrdRun->ResumeThread();
-				gTrdScr=AfxBeginThread(ScreenThread , g_dlgRun->m_csvCard, THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
-				gTrdScr->m_bAutoDelete = TRUE;
-				gTrdScr->ResumeThread();
-				gstuRun.bRunStatChg = 0;
-				g_dlgRun->GetDlgItem(IDC_BTN_RUN)->EnableWindow(1);
-				g_dlgRun->GetDlgItem(IDC_BTN_PAUSE)->EnableWindow(1);
-			}
-
-			break;
-		case 2://如果运行状态-》退出
-#ifndef DEBUG_COM
-			if((gstuRun.chStmCmd & (1<<2)) && 1==gstuRun.unTrdExitNum)
-#endif
-			{
-				//流程卡记录
-				/*CString card;
-				g_dlgRun->GetDlgItemText(IDC_EDIT_CARD, card);*/
-				if (g_dlgRun->m_csvCard) {
-					//CCSVFile csv(gstuPathInf.csPathExe + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
-					CStringArray arr;
-					CString str;
-					CTime time;
-					time = CTime::GetCurrentTime();
-					arr.Add(_T("结束"));
-					arr.Add(time.Format("%Y/%m/%d"));
-					arr.Add(time.Format("%H:%M:%S"));
-					g_dlgRun->m_csvCard->WriteData(arr);
-					arr.RemoveAll();
-
-
-					delete g_dlgRun->m_csvCard;
-					g_dlgRun->m_csvCard = NULL;
-				}
-				// 
-
-
-				g_dlgRun->SetDlgItemText(IDC_EDIT_PLANNED, _T(""));
-				g_dlgRun->SetDlgItemText(IDC_EDIT_CARD, _T(""));
-				gstuRun.unTrdExitNum++;//线程退出数++，将下位机当做一个线程
-				g_dlgRun->SetDlgItemText(IDC_STAT_RUN,_T("下位机停止"));
-				gstuRun.bRunStatChg = 0;
-				g_dlgRun->GetDlgItem(IDC_BTN_RUN)->EnableWindow(1);
-				g_dlgRun->GetDlgItem(IDC_BTN_PAUSE)->EnableWindow(0);
-				gclsCom.stuInf.csRcv="";
-				gstuRefresh.bComUpdate=1;
-			}
-
-			break;
-		default:
-			break;
-		}
-	}
-
-	//刷新运行按钮
-	if (gstuRefresh.unStatRun!=gstuRun.unStatRun)
-	{
-		switch(gstuRun.unStatRun)
-		{
-		case 0:
-			g_dlgRun->GetDlgItem(IDC_BTN_RUN)->SetWindowText(_T("已停止"));
-			BtnCtl(true);
-			break;
-		case 1:
-			g_dlgRun->GetDlgItem(IDC_BTN_RUN)->SetWindowText(_T("已暂停"));
-			break;
-		case 2:
-			g_dlgRun->GetDlgItem(IDC_BTN_RUN)->SetWindowText(_T("运行中"));
-			BtnCtl(false);
-			break;
-		default:
-			break;
-		}
-		gstuRefresh.unStatRun=gstuRun.unStatRun;
-	}
-
-	//处理退出//本来在退出按钮中实现，但是不理想
-	if(!gstuRun.bTrdExit && gstuRun.bExit)//当线程都退出时bTrdExit==0,
-	{
-		gstuRun.bExit=0;
-		gstuRun.unStatRun=0;
-		gclsCom.stuInf.bIsRun=1;
-		gclsImgRcg.g_stu_square.bJudgeFeature=0;
-		CString csTmp,csAvg=_T("avg\t"),csStd=_T("std\t");
-		csTmp.Format(_T("0-24:%d\r\n总测数:%d\r\n"),gstuSort.sortsum,gstuSort.sortsum+gstuSort.sortnum[24]+gstuSort.sortnum[25]+gstuSort.sortnum[26]+gstuSort.sortnum[27]+gstuSort.sortnum[28]+gstuSort.sortnum[29]);
-		gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,csTmp);
-		for(int i=0;i<5;i++)
-		{
-			csTmp.Format(_T("%02d%02d%02d"),int((gstuSort.sortavg[i])+0.5)/3600,int((gstuSort.sortavg[i])+0.5)%3600/60,int((gstuSort.sortavg[i])+0.5)%60);
-			csAvg+=csTmp+_T("\t");
-			csTmp.Format(_T("%02d%02d%02d"),int((gstuSort.sortstd[i])+0.5)/3600,int((gstuSort.sortstd[i])+0.5)%3600/60,int((gstuSort.sortstd[i])+0.5)%60);
-			csStd+=csTmp+_T("\t");
-		}
-		csAvg+=_T("\r\n");
-		csStd+=_T("\r\n");
-		gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,csAvg);
-		gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,csStd);
-		//CDialogEx::OnOK();
-		CString _sort;
-		for(int i= 0; i<30 ; i++)
-		{
-			_sort.Format(_T("%d\t%d\r\n"),i,gstuSort.sortnum[i]);
-			gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,_sort);
-		}
-		//g_dlgRun->m_listSort.SetItemText(30,2,_sort);   
-
-		//g_dlgDevice->EFGCut(false);//_0728
-
-	}
+//	if (gstuRefresh.unN != gstuTrdStat._N)
+//	{
+//		gstuRefresh.unN = gstuTrdStat._N;
+//
+//		CString _degree,_sort,_avg,_std,tmp;
+//		for(int i=0;i<5;i++)
+//		{
+//			tmp.Format(_T("%02d°%02d'%02d\""),int((gstuSort.sortavg[i])+0.5)/3600,int((gstuSort.sortavg[i])+0.5)%3600/60,int((gstuSort.sortavg[i])+0.5)%60);
+//			_avg+=tmp+_T("\r\n");
+//			tmp.Format(_T("%02d°%02d'%02d\""),int((gstuSort.sortstd[i])+0.5)/3600,int((gstuSort.sortstd[i])+0.5)%3600/60,int((gstuSort.sortstd[i])+0.5)%60);
+//			_std+=tmp+_T("\r\n");
+//		}
+//		g_dlgRun->GetDlgItem(IDC_SHOW_AVG)->SetWindowText(_avg);
+//		g_dlgRun->GetDlgItem(IDC_SHOW_STD)->SetWindowText(_std);
+//		_degree.Format(_T("光轴角度：%d\r\n电轴角度：%d\r\n等效角度：%d\r\n原始光轴：%d\r\n原始电轴：%d"),g_dlgScreen->degree[0]*100000+g_dlgScreen->degree[1]*10000+g_dlgScreen->degree[2]*1000+g_dlgScreen->degree[3]*100+g_dlgScreen->degree[4]*10+g_dlgScreen->degree[5],
+//			g_dlgScreen->degree[6]*100000+g_dlgScreen->degree[7]*10000+g_dlgScreen->degree[8]*1000+g_dlgScreen->degree[9]*100+g_dlgScreen->degree[10]*10+g_dlgScreen->degree[11],
+//			g_dlgScreen->degree[12]*100000+g_dlgScreen->degree[13]*10000+g_dlgScreen->degree[14]*1000+g_dlgScreen->degree[15]*100+g_dlgScreen->degree[16]*10+g_dlgScreen->degree[17],
+//			g_dlgScreen->degree[18]*100000+g_dlgScreen->degree[19]*10000+g_dlgScreen->degree[20]*1000+g_dlgScreen->degree[21]*100+g_dlgScreen->degree[22]*10+g_dlgScreen->degree[23],
+//			g_dlgScreen->degree[24]*100000+g_dlgScreen->degree[25]*10000+g_dlgScreen->degree[26]*1000+g_dlgScreen->degree[27]*100+g_dlgScreen->degree[28]*10+g_dlgScreen->degree[29]);
+//		g_dlgRun->GetDlgItem(IDC_SHOW_DEG)->SetWindowText(_degree);
+//		//_degree.Format(_T("运行总时间：%d分\r\n平均时间：%.1f秒"),g_time.sum/60,g_time.avg);
+//		//g_dlgRun->GetDlgItem(IDC_RUN_SHOW)->SetWindowText(_degree);
+//		if(gstuSort.sortsn!=-1)
+//		{
+//			_sort="";
+//			_sort.Format(_T("%d"),gstuSort.sortnum[gstuSort.sortsn]);
+//			g_dlgRun->m_listSort.SetItemText(gstuSort.sortsn,2,_sort);   
+//			_sort.Format(_T("%d"),gstuRefresh.unN);//gstuSort.sortsum);
+//			g_dlgRun->m_listSort.SetItemText(30,2,_sort);   
+//
+//			//UpdateData(1);
+//		}
+//		if(gstuSort.nocheckout>9)
+//		{
+//
+//			//g_dlgRun->OnBnClickedRunStop();
+//			g_dlgDevice->AlarmCtrl(1);
+//			if(0 == gstuRefresh.alarm)
+//				AfxMessageBox(_T("角度检测不出"));
+//			g_dlgDevice->AlarmCtrl(0);
+//			gstuSort.nocheckout=0;
+//		}
+//		if(gstuSort.checkout0>9)
+//		{
+//
+//			//g_dlgRun->OnBnClickedRunPause();
+//			g_dlgDevice->AlarmCtrl(1);
+//			if(0 == gstuRefresh.alarm)
+//				AfxMessageBox(_T("所测角检测不出"));
+//			g_dlgDevice->AlarmCtrl(0);
+//			gstuSort.checkout0=0;
+//		}
+//		g_dlgRun->SetDlgItemInt(IDC_PIC_SORT,gstuRun.unSort[0],0);
+//		g_dlgRun->SetDlgItemInt(IDC_PIC_SORT2,gstuRun.unSort[1],0);
+//		g_dlgRun->SetDlgItemInt(IDC_PIC_SORT3,gstuRun.unSort[2],0);
+//		tmp.Format(_T("%.2f秒"),gstuRun.dRT);
+//		g_dlgRun->SetDlgItemText(IDC_TIME_RUN,tmp);
+//	}
+//	/*CString csText;
+//	csText.Format(_T("%d"),18);
+//	g_dlgRun->GetDlgItem(IDC_PIC_SORT)->SetWindowText(csText);
+//	g_dlgRun->GetDlgItem(IDC_PIC_SORT2)->SetWindowText(csText);
+//	g_dlgRun->GetDlgItem(IDC_PIC_SORT3)->SetWindowText(csText);
+//	g_dlgRun->GetDlgItem(IDC_TIME_RUN)->SetWindowText(_T("220"));*/
+//
+//
+//	//刷新运行状态
+//	if(gstuRun.bRunStatChg)
+//	{
+//		int status;
+//		switch (gstuRun.unStatRun)
+//		{
+//		case 0://如果停止状态-》运行
+//#ifndef DEBUG_COM
+//			if((gstuRun.chStmCmd & (1<<2)))//等待下位机初始化完成
+//#endif
+//			{
+//				gclsCom.stuInf.chWrtID=0x00;
+//				gclsCom.stuInf.chRcvID=0x00;
+//				g_dlgRun->SetDlgItemText(IDC_STAT_RUN,_T("下位机初始化完成"));
+//
+//				gstuRun.chStmCmd &= ~(1<<0);
+//
+//				g_dlgDevice->EFGCut(true);//_0728
+//				/*	for(int i = 0; i<50 ; i++)
+//				{
+//				g_dlgDevice->EFGCtrl(1);
+//				Sleep(150);
+//				}*/
+//				/*CString card;
+//				g_dlgRun->GetDlgItemText(IDC_EDIT_CARD, card);*/
+//
+//				gstuRun.unStatRun=2;
+//				gTrdRun=AfxBeginThread(RunThread, NULL , THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
+//				gTrdRun->m_bAutoDelete = TRUE;
+//				gTrdRun->ResumeThread();
+//				gTrdScr=AfxBeginThread(ScreenThread , g_dlgRun->m_csvCard, THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
+//				gTrdScr->m_bAutoDelete = TRUE;
+//				gTrdScr->ResumeThread();
+//				gstuRun.bRunStatChg = 0;
+//				g_dlgRun->GetDlgItem(IDC_BTN_RUN)->EnableWindow(1);
+//				g_dlgRun->GetDlgItem(IDC_BTN_PAUSE)->EnableWindow(1);
+//			}
+//
+//			break;
+//		case 2://如果运行状态-》退出
+//#ifndef DEBUG_COM
+//			if((gstuRun.chStmCmd & (1<<2)) && 1==gstuRun.unTrdExitNum)
+//#endif
+//			{
+//				//流程卡记录
+//				/*CString card;
+//				g_dlgRun->GetDlgItemText(IDC_EDIT_CARD, card);*/
+//				if (g_dlgRun->m_csvCard) {
+//					//CCSVFile csv(gstuPathInf.csPathExe + _T("\\data\\") + card + _T(".csv"), CCSVFile::modeWrite);
+//					CStringArray arr;
+//					CString str;
+//					CTime time;
+//					time = CTime::GetCurrentTime();
+//					arr.Add(_T("结束"));
+//					arr.Add(time.Format("%Y/%m/%d"));
+//					arr.Add(time.Format("%H:%M:%S"));
+//					g_dlgRun->m_csvCard->WriteData(arr);
+//					arr.RemoveAll();
+//
+//
+//					delete g_dlgRun->m_csvCard;
+//					g_dlgRun->m_csvCard = NULL;
+//				}
+//				// 
+//
+//
+//				g_dlgRun->SetDlgItemText(IDC_EDIT_PLANNED, _T(""));
+//				g_dlgRun->SetDlgItemText(IDC_EDIT_CARD, _T(""));
+//				gstuRun.unTrdExitNum++;//线程退出数++，将下位机当做一个线程
+//				g_dlgRun->SetDlgItemText(IDC_STAT_RUN,_T("下位机停止"));
+//				gstuRun.bRunStatChg = 0;
+//				g_dlgRun->GetDlgItem(IDC_BTN_RUN)->EnableWindow(1);
+//				g_dlgRun->GetDlgItem(IDC_BTN_PAUSE)->EnableWindow(0);
+//				gclsCom.stuInf.csRcv="";
+//				gstuRefresh.bComUpdate=1;
+//			}
+//
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	//刷新运行按钮
+//	if (gstuRefresh.unStatRun!=gstuRun.unStatRun)
+//	{
+//		switch(gstuRun.unStatRun)
+//		{
+//		case 0:
+//			g_dlgRun->GetDlgItem(IDC_BTN_RUN)->SetWindowText(_T("已停止"));
+//			BtnCtl(true);
+//			break;
+//		case 1:
+//			g_dlgRun->GetDlgItem(IDC_BTN_RUN)->SetWindowText(_T("已暂停"));
+//			break;
+//		case 2:
+//			g_dlgRun->GetDlgItem(IDC_BTN_RUN)->SetWindowText(_T("运行中"));
+//			BtnCtl(false);
+//			break;
+//		default:
+//			break;
+//		}
+//		gstuRefresh.unStatRun=gstuRun.unStatRun;
+//	}
+//
+//	//处理退出//本来在退出按钮中实现，但是不理想
+//	if(!gstuRun.bTrdExit && gstuRun.bExit)//当线程都退出时bTrdExit==0,
+//	{
+//		gstuRun.bExit=0;
+//		gstuRun.unStatRun=0;
+//		gclsCom.stuInf.bIsRun=1;
+//		gclsImgRcg.g_stu_square.bJudgeFeature=0;
+//		CString csTmp,csAvg=_T("avg\t"),csStd=_T("std\t");
+//		csTmp.Format(_T("0-24:%d\r\n总测数:%d\r\n"),gstuSort.sortsum,gstuSort.sortsum+gstuSort.sortnum[24]+gstuSort.sortnum[25]+gstuSort.sortnum[26]+gstuSort.sortnum[27]+gstuSort.sortnum[28]+gstuSort.sortnum[29]);
+//		gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,csTmp);
+//		for(int i=0;i<5;i++)
+//		{
+//			csTmp.Format(_T("%02d%02d%02d"),int((gstuSort.sortavg[i])+0.5)/3600,int((gstuSort.sortavg[i])+0.5)%3600/60,int((gstuSort.sortavg[i])+0.5)%60);
+//			csAvg+=csTmp+_T("\t");
+//			csTmp.Format(_T("%02d%02d%02d"),int((gstuSort.sortstd[i])+0.5)/3600,int((gstuSort.sortstd[i])+0.5)%3600/60,int((gstuSort.sortstd[i])+0.5)%60);
+//			csStd+=csTmp+_T("\t");
+//		}
+//		csAvg+=_T("\r\n");
+//		csStd+=_T("\r\n");
+//		gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,csAvg);
+//		gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,csStd);
+//		//CDialogEx::OnOK();
+//		CString _sort;
+//		for(int i= 0; i<30 ; i++)
+//		{
+//			_sort.Format(_T("%d\t%d\r\n"),i,gstuSort.sortnum[i]);
+//			gclsTxt.TXTAddStr(gstuPathInf.csPathTxt,_sort);
+//		}
+//		//g_dlgRun->m_listSort.SetItemText(30,2,_sort);   
+//
+//		//g_dlgDevice->EFGCut(false);//_0728
+//
+//	}
 
 
 	if(gstuRun.bPosSet==1)
@@ -1186,7 +1186,7 @@ void CBERDlg::OnTimer(UINT_PTR nIDEvent)
 		break;
 	case RESEND_COM:
 		{
-			gclsCom.ReSend();
+			//gclsCom.ReSend();
 		}
 		break;
 	default:

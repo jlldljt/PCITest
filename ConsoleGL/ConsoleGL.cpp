@@ -19,9 +19,77 @@
 
 #include <math.h>
 const GLfloat Pi = 3.1415926536f;
+
+#define WIDTH 400 
+#define HEIGHT 400 
+// 参看 SUB16
+//截图程序，复制到别的地方调用即可截取
+#define WindowWidth  400 
+#define WindowHeight 400 
+
+//#include <stdio.h> 
+//#include <stdlib.h> 
+
+/* 函数 grab
+ * 抓取窗口中的像素
+ * 假设窗口宽度为 WindowWidth，高度为 WindowHeight
+ */
+#define BMP_Header_Length 54 
+void grab(void)
+{
+  FILE* pDummyFile;
+  FILE* pWritingFile;
+  GLubyte* pPixelData;
+  GLubyte  BMP_Header[BMP_Header_Length];
+  GLint    i, j;
+  GLint    PixelDataLength;
+
+  // 计算像素数据的实际长度 
+  i = WindowWidth * 3;   // 得到每一行的像素数据长度 
+  while (i % 4 != 0)      // 补充数据，直到 i 是的倍数 
+    ++i;               // 本来还有更快的算法， 
+                       // 但这里仅追求直观，对速度没有太高要求 
+  PixelDataLength = i * WindowHeight;
+
+  // 分配内存和打开文件 
+  pPixelData = (GLubyte*)malloc(PixelDataLength);
+  if (pPixelData == 0)
+    exit(0);
+
+  pDummyFile = fopen("dummy.bmp", "rb");//任意的24位bmp
+  if (pDummyFile == 0)
+    exit(0);
+
+  pWritingFile = fopen("grab.bmp", "wb");
+  if (pWritingFile == 0)
+    exit(0);
+  glReadBuffer(GL_FRONT); //以保证读取到的内容正好就是显示的内容。
+  // 读取像素 
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+  glReadPixels(0, 0, WindowWidth, WindowHeight,
+    GL_BGR_EXT, GL_UNSIGNED_BYTE, pPixelData);//读取现在窗口中显示的图像像素
+
+  // 把 dummy.bmp 的文件头复制为新文件的文件头 
+  fread(BMP_Header, sizeof(BMP_Header), 1, pDummyFile);
+  fwrite(BMP_Header, sizeof(BMP_Header), 1, pWritingFile);
+  fseek(pWritingFile, 0x0012, SEEK_SET);
+  i = WindowWidth;
+  j = WindowHeight;
+  fwrite(&i, sizeof(i), 1, pWritingFile);
+  fwrite(&j, sizeof(j), 1, pWritingFile);
+
+  // 写入像素数据 
+  fseek(pWritingFile, 0, SEEK_END);
+  fwrite(pPixelData, PixelDataLength, 1, pWritingFile);
+
+  // 释放内存和关闭文件 
+  fclose(pDummyFile);
+  fclose(pWritingFile);
+  free(pPixelData);
+}
 //     //////////////////////////////////////////////// MY test//////////////////////////////////////////////////
 //
-#define SUB 12
+#define SUB 18
 #if SUB ==1
 //第一课 
 ///////////////////////////////
@@ -303,20 +371,6 @@ void myIdle(void)
   _sleep(100);//由于使用cpu刷新频率很快，需要加延时，显卡的垂直同步也可以解决这个问题
 }
 
-int main(int argc, char* argv[])
-{
-  glutInit(&argc, argv);
-  //GLUT_SINGLE单缓存， GLUT_DOUBLE 双缓存（此时需要在绘制完成时使用glutSwapBuffers 交换缓冲区）
-  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE); // 修改了参数为 GLUT_DOUBLE 
-  glutInitWindowPosition(100, 100);
-  glutInitWindowSize(400, 400);
-  glutCreateWindow("太阳，地球和月亮");   // 改了窗口标题 
-  glutDisplayFunc(&myDisplay);
-  //glutIdleFunc  表示cpu空闲时做某事
-  glutIdleFunc(&myIdle);               // 新加入了这句 
-  glutMainLoop();
-  return 0;
-}
 
 #elif SUB== 12
 /* 光照，需要指定顶点的法线向量，用于光的放射计算
@@ -345,8 +399,6 @@ glMaterial*函数有三个参数。第一个参数表示指定哪一面的属性
 */
 //#include <gl/glut.h> 
 
-#define WIDTH 400 
-#define HEIGHT 400 
 
 static GLfloat angle = 0.0f;
 
@@ -382,8 +434,8 @@ void myDisplay(void) {
   {         
     GLfloat sun_mat_ambient[]  = {0.0f, 0.0f, 0.0f, 1.0f};         
   GLfloat sun_mat_diffuse[]  = {0.0f, 0.0f, 0.0f, 1.0f};         
-  GLfloat sun_mat_specular[] = {0.0f, 0.0f, 0.0f, 1.0f};         
-  GLfloat sun_mat_emission[] = {0.5f, 0.0f, 0.0f, 1.0f};         
+  GLfloat sun_mat_specular[] = {1.0f, 1.0f, 0.0f, 1.0f};         
+  GLfloat sun_mat_emission[] = {1.0f, 0.6f, 0.6f, 1.0f};         
   GLfloat sun_mat_shininess  = 0.0f; 
 
 glMaterialfv(GL_FRONT, GL_AMBIENT, sun_mat_ambient);         
@@ -397,11 +449,11 @@ glutSolidSphere(2.0, 40, 32);
 
 // 定义地球的材质并绘制地球     
   {         
-    GLfloat earth_mat_ambient[]  = {0.0f, 0.0f, 0.5f, 1.0f};         
-    GLfloat earth_mat_diffuse[]  = {0.0f, 0.0f, 0.5f, 1.0f};         
-    GLfloat earth_mat_specular[] = {0.0f, 0.0f, 1.0f, 1.0f};         
+    GLfloat earth_mat_ambient[]  = {0.5f, 0.5f, 1.0f, 1.0f};         
+    GLfloat earth_mat_diffuse[]  = {0.5f, 0.5f, 1.0f, 1.0f};         
+    GLfloat earth_mat_specular[] = {0.8f, 0.8f, 1.0f, 1.0f};         
     GLfloat earth_mat_emission[] = {0.0f, 0.0f, 0.0f, 1.0f};         
-    GLfloat earth_mat_shininess  = 30.0f; 
+    GLfloat earth_mat_shininess  = 5.0f; 
 
 glMaterialfv(GL_FRONT, GL_AMBIENT, earth_mat_ambient);         
 glMaterialfv(GL_FRONT, GL_DIFFUSE, earth_mat_diffuse);         
@@ -424,18 +476,6 @@ void myIdle(void) {
   _sleep(100);
 }
 
-int main(int argc, char* argv[]) 
-{ 
-  glutInit(&argc, argv);     
-  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);    
-  glutInitWindowPosition(200, 200);    
-  glutInitWindowSize(WIDTH, HEIGHT);    
-  glutCreateWindow("OpenGL 光照演示");   
-  glutDisplayFunc(&myDisplay);    
-  glutIdleFunc(&myIdle);    
-  glutMainLoop();     
-  return 0; 
-}
 
 #elif SUB== 13
 /*显示列表，用于存放需要重复绘制的内容，减少cpu开销
@@ -515,30 +555,521 @@ void myIdle(void)
   if (angle >= 360.0f)
     angle = 0.0f;
   myDisplay();
+  _sleep(40);
+}
+
+#elif SUB== 14
+/*混合
+通常可以用来实现半透明。
+要使用 OpenGL 的混合功能，只需要调用：glEnable(GL_BLEND);即可。 要关闭 OpenGL 的混合功能，只需要调用：glDisable(GL_BLEND);即可。
+OpenGL 会把源颜色和目标颜色各自取出，并乘以一个系数（源颜色乘以的系数称为“源 因子”，目标颜色乘以的系数称为“目标因子”），再混合
+源因子和目标因子是可以通过 glBlendFunc 函数来进行设置的。glBlendFunc 有两个参数， 前者表示源因子，后者表示目标因子。
+
+*/
+void myDisplay(void)
+{
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  glEnable(GL_BLEND);
+  /*GL_ZERO：     表示使用 0.0 作为因子，实际上相当于不使用这种颜色参与混合运算。 
+  GL_ONE：      表示使用 1.0 作为因子，实际上相当于完全的使用了这种颜色参与混合运 算。 
+  GL_SRC_ALPHA：表示使用源颜色的 alpha 值来作为因子。 
+  GL_DST_ALPHA：表示使用目标颜色的 alpha 值来作为因子。
+  GL_ONE_MINUS_SRC_ALPHA：表示用 1.0 减去源颜色的 alpha 值来作为因子。 
+  GL_ONE_MINUS_DST_ALPHA：表示用 1.0 减去目标颜色的 alpha 值来作为因子。 */
+  //glBlendFunc(GL_ONE, GL_ZERO);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //glBlendFunc(GL_ONE, GL_ONE);
+  glColor4f(1, 0, 0, 0.5);
+  glRectf(-1, -1, 0.5, 0.5);
+  glColor4f(0, 1, 0, 0.5);
+  glRectf(-0.5, -0.5, 1, 1);
+
+  glutSwapBuffers();
+}
+#elif SUB== 15
+/*三维混合
+总结起来，绘制顺序就是：首先绘制所有不透明的物体。如果两个物体都是不透明的，
+则谁先谁后都没有关系。然后，将深度缓冲区设置为只读。接下来，绘制所有半透明的物体。
+如果两个物体都是半透明的，则谁先谁后只需要根据自己的意愿（注意了，先绘 制的将成为“目标颜色”，后绘制的将成为“源颜色”，所以绘制的顺序将会对结果造成一 些影响）。
+最后，将深度缓冲区设置为可读可写形式。
+调用 glDepthMask(GL_FALSE); 可将深度缓冲区设置为只读形式 。 调用glDepthMask(GL_TRUE);可将深度缓冲区设置为可读可写形式。
+*/
+void setLight(void) {
+  static const GLfloat light_position[] = { 1.0f, 1.0f, -1.0f, 1.0f };
+  static const GLfloat light_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+  static const GLfloat light_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  static const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+
+  glEnable(GL_LIGHT0);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_DEPTH_TEST);
+} 
+//每一个球体颜色不同。所以它们的材质也都不同。这里用一个函数来设置材质。 
+void setMatirial(const GLfloat mat_diffuse[4], GLfloat mat_shininess) {
+  static const GLfloat mat_specular[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+  static const GLfloat mat_emission[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_diffuse);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+  glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
+  glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
+} 
+//有了这两个函数，我们就可以根据前面的知识写出整个程序代码了。这里只给出了绘制的部分， 其它部分大家可以自行完成。 
+void myDisplay(void) {     // 定义一些材质颜色
+  const static GLfloat red_color[] = {1.0f, 0.0f, 0.0f, 1.0f};
+  const static GLfloat green_color[] = {0.0f, 1.0f, 0.0f, 0.3333f};
+  const static GLfloat blue_color[] = {0.0f, 0.0f, 1.0f, 0.5f}; 
+
+// 清除屏幕
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+// 启动混合并设置混合因子
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+
+// 设置光源
+setLight(); 
+
+// 以(0, 0, 0.5)为中心，绘制一个半径为.3 的不透明红色球体（离观察者最远）
+setMatirial(red_color, 30.0);
+glPushMatrix();
+glTranslatef(0.0f, 0.0f, 0.5f);
+glutSolidSphere(0.3, 30, 30);
+glPopMatrix(); 
+
+// 下面将绘制半透明物体了，因此将深度缓冲设置为只读
+glDepthMask(GL_FALSE); 
+
+// 以(0.2, 0, -0.5)为中心，绘制一个半径为.2 的半透明蓝色球体（离观察者最近）
+setMatirial(blue_color, 30.0);
+glPushMatrix();
+glTranslatef(0.2f, 0.0f, -0.5f);
+glutSolidSphere(0.2, 30, 30);
+glPopMatrix(); 
+
+// 以(0.1, 0, 0)为中心，绘制一个半径为.15 的半透明绿色球体（在前两个球体之间）
+setMatirial(green_color, 30.0);
+glPushMatrix();
+glTranslatef(0.1, 0, 0);
+glutSolidSphere(0.15, 30, 30);
+glPopMatrix(); 
+
+// 完成半透明物体的绘制，将深度缓冲区恢复为可读可写的形式
+glDepthMask(GL_TRUE); 
+
+  glutSwapBuffers();
+}
+
+#elif SUB== 16
+/*绘制bmp像素图
+glReadPixels：读取一些像素。
+glDrawPixels：绘制一些像素。
+glCopyPixels：复制一些像素。
+3.2 解决 OpenGL 常用的 RGB 像素数据与 BMP 文件的 BGR 像素数据顺序不一致问题： GL_RGB 
+消除 BMP 文件中“对齐”带来的影响修改对齐：int alignment = 4; glPixelStorei(GL_UNPACK_ALIGNMENT, alignment); 
+*/
+
+/*在 glDrawPixels 中，不必显式的指定绘制的位置，这是因为绘制的位置是由另一个函数 glRa
+sterPos*来指定的
+OpenGL 在绘制像素之前，可以对像素进行若干处理。最常用的可能就是对整个像素图象进行放 大/缩小。
+使用 glPixelZoom 来设置放大/缩小的系数，该函数有两个参数，分别是水平方向系数和 垂直方向系数*/
+#define FileName "Bliss.bmp" //24bit bmp
+
+static GLint    ImageWidth;
+static GLint    ImageHeight;
+static GLint    PixelLength;
+static GLubyte* PixelData;
+
+//#include <stdio.h> 
+//#include <stdlib.h> 
+
+void display(void)
+{
+  // 清除屏幕并不必要 
+  // 每次绘制时，画面都覆盖整个屏幕 
+  // 因此无论是否清除屏幕，结果都一样 
+  // glClear(GL_COLOR_BUFFER_BIT); 
+
+  // 绘制像素 
+  glDrawPixels(ImageWidth, ImageHeight,
+    GL_BGR_EXT, GL_UNSIGNED_BYTE, PixelData);
+
+  // 完成绘制 
+  glutSwapBuffers();
 }
 
 int main(int argc, char* argv[])
 {
+  // 打开文件 
+  FILE* pFile = fopen("dummy.bmp", "rb");
+  if (pFile == 0)
+    exit(0);
+
+  // 读取图象的大小信息 
+  fseek(pFile, 0x0012, SEEK_SET);
+  fread(&ImageWidth, sizeof(ImageWidth), 1, pFile);
+  fread(&ImageHeight, sizeof(ImageHeight), 1, pFile);
+
+  // 计算像素数据长度 
+  PixelLength = ImageWidth * 3;
+  while (PixelLength % 4 != 0)
+    ++PixelLength;
+  PixelLength *= ImageHeight;
+
+  // 读取像素数据 
+  PixelData = (GLubyte*)malloc(PixelLength);
+  if (PixelData == 0)
+    exit(0);
+
+  fseek(pFile, 54, SEEK_SET);
+  fread(PixelData, PixelLength, 1, pFile);
+
+  // 关闭文件 
+  fclose(pFile);
+
+  // 初始化 GLUT 并运行 
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-  glutInitWindowPosition(200, 200);
-  glutInitWindowSize(WIDTH, HEIGHT);
-  glutCreateWindow("OpenGL 窗口");
-  glutDisplayFunc(&myDisplay);
-  glutIdleFunc(&myIdle);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+  glutInitWindowPosition(100, 100);
+  glutInitWindowSize(ImageWidth, ImageHeight);
+  glutCreateWindow(FileName);
+  glutDisplayFunc(&display);
   glutMainLoop();
+
+  // 释放内存 
+  // 实际上，glutMainLoop 函数永远不会返回，这里也永远不会到达 
+  // 这里写释放内存只是出于一种个人习惯 
+  // 不用担心内存无法释放。在程序结束时操作系统会自动回收所有内存 
+  free(PixelData);
+
   return 0;
 }
+#elif SUB== 17
+/*。使用 glCopyPixels相比以通过 glReadPixels 和 glDrawPixels 组合
+直接从像素数据复制出新的像素数据，避免了多余的数据的格式转换，并且也可能减少一些数据复制操
+作（因为数据可能直接由显卡负责复制，不需要经过主内存），因此效率比较高。 */
+void myDisplay(void)
+{
+  // 清除屏幕 
+  glClear(GL_COLOR_BUFFER_BIT);
 
+  // 绘制 
+  glBegin(GL_TRIANGLES);
+  glColor3f(1.0f, 0.0f, 0.0f);    glVertex2f(0.0f, 0.0f);
+  glColor3f(0.0f, 1.0f, 0.0f);    glVertex2f(1.0f, 0.0f);
+  glColor3f(0.0f, 0.0f, 1.0f);    glVertex2f(0.5f, 1.0f);
+  glEnd();
+  glPixelZoom(-0.5f, -0.5f);
+  glRasterPos2i(1, 1);
+  glCopyPixels(WindowWidth / 2, WindowHeight / 2,
+    WindowWidth / 2, WindowHeight / 2, GL_COLOR);
+
+  // 完成绘制，并抓取图象保存为 BMP 文件 
+  glutSwapBuffers();
+  grab();
+}
+#elif SUB== 18
+/*纹理
+。OpenGL 纹理映射功能支持将一些像素数据经过变换（即使是比较不规则的变 换）将其附着到各种形状的多边形表面。纹理映射功能十分强大，利用它可以实现目前计算机动
+画中的大多数效果，但是它也很复杂
+。OpenGL 支持一维
+纹理、二维纹理和三维纹理，这里我们仅介绍二维纹理。可以使用以下语句来启用和禁用二维纹理：
+    glEnable(GL_TEXTURE_2D);  // 启用二维纹理
+    glDisable(GL_TEXTURE_2D); // 禁用二维纹理 
+    
+    使用纹理前，还必须载入纹理。利用 glTexImage2D 函数可以载入一个二维的纹理，
+
+    */
+/*
+OpenGL 在以前的很多版本中，限制纹理的大小必须是 2 的整数次方，即纹理的宽度和高度只能是 16, 32, 64, 128, 256 等值。尽量使用大小
+为 2 的整数次方的纹理，当这个要求无法满足时，使用 gluScaleImage 函数把图象缩放至所指定的大小（在
+后面的例子中有用到）。另外，无论旧版本还是新版本，都限制了纹理大小的最大值，例如，某 OpenGL
+实现可能要求纹理最大不能超过 1024*1024。可以使用如下的代码来获得 OpenGL 所支持的最大纹理： 
+GLint max; 
+glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max); 
+ 在很长一段时间内，很多图形程序都喜欢使用 256*256 大小的纹理，不仅因为 256 是 2 的整数次方，也因
+为某些硬件可以使用 8 位的整数来表示纹理坐标，2 的 8 次方正好是 256，这一巧妙的组合为处理纹理坐标
+时的硬件优化创造了一些不错的条件。 
+ 
+这样 max的值就是当前 OpenGL 实现中所支持的最大纹理。
+举个例子，如果有一幅大小为 width*height，格式为 Windows 系统中使用最普遍的 24 位 BGR，保存在 pix
+els 中的像素图象。则把这样一幅图象载入为纹理可使用以下代码：
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, pix
+els); 
+*/
+/*纹理坐标
+我们先来回忆一下之前学过的一点内容：
+当我们绘制一个三角形时，只需要指定三个顶点的颜色。三角形中其它各点的颜色不需要我们指定，这些
+点的颜色是 OpenGL 自己通过计算得到的。
+在我们学习 OpneGL 光照时，法线向量、材质的指定，都是只需要在顶点处指定一下就可以了，其它地方
+的法线向量和材质都是 OpenGL 自己通过计算去获得
+纹理的使用方法也与此类似。只要指定每一个顶点在纹理图象中所对应的像素位置，OpenGL 就会自动计
+算顶点以外的其它点在纹理图象中所对应的像素位置。 
+
+二维纹理为例，规定纹理最左下角的坐标为(0, 0)，最右上角的坐标为(1, 1)，于是纹理中的每一个像素的位
+置都可以用两个浮点数来表示（三维纹理会用三个浮点数表示，一维纹理则只用一个即可）。
+使用 glTexCoord*系列函数来指定纹理坐标。这些函数的用法与使用 glVertex*系列函数来指定顶点坐标十
+分相似。例如：glTexCoord2f(0.0f, 0.0f);指定使用(0, 0)纹理坐标
+
+当我们用一个坐标表示顶点在三维空间的位置时，可以使用 glRotate*等函数来对坐标进行转换。 纹理坐标也可以进行这种转换。
+只要使用 glMatrixMode(GL_TEXTURE);，就可以切换到纹理矩阵 （另外还有透视矩阵 GL_PROJECTION 和模型视图矩阵 GL_MODELVIEW，详细情况在第五课有 讲述），
+然后 glRotate*，glScale*，glTranslate*等操作矩阵的函数就可以用来处理“对纹理坐标进 行转换”的工作了。在简单应用中，可能不会对矩阵进行任何变换，这样考虑问题会比较简单。 
+*/
+
+/*
+使用 glTexParameter*系列函数来设置纹理参数*/
+
+/*纹理对象正是这样一种机制。我们可以把每一幅纹理（包括纹理的像素数据、纹理大小等信息，也包括了
+前面所讲的纹理参数）放到一个纹理对象中，通过创建多个纹理对象来达到同时保存多幅纹理的目的。这
+样一来，在第一次使用纹理前，把所有的纹理都载入，然后在绘制时只需要指明究竟使用哪一个纹理对象
+就可以了。 
+ 
+ 使用纹理对象和使用显示列表有相似之处：使用一个正整数来作为纹理对象的编号。在使用前，可以调用
+glGenTextures 来分配纹理对象。该函数有两种比较常见的用法：
+GLuint texture_ID;
+glGenTextures(1, &texture_ID); // 分配一个纹理对象的编号
+
+或者：
+GLuint texture_ID_list[5];
+glGenTextures(5, texture_ID_list); // 分配 5 个纹理对象的编号
+
+
+零是一个特殊的纹理对象编号，表示“默认的纹理对象”，在分配正确的情况下，glGenTextures 不会分配这
+个编号。与 glGenTextures 对应的是 glDeleteTextures，用于销毁一个纹理对象。
+
+在分配了纹理对象编号后，使用 glBindTexture 函数来指定“当前所使用的纹理对象”。然后就可以使用 glTe
+xImage*系列函数来指定纹理像素、使用 glTexParameter*系列函数来指定纹理参数、使用 glTexCoord*系列
+函数来指定纹理坐标了。如果不使用 glBindTexture 函数，那么 glTexImage*、glTexParameter*、glTexCoor
+d*系列函数默认在一个编号为 0 的纹理对象上进行操作。
+使用多个纹理对象，就可以使 OpenGL 同时保存多个纹理。在使用时只需要调用 glBindTexture 函数，在不
+同纹理之间进行切换，而不需要反复载入纹理，因此动画的绘制速度会有非常明显的提升。
+ */
+ /* 函数 power_of_two
+  * 检查一个整数是否为 2 的整数次方，如果是，返回 1，否则返回 0
+  * 实际上只要查看其二进制位中有多少个，如果正好有 1 个，返回 1，否则返回 0
+  * 在“查看其二进制位中有多少个”时使用了一个小技巧
+  * 使用 n &= (n-1)可以使得 n 中的减少一个（具体原理大家可以自己思考）
+  */
+int power_of_two(int n)
+{
+  if (n <= 0)
+    return 0;
+  return (n & (n - 1)) == 0;
+}
+
+/* 函数 load_texture
+ * 读取一个 BMP 文件作为纹理
+ * 如果失败，返回 0，如果成功，返回纹理编号
+ */
+GLuint load_texture(const char* file_name)
+{
+  GLint width, height, total_bytes;
+  GLubyte* pixels = 0;
+  GLuint last_texture_ID, texture_ID = 0;
+
+  // 打开文件，如果失败，返回 
+  FILE* pFile = fopen(file_name, "rb");
+  if (pFile == 0)
+    return 0;
+
+  // 读取文件中图象的宽度和高度 
+  fseek(pFile, 0x0012, SEEK_SET);
+  fread(&width, 4, 1, pFile);
+  fread(&height, 4, 1, pFile);
+  fseek(pFile, BMP_Header_Length, SEEK_SET);
+
+  // 计算每行像素所占字节数，并根据此数据计算总像素字节数 
+  {
+    GLint line_bytes = width * 3;
+    while (line_bytes % 4 != 0)
+      ++line_bytes;
+    total_bytes = line_bytes * height;
+  }
+
+  // 根据总像素字节数分配内存 
+  pixels = (GLubyte*)malloc(total_bytes);
+  if (pixels == 0)
+  {
+    fclose(pFile);
+    return 0;
+  }
+
+  // 读取像素数据 
+  if (fread(pixels, total_bytes, 1, pFile) <= 0)
+  {
+    free(pixels);
+    fclose(pFile);
+    return 0;
+  }
+
+  // 在旧版本的 OpenGL 中 
+  // 如果图象的宽度和高度不是的整数次方，则需要进行缩放 
+  // 这里并没有检查 OpenGL 版本，出于对版本兼容性的考虑，按旧版本处理 
+  // 另外，无论是旧版本还是新版本， 
+  // 当图象的宽度和高度超过当前 OpenGL 实现所支持的最大值时，也要进行缩放 
+  {
+    GLint max;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max);
+    if (!power_of_two(width)
+      || !power_of_two(height)
+      || width > max
+      || height > max)
+    {
+      const GLint new_width = 256;
+      const GLint new_height = 256; // 规定缩放后新的大小为边长的正方形 
+      GLint new_line_bytes, new_total_bytes;
+      GLubyte* new_pixels = 0;
+
+      // 计算每行需要的字节数和总字节数 
+      new_line_bytes = new_width * 3;
+      while (new_line_bytes % 4 != 0)
+        ++new_line_bytes;
+      new_total_bytes = new_line_bytes * new_height;
+
+      // 分配内存 
+      new_pixels = (GLubyte*)malloc(new_total_bytes);
+      if (new_pixels == 0)
+      {
+        free(pixels);
+        fclose(pFile);
+        return 0;
+      }
+
+      // 进行像素缩放 
+      gluScaleImage(GL_RGB,
+        width, height, GL_UNSIGNED_BYTE, pixels,
+        new_width, new_height, GL_UNSIGNED_BYTE, new_pixels);
+
+      // 释放原来的像素数据，把 pixels 指向新的像素数据，并重新设置 width 和 height 
+      free(pixels);
+      pixels = new_pixels;
+      width = new_width;
+      height = new_height;
+    }
+  }
+
+  // 分配一个新的纹理编号 
+  glGenTextures(1, &texture_ID);
+  if (texture_ID == 0)
+  {
+    free(pixels);
+    fclose(pFile);
+    return 0;
+  }
+
+  // 绑定新的纹理，载入纹理并设置纹理参数 
+  // 在绑定前，先获得原来绑定的纹理编号，以便在最后进行恢复 
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&last_texture_ID);
+  glBindTexture(GL_TEXTURE_2D, texture_ID);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+    GL_BGR_EXT, GL_UNSIGNED_BYTE, pixels);
+  glBindTexture(GL_TEXTURE_2D, last_texture_ID);
+
+  // 之前为 pixels 分配的内存可在使用 glTexImage2D 以后释放 
+  // 因为此时像素数据已经被 OpenGL 另行保存了一份（可能被保存到专门的图形硬件中） 
+  free(pixels);
+  return texture_ID;
+}
+
+/* 两个纹理对象的编号
+ */
+GLuint texGround;
+GLuint texWall;
+
+void display(void)
+{
+  // 清除屏幕 
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // 设置视角 
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(75, 1, 1, 21);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  gluLookAt(1, 5, 5, 0, 0, 0, 0, 0, 1);
+
+  // 使用“地”纹理绘制土地 
+  glBindTexture(GL_TEXTURE_2D, texGround);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0.0f, 0.0f); glVertex3f(-8.0f, -8.0f, 0.0f);
+  glTexCoord2f(0.0f, 5.0f); glVertex3f(-8.0f, 8.0f, 0.0f);
+  glTexCoord2f(5.0f, 5.0f); glVertex3f(8.0f, 8.0f, 0.0f);
+  glTexCoord2f(5.0f, 0.0f); glVertex3f(8.0f, -8.0f, 0.0f);
+  glEnd();
+  // 使用“墙”纹理绘制栅栏 
+  glBindTexture(GL_TEXTURE_2D, texWall);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0.0f, 0.0f); glVertex3f(-6.0f, -3.0f, 0.0f);
+  glTexCoord2f(0.0f, 1.0f); glVertex3f(-6.0f, -3.0f, 1.5f);
+  glTexCoord2f(5.0f, 1.0f); glVertex3f(6.0f, -3.0f, 1.5f);
+  glTexCoord2f(5.0f, 0.0f); glVertex3f(6.0f, -3.0f, 0.0f);
+  glEnd();
+
+  // 旋转后再绘制一个 
+  glRotatef(-90, 0, 0, 1);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0.0f, 0.0f); glVertex3f(-6.0f, -3.0f, 0.0f);
+  glTexCoord2f(0.0f, 1.0f); glVertex3f(-6.0f, -3.0f, 1.5f);
+  glTexCoord2f(5.0f, 1.0f); glVertex3f(6.0f, -3.0f, 1.5f);
+  glTexCoord2f(5.0f, 0.0f); glVertex3f(6.0f, -3.0f, 0.0f);
+  glEnd();
+
+  // 交换缓冲区，并保存像素数据到文件 
+  glutSwapBuffers();
+  grab();
+}
+
+int main(int argc, char* argv[])
+{
+  // GLUT 初始化 
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+  glutInitWindowPosition(100, 100);
+  glutInitWindowSize(WindowWidth, WindowHeight);
+  glutCreateWindow("test ");
+  glutDisplayFunc(&display);
+
+  // 在这里做一些初始化 
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_TEXTURE_2D);
+  texGround = load_texture("ground.bmp");
+  texWall = load_texture("wall.bmp");
+
+  // 开始显示 
+  glutMainLoop();
+
+  return 0;
+}
 #endif
+
 int main1(int argc, char* argv[])
 {
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+  //GLUT_SINGLE单缓存， GLUT_DOUBLE 双缓存（此时需要在绘制完成时使用glutSwapBuffers 交换缓冲区）
+
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+
+  //glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+
   glutInitWindowPosition(100, 100);
-  glutInitWindowSize(400, 400);
+  glutInitWindowSize(WIDTH, HEIGHT);
   glutCreateWindow("test ");
-  glutDisplayFunc(&myDisplay);
+  //glutDisplayFunc(&myDisplay);
+
+  //glutIdleFunc(&myIdle);//glutIdleFunc  表示cpu空闲时做某事
+
   glutMainLoop();
   return 0;
 }

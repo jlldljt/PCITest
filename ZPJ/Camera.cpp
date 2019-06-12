@@ -436,10 +436,7 @@ void CCamera::OnStnClickedPreview()
 					pt.x=gclsImgRcg.g_stu_square.pnPX[i][3]*rect.Width()/gclsImgRcg.g_stu_square.nBMPW;
 					pt.y=gclsImgRcg.g_stu_square.pnPY[i][3]*rect.Height()/gclsImgRcg.g_stu_square.nBMPH;
 					pDC->MoveTo(pt);
-					CString csTmp;
-					csTmp.Format(_T("长%d宽%dX方向%d角度%.1f"),gclsImgRcg.g_stu_square.pnLen[i],gclsImgRcg.g_stu_square.pnWth[i],gclsImgRcg.g_stu_square.bPN[i], gclsImgRcg.g_stu_square.angreePN[i]);
-					GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
-					//AfxMessageBox(csTmp);
+          //
 					POINT pPoint[5];
 					for(int j=0;j<4;j++)
 					{
@@ -451,10 +448,13 @@ void CCamera::OnStnClickedPreview()
 
 					pDC->Polygon(pPoint,4);
           //test
-          int nLenNo = gclsImgRcg.g_stu_square.lenNo1PN[i];
+          double angle_test = gclsImgRcg.CalculateVectorAngle(pPoint[1].x-pPoint[0].x,
+            pPoint[1].y-pPoint[0].y, 1, 0);
+          /*int nLenNo = gclsImgRcg.g_stu_square.lenNo1PN[i];
           int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
-          
-
+          */
+          int nLenNo = 0;
+          int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
           pDC->Ellipse(pPoint[nLenNo].x - 2, pPoint[nLenNo].y - 2, pPoint[nLenNo].x + 2, pPoint[nLenNo].y + 2);
 
           pDC->Ellipse(pPoint[nLenNoNext].x - 4, pPoint[nLenNoNext].y - 4, pPoint[nLenNoNext].x + 4, pPoint[nLenNoNext].y + 4);
@@ -463,6 +463,14 @@ void CCamera::OnStnClickedPreview()
 					gclsImgRcg.stuRef.Len=gclsImgRcg.g_stu_square.pnLen[i];
 					gclsImgRcg.stuRef.Wth=gclsImgRcg.g_stu_square.pnWth[i];
 					gstuRcgInfo.nPN=gclsImgRcg.g_stu_square.bPN[i];
+
+
+          CString csTmp;
+          csTmp.Format(_T("长%d宽%dX角度%.1f"), gclsImgRcg.g_stu_square.pnLen[i], gclsImgRcg.g_stu_square.pnWth[i], (angle_test));
+
+          //csTmp.Format(_T("长%d宽%dX方向%d角度%.1f"),gclsImgRcg.g_stu_square.pnLen[i],gclsImgRcg.g_stu_square.pnWth[i],gclsImgRcg.g_stu_square.bPN[i], gclsImgRcg.g_stu_square.angreePN[i]);
+          GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
+          //AfxMessageBox(csTmp);
 				}
 				pWnd->ReleaseDC(pDC);
 				gclsImgRcg.stuRef.Dev=gstuRcgInfo.nAllowDefect;

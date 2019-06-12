@@ -87,7 +87,7 @@ CScreen::CScreen(CWnd* pParent /*=NULL*/)
 	
 }
 
-CScreen dlgScreen;
+//CScreen dlgScreen;
 CScreen *g_dlgScreen=NULL;
 
 CScreen::~CScreen()

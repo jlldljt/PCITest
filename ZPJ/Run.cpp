@@ -27,7 +27,7 @@ CRun::~CRun()
 	mDCMem->DeleteDC();
 }
 
-CRun dlgRun;
+//CRun dlgRun;
 CRun *g_dlgRun=NULL;
 
 void CRun::DoDataExchange(CDataExchange* pDX)
@@ -595,10 +595,10 @@ void CRun::OnBnClickedBtnRun()
 BOOL CRun::RunInit()
 {
 	gstuRefresh.alarm = 0;
-	gclsCom.stuInf.bIsRun=1;
-	gclsImgRcg.g_stu_square.bJudgeFeature=1;
-	memset(gclsCom.stuInf.pchBufWTmp, 0, gclsCom.stuInf.unLenWrt+1);
-	memset(gclsCom.stuInf.pchBufRTmp, 0, gclsCom.stuInf.unLenRcv+1);
+	//gclsCom.stuInf.bIsRun=1;
+	//gclsImgRcg.g_stu_square.bJudgeFeature=1;
+	//memset(gclsCom.stuInf.pchBufWTmp, 0, gclsCom.stuInf.unLenWrt+1);
+	//memset(gclsCom.stuInf.pchBufRTmp, 0, gclsCom.stuInf.unLenRcv+1);
 	gstuRun.bTrdExit=0;									
 	gstuRun.unTrdExitNum=0;
 	gstuRun. bTrdPause=0;								
