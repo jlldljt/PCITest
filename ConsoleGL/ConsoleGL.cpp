@@ -87,9 +87,142 @@ void grab(void)
   fclose(pWritingFile);
   free(pPixelData);
 }
+
+/* 函数 power_of_two
+ * 检查一个整数是否为 2 的整数次方，如果是，返回 1，否则返回 0
+ * 实际上只要查看其二进制位中有多少个，如果正好有 1 个，返回 1，否则返回 0
+ * 在“查看其二进制位中有多少个”时使用了一个小技巧
+ * 使用 n &= (n-1)可以使得 n 中的减少一个（具体原理大家可以自己思考）
+ */
+int power_of_two(int n)
+{
+  if (n <= 0)
+    return 0;
+  return (n & (n - 1)) == 0;
+}
+
+/* 函数 load_texture
+ * 读取一个 BMP 文件作为纹理
+ * 如果失败，返回 0，如果成功，返回纹理编号
+ */
+GLuint load_texture(const char* file_name)
+{
+  GLint width, height, total_bytes;
+  GLubyte* pixels = 0;
+  GLuint last_texture_ID, texture_ID = 0;
+
+  // 打开文件，如果失败，返回 
+  FILE* pFile = fopen(file_name, "rb");
+  if (pFile == 0)
+    return 0;
+
+  // 读取文件中图象的宽度和高度 
+  fseek(pFile, 0x0012, SEEK_SET);
+  fread(&width, 4, 1, pFile);
+  fread(&height, 4, 1, pFile);
+  fseek(pFile, BMP_Header_Length, SEEK_SET);
+
+  // 计算每行像素所占字节数，并根据此数据计算总像素字节数 
+  {
+    GLint line_bytes = width * 3;
+    while (line_bytes % 4 != 0)
+      ++line_bytes;
+    total_bytes = line_bytes * height;
+  }
+
+  // 根据总像素字节数分配内存 
+  pixels = (GLubyte*)malloc(total_bytes);
+  if (pixels == 0)
+  {
+    fclose(pFile);
+    return 0;
+  }
+
+  // 读取像素数据 
+  if (fread(pixels, total_bytes, 1, pFile) <= 0)
+  {
+    free(pixels);
+    fclose(pFile);
+    return 0;
+  }
+
+  // 在旧版本的 OpenGL 中 
+  // 如果图象的宽度和高度不是的整数次方，则需要进行缩放 
+  // 这里并没有检查 OpenGL 版本，出于对版本兼容性的考虑，按旧版本处理 
+  // 另外，无论是旧版本还是新版本， 
+  // 当图象的宽度和高度超过当前 OpenGL 实现所支持的最大值时，也要进行缩放 
+  {
+    GLint max;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max);
+    if (!power_of_two(width)
+      || !power_of_two(height)
+      || width > max
+      || height > max)
+    {
+      const GLint new_width = 256;
+      const GLint new_height = 256; // 规定缩放后新的大小为边长的正方形 
+      GLint new_line_bytes, new_total_bytes;
+      GLubyte* new_pixels = 0;
+
+      // 计算每行需要的字节数和总字节数 
+      new_line_bytes = new_width * 3;
+      while (new_line_bytes % 4 != 0)
+        ++new_line_bytes;
+      new_total_bytes = new_line_bytes * new_height;
+
+      // 分配内存 
+      new_pixels = (GLubyte*)malloc(new_total_bytes);
+      if (new_pixels == 0)
+      {
+        free(pixels);
+        fclose(pFile);
+        return 0;
+      }
+
+      // 进行像素缩放 
+      gluScaleImage(GL_RGB,
+        width, height, GL_UNSIGNED_BYTE, pixels,
+        new_width, new_height, GL_UNSIGNED_BYTE, new_pixels);
+
+      // 释放原来的像素数据，把 pixels 指向新的像素数据，并重新设置 width 和 height 
+      free(pixels);
+      pixels = new_pixels;
+      width = new_width;
+      height = new_height;
+    }
+  }
+
+  // 分配一个新的纹理编号 
+  glGenTextures(1, &texture_ID);
+  if (texture_ID == 0)
+  {
+    free(pixels);
+    fclose(pFile);
+    return 0;
+  }
+
+  // 绑定新的纹理，载入纹理并设置纹理参数 
+  // 在绑定前，先获得原来绑定的纹理编号，以便在最后进行恢复 
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)& last_texture_ID);
+  glBindTexture(GL_TEXTURE_2D, texture_ID);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+    GL_BGR_EXT, GL_UNSIGNED_BYTE, pixels);
+  glBindTexture(GL_TEXTURE_2D, last_texture_ID);
+
+  // 之前为 pixels 分配的内存可在使用 glTexImage2D 以后释放 
+  // 因为此时像素数据已经被 OpenGL 另行保存了一份（可能被保存到专门的图形硬件中） 
+  free(pixels);
+  return texture_ID;
+}
+
 //     //////////////////////////////////////////////// MY test//////////////////////////////////////////////////
 //
-#define SUB 18
+#define SUB 20
 #if SUB ==1
 //第一课 
 ///////////////////////////////
@@ -850,143 +983,13 @@ d*系列函数默认在一个编号为 0 的纹理对象上进行操作。
 使用多个纹理对象，就可以使 OpenGL 同时保存多个纹理。在使用时只需要调用 glBindTexture 函数，在不
 同纹理之间进行切换，而不需要反复载入纹理，因此动画的绘制速度会有非常明显的提升。
  */
- /* 函数 power_of_two
-  * 检查一个整数是否为 2 的整数次方，如果是，返回 1，否则返回 0
-  * 实际上只要查看其二进制位中有多少个，如果正好有 1 个，返回 1，否则返回 0
-  * 在“查看其二进制位中有多少个”时使用了一个小技巧
-  * 使用 n &= (n-1)可以使得 n 中的减少一个（具体原理大家可以自己思考）
-  */
-int power_of_two(int n)
-{
-  if (n <= 0)
-    return 0;
-  return (n & (n - 1)) == 0;
-}
 
-/* 函数 load_texture
- * 读取一个 BMP 文件作为纹理
- * 如果失败，返回 0，如果成功，返回纹理编号
- */
-GLuint load_texture(const char* file_name)
-{
-  GLint width, height, total_bytes;
-  GLubyte* pixels = 0;
-  GLuint last_texture_ID, texture_ID = 0;
-
-  // 打开文件，如果失败，返回 
-  FILE* pFile = fopen(file_name, "rb");
-  if (pFile == 0)
-    return 0;
-
-  // 读取文件中图象的宽度和高度 
-  fseek(pFile, 0x0012, SEEK_SET);
-  fread(&width, 4, 1, pFile);
-  fread(&height, 4, 1, pFile);
-  fseek(pFile, BMP_Header_Length, SEEK_SET);
-
-  // 计算每行像素所占字节数，并根据此数据计算总像素字节数 
-  {
-    GLint line_bytes = width * 3;
-    while (line_bytes % 4 != 0)
-      ++line_bytes;
-    total_bytes = line_bytes * height;
-  }
-
-  // 根据总像素字节数分配内存 
-  pixels = (GLubyte*)malloc(total_bytes);
-  if (pixels == 0)
-  {
-    fclose(pFile);
-    return 0;
-  }
-
-  // 读取像素数据 
-  if (fread(pixels, total_bytes, 1, pFile) <= 0)
-  {
-    free(pixels);
-    fclose(pFile);
-    return 0;
-  }
-
-  // 在旧版本的 OpenGL 中 
-  // 如果图象的宽度和高度不是的整数次方，则需要进行缩放 
-  // 这里并没有检查 OpenGL 版本，出于对版本兼容性的考虑，按旧版本处理 
-  // 另外，无论是旧版本还是新版本， 
-  // 当图象的宽度和高度超过当前 OpenGL 实现所支持的最大值时，也要进行缩放 
-  {
-    GLint max;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max);
-    if (!power_of_two(width)
-      || !power_of_two(height)
-      || width > max
-      || height > max)
-    {
-      const GLint new_width = 256;
-      const GLint new_height = 256; // 规定缩放后新的大小为边长的正方形 
-      GLint new_line_bytes, new_total_bytes;
-      GLubyte* new_pixels = 0;
-
-      // 计算每行需要的字节数和总字节数 
-      new_line_bytes = new_width * 3;
-      while (new_line_bytes % 4 != 0)
-        ++new_line_bytes;
-      new_total_bytes = new_line_bytes * new_height;
-
-      // 分配内存 
-      new_pixels = (GLubyte*)malloc(new_total_bytes);
-      if (new_pixels == 0)
-      {
-        free(pixels);
-        fclose(pFile);
-        return 0;
-      }
-
-      // 进行像素缩放 
-      gluScaleImage(GL_RGB,
-        width, height, GL_UNSIGNED_BYTE, pixels,
-        new_width, new_height, GL_UNSIGNED_BYTE, new_pixels);
-
-      // 释放原来的像素数据，把 pixels 指向新的像素数据，并重新设置 width 和 height 
-      free(pixels);
-      pixels = new_pixels;
-      width = new_width;
-      height = new_height;
-    }
-  }
-
-  // 分配一个新的纹理编号 
-  glGenTextures(1, &texture_ID);
-  if (texture_ID == 0)
-  {
-    free(pixels);
-    fclose(pFile);
-    return 0;
-  }
-
-  // 绑定新的纹理，载入纹理并设置纹理参数 
-  // 在绑定前，先获得原来绑定的纹理编号，以便在最后进行恢复 
-  glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&last_texture_ID);
-  glBindTexture(GL_TEXTURE_2D, texture_ID);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-    GL_BGR_EXT, GL_UNSIGNED_BYTE, pixels);
-  glBindTexture(GL_TEXTURE_2D, last_texture_ID);
-
-  // 之前为 pixels 分配的内存可在使用 glTexImage2D 以后释放 
-  // 因为此时像素数据已经被 OpenGL 另行保存了一份（可能被保存到专门的图形硬件中） 
-  free(pixels);
-  return texture_ID;
-}
 
 /* 两个纹理对象的编号
  */
 GLuint texGround;
 GLuint texWall;
-
+GLfloat angle = 0.0f;
 void display(void)
 {
   // 清除屏幕 
@@ -998,11 +1001,16 @@ void display(void)
   gluPerspective(75, 1, 1, 21);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+
+  //glPushMatrix();
   gluLookAt(1, 5, 5, 0, 0, 0, 0, 0, 1);
 
+  glRotatef(angle, 0,0, 1);
+  //glPopMatrix();
+
   // 使用“地”纹理绘制土地 
-  glBindTexture(GL_TEXTURE_2D, texGround);
-  glBegin(GL_QUADS);
+  glBindTexture(GL_TEXTURE_2D, texGround);//使用纹理ground
+  glBegin(GL_QUADS);//四边形，下面指定纹理的4个点和四边形的4个点,在16*16的四边形里填充5*5个纹理
   glTexCoord2f(0.0f, 0.0f); glVertex3f(-8.0f, -8.0f, 0.0f);
   glTexCoord2f(0.0f, 5.0f); glVertex3f(-8.0f, 8.0f, 0.0f);
   glTexCoord2f(5.0f, 5.0f); glVertex3f(8.0f, 8.0f, 0.0f);
@@ -1010,7 +1018,7 @@ void display(void)
   glEnd();
   // 使用“墙”纹理绘制栅栏 
   glBindTexture(GL_TEXTURE_2D, texWall);
-  glBegin(GL_QUADS);
+  glBegin(GL_QUADS); //12*1.5的四边形里填充5 * 1个纹理
   glTexCoord2f(0.0f, 0.0f); glVertex3f(-6.0f, -3.0f, 0.0f);
   glTexCoord2f(0.0f, 1.0f); glVertex3f(-6.0f, -3.0f, 1.5f);
   glTexCoord2f(5.0f, 1.0f); glVertex3f(6.0f, -3.0f, 1.5f);
@@ -1028,9 +1036,16 @@ void display(void)
 
   // 交换缓冲区，并保存像素数据到文件 
   glutSwapBuffers();
-  grab();
+  //grab();
 }
-
+void myIdle(void)
+{
+  ++angle;
+  if (angle >= 360.0f)
+    angle = 0.0f;
+  display();
+  _sleep(40);
+}
 int main(int argc, char* argv[])
 {
   // GLUT 初始化 
@@ -1040,7 +1055,7 @@ int main(int argc, char* argv[])
   glutInitWindowSize(WindowWidth, WindowHeight);
   glutCreateWindow("test ");
   glutDisplayFunc(&display);
-
+  glutIdleFunc(&myIdle);
   // 在这里做一些初始化 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_TEXTURE_2D);
@@ -1052,9 +1067,221 @@ int main(int argc, char* argv[])
 
   return 0;
 }
+#elif SUB== 19
+/*片段测试
+片断测试其实就是测试每一个像素，只有通过测试的像素才会被绘制，没有通过测试的像素则不进行绘制。
+*/
+/*
+剪裁测试用于限制绘制区域。我们可以指定一个矩形的剪裁窗口，当启用剪裁测试后，只有在这个窗口之
+内的像素才能被绘制，其它像素则会被丢弃。换句话说，无论怎么绘制，剪裁窗口以外的像素将不会被修
+改。
+可以通过下面的代码来启用或禁用剪裁测试：
+glEnable(GL_SCISSOR_TEST);  // 启用剪裁测试
+glDisable(GL_SCISSOR_TEST); // 禁用剪裁测试
+
+可以通过下面的代码来指定一个位置在(x, y)，宽度为 width，高度为 height 的剪裁窗口。
+glScissor(x, y, width, height)
+注意，OpenGL 窗口坐标是以左下角为(0, 0)，右上角为(width, height)的，这与 Windows 系统窗口 有所不同。
+ ;
+*/
+/*Alph
+a 测试。当每个像素即将绘制时，如果启动了 Alpha 测试，OpenGL 会检查像素的 Alpha 值，只有Alpha 值
+满足条件的像素才会进行绘制（严格的说，满足条件的像素会通过本项测试，进行下一种测试，只有所有
+测试都通过，才能进行绘制），不满足条件的则不进行绘制*/
+/*可以通过下面的代码来启用或禁用 Alpha 测试：
+glEnable(GL_ALPHA_TEST);  // 启用 Alpha 测试 
+glDisable(GL_ALPHA_TEST); // 禁用 Alpha 测试 
+
+
+可以通过下面的代码来设置 Alpha 测试条件为“大于 0.5 则通过”：
+glAlphaFunc(GL_GREATER, 0.5f);*/
+/* 将当前纹理 BGR 格式转换为 BGRA 格式
+ * 纹理中像素的 RGB 值如果与指定 rgb 相差不超过 absolute，则将 Alpha 设置为 0.0，否则设置为 1.0
+ */
+void texture_colorkey(GLubyte r, GLubyte g, GLubyte b, GLubyte absolute)
+{
+  GLint width, height;
+  GLubyte* pixels = 0;
+
+  // 获得纹理的大小信息 
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+
+  // 分配空间并获得纹理像素 
+  pixels = (GLubyte*)malloc(width * height * 4);
+  if (pixels == 0)
+    return;
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
+
+  // 修改像素中的 Alpha 值 
+  // 其中 pixels[i*4], pixels[i*4+1], pixels[i*4+2], pixels[i*4+3] 
+  //   分别表示第 i 个像素的蓝、绿、红、Alpha 四种分量，0 表示最小，255 表示最大 
+  {
+    GLint i;
+    GLint count = width * height;
+    for (i = 0; i < count; ++i)
+    {
+      if (abs(pixels[i * 4] - b) <= absolute
+        && abs(pixels[i * 4 + 1] - g) <= absolute
+        && abs(pixels[i * 4 + 2] - r) <= absolute)
+        pixels[i * 4 + 3] = 0;
+      else
+        pixels[i * 4 + 3] = 255;
+    }
+  }
+
+  // 将修改后的像素重新设置到纹理中，释放内存 
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+    GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
+  free(pixels);
+}
+void myDisplay(void)
+{
+  static int initialized = 0;
+  static GLuint texWindow = 0;
+  static GLuint texPicture = 0;
+
+  // 执行初始化操作，包括：读取相片，读取相框，将相框由 BGR 颜色转换为 BGRA，启用二维纹理 
+  if (!initialized)
+  {
+    texPicture = load_texture("pic.bmp");
+    texWindow = load_texture("window.bmp");
+    glBindTexture(GL_TEXTURE_2D, texWindow);
+    texture_colorkey(255, 255, 255, 10);
+
+    glEnable(GL_TEXTURE_2D);
+
+    initialized = 1;
+  }
+
+  // 清除屏幕 
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  // 绘制相片，此时不需要进行 Alpha 测试，所有的像素都进行绘制 
+  glBindTexture(GL_TEXTURE_2D, texPicture);
+  glDisable(GL_ALPHA_TEST);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0);     glVertex2f(-1.0f, -1.0f);
+  glTexCoord2f(0, 1);     glVertex2f(-1.0f, 1.0f);
+  glTexCoord2f(1, 1);     glVertex2f(1.0f, 1.0f);
+  glTexCoord2f(1, 0);     glVertex2f(1.0f, -1.0f);
+  glEnd();
+
+  // 绘制相框，此时进行 Alpha 测试，只绘制不透明部分的像素 
+  glBindTexture(GL_TEXTURE_2D, texWindow);
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_GREATER, 0.5f);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0);     glVertex2f(-1.0f, -1.0f);
+  glTexCoord2f(0, 1);     glVertex2f(-1.0f, 1.0f);
+  glTexCoord2f(1, 1);     glVertex2f(1.0f, 1.0f);
+  glTexCoord2f(1, 0);     glVertex2f(1.0f, -1.0f);
+  glEnd();
+
+  // 交换缓冲 
+  glutSwapBuffers();
+}
+
+#elif SUB== 20
+/*模板测试是所有 OpenGL 测试中比较复杂的一种。 
+ 
+首先，模板测试需要一个模板缓冲区，这个缓冲区是在初始化 OpenGL 时指定的。如果使用 GLUT 工具包，
+可以在调用 glutInitDisplayMode 函数时在参数中加上 GLUT_STENCIL，例如： 
+glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_STENCIL); 
+ 
+在 Windows 操作系统中，即使没有明确要求使用模板缓冲区，有时候也会分配模板缓冲区。但为了保证程
+序的通用性，最好还是明确指定使用模板缓冲区。如果确实没有分配模板缓冲区，则所有进行模板测试的
+像素全部都会通过测试。 
+ 
+通过 glEnable/glDisable 可以启用或禁用模板测试。 
+glEnable(GL_STENCIL_TEST);  // 启用模板测试 
+glDisable(GL_STENCIL_TEST); // 禁用模板测试 
+
+从前面所讲可以知道，使用剪裁测试可以把绘制区域限制在一个矩形的区域内。但如果需要把绘 制区域限制在一个不规则的区域内，则需要使用模板测试。
+例如：绘制一个湖泊，以及周围的树木，然后绘制树木在湖泊中的倒影。为了保证倒影被正确的 限制在湖泊表面，可以使用模板测试。
+具体的步骤如下： (1) 关闭模板测试，绘制地面和树木。 (2) 开启模板测试，使用 glClear 设置所有像素的模板值为 0。 
+(3) 设置glStencilFunc(GL_ALWAYS, 1, 1); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);绘制 湖泊水面。这样一来，湖泊水面的像素的“模板值”为 1，而其它地方像素的“模板值”为 0。
+(4) 设置 glStencilFunc(GL_EQUAL, 1, 1); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);绘制倒影。 这样一来，只有“模板值”为 1 的像素才会被绘制，因此只有“水面”的像素才有可能被倒影的像素 替换，而其它像素则保持不变。
+另外需要注意的地方就是：因为是绘制三维的场景，我们开启了深度测试。但是站在观察者的位置，球体
+的镜像其实是在平面镜的“背后”，也就是说，如果按照常规的方式绘制，平面镜会把镜像覆盖掉，这不是
+我们想要的效果。解决办法就是：设置深度缓冲区为只读，绘制平面镜，然后设置深度缓冲区为可写的状
+态，绘制平面镜“背后”的镜像。
+*/
+void draw_sphere()
+{
+  // 设置光源 
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  {
+    GLfloat
+      pos[] = { 5.0f, 5.0f, 0.0f, 1.0f },
+      ambient[] = { 0.0f, 0.0f, 1.0f, 1.0f };
+    glLightfv(GL_LIGHT0, GL_POSITION, pos);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+  }
+
+  // 绘制一个球体 
+  glColor3f(1, 0, 0);
+  glPushMatrix();
+  glTranslatef(0, 0, 2);
+  glutSolidSphere(0.5, 20, 20);
+  glPopMatrix();
+}
+
+void myDisplay(void)
+{
+  // 清除屏幕 
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // 设置观察点 
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(60, 1, 5, 25);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  gluLookAt(5, 0, 6.5, 0, 0, 0, 0, 1, 0);
+
+  glEnable(GL_DEPTH_TEST);
+
+  // 绘制球体 
+  glDisable(GL_STENCIL_TEST);
+  draw_sphere();
+
+  // 绘制一个平面镜。在绘制的同时注意设置模板缓冲。 
+  // 另外，为了保证平面镜之后的镜像能够正确绘制，在绘制平面镜时需要将深度缓冲区设置为只读的。 
+  // 在绘制时暂时关闭光照效果 
+  glClearStencil(0);
+  glClear(GL_STENCIL_BUFFER_BIT);
+  glStencilFunc(GL_ALWAYS, 1, 0xFF);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glEnable(GL_STENCIL_TEST);
+
+
+  glDisable(GL_LIGHTING);
+  glColor3f(0.5f, 0.5f, 0.5f);
+  glDepthMask(GL_FALSE);
+  glRectf(-1.5f, -1.5f, 1.5f, 1.5f);
+  glDepthMask(GL_TRUE);
+
+  // 绘制一个与先前球体关于平面镜对称的球体，注意光源的位置也要发生对称改变 
+  // 因为平面镜是在 X 轴和 Y轴所确定的平面，所以只要 Z 坐标取反即可实现对称 
+  // 为了保证球体的绘制范围被限制在平面镜内部，使用模板测试 
+  glStencilFunc(GL_EQUAL, 1, 0xFF);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glScalef(1.0f, 1.0f, -1.0f);
+  draw_sphere();
+
+  // 交换缓冲 
+  glutSwapBuffers();
+
+  // 截图 
+  //grab();
+}
+
+
 #endif
 
-int main1(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   glutInit(&argc, argv);
   //GLUT_SINGLE单缓存， GLUT_DOUBLE 双缓存（此时需要在绘制完成时使用glutSwapBuffers 交换缓冲区）
@@ -1066,7 +1293,7 @@ int main1(int argc, char* argv[])
   glutInitWindowPosition(100, 100);
   glutInitWindowSize(WIDTH, HEIGHT);
   glutCreateWindow("test ");
-  //glutDisplayFunc(&myDisplay);
+  glutDisplayFunc(&myDisplay);
 
   //glutIdleFunc(&myIdle);//glutIdleFunc  表示cpu空闲时做某事
 
