@@ -460,9 +460,6 @@ BOOL CBERDlg::SYSInit()
 	siSysInfo.dwActiveProcessorMask); 
 	TEMP+=TEMP2;
 	AfxMessageBox(TEMP);*/
-	gTrdCom=AfxBeginThread(ComMsg, NULL , THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
-	gTrdCom->m_bAutoDelete = TRUE;
-	gTrdCom->ResumeThread();
 
 	g_pCpk = new CCpkLib(gstuPathInf.csPathExe);
 
@@ -608,6 +605,11 @@ BOOL CBERDlg::DBGInit()
 	{
 		//SetTimer(READ_COM, 10, NULL);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_COM,l_int);//将打开com的语句放sysinit会出错，原因是device的tab页面在dbginit中初始化，而在sys中还没有，导致找不到页面
+
+
+    //gTrdCom = AfxBeginThread(ComMsg, NULL, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+    //gTrdCom->m_bAutoDelete = TRUE;
+    //gTrdCom->ResumeThread();
 	}
 	//ini文件初始化或读取
 	CString strValue;

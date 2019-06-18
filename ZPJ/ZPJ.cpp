@@ -864,21 +864,33 @@ UINT ComMsg(LPVOID pParam)
 	while(gclsCom.m_struct_com.hd!=INVALID_HANDLE_VALUE)
 	{//在ontimer中会与按钮冲突
     com_recv_len = gclsCom.RecvCharFromCom(com_recv_buf, COM_BUF_LEN, &crc, 5);
-    if (com_recv_len > 0 && crc)
+    if (com_recv_len > 0)
     {
-      gstuRefresh.bComUpdate = 1;
-      //打印到str
-      CString tmp;
-      tmp = "\r\n";
-      gclsCom.stuInf.str += tmp;
-      for (UINT j = 0; j < com_recv_len; j++)
-      {
-        tmp.Format(_T("%02X"), (UCHAR)com_recv_buf[j]);
+      if (crc) {
+        //打印到str
+        CString tmp;
+        tmp = "\r\n";
         gclsCom.stuInf.str += tmp;
+        for (UINT j = 0; j < com_recv_len; j++)
+        {
+          tmp.Format(_T("%02X"), (UCHAR)com_recv_buf[j]);
+          gclsCom.stuInf.str += tmp;
+        }
       }
-      if (gclsCom.stuInf.str.GetLength() > 1000) {
+      else {
+
+        gclsCom.stuInf.str += "\r\n";
+        gclsCom.stuInf.str += com_recv_buf;
+        gclsCom.stuInf.str += "\0";
+      }
+
+
+
+      if (gclsCom.stuInf.str.GetLength() > 1000) 
+      {
         gclsCom.stuInf.str = gclsCom.stuInf.str.Right(500);
       }
+      gstuRefresh.bComUpdate = 1;
     }
 			
 		Sleep(10);

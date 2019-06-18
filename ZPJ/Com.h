@@ -1,4 +1,7 @@
 #pragma once
+
+
+
 typedef struct ComStruct
 {
   HANDLE hd;				//´®¿Ú¾ä±ú
@@ -40,6 +43,8 @@ public:
 public:
   int AutoOpen(const char* sbuf, int slen, char* rbuf, int rlen, bool* crc = NULL, int timeout = 10);
   int SendAndRecv(const char* sbuf, int slen, char* rbuf, int rlen, bool* crc = NULL, int rTimeout = 10);
+  INT32 WriteVar(UINT32 no, INT32 val);
+  INT32 ReadVar(UINT32 no, INT32& val);
 };
 
 extern CCom gclsCom;

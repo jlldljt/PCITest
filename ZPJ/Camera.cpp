@@ -389,21 +389,23 @@ void CCamera::OnStnClickedPreview()
 	{
 		return;
 	}
-	int xt,yt;
+  double xt,yt;
 	POINT pt;//定义点
 	GetCursorPos(&pt);//取得当前坐标
 	CRect lRect;
 	GetDlgItem(IDC_PREVIEW)->GetWindowRect(&lRect);
-	int temp_x=pt.x-lRect.left;
-	int temp_y=pt.y-lRect.top;
-	xt=(int)(temp_x*gclsImgRcg.g_stu_square.nBMPW/(lRect.Width()));//点击的坐标对应在图像上的x点
-	yt=(int)(temp_y*gclsImgRcg.g_stu_square.nBMPH/(lRect.Height()));//点击的坐标对应在图像上的y点
+	double temp_x=pt.x-lRect.left;
+  double temp_y=pt.y-lRect.top;
+	xt=/*(int)*/(temp_x*gclsImgRcg.g_stu_square.nBMPW/(lRect.Width()));//点击的坐标对应在图像上的x点
+	yt=/*(int)*/(temp_y*gclsImgRcg.g_stu_square.nBMPH/(lRect.Height()));//点击的坐标对应在图像上的y点
 	//if(!m_RadioCircle && m_RadioSquare)
 	{
 		//if(avg1.empty()){AfxMessageBox(_T("没有定位坐标，请定位"));return;}
 
 		int temp=0;
-		for(int i=0;i<gclsImgRcg.g_stu_square.nN;i++)
+    int i;
+
+		for(i=0;i<gclsImgRcg.g_stu_square.nN;i++)
 		{
 
 			if(sqrt(pow(double(gclsImgRcg.g_stu_square.pnZPX[i]-xt),2)+pow(double(gclsImgRcg.g_stu_square.pnZPY[i]-yt),2))<((gclsImgRcg.g_stu_square.pnWth[i])>>1)) //点击位置离片的粗略中心相距小于s_sort.allowable_devision，这么做主要可以当点不准时设置调节
@@ -476,28 +478,67 @@ void CCamera::OnStnClickedPreview()
 				gclsImgRcg.stuRef.Dev=gstuRcgInfo.nAllowDefect;
 				gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][0]=gclsImgRcg.g_stu_square.pnZPX[i]; gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][1]=gclsImgRcg.g_stu_square.pnZPY[i];//xy保存的是一样的东西，相同位置，相同xy，是否可以用一个？不可以，0,1是图像x，y；2是固定1；3是电机步数
 				gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][0]=gclsImgRcg.g_stu_square.pnZPX[i]; gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][1]=gclsImgRcg.g_stu_square.pnZPY[i];
-				int X=gstuRcgInfo.g_factor[0][0]*(double)gclsImgRcg.g_stu_square.pnZPX[i]+gstuRcgInfo.g_factor[0][1]*(double)gclsImgRcg.g_stu_square.pnZPY[i]+gstuRcgInfo.g_factor[0][2];
-				int Y=gstuRcgInfo.g_factor[1][0]*(double)gclsImgRcg.g_stu_square.pnZPX[i]+gstuRcgInfo.g_factor[1][1]*(double)gclsImgRcg.g_stu_square.pnZPY[i]+gstuRcgInfo.g_factor[1][2];
+        int X = gclsImgRcg.g_stu_square.pnZPX[i] + 0.5;
+        int Y = gclsImgRcg.g_stu_square.pnZPY[i] + 0.5;
+/*
+        int X = gstuRcgInfo.g_factor[0][0] * (double)gclsImgRcg.g_stu_square.pnZPX[i] + gstuRcgInfo.g_factor[0][1] * (double)gclsImgRcg.g_stu_square.pnZPY[i] + gstuRcgInfo.g_factor[0][2];
+        int Y = gstuRcgInfo.g_factor[1][0] * (double)gclsImgRcg.g_stu_square.pnZPX[i] + gstuRcgInfo.g_factor[1][1] * (double)gclsImgRcg.g_stu_square.pnZPY[i] + gstuRcgInfo.g_factor[1][2];*/
 				CString csTmp;
 				csTmp.Format(_T("X:%d	Y:%dX"),X,Y);
 				GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
 				gstuRcgInfo.bClbPos=1;
 				break;
-			}
+      }
 
 		}
-		
+
+      if(i == gclsImgRcg.g_stu_square.nN) {
+      CWnd* pWnd = GetDlgItem(IDC_PREVIEW);
+      CDC* pDC = pWnd->GetDC();
+      CRect rect;
+      GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
+      CPen PenRed;
+      PenRed.CreatePen(PS_SOLID, 1, RGB(0, 255, 0));//创建一支的画笔.
+      pDC->SelectObject(PenRed);//选中画笔.
+      pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
+      POINT point;//定义点
+      point.x = temp_x - 10 + 0.5;
+      point.y = temp_y + 0.5;
+      pDC->MoveTo(point);
+      point.x = temp_x + 10 + 0.5;
+      pDC->LineTo(point);
+      //
+      point.x = temp_x + 0.5;
+      point.y = temp_y - 10 + 0.5;
+      pDC->MoveTo(point);
+      point.y = temp_y + 10 + 0.5;
+      pDC->LineTo(point);
+
+      pWnd->ReleaseDC(pDC);
+      /////////////////////
+      CString csTmp;
+      csTmp.Format(_T("长 宽 角度"));
+      GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
+
+      int X = xt + 0.5;
+      int Y = yt + 0.5;
+
+      csTmp.Format(_T("X:%d	Y:%dX"), X, Y);
+      GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
+      }
 		return;
 	}
 }
 
-
+#include "DlgPriview.h"
 void CCamera::OnBnClickedBtnCalibration()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	gTrdClb=AfxBeginThread(CalibrationThread , NULL , THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
-	gTrdClb->m_bAutoDelete = TRUE;
-	gTrdClb->ResumeThread();
+	//gTrdClb=AfxBeginThread(CalibrationThread , NULL , THREAD_PRIORITY_NORMAL , 0 , CREATE_SUSPENDED);
+	//gTrdClb->m_bAutoDelete = TRUE;
+	//gTrdClb->ResumeThread();
+  CDlgPriview dlg;
+  dlg.DoModal();
 }
 
 

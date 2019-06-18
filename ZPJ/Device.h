@@ -3,6 +3,13 @@
 #include "afxwin.h"
 
 
+enum DEF_VAR {
+  VAR_X = 0,
+  VAR_Y = 1,
+  VAR_STATUS = 2
+};
+
+
 // CDevice ¶Ô»°¿ò
 
 class CDevice : public CDialogEx
@@ -25,7 +32,9 @@ public:
 	void PosSet(char num , char num1 , int value);
 	void AlarmCtrl(bool ctrl);
 	void XYPosSet(char num , int valuex , int valuey);
-	void XYSend(int valuex , int valuey);
+	int XYSend(int valuex , int valuey);
+  int StatusGet(int& status);
+  int StatusSet(int status);
 	void SortSend(char num);
 	bool EasyPosSet();
 	void EFGStaSel(char nN);
@@ -58,7 +67,7 @@ public:
 	afx_msg void OnBnClickedBtnXym();
 	afx_msg void OnBnClickedBtnEfgtest();
 	afx_msg void OnBnClickedBtnEfgdyn();
-	afx_msg void OnBnClickedBtnEfgstart();
+//	afx_msg void OnBnClickedBtnEfgstart();
 	afx_msg void OnBnClickedChkXymh();
 	afx_msg void OnBnClickedChkInmh();
 	afx_msg void OnBnClickedChkOutmh();
@@ -95,11 +104,12 @@ public:
 	afx_msg void OnBnClickedBtnClbpos3test();
 	afx_msg void OnCbnSelchangeCmbEfgstasel();
 	CComboBox m_cmb_efgstasel;
-	afx_msg void OnBnClickedBtnOpenefg();
-	afx_msg void OnBnClickedBtnCloseefg();
+//	afx_msg void OnBnClickedBtnOpenefg();
+//	afx_msg void OnBnClickedBtnCloseefg();
 	afx_msg void OnBnClickedBtnStmresta();
 	afx_msg void OnBnClickedBtnSnchgset();
 	afx_msg void OnBnClickedBtnSnchgtest();
 	afx_msg void OnBnClickedBtnSnchgm();
+  afx_msg void OnEnChangeEdtSnchgx();
 };
 extern CDevice *g_dlgDevice;

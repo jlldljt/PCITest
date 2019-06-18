@@ -40,6 +40,9 @@
     <None Include="res\ZPJ.rc2">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="res\BER.ico">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -186,6 +189,9 @@
     <ClInclude Include="ZPJDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DlgPriview.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -198,9 +204,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Screen.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Device.cpp">
@@ -219,9 +222,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Picture.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Iiic.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DlgMsg.cpp">
@@ -303,6 +303,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ZPJDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Iiic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgPriview.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

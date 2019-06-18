@@ -52,7 +52,7 @@ BEGIN_MESSAGE_MAP(CDevice, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_XYM, &CDevice::OnBnClickedBtnXym)
 	ON_BN_CLICKED(IDC_BTN_EFGTEST, &CDevice::OnBnClickedBtnEfgtest)
 	ON_BN_CLICKED(IDC_BTN_EFGDYN, &CDevice::OnBnClickedBtnEfgdyn)
-	ON_BN_CLICKED(IDC_BTN_EFGSTART, &CDevice::OnBnClickedBtnEfgstart)
+//	ON_BN_CLICKED(IDC_BTN_EFGSTART, &CDevice::OnBnClickedBtnEfgstart)
 	ON_BN_CLICKED(IDC_CHK_XYMH, &CDevice::OnBnClickedChkXymh)
 	ON_BN_CLICKED(IDC_CHK_INMH, &CDevice::OnBnClickedChkInmh)
 	ON_BN_CLICKED(IDC_CHK_OUTMH, &CDevice::OnBnClickedChkOutmh)
@@ -88,12 +88,13 @@ BEGIN_MESSAGE_MAP(CDevice, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_CLBPOS2TEST, &CDevice::OnBnClickedBtnClbpos2test)
 	ON_BN_CLICKED(IDC_BTN_CLBPOS3TEST, &CDevice::OnBnClickedBtnClbpos3test)
 	ON_CBN_SELCHANGE(IDC_CMB_EFGSTASEL, &CDevice::OnCbnSelchangeCmbEfgstasel)
-	ON_BN_CLICKED(IDC_BTN_OPENEFG, &CDevice::OnBnClickedBtnOpenefg)
-	ON_BN_CLICKED(IDC_BTN_CLOSEEFG, &CDevice::OnBnClickedBtnCloseefg)
+//	ON_BN_CLICKED(IDC_BTN_OPENEFG, &CDevice::OnBnClickedBtnOpenefg)
+//	ON_BN_CLICKED(IDC_BTN_CLOSEEFG, &CDevice::OnBnClickedBtnCloseefg)
 	ON_BN_CLICKED(IDC_BTN_STMRESTA, &CDevice::OnBnClickedBtnStmresta)
 	ON_BN_CLICKED(IDC_BTN_SNCHGSET, &CDevice::OnBnClickedBtnSnchgset)
 	ON_BN_CLICKED(IDC_BTN_SNCHGTEST, &CDevice::OnBnClickedBtnSnchgtest)
 	ON_BN_CLICKED(IDC_BTN_SNCHGM, &CDevice::OnBnClickedBtnSnchgm)
+  ON_EN_CHANGE(IDC_EDT_SNCHGX, &CDevice::OnEnChangeEdtSnchgx)
 END_MESSAGE_MAP()
 
 
@@ -493,20 +494,37 @@ void CDevice::XYPosSet(char num , int valuex , int valuey)
 }
 
 //XY坐标发送；
-void CDevice::XYSend(int valuex , int valuey)
+int CDevice::XYSend(int valuex , int valuey)
 {
-	if(valuex<0 ||valuey<0)
-		AfxMessageBox(_T("xy坐标出现负数"));
-	gstuRun.chCmd[0]='W';
-	gstuRun.chCmd[1]=char(valuex>>16);
-	gstuRun.chCmd[2]=char(valuex>>8);
-	gstuRun.chCmd[3]=char(valuex);
-	gstuRun.chCmd[4]=char(valuey>>16);						//步长高位
-	gstuRun.chCmd[5]=char(valuey>>8);						//步长中位
-	gstuRun.chCmd[6]=char(valuey);							//步长低位
+	//if(valuex<0 ||valuey<0)
+	//	AfxMessageBox(_T("xy坐标出现负数"));
+	//gstuRun.chCmd[0]='W';
+	//gstuRun.chCmd[1]=char(valuex>>16);
+	//gstuRun.chCmd[2]=char(valuex>>8);
+	//gstuRun.chCmd[3]=char(valuex);
+	//gstuRun.chCmd[4]=char(valuey>>16);						//步长高位
+	//gstuRun.chCmd[5]=char(valuey>>8);						//步长中位
+	//gstuRun.chCmd[6]=char(valuey);							//步长低位
 
 
-	gclsCom.SendCharToCom(gstuRun.chCmd,1);
+	//gclsCom.SendCharToCom(gstuRun.chCmd,1);
+
+  int x = gclsCom.WriteVar(VAR_X, valuex);
+
+  int y = gclsCom.WriteVar(VAR_Y, valuey);
+
+  if (x || y)
+    return -1;
+  else
+    return 0;
+}
+int  CDevice::StatusGet(int &status)
+{
+  return gclsCom.ReadVar(VAR_STATUS, status);
+}
+int CDevice::StatusSet(int status)
+{
+  return gclsCom.WriteVar(VAR_STATUS, status);
 }
 
 //档位发送；
@@ -816,10 +834,25 @@ void CDevice::OnBnClickedBtnXym()
 		AfxMessageBox(_T("error Y number"));
 		return;
 	}
-	if(1)
+	/*if(1)
 		XYMove(nValueX,nValueY);
 	else
-		XYSend(nValueX,nValueY);
+		XYSend(nValueX,nValueY);*/
+
+  int status;
+  StatusGet(status);
+  if (status != 0) {
+    AfxMessageBox(_T("status is not ready"));
+  } 
+  else {
+    XYSend(nValueX, nValueY);
+    StatusSet(1);
+  }
+
+
+
+
+
 }
 
 
@@ -827,54 +860,37 @@ void CDevice::OnBnClickedBtnXym()
 void CDevice::OnBnClickedBtnEfgtest()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	
-	gstuRun.chStmCmd &= ~(1<<0);
-	EFGCtrl(1);
-#ifndef DEBUG_COM
-	while(! (gstuRun.chStmCmd & (1<<0)))
-	{
-		Sleep(1);
-	}
-#endif
-	AfxMessageBox(_T("收发完成"));
+  int no = GetDlgItemInt(IDC_EDT_DYNNUM);
+  int val = GetDlgItemInt(IDC_EDT_SNCHGX);
+  gclsCom.WriteVar(no, val);
+
+
 }
 
 
 void CDevice::OnBnClickedBtnEfgdyn()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_DYNNUM,&bFlag,0);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error number"));
-		return;
-	}
-	for(int i=0;i<nValue ; i++)
-	{
-	gstuRun.chStmCmd &= ~(1<<0);
-	EFGCtrl(1);
-#ifndef DEBUG_COM
-	while(! (gstuRun.chStmCmd & (1<<0)))
-	{
-		Sleep(1);
-	}
-#endif
-	}
-	AfxMessageBox(_T("动态检测完成"));
+
+  int no = GetDlgItemInt(IDC_EDT_DYNNUM);
+  int val = GetDlgItemInt(IDC_EDT_SNCHGX);
+  gclsCom.ReadVar(no, val);
+
+  SetDlgItemInt(IDC_EDT_SNCHGX, val);
+	
 }
 
 
-void CDevice::OnBnClickedBtnEfgstart()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	EFGCtrl(1);
-	for(int i = 0;i<5;i++)
-		{
-		g_dlgDevice->EFGCtrl(true);
-		Sleep(100);
-		}
-}
+//void CDevice::OnBnClickedBtnEfgstart()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//	EFGCtrl(1);
+//	for(int i = 0;i<5;i++)
+//		{
+//		g_dlgDevice->EFGCtrl(true);
+//		Sleep(100);
+//		}
+//}
 
 
 void CDevice::OnBnClickedChkXymh()
@@ -1419,7 +1435,7 @@ void CDevice::OnBnClickedBtnCom()
 	gclsCom.OpenCom(l_int);
 	if (gclsCom.stuInf.bComOpen)
 	{
-		AfxMessageBox(_T("打开COM"));
+		AfxMessageBox(_T("打开COM，请重启"));
 		WritePrivateProfileString(_T("COM"),_T("口号"),l_str,gstuPathInf.csPathIni);  
 	}
 	
@@ -1624,20 +1640,20 @@ void CDevice::OnCbnSelchangeCmbEfgstasel()
 }
 
 
-void CDevice::OnBnClickedBtnOpenefg()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	EFGCut(false);
-	//TimeRecord(1,1);
-}
+//void CDevice::OnBnClickedBtnOpenefg()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//	EFGCut(false);
+//	//TimeRecord(1,1);
+//}
 
 
-void CDevice::OnBnClickedBtnCloseefg()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	EFGCut(true);
-	//TimeRecord(1,0);
-}
+//void CDevice::OnBnClickedBtnCloseefg()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//	EFGCut(true);
+//	//TimeRecord(1,0);
+//}
 
 
 void CDevice::OnBnClickedBtnStmresta()
@@ -1709,4 +1725,15 @@ void CDevice::OnBnClickedBtnSnchgm()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	XYMove(gstuRcgInfo.nSNCHGX,gstuRcgInfo.nSNCHGY);
+}
+
+
+void CDevice::OnEnChangeEdtSnchgx()
+{
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+  // TODO:  在此添加控件通知处理程序代码
 }
