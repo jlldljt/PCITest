@@ -1,7 +1,8 @@
 #include "StdAfx.h"
+#include "ZPJ.h"
 #include "Com.h"
 
-UINT8 g_npc_id = 0x01;
+//UINT8 g_npc_id = 0x01;
 
 CCom gclsCom;
 
@@ -491,13 +492,13 @@ INT32 CCom::WriteVar(UINT32 no , INT32 val) {
   UINT8  recvLen = 0;
   bool crc = true;
 
-  WriteMultiRegisterCmd(g_npc_id, no<<1, 2, (UINT8*)& reg, &cmdBuf, &cmdLen);
+  WriteMultiRegisterCmd(NPC_ID, no<<1, 2, (UINT8*)& reg, &cmdBuf, &cmdLen);
   ASSERT(cmdBuf);
   recvLen=SendAndRecv((char*)cmdBuf, cmdLen, (char*)recvBuf, 30, &crc);
 
   delete cmdBuf;
 
-  if (1 == crc && g_npc_id == recvBuf[0] && 0x80 > recvBuf[1]) {
+  if (1 == crc && NPC_ID == recvBuf[0] && 0x80 > recvBuf[1]) {
     return 0;
   }
   else {
@@ -528,7 +529,7 @@ void ReadRegisterCmd(UINT8 dev, UINT16 addr, UINT16 num,
 #define ENDIAN_TF16U(A)    ((((UINT16)(A) & 0xff00) >> 8) | \
                               (((UINT16)(A) & 0x00ff) << 8))
 
-INT32 ReadRegReqToVar(UINT8* buf, UINT8 len, UINT8 reg, INT32 &var) {//»ñÈ¡Î»×´Ì¬
+INT32 ReadRegReqToVar(UINT8* buf, UINT8 len, UINT8 reg, INT32 *var) {//»ñÈ¡Î»×´Ì¬
   UINT8 fc = buf[1];
   UINT8 numCh = buf[2];
   UINT16* p_reg = (UINT16*)(buf + 3);
@@ -541,18 +542,17 @@ INT32 ReadRegReqToVar(UINT8* buf, UINT8 len, UINT8 reg, INT32 &var) {//»ñÈ¡Î»×´Ì
   if (numCh == 4)
   {
     num = ((ENDIAN_TF16U(p_reg[reg + 1])) << 16) | ENDIAN_TF16U(p_reg[reg]);
+    *var = num;
   }
   else if (numCh == 2)
   {
     num = ENDIAN_TF16U(p_reg[reg]);
+    *var = num;
   }
-  else // ÓÐÐ©Éè±¸»á»Ø¸´numCH = 0
+  else if (numCh % 4 == 0)// ÓÐÐ©Éè±¸»á»Ø¸´numCH = 0
   {
-    return 0;
+    memcpy(var, Endian_TF((UINT8*)p_reg, numCh, 2), numCh);
   }
-
-  var = num;
-
 
   return 0;
 }
@@ -567,15 +567,15 @@ INT32 CCom::ReadVar(UINT32 no, INT32 &val) {
   UINT8  recvLen = 0;
   bool crc = true;
 
-  ReadRegisterCmd(g_npc_id, no << 1, 2,  &cmdBuf, &cmdLen);
+  ReadRegisterCmd(NPC_ID, no << 1, 2,  &cmdBuf, &cmdLen);
   ASSERT(cmdBuf);
   recvLen = SendAndRecv((char*)cmdBuf, cmdLen, (char*)recvBuf, 30, &crc);
 
   delete cmdBuf;
 
 
-  if (1 == crc && g_npc_id == recvBuf[0] && 0x03 == recvBuf[1]) {
-    if(0 == ReadRegReqToVar(recvBuf, recvLen, 0, val))
+  if (1 == crc && NPC_ID == recvBuf[0] && 0x03 == recvBuf[1]) {
+    if(0 == ReadRegReqToVar(recvBuf, recvLen, 0, &val))
       return 0;
     else
       return -1;
@@ -584,4 +584,38 @@ INT32 CCom::ReadVar(UINT32 no, INT32 &val) {
     return -1;
   }
 
+}
+
+
+//no 0->1
+INT32 CCom::ReadVars(UINT32 no, UINT32 num, INT32* var) {
+  UINT8* cmdBuf = NULL;
+  UINT8  cmdLen = 0;
+  //UINT32  reg = val;
+  UINT8  *recvBuf = NULL;
+  UINT8  recvLen = 0;
+  bool crc = true;
+
+  ASSERT(var);
+  recvBuf = new UINT8[(num<<2)+10];
+
+  ReadRegisterCmd(NPC_ID, no << 1, num << 1, &cmdBuf, &cmdLen);
+  ASSERT(cmdBuf);
+  recvLen = SendAndRecv((char*)cmdBuf, cmdLen, (char*)recvBuf, (num << 2) + 10, &crc);
+  delete cmdBuf;
+
+  INT32 ret = 0;
+
+  if (1 == crc && NPC_ID == recvBuf[0] && 0x03 == recvBuf[1]) {
+    if (0 == ReadRegReqToVar(recvBuf, recvLen, 0, var))
+      ret = 0;
+    else
+      ret = -1;
+  }
+  else {
+    ret = -1;
+  }
+
+  delete recvBuf;
+  return ret;
 }

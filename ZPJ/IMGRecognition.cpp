@@ -3187,16 +3187,20 @@ int  CIMGRecognition::IsPositiveOrNegative(double a, double b, double c, int beg
   return bPositive;
 }
 
-// 回复带符号的角度，1>2 cw +   1>2 ccw -1
+
+// 回复带符号的角度，1>2 cw +  1>2 ccw -//由于图像坐标与实际上下颠倒，需要加负号
+// 改成都是 ccw的角度 0 - 360°
 double CIMGRecognition::CalculateVectorAngle(double x1, double y1, double x2, double y2)
 {
   //acos return radian,we should transform it into degree  
   double angle;// = acos((x1 * x2 + y1 * y2) / sqrt((x1 * x1 + y1 * y1) * (x2 * x2 + y2 * y2) * 1.0)) * 180 / 3.14;
-   vector v1 = { x1, y1 }, v2 = { x2, y2 };
+  int cw;
+  vector v1 = { x1, y1 }, v2 = { x2, y2 };
 
-   angle = VectorAngle(v1, v2)*VectorCW(v1, v2);
-//由于图像坐标与实际上下颠倒，需要加负号
-   return -angle;
+  angle = VectorAngle(v1, v2);
+  cw = VectorCW(v1, v2);
+   //return angle*cw;
+  return cw < 0 ? angle : 360-angle;
 }
 //-1未识别
 //debug识别中生成可查看的bmp图，以及完整识别
@@ -5487,8 +5491,14 @@ int CIMGRecognition::RCGBMPDATASPLIT(CDC * pDC, CRect rect, unsigned char*& pBmp
 double CIMGRecognition::VectorAngle(vector v1, vector v2)
 {
   //acos return radian,we should transform it into degree  
-  return acos((v1.x * v2.x + v1.y * v2.y) / sqrt((v1.x * v1.x + v1.y * v1.y) * (v2.x * v2.x + v2.y * v2.y))) * 180 / gd_PI;//计算角度
-
+  double angle =  acos((v1.x * v2.x + v1.y * v2.y) / sqrt((v1.x * v1.x + v1.y * v1.y) * (v2.x * v2.x + v2.y * v2.y))) * 180 / gd_PI;//计算角度
+  //if (angle == 0) {
+  //  double pn = v1.x / v2.x;
+  //  if (pn < 0) {
+  //    angle = 180.0;
+  //  }
+  //}
+  return angle;
 }
 
 double CIMGRecognition::VectorRadian(vector v1, vector v2)
@@ -5514,7 +5524,7 @@ int CIMGRecognition::VectorCW(vector vf, vector vb)
   int cw;
 
   cw = vb.x * vf.y - vb.y * vf.x;//>0);?1:-1;
-  if (cw > 0)
+  if (cw >= 0)
     return 1;
   else if (cw < 0)
     return -1;

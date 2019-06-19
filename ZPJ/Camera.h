@@ -25,6 +25,11 @@ public:
 	afx_msg void OnBnClickedBtnSnap();
 	CComboBox m_cmbAWB;
 	CComboBox m_cmbBl;
+  //int m_clked_pos_x;//点击的转换到电机的x
+  //int m_clked_pos_y;//点击的转换到电机的y
+  //int m_clked_degree;//电机的片的角度
+  NpcParm m_par;
+
 	afx_msg void OnBnClickedBtnTest();
 	afx_msg void OnBnClickedBtnCamset();
 	virtual BOOL OnInitDialog();
@@ -43,5 +48,6 @@ public:
 	afx_msg void OnBnClickedChkDebug();
 	afx_msg void OnBnClickedBtnSplit();
 	afx_msg void OnBnClickedBtnReconnect();
+  afx_msg void OnBnClickedBtnParmsend();
 };
 extern CCamera *g_dlgCamera;

@@ -214,7 +214,7 @@ void CDevice::AxisMove(char num , int value , bool special)
 //xy轴联动，是坐标，正数
 void CDevice::XYMove(int xVal, int yVal)
 {
-	if(0 > xVal || 0 > yVal)
+	/*if(0 > xVal || 0 > yVal)
 		return;
 
 	gstuRun.chCmd[0]='U';
@@ -224,9 +224,37 @@ void CDevice::XYMove(int xVal, int yVal)
 	gstuRun.chCmd[4]=char(yVal>>16);							
 	gstuRun.chCmd[5]=char(yVal>>8);							
 	gstuRun.chCmd[6]=char(yVal);
-	gclsCom.SendCharToCom(gstuRun.chCmd,1);
-}
+	gclsCom.SendCharToCom(gstuRun.chCmd,1);*/
+  int status;
+  StatusGet(status);
+  if (status != 0) {
+    AfxMessageBox(_T("status is not ready"));
+  }
+  else {
+    XYSend(xVal, yVal);
+    StatusSet(1);
+  }
 
+
+}
+int CDevice::ParamMove(int x, int y, int degree,int pn)
+{
+
+  int status;
+  StatusGet(status);
+  if (status != 0) {
+    AfxMessageBox(_T("status is not ready"));
+    return -1;
+  }
+  else {
+    XYSend(x, y);
+    DegPNSend(degree, pn);
+    StatusSet(1);
+    return 0;
+  }
+
+
+}
 //STM流程初始化1，停止0,2暂停
 void CDevice::StmSE(bool se)
 {
@@ -518,6 +546,19 @@ int CDevice::XYSend(int valuex , int valuey)
   else
     return 0;
 }
+int CDevice::DegPNSend(int degree,int pn)
+{
+
+  int d = gclsCom.WriteVar(VAR_DEG, degree);
+
+  int p = gclsCom.WriteVar(VAR_PN, pn);
+
+  if (d || p)
+    return -1;
+  else
+    return 0;
+}
+
 int  CDevice::StatusGet(int &status)
 {
   return gclsCom.ReadVar(VAR_STATUS, status);
@@ -680,14 +721,35 @@ void CDevice::OnBnClickedBtnComclear()
 void CDevice::OnBnClickedBtnStminit()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	StmSE(1);
+	//StmSE(1);
+  if (!g_vars)
+    g_vars = new INT32[VAR_NUM];
+  else
+    return;
+
+  gclsCom.stuInf.str = "";
+  gclsCom.ReadVars(0, VAR_NUM, g_vars);
+
+  CString str;
+  for (int i = 0; i < VAR_NUM; i++) 
+  {
+    str.Format(_T("\r\n%d:%d"), i, g_vars[i]);
+    gclsCom.stuInf.str += str;
+  }
+
+  gstuRefresh.bComUpdate = 1;
+
+  delete g_vars;
+  g_vars = NULL;
+
+
 }
 
 
 void CDevice::OnBnClickedBtnStmstop()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	StmSE(0);
+	//StmSE(0);
 }
 
 
@@ -780,7 +842,7 @@ void CDevice::OnBnClickedBtnXz()
 void CDevice::OnBnClickedBtnYz()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	AxisMove(0x02,0,1);
+	//AxisMove(0x02,0,1);
 }
 
 void CDevice::OnBnClickedBtnChgz()
@@ -834,22 +896,34 @@ void CDevice::OnBnClickedBtnXym()
 		AfxMessageBox(_T("error Y number"));
 		return;
 	}
+  int nValueZ = GetDlgItemInt(IDC_EDT_CHG, &bFlag, 1);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error Z number"));
+    return;
+  }
+  int nValuePN = GetDlgItemInt(IDC_EDT_SORT, &bFlag, 1);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error pn number"));
+    return;
+  }
 	/*if(1)
 		XYMove(nValueX,nValueY);
 	else
 		XYSend(nValueX,nValueY);*/
 
-  int status;
-  StatusGet(status);
-  if (status != 0) {
-    AfxMessageBox(_T("status is not ready"));
-  } 
-  else {
-    XYSend(nValueX, nValueY);
-    StatusSet(1);
-  }
-
-
+  //int status;
+  //StatusGet(status);
+  //if (status != 0) {
+  //  AfxMessageBox(_T("status is not ready"));
+  //} 
+  //else {
+  //  XYSend(nValueX, nValueY);
+  //  StatusSet(1);
+  //}
+  //XYMove(nValueX, nValueY);
+  ParamMove(nValueX, nValueY, nValueZ, nValuePN);
 
 
 
@@ -896,16 +970,16 @@ void CDevice::OnBnClickedBtnEfgdyn()
 void CDevice::OnBnClickedChkXymh()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_XYMH);
-	int nStat = pChk->GetCheck();
-	if (nStat)
-	{
-		MHCtrl(0x01,1);
-	} 
-	else
-	{
-		MHCtrl(0x01,0);
-	}
+	//CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_XYMH);
+	//int nStat = pChk->GetCheck();
+	//if (nStat)
+	//{
+	//	MHCtrl(0x01,1);
+	//} 
+	//else
+	//{
+	//	MHCtrl(0x01,0);
+	//}
 }
 
 
@@ -960,16 +1034,16 @@ void CDevice::OnBnClickedChkSortmh()
 void CDevice::OnBnClickedChkXysn()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_XYSN);
-	int nStat = pChk->GetCheck();
-	if (nStat)
-	{
-		SNCtrl(0x01,1);
-	} 
-	else
-	{
-		SNCtrl(0x01,0);
-	}
+	//CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_XYSN);
+	//int nStat = pChk->GetCheck();
+	//if (nStat)
+	//{
+	//	SNCtrl(0x01,1);
+	//} 
+	//else
+	//{
+	//	SNCtrl(0x01,0);
+	//}
 }
 
 
@@ -1025,20 +1099,13 @@ void CDevice::OnBnClickedBtnXy1set()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	BOOL bFlag=0;
-	int nValueX = GetDlgItemInt(IDC_EDT_X,&bFlag,1);
+	int nValueX = GetDlgItemInt(IDC_EDT_XY1X,&bFlag,1);
 	if(0 == bFlag)
 	{
-		AfxMessageBox(_T("error X number"));
+		AfxMessageBox(_T("error number"));
 		return;
 	}
-	int nValueY = GetDlgItemInt(IDC_EDT_Y,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error Y number"));
-		return;
-	}
-	SetDlgItemInt(IDC_EDT_XY1X,nValueX,1);
-	SetDlgItemInt(IDC_EDT_XY1Y,nValueY,1);
+	
 	CString strValue = _T("");
 	CFileFind findini;
 	BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);  
@@ -1051,9 +1118,8 @@ void CDevice::OnBnClickedBtnXy1set()
 
 	strValue.Format(_T("%d"),nValueX);
 	WritePrivateProfileString(_T("取料中转"),_T("1X"),strValue,gstuPathInf.csPathIni); 
-	strValue.Format(_T("%d"),nValueY);
-	WritePrivateProfileString(_T("取料中转"),_T("1Y"),strValue,gstuPathInf.csPathIni); 
-	XYPosSet(1,nValueX,nValueY);
+  g_npc_inf.var_x1 = nValueX;
+
 }
 
 
@@ -1061,20 +1127,12 @@ void CDevice::OnBnClickedBtnXy2set()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	BOOL bFlag=0;
-	int nValueX = GetDlgItemInt(IDC_EDT_X,&bFlag,1);
+	int nValueX = GetDlgItemInt(IDC_EDT_XY2X,&bFlag,1);
 	if(0 == bFlag)
 	{
-		AfxMessageBox(_T("error X number"));
+		AfxMessageBox(_T("error number"));
 		return;
 	}
-	int nValueY = GetDlgItemInt(IDC_EDT_Y,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error Y number"));
-		return;
-	}
-	SetDlgItemInt(IDC_EDT_XY2X,nValueX,1);
-	SetDlgItemInt(IDC_EDT_XY2Y,nValueY,1);
 	CString strValue = _T("");
 	CFileFind findini;
 	BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);  
@@ -1087,9 +1145,8 @@ void CDevice::OnBnClickedBtnXy2set()
 
 	strValue.Format(_T("%d"),nValueX);
 	WritePrivateProfileString(_T("取料中转"),_T("2X"),strValue,gstuPathInf.csPathIni); 
-	strValue.Format(_T("%d"),nValueY);
-	WritePrivateProfileString(_T("取料中转"),_T("2Y"),strValue,gstuPathInf.csPathIni); 
-	XYPosSet(2,nValueX,nValueY);
+  g_npc_inf.var_x2 = nValueX;
+
 }
 
 
@@ -1097,20 +1154,12 @@ void CDevice::OnBnClickedBtnXy3set()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	BOOL bFlag=0;
-	int nValueX = GetDlgItemInt(IDC_EDT_X,&bFlag,1);
+	int nValueX = GetDlgItemInt(IDC_EDT_XY3X,&bFlag,1);
 	if(0 == bFlag)
 	{
-		AfxMessageBox(_T("error X number"));
+		AfxMessageBox(_T("error number"));
 		return;
 	}
-	int nValueY = GetDlgItemInt(IDC_EDT_Y,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error Y number"));
-		return;
-	}
-	SetDlgItemInt(IDC_EDT_XY3X,nValueX,1);
-	SetDlgItemInt(IDC_EDT_XY3Y,nValueY,1);
 	CString strValue = _T("");
 	CFileFind findini;
 	BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);  
@@ -1123,12 +1172,8 @@ void CDevice::OnBnClickedBtnXy3set()
 
 	strValue.Format(_T("%d"),nValueX);
 	WritePrivateProfileString(_T("取料中转"),_T("3X"),strValue,gstuPathInf.csPathIni); 
-	strValue.Format(_T("%d"),nValueY);
-	WritePrivateProfileString(_T("取料中转"),_T("3Y"),strValue,gstuPathInf.csPathIni); 
-	
-	
-	XYPosSet(3,nValueX,nValueY);
-	
+  g_npc_inf.var_x3 = nValueX;
+
 }
 
 
@@ -1136,13 +1181,12 @@ void CDevice::OnBnClickedBtnSortupset()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_CHG,&bFlag,1);
+	int nValue = GetDlgItemInt(IDC_EDT_SORTUP,&bFlag,1);
 	if(0 == bFlag)
 	{
 		AfxMessageBox(_T("error number"));
 		return;
 	}
-	SetDlgItemInt(IDC_EDT_SORTUP,nValue,1);
 	CString strValue = _T("");
 	CFileFind findini;
 	BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);  
@@ -1156,7 +1200,8 @@ void CDevice::OnBnClickedBtnSortupset()
 	strValue.Format(_T("%d"),nValue);
 	WritePrivateProfileString(_T("换片位置"),_T("上料中转"),strValue,gstuPathInf.csPathIni);
 	
-	PosSet(0x01,0x01,nValue);
+  g_npc_inf.var_sortup = nValue;
+
 	
 }
 
@@ -1165,13 +1210,13 @@ void CDevice::OnBnClickedBtnSortinset()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_CHG,&bFlag,1);
+	int nValue = GetDlgItemInt(IDC_EDT_SORTIN,&bFlag,1);
 	if(0 == bFlag)
 	{
 		AfxMessageBox(_T("error number"));
 		return;
 	}
-	SetDlgItemInt(IDC_EDT_SORTIN,nValue,1);
+
 	CString strValue = _T("");
 	CFileFind findini;
 	BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);  
@@ -1185,7 +1230,8 @@ void CDevice::OnBnClickedBtnSortinset()
 	strValue.Format(_T("%d"),nValue);
 	WritePrivateProfileString(_T("换片位置"),_T("换片上片"),strValue,gstuPathInf.csPathIni);
 	
-	PosSet(0x01,0x02,nValue);
+  g_npc_inf.var_sortin = nValue;
+
 	
 }
 
@@ -1194,13 +1240,13 @@ void CDevice::OnBnClickedBtnSortoutset()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_CHG,&bFlag,1);
+	int nValue = GetDlgItemInt(IDC_EDT_SORTOUT,&bFlag,1);
 	if(0 == bFlag)
 	{
 		AfxMessageBox(_T("error number"));
 		return;
 	}
-	SetDlgItemInt(IDC_EDT_SORTOUT,nValue,1);
+
 	CString strValue = _T("");
 	CFileFind findini;
 	BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);  
@@ -1214,7 +1260,8 @@ void CDevice::OnBnClickedBtnSortoutset()
 	strValue.Format(_T("%d"),nValue);
 	WritePrivateProfileString(_T("换片位置"),_T("换片下片"),strValue,gstuPathInf.csPathIni);
 	
-	PosSet(0x01,0x03,nValue);
+  g_npc_inf.var_sortout = nValue;
+
 	
 }
 
@@ -1223,13 +1270,13 @@ void CDevice::OnBnClickedBtnSortdownset()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_CHG,&bFlag,1);
+	int nValue = GetDlgItemInt(IDC_EDT_SORTDOWN,&bFlag,1);
 	if(0 == bFlag)
 	{
 		AfxMessageBox(_T("error number"));
 		return;
 	}
-	SetDlgItemInt(IDC_EDT_SORTDOWN,nValue,1);
+
 	CString strValue = _T("");
 	CFileFind findini;
 	BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);  
@@ -1242,8 +1289,8 @@ void CDevice::OnBnClickedBtnSortdownset()
 
 	strValue.Format(_T("%d"),nValue);
 	WritePrivateProfileString(_T("换片位置"),_T("下料中转"),strValue,gstuPathInf.csPathIni);
-	
-	PosSet(0x01,0x04,nValue);
+  g_npc_inf.var_sortdown = nValue;
+
 	
 }
 
@@ -1456,116 +1503,108 @@ void CDevice::OnBnClickedBtnListtest()
 void CDevice::OnBnClickedBtnSortuptest()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_SORTUP,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error number"));
-		return;
-	}
-	AxisMove(0x03,nValue,0);
+
 }
 
 
 void CDevice::OnBnClickedBtnSortintest()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_SORTIN,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error number"));
-		return;
-	}
-	AxisMove(0x03,nValue,0);
+
 }
 
 
 void CDevice::OnBnClickedBtnSortouttest()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_SORTOUT,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error number"));
-		return;
-	}
-	AxisMove(0x03,nValue,0);
+
 }
 
 
 void CDevice::OnBnClickedBtnSortdowntest()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_SORTDOWN,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error number"));
-		return;
-	}
-	AxisMove(0x03,nValue,0);
+
 }
 
 
 void CDevice::OnBnClickedBtnXy1test()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValueX = GetDlgItemInt(IDC_EDT_XY1X,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error X number"));
-		return;
-	}
-	int nValueY = GetDlgItemInt(IDC_EDT_XY1Y,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error Y number"));
-		return;
-	}
-	XYMove(nValueX,nValueY);
+  BOOL bFlag = 0;
+  int nValueY = GetDlgItemInt(IDC_EDT_XY1Y, &bFlag, 1);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValueY);
+  WritePrivateProfileString(_T("取料中转"), _T("1Y"), strValue, gstuPathInf.csPathIni);
+  g_npc_inf.var_y1 = nValueY;
 }
 
 
 void CDevice::OnBnClickedBtnXy2test()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValueX = GetDlgItemInt(IDC_EDT_XY2X,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error X number"));
-		return;
-	}
-	int nValueY = GetDlgItemInt(IDC_EDT_XY2Y,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error Y number"));
-		return;
-	}
-	XYMove(nValueX,nValueY);
+  BOOL bFlag = 0;
+  int nValueY = GetDlgItemInt(IDC_EDT_XY2Y, &bFlag, 1);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValueY);
+  WritePrivateProfileString(_T("取料中转"), _T("2Y"), strValue, gstuPathInf.csPathIni);
+  g_npc_inf.var_y2 = nValueY;
 }
 
 
 void CDevice::OnBnClickedBtnXy3test()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValueX = GetDlgItemInt(IDC_EDT_XY3X,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error X number"));
-		return;
-	}
-	int nValueY = GetDlgItemInt(IDC_EDT_XY3Y,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error Y number"));
-		return;
-	}
-	XYMove(nValueX,nValueY);
+  BOOL bFlag = 0;
+
+  int nValueY = GetDlgItemInt(IDC_EDT_XY3Y, &bFlag, 1);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValueY);
+  WritePrivateProfileString(_T("取料中转"), _T("3Y"), strValue, gstuPathInf.csPathIni);
+  g_npc_inf.var_y3 = nValueY;
 }
 
 
@@ -1659,7 +1698,7 @@ void CDevice::OnCbnSelchangeCmbEfgstasel()
 void CDevice::OnBnClickedBtnStmresta()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	StmReSta();
+	//StmReSta();
 	
 }
 
@@ -1667,57 +1706,14 @@ void CDevice::OnBnClickedBtnStmresta()
 void CDevice::OnBnClickedBtnSnchgset()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValueX = GetDlgItemInt(IDC_EDT_X,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error X number"));
-		return;
-	}
-	int nValueY = GetDlgItemInt(IDC_EDT_Y,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error Y number"));
-		return;
-	}
-	SetDlgItemInt(IDC_EDT_SNCHGX,nValueX,1);
-	SetDlgItemInt(IDC_EDT_SNCHGY,nValueY,1);
-	CString strValue = _T("");
-	CFileFind findini;
-	BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);  
 
-	if( !ifFind )  
-	{  
-		AfxMessageBox(_T("无配置文件"));
-		return;
-	}  
-
-	strValue.Format(_T("%d"),nValueX);
-	WritePrivateProfileString(_T("换吸头点"),_T("X"),strValue,gstuPathInf.csPathIni); 
-	strValue.Format(_T("%d"),nValueY);
-	WritePrivateProfileString(_T("换吸头点"),_T("Y"),strValue,gstuPathInf.csPathIni); 
-	gstuRcgInfo.nSNCHGX = nValueX;
-	gstuRcgInfo.nSNCHGY = nValueY;
 }
 
 
 void CDevice::OnBnClickedBtnSnchgtest()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValueX = GetDlgItemInt(IDC_EDT_SNCHGX,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error X number"));
-		return;
-	}
-	int nValueY = GetDlgItemInt(IDC_EDT_SNCHGY,&bFlag,1);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error Y number"));
-		return;
-	}
-	XYMove(nValueX,nValueY);
+
 }
 
 

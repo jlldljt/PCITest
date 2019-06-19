@@ -44,6 +44,19 @@
 #define U_SEC(user) ((user)%100)
 
 
+#define VAR_X g_npc_inf.var_x1
+#define VAR_Y g_npc_inf.var_x2
+#define VAR_STATUS g_npc_inf.var_x3
+#define VAR_DEG g_npc_inf.var_y1
+#define VAR_PN g_npc_inf.var_y2
+
+#define NPC_ID g_npc_inf.var_sortup
+#define Z_P g_npc_inf.var_sortin  //z轴一圈的脉冲数
+#define Z_P_PER_DEG (Z_P/360.0)   //z轴一°的脉冲数
+#define Z_S g_npc_inf.var_sortout //z轴偏移脉冲数
+
+#define VAR_NUM g_npc_inf.var_sortdown
+
 
 class CBERApp : public CWinApp
 {
@@ -70,8 +83,10 @@ extern CTXT gclsTxt;
 //
 extern CIMGRecognition gclsImgRcg;
 extern RecognitionInfo  gstuRcgInfo;
+extern NpcInf g_npc_inf;
 extern PathInfo gstuPathInf;
 extern CCpkLib *g_pCpk;
+extern INT32 *g_vars;
 //
 //extern CPicture gclsPic;//pictrue类对象
 //extern SETTINGS_CAMERA gstuCamParam;//相机参数
@@ -97,6 +112,8 @@ void calparameter(double (*xy)[4],double *factor);
 extern double TimeRecord(unsigned int step, bool start);
 extern int CalcEquAngle(int *degree);
 extern void CalcAvgStd(const int sum, const double angle, double &avg, double &std, double &std2);
+
+void TranNpcParam(NpcParm * parm);
 
 //vlc播放视频的回调函数
 void CALLBACK RealDataCallBack0(LONG lRealHandle,DWORD dwDataType,BYTE *pBuffer,DWORD dwBufSize,void *pUser);

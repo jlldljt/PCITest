@@ -659,25 +659,44 @@ BOOL CBERDlg::DBGInit()
 	{
 		iniint=GetPrivateProfileInt(_T("取料中转"),_T("1X"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_XY1X,iniint);
+    g_npc_inf.var_x1 = iniint;
+
 		iniint=GetPrivateProfileInt(_T("取料中转"),_T("1Y"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_XY1Y,iniint);
+    g_npc_inf.var_y1 = iniint;
+
 		iniint=GetPrivateProfileInt(_T("取料中转"),_T("2X"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_XY2X,iniint);
+    g_npc_inf.var_x2 = iniint;
+
 		iniint=GetPrivateProfileInt(_T("取料中转"),_T("2Y"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_XY2Y,iniint);
+    g_npc_inf.var_y2 = iniint;
+
 		iniint=GetPrivateProfileInt(_T("取料中转"),_T("3X"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_XY3X,iniint);
+    g_npc_inf.var_x3 = iniint;
+
 		iniint=GetPrivateProfileInt(_T("取料中转"),_T("3Y"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_XY3Y,iniint);
+    g_npc_inf.var_y3 = iniint;
 
 		iniint=GetPrivateProfileInt(_T("换片位置"),_T("上料中转"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_SORTUP,iniint);
+    g_npc_inf.var_sortup = iniint;
+
 		iniint=GetPrivateProfileInt(_T("换片位置"),_T("换片上片"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_SORTIN,iniint);
+    g_npc_inf.var_sortin = iniint;
+
 		iniint=GetPrivateProfileInt(_T("换片位置"),_T("换片下片"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_SORTOUT,iniint);
+    g_npc_inf.var_sortout = iniint;
+
 		iniint=GetPrivateProfileInt(_T("换片位置"),_T("下料中转"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_SORTDOWN,iniint);
+    g_npc_inf.var_sortdown = iniint;
+
 
 		iniint=GetPrivateProfileInt(_T("取片校准点"),_T("1X"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_CLBPOS1X,iniint);

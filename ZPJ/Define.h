@@ -164,7 +164,18 @@ struct sortchip//分档全局结构
 	bool needCheck;
 };
 
+//注意这个结构体的名称不正常的，只是迎合原先控件的名称，至于用处，要看device.h头的#define
+typedef struct tagNpcInf
+{
+  int var_x1, var_x2, var_x3;
+  int var_y1, var_y2, var_y3;
+  int var_sortup, var_sortin, var_sortout, var_sortdown;
+}NpcInf;
 
-
+typedef struct tagNpcParm
+{
+  double x0, y0, deg0, pn0;//程序出来的对应图像上的位置
+  int x, y, deg, pn;//对应到实际电机步数
+}NpcParm;
 #endif
 

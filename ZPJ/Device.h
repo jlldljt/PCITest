@@ -3,12 +3,6 @@
 #include "afxwin.h"
 
 
-enum DEF_VAR {
-  VAR_X = 0,
-  VAR_Y = 1,
-  VAR_STATUS = 2
-};
-
 
 // CDevice 对话框
 
@@ -21,6 +15,7 @@ public:
 	virtual ~CDevice();
 	void AxisMove(char num , int value , bool special);
 	void XYMove(int xVal, int yVal);
+  int ParamMove(int x, int y, int degree, int pn);
 	void StmSE(bool se);
 	void StmPause(bool pause);
 	void StmReSta();
@@ -33,12 +28,15 @@ public:
 	void AlarmCtrl(bool ctrl);
 	void XYPosSet(char num , int valuex , int valuey);
 	int XYSend(int valuex , int valuey);
+  int DegPNSend(int degree, int pn);
   int StatusGet(int& status);
   int StatusSet(int status);
 	void SortSend(char num);
 	bool EasyPosSet();
 	void EFGStaSel(char nN);
 	int nListSel;//标记点中的list中的编号
+
+
 // 对话框数据
 	enum { IDD = IDD_DIALOG_DEVICE };
 

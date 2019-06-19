@@ -45,6 +45,7 @@ public:
   int SendAndRecv(const char* sbuf, int slen, char* rbuf, int rlen, bool* crc = NULL, int rTimeout = 10);
   INT32 WriteVar(UINT32 no, INT32 val);
   INT32 ReadVar(UINT32 no, INT32& val);
+  INT32 ReadVars(UINT32 no, UINT32 num, INT32* var);
 };
 
 extern CCom gclsCom;

@@ -74,6 +74,7 @@ BEGIN_MESSAGE_MAP(CCamera, CDialogEx)
 ON_BN_CLICKED(IDC_CHK_DEBUG, &CCamera::OnBnClickedChkDebug)
 ON_BN_CLICKED(IDC_BTN_SPLIT, &CCamera::OnBnClickedBtnSplit)
 ON_BN_CLICKED(IDC_BTN_RECONNECT, &CCamera::OnBnClickedBtnReconnect)
+ON_BN_CLICKED(IDC_BTN_PARMSEND, &CCamera::OnBnClickedBtnParmsend)
 END_MESSAGE_MAP()
 
 
@@ -385,9 +386,11 @@ BOOL CCamera::OnInitDialog()
 void CCamera::OnStnClickedPreview()
 {
 	// TODO: 在此添加控件通知处理程序代码
+  //NpcParm par = { 0 };
+
 	if (0==gclsImgRcg.g_stu_square.nN)
 	{
-		return;
+		//return;
 	}
   double xt,yt;
 	POINT pt;//定义点
@@ -466,9 +469,14 @@ void CCamera::OnStnClickedPreview()
 					gclsImgRcg.stuRef.Wth=gclsImgRcg.g_stu_square.pnWth[i];
 					gstuRcgInfo.nPN=gclsImgRcg.g_stu_square.bPN[i];
 
-
+          m_par.deg0 = angle_test;
+          int X = gclsImgRcg.g_stu_square.pnZPX[i];
+          int Y = gclsImgRcg.g_stu_square.pnZPY[i];
+          m_par.x0 = X;
+          m_par.y0 = Y;
+          m_par.pn0 = 0;//gstuRcgInfo.nPN;
           CString csTmp;
-          csTmp.Format(_T("长%d宽%dX角度%.1f"), gclsImgRcg.g_stu_square.pnLen[i], gclsImgRcg.g_stu_square.pnWth[i], (angle_test));
+          csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"), gclsImgRcg.g_stu_square.pnLen[i],gclsImgRcg.g_stu_square.pnWth[i], (int)(m_par.pn0), (angle_test), X, Y);
 
           //csTmp.Format(_T("长%d宽%dX方向%d角度%.1f"),gclsImgRcg.g_stu_square.pnLen[i],gclsImgRcg.g_stu_square.pnWth[i],gclsImgRcg.g_stu_square.bPN[i], gclsImgRcg.g_stu_square.angreePN[i]);
           GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
@@ -478,13 +486,17 @@ void CCamera::OnStnClickedPreview()
 				gclsImgRcg.stuRef.Dev=gstuRcgInfo.nAllowDefect;
 				gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][0]=gclsImgRcg.g_stu_square.pnZPX[i]; gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][1]=gclsImgRcg.g_stu_square.pnZPY[i];//xy保存的是一样的东西，相同位置，相同xy，是否可以用一个？不可以，0,1是图像x，y；2是固定1；3是电机步数
 				gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][0]=gclsImgRcg.g_stu_square.pnZPX[i]; gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][1]=gclsImgRcg.g_stu_square.pnZPY[i];
-        int X = gclsImgRcg.g_stu_square.pnZPX[i] + 0.5;
-        int Y = gclsImgRcg.g_stu_square.pnZPY[i] + 0.5;
-/*
-        int X = gstuRcgInfo.g_factor[0][0] * (double)gclsImgRcg.g_stu_square.pnZPX[i] + gstuRcgInfo.g_factor[0][1] * (double)gclsImgRcg.g_stu_square.pnZPY[i] + gstuRcgInfo.g_factor[0][2];
-        int Y = gstuRcgInfo.g_factor[1][0] * (double)gclsImgRcg.g_stu_square.pnZPX[i] + gstuRcgInfo.g_factor[1][1] * (double)gclsImgRcg.g_stu_square.pnZPY[i] + gstuRcgInfo.g_factor[1][2];*/
-				CString csTmp;
-				csTmp.Format(_T("X:%d	Y:%dX"),X,Y);
+
+
+        //int X = gstuRcgInfo.g_factor[0][0] * (double)gclsImgRcg.g_stu_square.pnZPX[i] + gstuRcgInfo.g_factor[0][1] * (double)gclsImgRcg.g_stu_square.pnZPY[i] + gstuRcgInfo.g_factor[0][2]+0.5;
+        //int Y = gstuRcgInfo.g_factor[1][0] * (double)gclsImgRcg.g_stu_square.pnZPX[i] + gstuRcgInfo.g_factor[1][1] * (double)gclsImgRcg.g_stu_square.pnZPY[i] + gstuRcgInfo.g_factor[1][2]+0.5;
+        TranNpcParam(&m_par);
+
+        //m_clked_pos_x = par.x;
+        //m_clked_pos_y = par.y;
+        
+        CString csTmp;
+				csTmp.Format(_T("方向 %d 角度%d X:%d Y:%d"), m_par.pn, m_par.deg, m_par.x, m_par.y);
 				GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
 				gstuRcgInfo.bClbPos=1;
 				break;
@@ -516,14 +528,27 @@ void CCamera::OnStnClickedPreview()
 
       pWnd->ReleaseDC(pDC);
       /////////////////////
-      CString csTmp;
-      csTmp.Format(_T("长 宽 角度"));
-      GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
-
       int X = xt + 0.5;
       int Y = yt + 0.5;
+      m_par.x0 = xt;
+      m_par.y0 = yt;
 
-      csTmp.Format(_T("X:%d	Y:%dX"), X, Y);
+      CString csTmp;
+
+      csTmp.Format(_T("X:%d Y:%d"), X, Y);
+
+      GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
+
+      gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][0] = xt; gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][1] = yt;//xy保存的是一样的东西，相同位置，相同xy，是否可以用一个？不可以，0,1是图像x，y；2是固定1；3是电机步数
+      gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][0] = xt; gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][1] = yt;
+
+      TranNpcParam(&m_par);
+      //int X = gstuRcgInfo.g_factor[0][0] * xt + gstuRcgInfo.g_factor[0][1] * yt + gstuRcgInfo.g_factor[0][2] + 0.5;
+      //int Y = gstuRcgInfo.g_factor[1][0] * xt + gstuRcgInfo.g_factor[1][1] * yt + gstuRcgInfo.g_factor[1][2] + 0.5;
+      //m_clked_pos_x = par.x;
+      //m_clked_pos_y = par.y;
+
+      csTmp.Format(_T("X:%d Y:%d"), m_par.x, m_par.y);
       GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
       }
 		return;
@@ -635,12 +660,15 @@ void CCamera::OnBnClickedBtnVideo()
 		gclsCamera.Preview(gnChannel, GetDlgItem(IDC_PREVIEW));
 		/*stuTrd->pWnd= GetDlgItem(IDC_PREVIEW);
 	gclsIiic.Show(1);*/
+    SetDlgItemText(IDC_BTN_VIDEO, _T("视频预览关"));
 	}
 	else
 	{
 		gb_PlayOrNot[1]=0;
 		//gclsIiic.Show(0);
 		gclsCamera.StopPreview(gnChannel);  //停止预览
+    SetDlgItemText(IDC_BTN_VIDEO, _T("视频预览"));
+
 	}
 	
 
@@ -1040,3 +1068,17 @@ void CCamera::OnBnClickedBtnReconnect()
 //
 //
 //}
+
+
+void CCamera::OnBnClickedBtnParmsend()
+{
+  // TODO: 在此添加控件通知处理程序代码
+
+  //m_clked_pos_x = X;
+  //m_clked_pos_y = Y;m_par
+  if (0 == g_dlgDevice->ParamMove(m_par.x, m_par.y, m_par.deg, m_par.pn))
+  {
+    AfxMessageBox(_T("发送成功"));
+  }
+
+}

@@ -15,11 +15,12 @@ IMPLEMENT_DYNAMIC(CDlgPriview, CDialogEx)
 CDlgPriview::CDlgPriview(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CDlgPriview::IDD, pParent)
 {
-
+  gstuRcgInfo.Nxy = 0;
 }
 
 CDlgPriview::~CDlgPriview()
 {
+  gstuRcgInfo.Nxy = 0;
 }
 
 void CDlgPriview::DoDataExchange(CDataExchange* pDX)
@@ -41,16 +42,23 @@ void CDlgPriview::OnLButtonDown(UINT nFlags, CPoint point)
   // TODO: 在此添加消息处理程序代码和/或调用默认值
   if (0 == gclsImgRcg.g_stu_square.nN)
   {
-    return;
+    //return;
   }
   double xt, yt;
   POINT pt;//定义点
   GetCursorPos(&pt);//取得当前坐标
   CRect lRect;
   GetWindowRect(&lRect);
-  
+
+  int y_caption = GetSystemMetrics(SM_CYCAPTION);
+  int x_frame = GetSystemMetrics(SM_CXDLGFRAME);
+  int y_frame = GetSystemMetrics(SM_CYDLGFRAME);
+  lRect.left += x_frame;
+  lRect.right -= x_frame;
+  lRect.top += y_frame + y_caption;
+  lRect.bottom -= y_frame;
   double temp_x = pt.x - lRect.left;
-  double temp_y = pt.y - lRect.top;
+  double temp_y = pt.y -lRect.top;
   xt =/*(int)*/(temp_x * gclsImgRcg.g_stu_square.nBMPW / (lRect.Width()));//点击的坐标对应在图像上的x点
   yt =/*(int)*/(temp_y * gclsImgRcg.g_stu_square.nBMPH / (lRect.Height()));//点击的坐标对应在图像上的y点
   //if(!m_RadioCircle && m_RadioSquare)
@@ -178,11 +186,64 @@ void CDlgPriview::OnLButtonDown(UINT nFlags, CPoint point)
         csTmp.Format(_T("长 宽 角度"));
         g_dlgCamera->GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
 
+        gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][0] = xt; gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][1] = yt;//xy保存的是一样的东西，相同位置，相同xy，是否可以用一个？不可以，0,1是图像x，y；2是固定1；3是电机步数
+        gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][0] = xt; gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][1] = yt;
+
         int X = xt + 0.5;
         int Y = yt + 0.5;
 
         csTmp.Format(_T("X:%d	Y:%dX"), X, Y);
         g_dlgCamera->GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
+
+
+
+        //////
+        CString str;
+
+        int x = gstuRcgInfo.nClbPosX[gstuRcgInfo.Nxy];
+        int y = gstuRcgInfo.nClbPosY[gstuRcgInfo.Nxy];
+
+        str.Format(_T("是否把图像坐标X:%d	Y:%dX 与 第%d个预设点X:%d	Y:%dX绑定起来"), X, Y, gstuRcgInfo.Nxy+1, x, y);
+          
+        int status = AfxMessageBox(str, MB_OKCANCEL);
+        if (status == 1)//按确定退出
+        {
+          gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][2] = 1;
+          gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][2] = 1;
+          gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][3] = x;
+          gstuRcgInfo.Yxy[gstuRcgInfo.Nxy][3] = y;
+
+          gstuRcgInfo.Nxy++;
+
+          if (gstuRcgInfo.Nxy == 3)
+          {
+
+            calparameter(gstuRcgInfo.Xxy, gstuRcgInfo.g_factor[0]);
+            calparameter(gstuRcgInfo.Yxy, gstuRcgInfo.g_factor[1]);
+            //保存
+            CString strValue;
+            strValue.Format(_T("%.18lf"), gstuRcgInfo.g_factor[0][0]);
+            WritePrivateProfileString(_T("校准系数"), _T("00"), strValue, gstuPathInf.csPathIni);
+            strValue.Format(_T("%.18lf"), gstuRcgInfo.g_factor[0][1]);
+            WritePrivateProfileString(_T("校准系数"), _T("01"), strValue, gstuPathInf.csPathIni);
+            strValue.Format(_T("%.18lf"), gstuRcgInfo.g_factor[0][2]);
+            WritePrivateProfileString(_T("校准系数"), _T("02"), strValue, gstuPathInf.csPathIni);
+            strValue.Format(_T("%.18lf"), gstuRcgInfo.g_factor[1][0]);
+            WritePrivateProfileString(_T("校准系数"), _T("10"), strValue, gstuPathInf.csPathIni);
+            strValue.Format(_T("%.18lf"), gstuRcgInfo.g_factor[1][1]);
+            WritePrivateProfileString(_T("校准系数"), _T("11"), strValue, gstuPathInf.csPathIni);
+            strValue.Format(_T("%.18lf"), gstuRcgInfo.g_factor[1][2]);
+            WritePrivateProfileString(_T("校准系数"), _T("12"), strValue, gstuPathInf.csPathIni);
+            g_dlgCamera->SetDlgItemText(IDC_SELECT_RESULT, _T("校准完成"));
+            AfxMessageBox(_T("参数更新完成"), MB_OK);
+            gstuRcgInfo.Nxy = 0;
+          }
+        }
+        else
+        {
+          //gstuRcgInfo.Nxy=0;
+        }
+        /////////
       }
     return;
   }

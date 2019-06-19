@@ -18,9 +18,12 @@ sortchip gstuSort;
 CFont g_font,g_font2,g_font3;
 CTXT gclsTxt;
 CCpkLib *g_pCpk;
+INT32 *g_vars = NULL;
+
 //识别
 //CIMGRecognition gclsImgRcg;
 RecognitionInfo  gstuRcgInfo;
+NpcInf g_npc_inf;
 PathInfo gstuPathInf;
 int SortChip(sortchip* s_sort,int *degree);
 void SortAvgStd(unsigned int sum,int *angle,double *avg,double *std,long double *std2);
@@ -1085,6 +1088,15 @@ void CalcAvgStd(const int sum, const double angle, double &avg, double &std, dou
 		std2 = (std2 + xi * xi / (n - 1)) / (n / (n - 1));//求标准差中间值
 		std = sqrt(abs(std2 - avg * avg)*n / (n - 1));//求标准差
 	}
+}
+void TranNpcParam(NpcParm* parm)
+{
+
+  parm->x = gstuRcgInfo.g_factor[0][0] * parm->x0 + gstuRcgInfo.g_factor[0][1] * parm->y0 + gstuRcgInfo.g_factor[0][2] + 0.5;
+  parm->y = gstuRcgInfo.g_factor[1][0] * parm->x0 + gstuRcgInfo.g_factor[1][1] * parm->y0 + gstuRcgInfo.g_factor[1][2] + 0.5;
+  parm->deg = parm->deg0 * Z_P_PER_DEG + Z_S+0.5;
+  parm->pn = parm->pn0+0.5;
+
 }
 //计算光轴平均值及标准方程
 void SortAvgStd(unsigned int sum,int *angle,double *avg,double *std,long double *std2)
