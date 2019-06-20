@@ -42,6 +42,8 @@ CWinThread* gTrdCam;//相机线程
 CWinThread* gTrdScr;//屏幕线程
 CWinThread* gTrdClb;//校准线程
 CWinThread* gTrdCom;
+CWinThread* gTrdAuto = NULL;
+
 UINT RunThread(LPVOID pParam);//运行线程函数
 UINT CameraThread(LPVOID pParam);//图像识别线程函数
 UINT ScreenThread(LPVOID pParam);//运行线程函数
@@ -899,6 +901,112 @@ UINT ComMsg(LPVOID pParam)
 		Sleep(10);
 	}
 	return 1;
+}
+// ZPJ专用的线程，以上都没用
+UINT Thread_Auto(LPVOID pParam)
+{
+  SetThreadAffinityMask(GetCurrentThread(), 1);
+  CCamera* pdlg = (CCamera*)pParam;
+  char l_AnsiStr[MAX_PATH];
+  int nWidth, nHeight;
+  int nBitCount;
+  int nBitsPerSample;
+  int takeCnt = 0;
+
+  pdlg->GetDlgItem(IDC_BTN_AUTO)->EnableWindow(TRUE);
+
+  while (gstuRun.unStatRun == RUN_STAT_RUN)
+  {
+    //=====================================================识别开始===============================================================
+    WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, gstuPathInf.csPathExe + _T("\\PIC\\原图0.bmp"), -1, l_AnsiStr, sizeof(l_AnsiStr), NULL, NULL);
+    TimeRecord(2, 1);//启动拍照，计时开始
+
+    if (nullptr == gclsCamera.SnapEx(gnChannel, &nWidth, &nHeight, &nBitCount, &nBitsPerSample, l_AnsiStr, NULL))
+    {
+      Sleep(500);
+
+      if (takeCnt++ > 10)//取不到图像，退出
+      {
+        AfxMessageBox(_T("取不到相机图像，请检查相机"));
+        takeCnt = 0;
+        gstuRun.unStatRun == RUN_STAT_STOP;
+        pdlg->SetDlgItemText(IDC_BTN_AUTO, _T("自动"));
+        break;
+      }
+      continue;
+    }
+
+    TimeRecord(2, 0);//拍照结束，计时结束
+    TimeRecord(3, 1);//识别开始，计时开始
+    //
+    //gclsImgRcg.RCGBMPSPLIT(NULL, NULL, l_AnsiStr, gstuRcgInfo.nPToL, gstuRcgInfo.nDefectPToL, gstuRcgInfo.nThreshold, 0, gstuRcgInfo.bIsCir, gstuRcgInfo.bThrdAuto, gstuRcgInfo.bDelNoise);
+    
+
+    gclsImgRcg.RCGBMP(NULL, NULL, l_AnsiStr, gstuRcgInfo.nPToL, gstuRcgInfo.nDefectPToL, gstuRcgInfo.nThreshold, 0, gstuRcgInfo.bIsCir, gstuRcgInfo.bThrdAuto, gstuRcgInfo.bDelNoise);
+    //
+    
+    //
+    TimeRecord(3, 0);//识别结束，计时结束
+    //=====================================================传输开始===============================================================
+
+    for (int i = 0; i < gclsImgRcg.g_stu_square.nN; i++)
+    {
+      /*if (PN_DEF != gclsImgRcg.g_stu_square.bPN[i])
+        continue;*/
+      if (
+        gclsImgRcg.g_stu_square.pnZPX[i] < g_npc_inf.left ||
+        gclsImgRcg.g_stu_square.pnZPX[i] > g_npc_inf.right ||
+        gclsImgRcg.g_stu_square.pnZPY[i] < g_npc_inf.top ||
+        gclsImgRcg.g_stu_square.pnZPY[i] > g_npc_inf.bottom
+        )
+        continue;
+
+
+      NpcParm par;
+
+
+      //
+      POINT pPoint[5];
+      for (int j = 0; j < 4; j++)
+      {
+        pPoint[j].x = gclsImgRcg.g_stu_square.pnPX[i][j];
+        pPoint[j].y = gclsImgRcg.g_stu_square.pnPY[i][j];
+      }
+      pPoint[4].x = gclsImgRcg.g_stu_square.pnPX[i][0];
+      pPoint[4].y = gclsImgRcg.g_stu_square.pnPY[i][0];
+
+      //test
+      double angle_test = gclsImgRcg.CalculateVectorAngle(pPoint[1].x - pPoint[0].x,
+        pPoint[1].y - pPoint[0].y, 1, 0);
+      /*int nLenNo = gclsImgRcg.g_stu_square.lenNo1PN[i];
+      int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
+      */
+
+      par.deg0 = angle_test;
+      par.x0 = gclsImgRcg.g_stu_square.pnZPX[i];
+      par.y0 = gclsImgRcg.g_stu_square.pnZPY[i];
+      par.pn0 = 0;//gstuRcgInfo.nPN;gclsImgRcg.g_stu_square.bPN[i]
+
+      CString csTmp;
+      csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"), gclsImgRcg.g_stu_square.pnLen[i], gclsImgRcg.g_stu_square.pnWth[i], (int)(par.pn0), (angle_test), (int)(par.x0), (int)(par.y0));
+      pdlg->GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
+      TranNpcParam(&par);
+
+      csTmp.Format(_T("No%d 方向 %d 角度%d X:%d Y:%d"), i, par.pn, par.deg, par.x, par.y);
+      pdlg->GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
+
+      //发送参数
+      while (0 != g_dlgDevice->ParamMove(par.x, par.y, par.deg, par.pn))
+      {
+        Sleep(1000);
+      }
+
+    }//for (int i = 0; i < gclsImgRcg.g_stu_square.nN; i++)
+
+  }//while (gstuRun.unStatRun == RUN_STAT_RUN)
+  pdlg->GetDlgItem(IDC_BTN_AUTO)->EnableWindow(TRUE);
+
+  return 0;
 }
 
 //坐标系转换系数计算

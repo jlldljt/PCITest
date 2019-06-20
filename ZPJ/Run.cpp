@@ -481,6 +481,7 @@ void CRun::OnStnClickedPicShow()
 
 
 			}
+
 			int status=AfxMessageBox(_T("是否选择？"),MB_OKCANCEL);
 			if(status==1)//按确定退出
 			{
@@ -494,7 +495,6 @@ void CRun::OnStnClickedPicShow()
 	}
 
 	return;
-	//}
 }
 
 

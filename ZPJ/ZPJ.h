@@ -57,6 +57,8 @@
 
 #define VAR_NUM g_npc_inf.var_sortdown
 
+#define PN_DEF g_npc_inf.var_y3//规定PN的筛选值
+
 
 class CBERApp : public CWinApp
 {
@@ -102,12 +104,16 @@ extern CWinThread* gTrdCam;//相机线程
 extern CWinThread* gTrdScr;//屏幕线程
 extern CWinThread* gTrdClb;//校准线程
 extern CWinThread* gTrdCom;//com线程
+extern CWinThread* gTrdAuto;
+
 extern UINT RunThread(LPVOID pParam);//运行线程函数
 extern UINT CameraThread(LPVOID pParam);//图像识别线程函数
 extern UINT ScreenThread(LPVOID pParam);//运行线程函数
 extern UINT CalibrationThread(LPVOID pParam);
 extern UINT CameraThreadTest(LPVOID pParam);
 extern UINT ComMsg(LPVOID pParam);
+UINT Thread_Auto(LPVOID pParam);
+
 void calparameter(double (*xy)[4],double *factor);
 extern double TimeRecord(unsigned int step, bool start);
 extern int CalcEquAngle(int *degree);

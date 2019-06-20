@@ -243,7 +243,7 @@ int CDevice::ParamMove(int x, int y, int degree,int pn)
   int status;
   StatusGet(status);
   if (status != 0) {
-    AfxMessageBox(_T("status is not ready"));
+    //AfxMessageBox(_T("status is not ready"));
     return -1;
   }
   else {

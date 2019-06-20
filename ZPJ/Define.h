@@ -170,6 +170,8 @@ typedef struct tagNpcInf
   int var_x1, var_x2, var_x3;
   int var_y1, var_y2, var_y3;
   int var_sortup, var_sortin, var_sortout, var_sortdown;
+
+  int left, top, right, bottom;
 }NpcInf;
 
 typedef struct tagNpcParm
@@ -177,5 +179,12 @@ typedef struct tagNpcParm
   double x0, y0, deg0, pn0;//程序出来的对应图像上的位置
   int x, y, deg, pn;//对应到实际电机步数
 }NpcParm;
+
+enum RUN_STAT {
+  RUN_STAT_STOP = 0,
+  RUN_STAT_PAUSE,
+  RUN_STAT_RUN
+};
+
 #endif
 

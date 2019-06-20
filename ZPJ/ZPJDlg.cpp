@@ -285,6 +285,11 @@ BOOL CBERDlg::SYSInit()
 		WritePrivateProfileString(_T("ªª∆¨Œª÷√"),_T("ªª∆¨…œ∆¨"),_T("0"),gstuPathInf.csPathIni);
 		WritePrivateProfileString(_T("ªª∆¨Œª÷√"),_T("ªª∆¨œ¬∆¨"),_T("0"),gstuPathInf.csPathIni);
 		WritePrivateProfileString(_T("ªª∆¨Œª÷√"),_T("œ¬¡œ÷–◊™"),_T("0"),gstuPathInf.csPathIni);
+
+    WritePrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("left"), _T("0"), gstuPathInf.csPathIni);
+    WritePrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("top"), _T("0"), gstuPathInf.csPathIni);
+    WritePrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("right"), _T("0"), gstuPathInf.csPathIni);
+    WritePrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("bottom"), _T("0"), gstuPathInf.csPathIni);
 		for(int i=0;i<30;i++)
 		{
 			strValue.Format(_T("%dµµ"),i);
@@ -755,6 +760,28 @@ BOOL CBERDlg::DBGInit()
 	strValue=strbuff;
 	gstuRcgInfo.g_factor[1][2] = _wtof(strValue.GetBuffer(strValue.GetLength()));
 	strValue.ReleaseBuffer( ); 
+
+
+  GetPrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("left"), NULL, strbuff, 80, gstuPathInf.csPathIni);
+  strValue = strbuff;
+  g_npc_inf.left = _wtof(strValue.GetBuffer(strValue.GetLength()));
+  strValue.ReleaseBuffer();
+
+  GetPrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("top"), NULL, strbuff, 80, gstuPathInf.csPathIni);
+  strValue = strbuff;
+  g_npc_inf.top = _wtof(strValue.GetBuffer(strValue.GetLength()));
+  strValue.ReleaseBuffer();
+
+  GetPrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("right"), NULL, strbuff, 80, gstuPathInf.csPathIni);
+  strValue = strbuff;
+  g_npc_inf.right = _wtof(strValue.GetBuffer(strValue.GetLength()));
+  strValue.ReleaseBuffer();
+
+  GetPrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("bottom"), NULL, strbuff, 80, gstuPathInf.csPathIni);
+  strValue = strbuff;
+  g_npc_inf.bottom = _wtof(strValue.GetBuffer(strValue.GetLength()));
+  strValue.ReleaseBuffer();
+
 	return 1;
 }
 

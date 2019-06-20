@@ -192,6 +192,9 @@
     <ClInclude Include="DlgPriview.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DlgPriview1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -312,6 +315,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DlgPriview.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgPriview1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

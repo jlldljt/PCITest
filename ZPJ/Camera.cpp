@@ -75,6 +75,7 @@ ON_BN_CLICKED(IDC_CHK_DEBUG, &CCamera::OnBnClickedChkDebug)
 ON_BN_CLICKED(IDC_BTN_SPLIT, &CCamera::OnBnClickedBtnSplit)
 ON_BN_CLICKED(IDC_BTN_RECONNECT, &CCamera::OnBnClickedBtnReconnect)
 ON_BN_CLICKED(IDC_BTN_PARMSEND, &CCamera::OnBnClickedBtnParmsend)
+ON_BN_CLICKED(IDC_BTN_AUTO, &CCamera::OnBnClickedBtnAuto)
 END_MESSAGE_MAP()
 
 
@@ -496,14 +497,14 @@ void CCamera::OnStnClickedPreview()
         //m_clked_pos_y = par.y;
         
         CString csTmp;
-				csTmp.Format(_T("方向 %d 角度%d X:%d Y:%d"), m_par.pn, m_par.deg, m_par.x, m_par.y);
+				csTmp.Format(_T("No%d 方向 %d 角度%d X:%d Y:%d"),i, m_par.pn, m_par.deg, m_par.x, m_par.y);
 				GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
 				gstuRcgInfo.bClbPos=1;
 				break;
       }
 
 		}
-
+    //没有点到片上
       if(i == gclsImgRcg.g_stu_square.nN) {
       CWnd* pWnd = GetDlgItem(IDC_PREVIEW);
       CDC* pDC = pWnd->GetDC();
@@ -927,71 +928,76 @@ void CCamera::OnBnClickedChkDebug()
 	}
 }
 
-
+#include "DlgPriview1.h"
 void CCamera::OnBnClickedBtnSplit()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	
-	CString m_bmp_file=gstuPathInf.csPathExe + _T("\\PIC\\原图0.bmp");
-	
-	CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
-	BOOL ifFind = findini.FindFile(m_bmp_file);  
-	if( !ifFind )  
-		return;
-	CBitmap m_bmp;//创建类成员
-	BITMAP bm;//存放位图信息的结构
-	HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL,m_bmp_file,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);//创建bitmap指针
-	m_bmp.Attach(hBitmap1);//关联句柄和cbitmap关联
-	m_bmp.GetBitmap(&bm);
-	CWnd * pWnd = GetDlgItem(IDC_PREVIEW);
-	CDC* pDC = pWnd->GetDC();
-	CRect rect;
-	GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
-	CDC memDC;        //定义一个设备
-	CClientDC dc1(this);      //获取客户
-	memDC.CreateCompatibleDC( &dc1 );
-	memDC.SelectObject( m_bmp );  //为设备选择对象
 
-	mDCMem->StretchBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+  CDlgPriview1 dlg;
+  dlg.DoModal();
 
-	pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
-	memDC.DeleteDC();
-	m_bmp.DeleteObject();	
-	DeleteObject(hBitmap1);//记得删除	
-	
-	CPen PenRed;
-	CGdiObject *o = NULL;
-	PenRed.CreatePen(PS_SOLID,1,RGB(255,0,0));//创建一支红色的画笔.
-	//pWnd = GetDlgItem(IDC_image1); //IDC_STATIC是picture control的ID.这句是得到picture的句柄.
-	//pDC = pWnd->GetDC();//然后得到设备环境.
-	//RECT rect;//声明一个rect
-	//pWnd->GetClientRect(&rect);//并把picture控件的坐标用rect接收.
-	mDCMem->SelectObject(PenRed);//选中画笔.
 
-	/*gstuRcgInfo.nPToL=2;//直线点距
-	gstuRcgInfo.nDefectPToL=10;//缺陷点距
-	gstuRcgInfo.nThreshold=30;//阀值*/
-	//char * chPath = (LPSTR)(LPCTSTR)m_bmp_file;
-	char chPath[MAX_PATH];
-	//WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,readPath,CStringA(m_bmp_file).GetLength(),NULL,NULL); 
-	WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,chPath,sizeof(chPath),NULL,NULL); 
 	//
-	LARGE_INTEGER l_lgint_start, l_lgint_end;
-	LARGE_INTEGER l_lgint_freq;
-	QueryPerformanceFrequency(&l_lgint_freq);  
-	QueryPerformanceCounter(&l_lgint_start);
+	//CString m_bmp_file=gstuPathInf.csPathExe + _T("\\PIC\\原图0.bmp");
 	//
-	gclsImgRcg.RCGBMPSPLIT(mDCMem,rect,chPath,gstuRcgInfo.nPToL,gstuRcgInfo.nDefectPToL,gstuRcgInfo.nThreshold,gstuRcgInfo.bDebug,gstuRcgInfo.bIsCir,gstuRcgInfo.bThrdAuto,gstuRcgInfo.bDelNoise);
+	//CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
+	//BOOL ifFind = findini.FindFile(m_bmp_file);  
+	//if( !ifFind )  
+	//	return;
+	//CBitmap m_bmp;//创建类成员
+	//BITMAP bm;//存放位图信息的结构
+	//HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL,m_bmp_file,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);//创建bitmap指针
+	//m_bmp.Attach(hBitmap1);//关联句柄和cbitmap关联
+	//m_bmp.GetBitmap(&bm);
+	//CWnd * pWnd = GetDlgItem(IDC_PREVIEW);
+	//CDC* pDC = pWnd->GetDC();
+	//CRect rect;
+	//GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
+	//CDC memDC;        //定义一个设备
+	//CClientDC dc1(this);      //获取客户
+	//memDC.CreateCompatibleDC( &dc1 );
+	//memDC.SelectObject( m_bmp );  //为设备选择对象
+
+	//mDCMem->StretchBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+
+	//pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
+	//memDC.DeleteDC();
+	//m_bmp.DeleteObject();	
+	//DeleteObject(hBitmap1);//记得删除	
 	//
-	QueryPerformanceCounter(&l_lgint_end);
-	double dTmpRT=double(l_lgint_end.QuadPart-l_lgint_start.QuadPart)/double(l_lgint_freq.QuadPart);	
-	CString csTmp;
-	csTmp.Format(_T("%.2f秒"),dTmpRT);
-	SetDlgItemText(IDC_SELECT_RESULT,csTmp);
-		//
-	pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
-	pWnd->ReleaseDC(pDC);
-	gstuRcgInfo.bClbPos=1;
+	//CPen PenRed;
+	//CGdiObject *o = NULL;
+	//PenRed.CreatePen(PS_SOLID,1,RGB(255,0,0));//创建一支红色的画笔.
+	////pWnd = GetDlgItem(IDC_image1); //IDC_STATIC是picture control的ID.这句是得到picture的句柄.
+	////pDC = pWnd->GetDC();//然后得到设备环境.
+	////RECT rect;//声明一个rect
+	////pWnd->GetClientRect(&rect);//并把picture控件的坐标用rect接收.
+	//mDCMem->SelectObject(PenRed);//选中画笔.
+
+	///*gstuRcgInfo.nPToL=2;//直线点距
+	//gstuRcgInfo.nDefectPToL=10;//缺陷点距
+	//gstuRcgInfo.nThreshold=30;//阀值*/
+	////char * chPath = (LPSTR)(LPCTSTR)m_bmp_file;
+	//char chPath[MAX_PATH];
+	////WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,readPath,CStringA(m_bmp_file).GetLength(),NULL,NULL); 
+	//WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,chPath,sizeof(chPath),NULL,NULL); 
+	////
+	//LARGE_INTEGER l_lgint_start, l_lgint_end;
+	//LARGE_INTEGER l_lgint_freq;
+	//QueryPerformanceFrequency(&l_lgint_freq);  
+	//QueryPerformanceCounter(&l_lgint_start);
+	////
+	//gclsImgRcg.RCGBMPSPLIT(mDCMem,rect,chPath,gstuRcgInfo.nPToL,gstuRcgInfo.nDefectPToL,gstuRcgInfo.nThreshold,gstuRcgInfo.bDebug,gstuRcgInfo.bIsCir,gstuRcgInfo.bThrdAuto,gstuRcgInfo.bDelNoise);
+	////
+	//QueryPerformanceCounter(&l_lgint_end);
+	//double dTmpRT=double(l_lgint_end.QuadPart-l_lgint_start.QuadPart)/double(l_lgint_freq.QuadPart);	
+	//CString csTmp;
+	//csTmp.Format(_T("%.2f秒"),dTmpRT);
+	//SetDlgItemText(IDC_SELECT_RESULT,csTmp);
+	//	//
+	//pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
+	//pWnd->ReleaseDC(pDC);
+	//gstuRcgInfo.bClbPos=1;
 }
 
 
@@ -1080,5 +1086,66 @@ void CCamera::OnBnClickedBtnParmsend()
   {
     AfxMessageBox(_T("发送成功"));
   }
+  else
+  {
+    AfxMessageBox(_T("status is not ready"));
+  }
 
+}
+
+
+void CCamera::OnBnClickedBtnAuto()
+{
+  // TODO: 在此添加控件通知处理程序代码
+
+  CString str;
+  GetDlgItemText(IDC_BTN_AUTO, str);
+  ((CButton*)GetDlgItem(IDC_BTN_AUTO))->EnableWindow(FALSE);
+  if ("自动" == str)
+  {
+    if (!gb_PlayOrNot[1])
+    {
+      gb_PlayOrNot[1] = 1;
+      gclsCamera.Preview(gnChannel, GetDlgItem(IDC_PREVIEW));
+    }
+
+    gstuRun.unStatRun = RUN_STAT_RUN;
+    gTrdAuto = AfxBeginThread(Thread_Auto, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+    gTrdAuto->m_bAutoDelete = TRUE;
+    gTrdAuto->ResumeThread();
+    SetDlgItemText(IDC_BTN_AUTO, _T("自动关"));
+    //
+
+    GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_SNAP)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_TEST)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_CALIBRATION)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
+    //
+  }
+  else
+  {
+    if (gb_PlayOrNot[1])
+    {
+      gb_PlayOrNot[1] = 0;
+      gclsCamera.StopPreview(gnChannel);  //停止预览
+    }
+    gstuRun.unStatRun = RUN_STAT_STOP;
+    SetDlgItemText(IDC_BTN_AUTO, _T("自动"));
+
+    //
+
+    GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_SNAP)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_TEST)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_CALIBRATION)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(TRUE);
+
+    //
+
+  }
 }

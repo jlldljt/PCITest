@@ -3189,7 +3189,7 @@ int  CIMGRecognition::IsPositiveOrNegative(double a, double b, double c, int beg
 
 
 // 回复带符号的角度，1>2 cw +  1>2 ccw -//由于图像坐标与实际上下颠倒，需要加负号
-// 改成都是 ccw的角度 0 - 360°
+// 改成都是 cw的角度 0 - 360°
 double CIMGRecognition::CalculateVectorAngle(double x1, double y1, double x2, double y2)
 {
   //acos return radian,we should transform it into degree  

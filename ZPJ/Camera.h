@@ -49,5 +49,6 @@ public:
 	afx_msg void OnBnClickedBtnSplit();
 	afx_msg void OnBnClickedBtnReconnect();
   afx_msg void OnBnClickedBtnParmsend();
+  afx_msg void OnBnClickedBtnAuto();
 };
 extern CCamera *g_dlgCamera;
