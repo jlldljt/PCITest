@@ -278,6 +278,7 @@ void CCamera::OnBnClickedBtnTest()
 	CPen PenRed;
 	CGdiObject *o = NULL;
 	PenRed.CreatePen(PS_SOLID,1,RGB(255,0,0));//创建一支红色的画笔.
+
 	//pWnd = GetDlgItem(IDC_image1); //IDC_STATIC是picture control的ID.这句是得到picture的句柄.
 	//pDC = pWnd->GetDC();//然后得到设备环境.
 	//RECT rect;//声明一个rect
@@ -306,6 +307,17 @@ void CCamera::OnBnClickedBtnTest()
 	SetDlgItemText(IDC_SELECT_RESULT,csTmp);
 		//
 	pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
+
+
+  CBrush br;
+  br.CreateStockObject(NULL_BRUSH);
+  pDC->SelectObject(&br);
+  pDC->Rectangle(g_npc_inf.left * rect.Width() / gclsImgRcg.g_stu_square.nBMPW
+    , g_npc_inf.top * rect.Height() / gclsImgRcg.g_stu_square.nBMPH
+    , g_npc_inf.right * rect.Width() / gclsImgRcg.g_stu_square.nBMPW
+    , g_npc_inf.bottom * rect.Height() / gclsImgRcg.g_stu_square.nBMPH);
+
+
 	pWnd->ReleaseDC(pDC);
 	gstuRcgInfo.bClbPos=1;
 /*	g_tmp_path=_T(".\\PIC\\temp1.bmp");
@@ -483,6 +495,15 @@ void CCamera::OnStnClickedPreview()
           GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
           //AfxMessageBox(csTmp);
 				}
+
+        CBrush br;
+        br.CreateStockObject(NULL_BRUSH);
+        pDC->SelectObject(&br);
+        pDC->Rectangle(g_npc_inf.left * rect.Width() / gclsImgRcg.g_stu_square.nBMPW
+          , g_npc_inf.top * rect.Height() / gclsImgRcg.g_stu_square.nBMPH
+          , g_npc_inf.right * rect.Width() / gclsImgRcg.g_stu_square.nBMPW
+          , g_npc_inf.bottom * rect.Height() / gclsImgRcg.g_stu_square.nBMPH);
+
 				pWnd->ReleaseDC(pDC);
 				gclsImgRcg.stuRef.Dev=gstuRcgInfo.nAllowDefect;
 				gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][0]=gclsImgRcg.g_stu_square.pnZPX[i]; gstuRcgInfo.Xxy[gstuRcgInfo.Nxy][1]=gclsImgRcg.g_stu_square.pnZPY[i];//xy保存的是一样的东西，相同位置，相同xy，是否可以用一个？不可以，0,1是图像x，y；2是固定1；3是电机步数
@@ -527,6 +548,13 @@ void CCamera::OnStnClickedPreview()
       point.y = temp_y + 10 + 0.5;
       pDC->LineTo(point);
 
+      CBrush br;
+      br.CreateStockObject(NULL_BRUSH);
+      pDC->SelectObject(&br);
+      pDC->Rectangle(g_npc_inf.left* rect.Width() / gclsImgRcg.g_stu_square.nBMPW
+        , g_npc_inf.top* rect.Height() / gclsImgRcg.g_stu_square.nBMPH
+        , g_npc_inf.right* rect.Width() / gclsImgRcg.g_stu_square.nBMPW
+        , g_npc_inf.bottom* rect.Height() / gclsImgRcg.g_stu_square.nBMPH);
       pWnd->ReleaseDC(pDC);
       /////////////////////
       int X = xt + 0.5;

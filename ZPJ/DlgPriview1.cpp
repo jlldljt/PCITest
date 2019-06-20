@@ -33,12 +33,17 @@ END_MESSAGE_MAP()
 
 
 // CDlgPriview1 消息处理程序
-
+void CDlgPriview1::Process()
+{
+}
 
 void CDlgPriview1::OnLButtonDown(UINT nFlags, CPoint point)
 {
   // TODO: 在此添加消息处理程序代码和/或调用默认值
-
+  if (0 == gclsImgRcg.g_stu_square.nBMPW || 0 == gclsImgRcg.g_stu_square.nBMPH) {
+    AfxMessageBox(_T("先点击识别测试"));
+    return;
+  }
   double xt, yt;
   POINT pt;//定义点
   GetCursorPos(&pt);//取得当前坐标
@@ -68,6 +73,10 @@ void CDlgPriview1::OnLButtonDown(UINT nFlags, CPoint point)
   CPen PenRed;
   PenRed.CreatePen(PS_SOLID, 1, RGB(0, 255, 0));//创建一支的画笔.
   pDC->SelectObject(PenRed);//选中画笔.
+  CBrush br;
+  br.CreateStockObject(NULL_BRUSH);
+  pDC->SelectObject(&br);
+
   //pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), g_dlgCamera->mDCMem, 0, 0, SRCCOPY);
   pDC->TransparentBlt/*BitBlt*/(rect.left, rect.top, rect.Width(), rect.Height(), g_dlgCamera->mDCMem, 0, 0, rect_camera.Width(), rect_camera.Height(), SRCCOPY);
   POINT pt_dc;//定义点
@@ -82,8 +91,6 @@ void CDlgPriview1::OnLButtonDown(UINT nFlags, CPoint point)
   pDC->MoveTo(pt_dc);
   pt_dc.y = temp_y + 10 + 0.5;
   pDC->LineTo(pt_dc);
-
-  pWnd->ReleaseDC(pDC);
   /////////////////////
   CString csTmp;
 
@@ -107,6 +114,12 @@ void CDlgPriview1::OnLButtonDown(UINT nFlags, CPoint point)
     g_npc_inf.right = X;
     g_npc_inf.bottom = Y;
   }
+
+  pDC->Rectangle(g_npc_inf.left * lRect.Width()/gclsImgRcg.g_stu_square.nBMPW  
+    , g_npc_inf.top *  lRect.Height()/gclsImgRcg.g_stu_square.nBMPH 
+    , g_npc_inf.right *  lRect.Width()/gclsImgRcg.g_stu_square.nBMPW 
+    , g_npc_inf.bottom *lRect.Height()  / gclsImgRcg.g_stu_square.nBMPH);
+  pWnd->ReleaseDC(pDC);
 
   int status = AfxMessageBox(str, MB_OKCANCEL);
   if (status == 1)//按确定退出
@@ -138,4 +151,16 @@ void CDlgPriview1::OnLButtonDown(UINT nFlags, CPoint point)
   }
 
   CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+
+BOOL CDlgPriview1::OnInitDialog()
+{
+  CDialogEx::OnInitDialog();
+
+  // TODO:  在此添加额外的初始化
+
+
+  return TRUE;  // return TRUE unless you set the focus to a control
+                // 异常: OCX 属性页应返回 FALSE
 }
