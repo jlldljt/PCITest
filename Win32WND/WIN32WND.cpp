@@ -32,6 +32,41 @@ static BUTON_STATUS g_dpBsL = Nothing;
 static POINT g_dpPntLDown = { 0, 0 };
 static POINT g_dpPntLUp = { 0, 0 };
 
+
+#define LEFT_SIDE 20
+#define TOP_SIDE 10
+
+// 标识鼠标状态的枚举量
+
+
+// 保存鼠标位置的结构体, 有x, y两个分量域
+static POINT g_pntMouse = { 0, 0 };
+
+// 保存指针移动时, 组合键的标识, 
+// 组合键有
+//
+// MK_CONTROL(Ctrl键) 
+// MK_SHIFT(Shift键),
+// MK_LBUTTON(鼠标左键),
+// MB_RBUTTON(鼠标右键)
+static int g_nMark = 0;
+
+// 保存在操作鼠标按键时, 鼠标指针的位置
+static POINT g_pntL = { 0, 0 };
+static POINT g_pntLUp = { 0, 0 };
+
+
+// 保存操作鼠标按键时, 组合键的标识
+// 组合键有
+//
+// MK_CONTROL(Ctrl键)
+// MK_SHIFT(Shift键)
+static int g_nMarkL = 0;
+
+// 保存鼠标操作状态
+static BUTON_STATUS g_bsL = Nothing;
+
+
 void ReFreshDesktopRect(RECT rect, BOOL bErase)
 {
   HWND hWndDesk = GetDesktopWindow();
@@ -46,7 +81,7 @@ void ReFreshDesktopRect(RECT rect, BOOL bErase)
     RedrawWindow(hWndDesk, &rect, 0, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);// 1 4 80 =0x85);
   }
 }
-
+//回调的鼠标事件
 int MouseMsg(WPARAM wParam, POINT   pt)
 {
   if (g_bStart)
@@ -65,9 +100,17 @@ int MouseMsg(WPARAM wParam, POINT   pt)
         RedrawWindow(g_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW /*| RDW_ERASE*/);
         //return TRUE;
        // RECT rect = { g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y };
+       
       }
-
-
+      else {
+        RECT rc = { g_pntL.x, g_pntL.y, g_pntLUp.x, g_pntLUp.y };
+        //if (PtInRect(&rc, pt))无效，需要全局钩子
+        //  SetCursor(LoadCursor(NULL, IDC_CROSS));
+        //else
+        //  SetCursor(LoadCursor(NULL, IDC_ARROW));
+      }
+      SetCursorPos(pt.x, pt.y);//配合下面的，不然鼠标不动作
+      return TRUE;//使消息不传递给其他Window，不然框框会被其他界面刷新掉
 
     }
 
@@ -84,6 +127,9 @@ int MouseMsg(WPARAM wParam, POINT   pt)
       g_dpPntLUp.y = pt.y;
       RedrawWindow(g_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
       g_dpBsL = BtnDown;
+
+      SetCapture(g_hWnd);
+
       return TRUE;
     }
 
@@ -97,6 +143,8 @@ int MouseMsg(WPARAM wParam, POINT   pt)
       ///ReFreshDesktopRect({ g_dpPntLDown.x ,g_dpPntLDown.y, g_dpPntLUp.x, g_dpPntLUp.y }, 1);
       RedrawWindow(g_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
       g_dpBsL = BtnUp;
+
+      ReleaseCapture();
       return TRUE;
     }
   }
@@ -244,39 +292,6 @@ LRESULT CALLBACK WndMainProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	return lReturn;
 }
 
-
-#define LEFT_SIDE 20
-#define TOP_SIDE 10
-
-// 标识鼠标状态的枚举量
-
-
-// 保存鼠标位置的结构体, 有x, y两个分量域
-static POINT g_pntMouse = { 0, 0 };
-
-// 保存指针移动时, 组合键的标识, 
-// 组合键有
-//
-// MK_CONTROL(Ctrl键) 
-// MK_SHIFT(Shift键),
-// MK_LBUTTON(鼠标左键),
-// MB_RBUTTON(鼠标右键)
-static int g_nMark = 0;
-
-// 保存在操作鼠标按键时, 鼠标指针的位置
-static POINT g_pntL = { 0, 0 };
-static POINT g_pntLUp = { 0, 0 };
-
-
-// 保存操作鼠标按键时, 组合键的标识
-// 组合键有
-//
-// MK_CONTROL(Ctrl键)
-// MK_SHIFT(Shift键)
-static int g_nMarkL = 0;
-
-// 保存鼠标操作状态
-static BUTON_STATUS g_bsL = Nothing;
 
 /**
 * 判断字符串是否为空。
@@ -568,6 +583,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
+      
 		}
 	}
   EndHook();

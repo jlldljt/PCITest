@@ -976,19 +976,19 @@ UINT Thread_Auto(LPVOID pParam)
       pPoint[4].y = gclsImgRcg.g_stu_square.pnPY[i][0];
 
       //test
-      double angle_test = gclsImgRcg.CalculateVectorAngle(pPoint[1].x - pPoint[0].x,
-        pPoint[1].y - pPoint[0].y, 1, 0);
+      //double angle_test = gclsImgRcg.CalculateVectorAngle(pPoint[1].x - pPoint[0].x,
+      //  pPoint[1].y - pPoint[0].y, 1, 0);
       /*int nLenNo = gclsImgRcg.g_stu_square.lenNo1PN[i];
       int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
       */
 
-      par.deg0 = angle_test;
+      par.deg0 = gclsImgRcg.g_stu_square.angreePN[i];// angle_test;
       par.x0 = gclsImgRcg.g_stu_square.pnZPX[i];
       par.y0 = gclsImgRcg.g_stu_square.pnZPY[i];
-      par.pn0 = 0;//gstuRcgInfo.nPN;gclsImgRcg.g_stu_square.bPN[i]
+      par.pn0 = gclsImgRcg.g_stu_square.bPN[i];//gstuRcgInfo.nPN;gclsImgRcg.g_stu_square.bPN[i]
 
       CString csTmp;
-      csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"), gclsImgRcg.g_stu_square.pnLen[i], gclsImgRcg.g_stu_square.pnWth[i], (int)(par.pn0), (angle_test), (int)(par.x0), (int)(par.y0));
+      csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"), gclsImgRcg.g_stu_square.pnLen[i], gclsImgRcg.g_stu_square.pnWth[i], (int)(par.pn0), par.deg0, (int)(par.x0), (int)(par.y0));
       pdlg->GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
       TranNpcParam(&par);
 

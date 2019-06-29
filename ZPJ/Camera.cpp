@@ -431,8 +431,9 @@ void CCamera::OnStnClickedPreview()
 				CDC* pDC = pWnd->GetDC();
 				CRect rect;
 				GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
-				CPen PenRed;
+				CPen PenRed,PenGreen;
 				PenRed.CreatePen(PS_SOLID,1,RGB(255,0,0));//创建一支红色的画笔.
+        PenGreen.CreatePen(PS_SOLID,1,RGB(0,255,0));//创建一支红色的画笔.
 				pDC->SelectObject(PenRed);//选中画笔.
 				pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
 				if(gstuRcgInfo.bIsCir)
@@ -466,15 +467,15 @@ void CCamera::OnStnClickedPreview()
 
 					pDC->Polygon(pPoint,4);
           //test
-          double angle_test = gclsImgRcg.CalculateVectorAngle(pPoint[1].x-pPoint[0].x,
-            pPoint[1].y-pPoint[0].y, 1, 0);
-          /*int nLenNo = gclsImgRcg.g_stu_square.lenNo1PN[i];
+          //double angle_test = gclsImgRcg.CalculateVectorAngle(pPoint[1].x-pPoint[0].x,
+          //  pPoint[1].y-pPoint[0].y, 1, 0);
+          int nLenNo = gclsImgRcg.g_stu_square.lenNo1PN[i];
           int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
-          */
-          int nLenNo = 0;
-          int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
-          pDC->Ellipse(pPoint[nLenNo].x - 2, pPoint[nLenNo].y - 2, pPoint[nLenNo].x + 2, pPoint[nLenNo].y + 2);
+          
+          /*int nLenNo = 0;
+          int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);*/
 
+          pDC->Ellipse(pPoint[nLenNo].x - 2, pPoint[nLenNo].y - 2, pPoint[nLenNo].x + 2, pPoint[nLenNo].y + 2);
           pDC->Ellipse(pPoint[nLenNoNext].x - 4, pPoint[nLenNoNext].y - 4, pPoint[nLenNoNext].x + 4, pPoint[nLenNoNext].y + 4);
 
           //
@@ -482,19 +483,28 @@ void CCamera::OnStnClickedPreview()
 					gclsImgRcg.stuRef.Wth=gclsImgRcg.g_stu_square.pnWth[i];
 					gstuRcgInfo.nPN=gclsImgRcg.g_stu_square.bPN[i];
 
-          m_par.deg0 = angle_test;
+          m_par.deg0 = gclsImgRcg.g_stu_square.angreePN[i];// angle_test;
           int X = gclsImgRcg.g_stu_square.pnZPX[i];
           int Y = gclsImgRcg.g_stu_square.pnZPY[i];
           m_par.x0 = X;
           m_par.y0 = Y;
-          m_par.pn0 = 0;//gstuRcgInfo.nPN;
+          m_par.pn0 = gclsImgRcg.g_stu_square.bPN[i];//gstuRcgInfo.nPN;
           CString csTmp;
-          csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"), gclsImgRcg.g_stu_square.pnLen[i],gclsImgRcg.g_stu_square.pnWth[i], (int)(m_par.pn0), (angle_test), X, Y);
+          //csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"), gclsImgRcg.g_stu_square.pnLen[i],gclsImgRcg.g_stu_square.pnWth[i], (int)(m_par.pn0), (angle_test), X, Y);
 
-          //csTmp.Format(_T("长%d宽%dX方向%d角度%.1f"),gclsImgRcg.g_stu_square.pnLen[i],gclsImgRcg.g_stu_square.pnWth[i],gclsImgRcg.g_stu_square.bPN[i], gclsImgRcg.g_stu_square.angreePN[i]);
+          csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"),gclsImgRcg.g_stu_square.pnLen[i],gclsImgRcg.g_stu_square.pnWth[i], (int)(m_par.pn0), (m_par.deg0), (int)(m_par.x0), (int)(m_par.y0));
           GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
           //AfxMessageBox(csTmp);
 				}
+        if (
+          gclsImgRcg.g_stu_square.pnZPX[i] < g_npc_inf.left ||
+          gclsImgRcg.g_stu_square.pnZPX[i] > g_npc_inf.right ||
+          gclsImgRcg.g_stu_square.pnZPY[i] < g_npc_inf.top ||
+          gclsImgRcg.g_stu_square.pnZPY[i] > g_npc_inf.bottom
+          )
+          pDC->SelectObject(PenRed);
+        else
+          pDC->SelectObject(PenGreen);
 
         CBrush br;
         br.CreateStockObject(NULL_BRUSH);
@@ -531,8 +541,9 @@ void CCamera::OnStnClickedPreview()
       CDC* pDC = pWnd->GetDC();
       CRect rect;
       GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
-      CPen PenRed;
-      PenRed.CreatePen(PS_SOLID, 1, RGB(0, 255, 0));//创建一支的画笔.
+      CPen PenRed, PenGreen;
+      PenRed.CreatePen(PS_SOLID, 1, RGB(255, 0, 0));//创建一支红色的画笔.
+      PenGreen.CreatePen(PS_SOLID, 1, RGB(0, 255, 0));//创建一支红色的画笔.
       pDC->SelectObject(PenRed);//选中画笔.
       pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
       POINT point;//定义点
@@ -547,6 +558,16 @@ void CCamera::OnStnClickedPreview()
       pDC->MoveTo(point);
       point.y = temp_y + 10 + 0.5;
       pDC->LineTo(point);
+
+      if (
+        xt + 0.5 < g_npc_inf.left ||
+        xt + 0.5 > g_npc_inf.right ||
+        yt + 0.5 < g_npc_inf.top ||
+        yt + 0.5 > g_npc_inf.bottom
+        )
+        pDC->SelectObject(PenRed);
+      else
+        pDC->SelectObject(PenGreen);
 
       CBrush br;
       br.CreateStockObject(NULL_BRUSH);

@@ -31,6 +31,7 @@ void CDlgPriview::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CDlgPriview, CDialogEx)
   ON_WM_LBUTTONDOWN()
+//  ON_WM_SETCURSOR()
 END_MESSAGE_MAP()
 
 
@@ -267,3 +268,11 @@ BOOL CDlgPriview::OnInitDialog()
   return TRUE;  // return TRUE unless you set the focus to a control
                 // 异常: OCX 属性页应返回 FALSE
 }
+
+
+//BOOL CDlgPriview::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
+//{
+//  // TODO: 在此添加消息处理程序代码和/或调用默认值
+//
+//  return CDialogEx::OnSetCursor(pWnd, nHitTest, message);
+//}

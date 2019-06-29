@@ -12,6 +12,8 @@ public:
 	virtual ~CDlgPriview1();
 
   int m_n;
+  CRectTracker m_RectTracker;
+  BOOL bDraw;
 // 对话框数据
 	enum { IDD = IDD_DLG_PRIVIEW };
 
@@ -24,4 +26,7 @@ public:
     void Process();
   void OnLButtonDown(UINT nFlags, CPoint point);
   virtual BOOL OnInitDialog();
+  afx_msg void OnPaint();
+  afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
+  afx_msg void OnDestroy();
 };
