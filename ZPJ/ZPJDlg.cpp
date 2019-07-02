@@ -267,6 +267,11 @@ BOOL CBERDlg::SYSInit()
 		WritePrivateProfileString(_T("识别参数"),_T("缺陷点距"),_T("0"),gstuPathInf.csPathIni);   
 		WritePrivateProfileString(_T("识别参数"),_T("阈值"),_T("0"),gstuPathInf.csPathIni);  
 		WritePrivateProfileString(_T("识别参数"),_T("特征允许误差"),_T("0"),gstuPathInf.csPathIni);
+    //相机识别
+    WritePrivateProfileString(_T("方片参数"), _T("最小角"), _T("0"), gstuPathInf.csPathIni);
+    WritePrivateProfileString(_T("方片参数"), _T("最大角"), _T("0"), gstuPathInf.csPathIni);
+    WritePrivateProfileString(_T("方向参数"), _T("最小角"), _T("0"), gstuPathInf.csPathIni);
+    WritePrivateProfileString(_T("方向参数"), _T("最大角"), _T("0"), gstuPathInf.csPathIni);
 		//校准系数
 		WritePrivateProfileString(_T("校准系数"),_T("00"),_T("0"),gstuPathInf.csPathIni);
 		WritePrivateProfileString(_T("校准系数"),_T("01"),_T("0"),gstuPathInf.csPathIni);
@@ -594,6 +599,16 @@ BOOL CBERDlg::DBGInit()
 		iniint=GetPrivateProfileInt(_T("识别参数"),_T("特征允许误差"),0,gstuPathInf.csPathIni);
 		g_dlgCamera->SetDlgItemInt(IDC_EDT_FTOUTPOINT,iniint);gstuRcgInfo.nAllowDefect = iniint;
 
+    //识别
+
+    iniint = GetPrivateProfileInt(_T("方片参数"), _T("最小角"), 0, gstuPathInf.csPathIni);
+    g_dlgCamera->SetDlgItemInt(IDC_EDT_SQU_MINDEG, iniint); gclsImgRcg.stuRef.SAg = iniint;
+    iniint = GetPrivateProfileInt(_T("方片参数"), _T("最大角"), 0, gstuPathInf.csPathIni);
+    g_dlgCamera->SetDlgItemInt(IDC_EDT_SQU_MAXDEG, iniint); gclsImgRcg.stuRef.BAg = iniint;
+    iniint = GetPrivateProfileInt(_T("方向参数"), _T("最小角"), 0, gstuPathInf.csPathIni);
+    g_dlgCamera->SetDlgItemInt(IDC_EDT_PN_MINDEG, iniint); gclsImgRcg.stuRef.PN_sag = iniint;
+    iniint = GetPrivateProfileInt(_T("方向参数"), _T("最大角"), 0, gstuPathInf.csPathIni);
+    g_dlgCamera->SetDlgItemInt(IDC_EDT_PN_MAXDEG, iniint); gclsImgRcg.stuRef.PN_bag = iniint;
 
 	}
 	else

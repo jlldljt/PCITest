@@ -50,5 +50,9 @@ public:
 	afx_msg void OnBnClickedBtnReconnect();
   afx_msg void OnBnClickedBtnParmsend();
   afx_msg void OnBnClickedBtnAuto();
+  afx_msg void OnEnChangeEdtSquMindeg();
+  afx_msg void OnEnChangeEdtSquMaxdeg();
+  afx_msg void OnEnChangeEdtPnMindeg();
+  afx_msg void OnEnChangeEdtPnMaxdeg();
 };
 extern CCamera *g_dlgCamera;

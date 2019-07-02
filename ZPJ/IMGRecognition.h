@@ -30,7 +30,8 @@ typedef struct SquareInfo{//标准片
 }SquareInfo;
 typedef struct FeatureRefer{
 	int Len,Wth,Dev,Rad;//长、宽、偏差、半径
-	double SAg,BAg;//最大最小允许角，对于方形
+	int SAg,BAg;//最大最小允许角，对于方形
+  int PN_sag, PN_bag;//方向的最小角，最大角
 }FeatureRefer;
 typedef struct Vector
 {

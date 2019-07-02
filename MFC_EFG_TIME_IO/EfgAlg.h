@@ -30,6 +30,7 @@ typedef struct tagSPIKE
 {
   POINT p;//坐标
   LONG  w;//宽度
+  double x;//备注x
 } SPIKE, *PSPIKE;
 
 
@@ -41,6 +42,13 @@ typedef struct tagSPIKE
     double t;
     double k;
   };
+
+  //struct tagFitParam {
+  //  double A,w,t,k,D1,D2, DM,R1;
+  //  double A_avg,w_avg,t_avg,k_avg,D1_avg,D2_avg, DM_avg,R1_avg;
+  //  double A_std,w_std,t_std,k_std,D1_std,D2_std, DM_std,R1_std;
+  //  double A_std2,w_std2,t_std2,k_std2,D1_std2,D2_std2, DM_std2,R1_std2;
+  //};
 
 
 class EfgAlg
@@ -69,7 +77,7 @@ public:
   // 规定一个sin周期，即w已知，如果w不规定，无法代出结果，不收敛了
   int FitSinBySubstitution(double * yi/*存放原始y值*/, int iNum, double *fityi/*存放拟合后的值*/, struct tagSinParam &sinparam);
   // 三参数，注意是弧度值
-  int FitSinByLeastSquares(double * yi/*存放原始y值*/, int iNum, double *fityi/*存放拟合后的值*/, struct tagSinParam &sinparam);
+  int FitSinByLeastSquares(double * yi/*存放原始y值*/, int iNum, double *fityi/*存放拟合后的值*/, struct tagSinParam &sinparam, double *ignore_val = NULL);
 
   //////////////////////////////////////////////X laser////////////////////////////////////////////////////////////
 
@@ -89,17 +97,23 @@ public:
   int GetSpikesNumber();
   // 得到某个尖峰的坐标
   int GetSpike(int number, SPIKE& spike);
+  int DelSpike(int number);
+  // 更新所有点的x，用于多次测量
+
+  int UpdateSpikeX(double* x);
   // 得到各个档的档位,秒
   BOOL GetAllSortDegree(int *out_sec, int in_center_sec, int step_sec, int sort_num);
  // void JudegWhichSortDegree(double sec, int *sort_sec, int step_sec, int sort_num, int &which);
   //°
   BOOL GetD1D2DM(double & D1, double & D2, double & DM,double &R1, int pluse_num);
+  
+  //BOOL UpdateFitParam(int num,struct tagFitParam fit);
   //BOOL GetD1D2DM(double &D1, double &D2, double &DM, int pluse_num, double factor_h, double factor_w);
   BOOL SortSpike(int pluse_num);
   // 计算原始光轴/原始电轴/u轴g，°
   void CalcDegree0(const double D1, const double D2, const double DM, double & theta0, double & phi0, double &u_g);
   // 计算修正光轴/电轴，°
-  void CalcDegree1(double amp, double phase, double r1, double laser_offset, double theta0, double phi0, double &theta1, double &phi1);
+  void CalcDegree1(double amp, double phase, double r1, double laser_offset, double theta0, double phi0, double &theta1, double &phi1, double dm);
   // 计算等效角，°
   void CalcEquAngle(double theta0, double phi0, double equ_phi, double equ_factor, double & equ);
   // 累计计算avg std， std2时中间值

@@ -87,6 +87,7 @@ public:
   CTabCtrl m_tab_preview;
   void ShowResult(BOOL sw);
   afx_msg void OnTcnSelchangeTabPreview(NMHDR *pNMHDR, LRESULT *pResult);
+  int FitAndUpdate(int n);
   int CalcResult();
   CStaticEx m_static_result;
   afx_msg void OnBnClickedChkStaticmeasure();

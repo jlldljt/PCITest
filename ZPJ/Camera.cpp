@@ -76,6 +76,10 @@ ON_BN_CLICKED(IDC_BTN_SPLIT, &CCamera::OnBnClickedBtnSplit)
 ON_BN_CLICKED(IDC_BTN_RECONNECT, &CCamera::OnBnClickedBtnReconnect)
 ON_BN_CLICKED(IDC_BTN_PARMSEND, &CCamera::OnBnClickedBtnParmsend)
 ON_BN_CLICKED(IDC_BTN_AUTO, &CCamera::OnBnClickedBtnAuto)
+ON_EN_CHANGE(IDC_EDT_SQU_MINDEG, &CCamera::OnEnChangeEdtSquMindeg)
+ON_EN_CHANGE(IDC_EDT_SQU_MAXDEG, &CCamera::OnEnChangeEdtSquMaxdeg)
+ON_EN_CHANGE(IDC_EDT_PN_MINDEG, &CCamera::OnEnChangeEdtPnMindeg)
+ON_EN_CHANGE(IDC_EDT_PN_MAXDEG, &CCamera::OnEnChangeEdtPnMaxdeg)
 END_MESSAGE_MAP()
 
 
@@ -478,7 +482,7 @@ void CCamera::OnStnClickedPreview()
           pDC->Ellipse(pPoint[nLenNo].x - 2, pPoint[nLenNo].y - 2, pPoint[nLenNo].x + 2, pPoint[nLenNo].y + 2);
           pDC->Ellipse(pPoint[nLenNoNext].x - 4, pPoint[nLenNoNext].y - 4, pPoint[nLenNoNext].x + 4, pPoint[nLenNoNext].y + 4);
 
-          //
+          ////保存到特征变量
 					gclsImgRcg.stuRef.Len=gclsImgRcg.g_stu_square.pnLen[i];
 					gclsImgRcg.stuRef.Wth=gclsImgRcg.g_stu_square.pnWth[i];
 					gstuRcgInfo.nPN=gclsImgRcg.g_stu_square.bPN[i];
@@ -1197,4 +1201,132 @@ void CCamera::OnBnClickedBtnAuto()
     //
 
   }
+}
+
+
+void CCamera::OnEnChangeEdtSquMindeg()
+{
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_SQU_MINDEG, &bFlag, 0);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("方片参数"), _T("最小角"), strValue, gstuPathInf.csPathIni);
+  gclsImgRcg.stuRef.SAg = nValue;
+}
+
+
+void CCamera::OnEnChangeEdtSquMaxdeg()
+{
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_SQU_MAXDEG, &bFlag, 0);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("方片参数"), _T("最大角"), strValue, gstuPathInf.csPathIni);
+  gclsImgRcg.stuRef.BAg = nValue;
+}
+
+
+void CCamera::OnEnChangeEdtPnMindeg()
+{
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_PN_MINDEG, &bFlag, 0);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("方向参数"), _T("最小角"), strValue, gstuPathInf.csPathIni);
+  gclsImgRcg.stuRef.PN_sag = nValue;
+}
+
+
+void CCamera::OnEnChangeEdtPnMaxdeg()
+{
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_PN_MAXDEG, &bFlag, 0);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("方向参数"), _T("最大角"), strValue, gstuPathInf.csPathIni);
+  gclsImgRcg.stuRef.PN_bag = nValue;
 }

@@ -65,7 +65,7 @@ UINT Thread_TurntableRun(LPVOID pParam)
     SetThreadAffinityMask(GetCurrentThread(), 1);
 
   CDlgRun1* pdlg = (CDlgRun1*)pParam;
-
+  int n = 2,cnt = 0;
   while (1)
   {
     switch (pdlg->m_run.state.turntable) {
@@ -76,8 +76,17 @@ UINT Thread_TurntableRun(LPVOID pParam)
 	  }
       break;
     case RUNNING:
-      if (GetMainFrame()->CheckMeasure())
-        pdlg->m_run.state.turntable = WAIT;
+      if (GetMainFrame()->CheckMeasure()){
+		  int ret = pdlg->FitAndUpdate(++cnt);
+		  if(cnt == n){
+              pdlg->m_run.state.turntable = WAIT;
+			  cnt = 0;
+		  }else{
+              pdlg->m_run.state.turntable = START;
+			  if(ret == -1)
+				  cnt = 0;
+		  }
+	  }
       break;
     case WAIT:
       if (END == pdlg->m_run.state.y)//如果y停止，启动y
@@ -946,9 +955,31 @@ void CDlgRun1::OnTcnSelchangeTabPreview(NMHDR *pNMHDR, LRESULT *pResult)
     *pResult = 0;
 }
 //得到用户最终结果并刷新界面
+int CDlgRun1::FitAndUpdate(int n)
+{
+	ASSERT(n>0);
+
+	if (-1 == GetMainFrame()->m_diIntCounterSnap.LaserFit(n)) {
+		return -1;
+	}
+
+	if (GetMainFrame()->m_viewBoard)
+		GetMainFrame()->m_viewBoard->DrawToDC(m_laserdc, m_preview_rect);
+
+	if (-1 == GetMainFrame()->m_diIntCounterSnap.XrayFit(n)) {
+		return -1;
+	}
+
+	if (GetMainFrame()->m_viewBoard)
+		GetMainFrame()->m_viewBoard->DrawToDC(m_xraydc, m_preview_rect);
+
+	OnTcnSelchangeTabPreview(NULL, NULL);
+	return 0;
+}
+//得到用户最终结果并刷新界面
 int CDlgRun1::CalcResult()
 {
-  if (-1 == GetMainFrame()->m_diIntCounterSnap.LaserFit()) {
+  /*if (-1 == GetMainFrame()->m_diIntCounterSnap.LaserFit()) {
     return -1;
   }
 
@@ -960,7 +991,7 @@ int CDlgRun1::CalcResult()
   }
 
   if (GetMainFrame()->m_viewBoard)
-    GetMainFrame()->m_viewBoard->DrawToDC(m_xraydc, m_preview_rect);
+    GetMainFrame()->m_viewBoard->DrawToDC(m_xraydc, m_preview_rect);*/
 
   EfgAlg alg;
 
@@ -971,16 +1002,26 @@ int CDlgRun1::CalcResult()
     m_io->m_resultParam.measure.k
   };
   //计算光轴电轴
+  
+  double AMPL = atan(m_io->m_resultParam.measure.A * m_io->m_configParam.laser.factor_a / m_io->m_configParam.laser.factor_l) / DPI;
+  double PHASE = - m_io->m_resultParam.measure.t / m_io->m_resultParam.measure.w * /*2 * PI*/360 / ( m_io->m_resultParam.measure.l_num);  // 零位到sin的起始位置的角度，注意原始efg的图是上下颠倒的
+
+
   alg.CalcDegree1(
-    atan(m_io->m_resultParam.measure.A * m_io->m_configParam.laser.factor_a / m_io->m_configParam.laser.factor_l) / DPI,
-    m_io->m_resultParam.measure.t / DPI,
+    AMPL,
+    PHASE/*m_io->m_resultParam.measure.t / DPI*/,
     m_io->m_resultParam.measure.R1,
     m_io->m_configParam.laser.offset,
     m_io->m_resultParam.measure.cur_theta0,
     m_io->m_resultParam.measure.cur_phi0,
     m_io->m_resultParam.measure.cur_theta1,
-    m_io->m_resultParam.measure.cur_phi1
+    m_io->m_resultParam.measure.cur_phi1,
+	m_io->m_resultParam.measure.DM
   );
+  
+  m_io->m_resultParam.measure.cur_theta1 += m_io->m_configParam.laser.theta_offset/3600;
+  m_io->m_resultParam.measure.cur_phi1 += m_io->m_configParam.laser.phi_offset/3600;
+
   //计算等效角
   alg.CalcEquAngle(
     m_io->m_resultParam.measure.cur_theta0,

@@ -795,7 +795,7 @@ int CEfgIO::GetCntDataNum(int no)
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc,1);
 
   if (rdlen > 5 && crc)
   {
@@ -817,7 +817,7 @@ int CEfgIO::GetAllCntData(int no, char* buf, int len)
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, buf, len, &crc, 10/*100ms*/);
+  rdlen = m_com.SendAndRecv(sbuf, slen, buf, len, &crc, 1/*100ms*/);
 
   if (rdlen > 5 && crc)
   {

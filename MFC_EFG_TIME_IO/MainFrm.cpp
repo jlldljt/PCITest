@@ -1023,7 +1023,7 @@ void CMainFrame::OnButtonLaserFit()
 void CMainFrame::OnButtonXrayFit()
 {
   // TODO: 在此添加命令处理程序代码
-  if (0 != m_diIntCounterSnap.XrayFit())
+  if (0 != m_diIntCounterSnap.XrayFit(1))
     AfxMessageBox(L"error");
   else
     Switch(VIEW_BOARD);
@@ -1241,6 +1241,10 @@ void CMainFrame::EfgParamLoad()
   m_efgio.m_configParam.laser.factor_l = _wtof(ret);
   GetPrivateProfileString(_T("激光"), _T("角度偏移"), _T(""), ret, sizeof(ret), ini_path);
   m_efgio.m_configParam.laser.offset = _wtof(ret);
+  GetPrivateProfileString(_T("激光"), _T("光轴偏移"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.laser.theta_offset = _wtof(ret);
+  GetPrivateProfileString(_T("激光"), _T("电轴偏移"), _T(""), ret, sizeof(ret), ini_path);
+  m_efgio.m_configParam.laser.phi_offset = _wtof(ret);
 
   //xray
 
@@ -1359,6 +1363,10 @@ void CMainFrame::EfgParamSave()
   WritePrivateProfileString(_T("激光"), _T("距离因子"), str, ini_path);
   str.Format(_T("%.3f"), m_efgio.m_configParam.laser.offset);
   WritePrivateProfileString(_T("激光"), _T("角度偏移"), str, ini_path);
+  str.Format(_T("%.3f"), m_efgio.m_configParam.laser.theta_offset);
+  WritePrivateProfileString(_T("激光"), _T("光轴偏移"), str, ini_path);
+  str.Format(_T("%.3f"), m_efgio.m_configParam.laser.phi_offset);
+  WritePrivateProfileString(_T("激光"), _T("电轴偏移"), str, ini_path);
   //xray
   str.Format(_T("%d"), m_efgio.m_configParam.xray.threshold);
   WritePrivateProfileString(_T("X光"), _T("阈值"), str, ini_path);

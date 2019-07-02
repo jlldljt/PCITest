@@ -315,5 +315,16 @@ void CDlgPriview1::OnDestroy()
   g_npc_inf.bottom=(rect.bottom * gclsImgRcg.g_stu_square.nBMPH / (wnd_rc.Height()));
 
 
+      //±£¥Ê
+      CString strValue;
+      strValue.Format(_T("%d"), g_npc_inf.left);
+      WritePrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("left"), strValue, gstuPathInf.csPathIni);
+      strValue.Format(_T("%d"), g_npc_inf.top);
+      WritePrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("top"), strValue, gstuPathInf.csPathIni);
+      strValue.Format(_T("%d"), g_npc_inf.right);
+      WritePrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("right"), strValue, gstuPathInf.csPathIni);
+      strValue.Format(_T("%d"), g_npc_inf.bottom);
+      WritePrivateProfileString(_T("∑∂Œß…Ë÷√"), _T("bottom"), strValue, gstuPathInf.csPathIni);
+
 
 }

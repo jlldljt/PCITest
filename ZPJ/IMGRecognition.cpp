@@ -10,8 +10,8 @@ CIMGRecognition::CIMGRecognition(void)
   g_stu_square.bIsLap = 0;
   g_stu_square.bJudgeFeature = 0;
   stuRef.Dev = 0;
-  stuRef.SAg = 82;
-  stuRef.BAg = 98;
+  //stuRef.SAg = 82;
+  //stuRef.BAg = 98;
   font.CreatePointFont(100, _T("黑体"), NULL);
 }
 
@@ -1550,7 +1550,7 @@ int CIMGRecognition::data_check_feature_circle_split(unsigned char*& pBmpBuf, in
 //返回1，顶点数多了
 //返回0，正常
 //函数最后将特征量保存到全局结构
-int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount, int bmpWidth, int bmpHeight, int bj_num, int* bj_h, int* bj_l, int qybn, int*& xsvalue, int*& fbvalue, int*& jgvalue, int*& txvalue, int outpointallowlen, int defectallowlen)
+int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount, int bmpWidth, int bmpHeight, int bj_num, int* bj_h, int* bj_l, int qybn, int*& xsvalue, int*& fbvalue, int*& jgvalue, int*& txvalue, int outpointallowlen/*判断直线与点的最大距离*/, int defectallowlen/*判断缺陷in or out用*/)
 {
   double centreh, centrel;//存储边界中心行列
   int pi_point_h[50];//折点行坐标
@@ -1901,20 +1901,20 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
 
     bool in = InOrOut(*(bj_l + i_out_no[j]), *(bj_h + i_out_no[j]), pd_line_a, pd_line_b, pd_line_c);
     if (j > 0)
-      if (i_out_no[j] == i_out_no[j - 1] + 1)//编号延续上一编号
+      if (i_out_no[j] == i_out_no[j - 1] + 1)//编号延续上一编号，同一缺陷
       {
         if (i_out_len[j] > defectallowlen && i_out_len[j - 1] > defectallowlen)
         {
 
           if (g_stu_square.debug)data_bmp_set_color(pBmpBuf, biBitCount, bmpWidth, bmpHeight, *(bj_h + i_out_no[j]), *(bj_l + i_out_no[j]), 0, 255, 255);
-          unceasouts++;
+          unceasouts++;//用于判断in or out的点数
 
         }
-        nUnceasNo++;
+        nUnceasNo++;//一个缺陷的点数
         nEndj = j;
         bIn = in;
       }
-      else
+      else//一个缺陷结束
       {
         if (nUnceasNo > unceasallownum)
         {
@@ -3119,6 +3119,8 @@ int  CIMGRecognition::IsPositiveOrNegative(double a, double b, double c, int beg
   if (!g_stu_square.rcglineok)
     return -1;
   double dAngle1 = 0, dAngle2 = 0;
+  double min_deg = stuRef.PN_sag, max_deg = stuRef.PN_bag;
+
   int bPositive = 0;
   //第一个角
   {
@@ -3178,9 +3180,9 @@ int  CIMGRecognition::IsPositiveOrNegative(double a, double b, double c, int beg
     if (dAngle2 > 90)
       dAngle2 = 180 - dAngle2;
   }
-  if (dAngle1 < dAngle2 && dAngle1>15 && dAngle1 < 25)
+  if (dAngle1 < dAngle2 && dAngle1>min_deg/*15*/ && dAngle1 < max_deg/*25*/)
     bPositive = 1;
-  else if (dAngle1 > dAngle2 && dAngle2 > 15 && dAngle2 < 25)
+  else if (dAngle1 > dAngle2 && dAngle2 > min_deg && dAngle2 < max_deg)
     bPositive = 0;
   else
     bPositive = -1;

@@ -28,6 +28,8 @@ typedef struct  {
     double factor_a;//幅度因子，反映激光晃动的距离 amp = atan (A * factor_a / factor_l) 若factor_l = 1；则简化为amp = atan (A * factor_a)
     double factor_l;//距离因子，反映反射光到镜头的距离
     double offset;//角度偏移
+	double theta_offset;//最终光轴偏移
+	double phi_offset;//最终电轴偏移
   }laser;
   
   struct {//X光相关
@@ -138,7 +140,7 @@ typedef struct {
     double pluse_num,min_pluse_num,max_pluse_num;               // 转盘脉冲数
 	  int    pluse_cnt;
     double u_g;                      // 公式计算处的u轴的g值
-    double A, w, t, k;              // 激光结果
+    double A, w, t, k, l_num;              // 激光结果
     double cur_phi1, cur_phi0, cur_theta1, cur_theta0, cur_equ; // 当前片
     double avg_phi1, avg_phi0, avg_theta1, avg_theta0, avg_equ;       // 平均
     double std_phi1, std_phi0, std_theta1, std_theta0, std_equ;       // 散差
@@ -167,10 +169,10 @@ enum EFG_IChannel
 enum EFG_OChannel
 {
  // U_DIR = 0,//
-  CLEAN=1,
-  XRAY_GATE,
+  CLEAN=0,//=1,
   ALERT,
-  BLOW=4,
+  BLOW,
+  XRAY_GATE,
   X_NOZZLE,
   Y_NOZZLE,
   U_GATE,//

@@ -960,7 +960,16 @@ UINT Thread_Auto(LPVOID pParam)
         gclsImgRcg.g_stu_square.pnZPY[i] > g_npc_inf.bottom
         )
         continue;
-
+      //³¤ÅÐ¶Ï
+      if (gclsImgRcg.g_stu_square.pnLen[i] < (gclsImgRcg.stuRef.Len - gclsImgRcg.stuRef.Dev) || gclsImgRcg.g_stu_square.pnLen[i] > (gclsImgRcg.stuRef.Len + gclsImgRcg.stuRef.Dev))
+      {
+        continue;
+      }
+      //¿íÅÐ¶Ï
+      if (gclsImgRcg.g_stu_square.pnWth[i] < (gclsImgRcg.stuRef.Wth - gclsImgRcg.stuRef.Dev) || gclsImgRcg.g_stu_square.pnWth[i] > (gclsImgRcg.stuRef.Wth + gclsImgRcg.stuRef.Dev))
+      {
+        continue;
+      }
 
       NpcParm par;
 

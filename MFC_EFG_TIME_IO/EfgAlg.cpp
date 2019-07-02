@@ -338,10 +338,12 @@ int EfgAlg::FitSinBySubstitution(double * yi/*存放原始y值*/, int iNum, double *f
 
 //三参数拟合
 //参考《四参数正弦曲线拟合的一种收敛算法》
-int EfgAlg::FitSinByLeastSquares(double * yi, int iNum, double * fityi, tagSinParam & sinparam)
+int EfgAlg::FitSinByLeastSquares(double * yi, int iNum, double * fityi, tagSinParam & sinparam, double *ignore_val)
 {
+	
   double A = 0;
   const double w = 2 * PI / iNum;
+  int num = 0;
   double t = 0;
   double k = 0;
   struct tagSinParam param = { 0 };
@@ -350,6 +352,12 @@ int EfgAlg::FitSinByLeastSquares(double * yi, int iNum, double * fityi, tagSinPa
   double sumya = 0, sumyb = 0, sumb = 0, suma = 0, sumab = 0, sumaa = 0, sumbb = 0;
   for (int i = 0; i < iNum; i++)
   {
+	if(ignore_val)
+	  if(yi[i] == *ignore_val)//临时加，使之跳过
+	    continue;
+
+	num++;
+
     y = yi[i];
     a = cos(w*i);
     b = sin(w*i);
@@ -364,9 +372,9 @@ int EfgAlg::FitSinByLeastSquares(double * yi, int iNum, double * fityi, tagSinPa
     sumaa += a*a;
     sumbb += b*b;
   }
-  avgy /= iNum; 
-  avga /= iNum;
-  avgb /= iNum;
+  avgy /= num;//iNum; 
+  avga /= num;//iNum;
+  avgb /= num;//iNum;
 
   double AN = 0, AD = 0, BN = 0, BD = 0;
   
@@ -598,7 +606,7 @@ int Cal(double * yi, int startCur, int endCur, double* ParaA, double* ParaB, dou
   
   
   // 提取一般面积处的cur,后期可以考虑抛物线
-int GetMidCur(double * yi, int startCur, int endCur)
+double GetMidCur(double * yi, int startCur, int endCur)
 {
 	//抛物线
 	double ParaA,ParaB,ParaC;
@@ -734,7 +742,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
   int limitCur = -1;// 第一个超限点
   //int limitCnt = 0;
   double d = 0;
-  int max = 0;// 最大超限点
+  double max = 0;// 最大超限点
   //confirmNum += ignore;
   m_spikes.RemoveAll();
   bool lastOne = false;
@@ -747,6 +755,10 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
 		  lastOne = true;
 	  }
 	  else if(i < iNum && false == lastOne)
+	  {
+		  ;
+	  }
+	  else if(true == lastOne)
 	  {
 		  ;
 	  }
@@ -780,9 +792,8 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
       }
       else
       {
-        if (yi[max] < yi[i])
+        if (yi[int(max)] < yi[i])
           max = i;
-
         outLimitCnt++;
       }
 	  ignoreCnt = 0;
@@ -808,7 +819,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
 		int lastCur = i-1-ignoreCnt;
 
 		if(lastCur <0)
-			lastCur=iNum-lastCur;
+			lastCur=iNum+lastCur;
 
 		double * tmp_yi = new double[outLimitCnt];//防止跨边界
 		int point_num  =0;
@@ -839,17 +850,23 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*阈值*/, int co
 
 			int d1 = abs(max - tmp.p.x);
 			int d2 = iNum - d1;
-			if(d1<confirmNum+ignore || d2<confirmNum+ignore)
-				break;
+			int limit= (confirmNum+ignore)*10;
+			if(d1< limit|| d2<limit)
+				m_spikes.RemoveAt(0);;
+			//以处理最后一个点，以下退出循环上
+			lastOne= false;
+			i = iNum;
 
 		}
 		
 		if(1/*max>=limitCur && max<=i-1-ignoreCnt*/)
 		{
 			SPIKE spike;
-			spike.p.x = max;//(limitCur + i - 1) / 2;
-			spike.p.y = yi[max];
+            spike.x = (max>=0?max:iNum+max);
+			spike.p.x = spike.x+0.5;//(limitCur + i - 1) / 2;
+			spike.p.y = yi[spike.p.x];
 			spike.w = outLimitCnt;
+			
 			m_spikes.Add(spike);
 		}
       }
@@ -871,6 +888,31 @@ int EfgAlg::GetSpikesNumber()
 int EfgAlg::GetSpike(int number, SPIKE& spike)
 {
   spike = m_spikes.GetAt(number);
+  return 0;
+}
+int EfgAlg::DelSpike(int number)
+{
+  m_spikes.RemoveAt(number);
+  return 0;
+}
+//x4个尖峰的x
+int EfgAlg::UpdateSpikeX(double* x)
+{
+  SPIKE p[4];
+  for (int i = 0; i < 4; i++)
+  {
+    p[i] = m_spikes.GetAt(i);
+	p[i].x = x[i];
+	p[i].p.x = x[i]+0.5;
+  }
+
+  m_spikes.RemoveAll();
+
+  for(int i = 0 ; i < 4; i ++)
+  {
+	  m_spikes.Add(p[i]);
+  }
+
   return 0;
 }
 // 根据中心即步长等得出所有档位的档位中心值
@@ -895,6 +937,7 @@ BOOL EfgAlg::GetAllSortDegree(int * out_sec, int in_center_sec, int step_sec, in
   return TRUE;
 }
 // 利用间距计算d1d2dm,最大间距过来的第一个最小间距是D1，然后D2的中间距离零位距离是R1
+// 输出单位°
 BOOL EfgAlg::GetD1D2DM(double &D1, double &D2, double &DM, double &R1,int pluse_num)
 {
   if (!SortSpike(pluse_num))
@@ -1243,8 +1286,10 @@ LaserOffset	设置的激光相对偏移角度（激光入射光线和零位的夹角）
 φ	同上类似
 
 单位统一为°
+dm 》 180 正面
+
 */
-void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset,double theta0, double phi0, double &theta1, double &phi1)
+void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset,double theta0, double phi0, double &theta1, double &phi1, double dm)
 {
 	if(theta0==0||phi0==0)
 	{
@@ -1254,6 +1299,11 @@ void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset
 	}
 
   double x2nd_l = CalcX2ndL1(theta0, phi0);
+
+  double phase1 = ((dm > 180)?1:-1)*(-90 - laser_offset - phase+ r1) + x2nd_l;
+
+  
+
   //转换到弧度
   double am = amp * DPI;
   double PHASE = phase * DPI;
@@ -1262,12 +1312,14 @@ void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset
   double theta = theta0 * DPI;
   double phi = phi0 * DPI;
   double X2ndL = x2nd_l * DPI;
+  //double DM = dm * DPI;
 
-  double phase1 = R1 + X2ndL - PHASE + 270 * DPI - laserOffset;//excel h10
+  double PHASE1 = phase1 * DPI;//excel h10
+
   //计算测量时的晶片表面和测量基准面交线的方向余弦
-  double nx = cos(phase1)*cos(phi) + sin(phase1)*sin(theta)*sin(phi);
-  double ny = cos(phase1)*sin(phi) - sin(phase1)*sin(theta)*cos(phi);
-  double nz = sin(phase1)*cos(theta);
+  double nx = cos(PHASE1)*cos(phi) + sin(PHASE1)*sin(theta)*sin(phi);
+  double ny = cos(PHASE1)*sin(phi) - sin(PHASE1)*sin(theta)*cos(phi);
+  double nz = sin(PHASE1)*cos(theta);
   //变换矩阵
   double c11 = nx * nx*(1 - cos(am)) + cos(am);
   double c12 = nx * ny*(1 - cos(am)) + nz * sin(am);

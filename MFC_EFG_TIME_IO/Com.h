@@ -38,7 +38,7 @@ private:
   UINT SetSum(char * buf, UINT len);
 public:
   int AutoOpen(const char * sbuf, int slen, char * rbuf, int rlen, bool * crc=NULL, int timeout=10);
-  int SendAndRecv(const char * sbuf, int slen, char * rbuf, int rlen, bool * crc=NULL, int rTimeout=10);
+  int SendAndRecv(const char * sbuf, int slen, char * rbuf, int rlen, bool * crc=NULL, int rTimeout=5);
 };
 
 extern CCom m_com;
