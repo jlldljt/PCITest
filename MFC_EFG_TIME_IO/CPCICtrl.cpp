@@ -20,10 +20,10 @@ CPCICtrl::~CPCICtrl()
 CPCIBase * CPCICtrl::Create(PCIType type)
 {
   switch (type) {
-  case PCI1780U:
-    return new CTimeIOCtrl;
-  case TMC12A:
-    return new CTMC12A_Ctrl;
+  //case PCI1780U:
+   // return new CTimeIOCtrl;
+  //case TMC12A:
+  //  return new CTMC12A_Ctrl;
   case AC6641:
     return new CAC6641_Ctrl;
   case EFG_V1:

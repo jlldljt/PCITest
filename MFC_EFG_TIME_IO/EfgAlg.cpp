@@ -67,6 +67,8 @@ void EfgAlg::KLM(double * yi, int iNum)
 	//KalmanFilter(&klm, yi[0]);
 	//yi[0] = klm.filterValue;
 }
+
+
 //¼ÆËã¹âÖáÆ½¾ùÖµ¼°±ê×¼·½³Ì
 double EfgAlg::Avg(int num, int *th)
 {
@@ -573,6 +575,7 @@ int TransK(double* K)//Ó¦¸ÃÊÇÏûÔª·¨°Ñ×ó¾ØÕó»¯³Éµ¥Î»¾ØÕó£¬ÔòÓÒ¾ØÕó(K 3 7 11)¼´ÊÇ½
         return 0;
 }
 
+//y = ax^2 + b x + c
 /***********************************************************************************
 ***********************************************************************************/
 int Cal(double * yi, int startCur, int endCur, double* ParaA, double* ParaB, double* ParaC)
@@ -603,14 +606,95 @@ int Cal(double * yi, int startCur, int endCur, double* ParaA, double* ParaB, dou
 }
   
   
-  
+// y = c0+c1x+c2x^2
+double* GetCoefficent(double* t, double* y, int m, int n)
+//×îĞ¡¶ş³ËÄâºÏ t,y·Ö±ğÊÇx,yÖµ m:Êı¾İ¸öÊı ×îºóµÃµ½ÏµÊıÔÚcÊı×éÖĞ,n ÏµÊı¸öÊı
+{
+  //int n = 3;
+  int i, j, k;
+  double tki, tkj;
+  double* q = new double[n];
+  double* c = new double[n];
+  double** p = new double* [n];
+
+  for (i = 0; i < n; i++)p[i] = new double[n];
+  // init
+  for (i = 0; i < n; i++)
+  {
+    for (j = 0; j < n; j++)p[i][j] = 0.;
+    q[i] = 0.;
+  }
+
+  for (k = 0; k < m; k++)
+  {
+    tki = 1.;
+    for (i = 0; i < n; i++)
+    {
+      tkj = 1.;
+
+      for (j = 0; j < n; j++) { p[i][j] += tki * tkj; tkj = tkj * t[k]; }
+
+      q[i] += y[k] * tki;
+      tki = tki * t[k];
+    }
+  }
+
+  for (k = 0; k < n; k++)for (i = k + 1; i < n; i++)
+  {
+    q[i] = q[i] * p[k][k] - q[k] * p[i][k];
+    for (j = n - 1; j >= k; j--)p[i][j] = (p[i][j] * p[k][k] - p[k][j] * p[i][k]);
+  }
+
+  for (i = n - 1; i > -1; i--)
+  {
+    c[i] = q[i];
+    for (j = n - 1; j > i; j--)c[i] -= c[j] * p[i][j];
+    c[i] /= p[i][i];
+  }
+
+  for (i = 0; i < n; i++)delete[]p[i];
+
+  delete[]p;
+  delete[]q;
+
+  return c;
+}
   
   // ÌáÈ¡Ò»°ãÃæ»ı´¦µÄcur,ºóÆÚ¿ÉÒÔ¿¼ÂÇÅ×ÎïÏß
 double GetMidCur(double * yi, int startCur, int endCur)
 {
+  //¶àÏîÊ½
+  int num = endCur - startCur;
+  double* t = new double[num];
+  for (int i = 0; i < num; i++)t[i] = i;
+  int n = 5;
+  double* c = GetCoefficent(t, yi+ startCur, num, n);
+
+  double max = 0, max_val = 0;
+  for (int i = startCur; i < endCur; i++) {
+    yi[i] = c[0];
+
+    for (int j = 1; j < n; j++) {
+      yi[i] += c[j] * pow(t[i - startCur], j);
+    }
+    //yi[i] = c[0] + c[1] * t[i- startCur] + c[2] * t[i- startCur] * t[i- startCur];
+
+    if (yi[i] > max_val) {
+      max_val = yi[i];
+      max = i;
+
+    }
+  }
+  return max;
+
 	//Å×ÎïÏß
 	double ParaA,ParaB,ParaC;
 	Cal(yi,startCur,endCur,&ParaA,&ParaB,&ParaC);
+
+  //for (int i = startCur; i < endCur; i++) {
+  //  yi[i] = ParaC + ParaB * (i - startCur) + ParaA * (i - startCur) * (i - startCur);
+  //}
+
 	return -ParaB/(2*ParaA)+startCur;
 	//¿í¶ÈÖĞ¼ä
 	//double mid = (startCur+endCur)/2.0 +0.5;
@@ -838,6 +922,20 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãĞÖµ*/, int co
 
 		//max =  GetMidCur(yi, limitCur, lastCur);
 		max =  GetMidCur(tmp_yi, 0, point_num);
+    // copy to yi
+    if (lastCur >= limitCur)
+    {
+      memcpy((char*)(yi + limitCur), (char*)tmp_yi, (lastCur - limitCur + 1) * sizeof(double));
+      //point_num += lastCur - limitCur + 1;
+    }
+    else
+    {
+      memcpy( (char*)(yi + limitCur),(char*)tmp_yi, (iNum - limitCur) * sizeof(double));
+      //point_num += iNum - limitCur;
+      memcpy( (char*)yi,(char*)(tmp_yi + iNum - limitCur), (lastCur + 1) * sizeof(double));
+      //point_num += lastCur + 1;
+    }
+
 
 		max+=limitCur;
 		max=max>=iNum?max-iNum:max;

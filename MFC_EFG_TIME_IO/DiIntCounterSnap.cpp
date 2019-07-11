@@ -1935,6 +1935,272 @@ int CDiIntCounterSnap::XrayFit(int n)
 	//StopDiInt();
 	return 0;
 }
+
+int CDiIntCounterSnap::XrayFitTest(int n)
+{
+
+
+
+
+#ifdef USE_EFGV1
+  //if (!m_card || m_counter.start || m_counter.index[1] > XRAY_ONESHOT_NUM || m_counter.index[1] < 0)
+  //  return -1;
+  //memcpy(m_counter.tmp_counter[XRAY_CNT_START_INDEX], m_counter.counter[XRAY_CNT_START_INDEX], sizeof(double) * m_counter.index[1]);
+  //memcpy(m_counter.fit[0], m_counter.counter[XRAY_CNT_START_INDEX], sizeof(double) * m_counter.index[1]);
+  int sin_num = 0;
+
+#endif
+  //TODO：调试拟合
+  EfgAlg alg;
+#if 1 // 用于记录这些点
+  CStdioFile m_file;
+  m_file.Open(_T("xraypoint2.txt"), CFile::modeCreate | CFile::modeRead| CFile::modeNoTruncate);
+  m_file.Seek(0, CFile::begin);
+  CString str;
+  BOOL ret;
+  double avg = 0, std = 0, std2 = 0;
+  do
+  {/*
+    str.Format(_T("%.3f\r\n"), m_counter.fit[0][i]);
+    m_file.Write(CStringA(str).GetBuffer(), CStringA(str).GetLength());*/
+    ret = m_file.ReadString(str);
+    if(ret)
+    m_counter.fit[0][sin_num++] = _wtof(str.GetBuffer());
+    str.ReleaseBuffer();/*
+    alg.SortAvgStd(
+      i + 1,
+      m_counter.fit[0][i],
+      avg,
+      std,
+      std2
+    );*/
+  } while (ret);
+  m_counter.index[1] = sin_num + 1;
+  m_file.Flush();
+  m_file.Close();
+
+  if (m_viewBoard) {
+    m_viewBoard->Erase();
+    m_viewBoard->DrawXRayOneShot();
+  }
+#endif
+  // struct tagSinParam param;
+  // alg.FitSinBySubstitution(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[1], param);
+  // alg.FitSinByLeastSquares(m_counter.counter[0], XRAY_ONESHOT_NUM, m_counter.counter[2], param);
+
+  //alg.Correct(m_counter.fit[0], sin_num,3);//平滑
+  if (sin_num <= 0)
+    return -1;
+  //alg.KLM(m_counter.fit[0], sin_num);
+
+  ////动态确定阀值
+  //if (n == 1) {
+  //  for (int i = 0; i < sin_num; i++)
+  //  {
+  //    alg.SortAvgStd(
+  //      i + 1,
+  //      m_counter.fit[0][i],
+  //      avg,
+  //      std,
+  //      std2
+  //    );
+  //  }
+  //  if (m_efgio->m_configParam.xray.threshold < avg + 0.5)
+  //    m_efgio->m_configParam.xray.threshold = avg/**1.5*/ + 0.5;
+  //}
+
+  //alg.Smooth(m_counter.fit[0], sin_num, m_efgio->m_configParam.xray.factor_w, m_efgio->m_configParam.xray.factor_h);//平滑
+  //alg.ExtractSpike(m_counter.fit[0], sin_num,// 100, 3, -1);
+  //  m_efgio->m_configParam.xray.threshold,
+  //  m_efgio->m_configParam.xray.confirmNum,
+  //  m_efgio->m_configParam.xray.ignore);
+
+  alg.ExtractSpike(m_counter.fit[0], sin_num,// 100, 3, -1);
+    15,
+    30,
+    25);
+
+  //算关键参数的平均值并更新
+  SPIKE cur;
+  int spike_num = 0;
+  static double x[4] = { 0 };
+
+  spike_num = alg.GetSpikesNumber();
+
+  if (spike_num > 12)//尖峰数量异常
+    return -1;
+
+  while (spike_num > 4)
+  {
+    int min = 0;
+    int min_val = 10000000;
+
+    for (int i = 0; i < spike_num; i++)
+    {
+      alg.GetSpike(i, cur);
+      if (min == i || min_val > cur.p.y)
+      {
+        min_val = cur.p.y;
+        min = i;
+      }
+
+      if (cur.p.y > 500)//值异常
+        return -1;
+    }
+    alg.DelSpike(min);
+    spike_num = alg.GetSpikesNumber();
+  }
+
+  //////算尖峰的平均
+  ////if(spike_num==4)
+  ////{
+
+  ////	for(int i = 0; i < 4; i++)
+  ////	{
+  ////		alg.GetSpike(i, cur);
+  ////		if(n == 1 )
+  ////			x[i] = cur.x;
+  ////		else
+  ////			x[i] = (x[i]*(n - 1.0) + cur.x ) / n;
+  ////			//x[i] += (x[i] + cur.x / (n - 1.0)) / (n / (n - 1.0));
+  ////	}
+  //////更新
+  ////alg.UpdateSpikeX(x);
+  ////}
+
+  ////
+  ////转盘脉冲数
+  //m_efgio->m_resultParam.measure.pluse_num = sin_num;//m_counter.index[1] - 1;
+  //m_efgio->m_resultParam.measure.pluse_cnt++;
+
+  //if (m_efgio->m_resultParam.measure.pluse_num > m_efgio->m_resultParam.measure.max_pluse_num)
+  //  m_efgio->m_resultParam.measure.max_pluse_num = m_efgio->m_resultParam.measure.pluse_num;
+  //if (m_efgio->m_resultParam.measure.pluse_num < m_efgio->m_resultParam.measure.min_pluse_num)
+  //  m_efgio->m_resultParam.measure.min_pluse_num = m_efgio->m_resultParam.measure.pluse_num;
+
+  //alg.GetD1D2DM(
+  //  m_efgio->m_resultParam.measure.D1,
+  //  m_efgio->m_resultParam.measure.D2,
+  //  m_efgio->m_resultParam.measure.DM,
+  //  m_efgio->m_resultParam.measure.R1,
+  //  m_efgio->m_resultParam.measure.pluse_num/*/SMALL*/
+  //);
+  ////算D1D2DM平均值并更新
+  //static double D1 = 0, D2 = 0, DM = 0, R1 = 0;
+
+
+  //if (n == 1) {
+  //  D1 = m_efgio->m_resultParam.measure.D1;
+  //  D2 = m_efgio->m_resultParam.measure.D2;
+  //  DM = m_efgio->m_resultParam.measure.DM;
+  //  R1 = m_efgio->m_resultParam.measure.R1;
+  //}
+  //else {
+  //  D1 = (D1 * (n - 1.0) + m_efgio->m_resultParam.measure.D1) / n;
+  //  D2 = (D2 * (n - 1.0) + m_efgio->m_resultParam.measure.D2) / n;
+  //  DM = (DM * (n - 1.0) + m_efgio->m_resultParam.measure.DM) / n;
+  //  R1 = (R1 * (n - 1.0) + m_efgio->m_resultParam.measure.R1) / n;
+  //}
+  ////更新
+  //m_efgio->m_resultParam.measure.D1 = D1;
+  //m_efgio->m_resultParam.measure.D2 = D2;
+  //m_efgio->m_resultParam.measure.DM = DM;
+  //m_efgio->m_resultParam.measure.R1 = R1;
+  /////////
+
+  //alg.CalcDegree0(
+  //  m_efgio->m_resultParam.measure.D1,
+  //  m_efgio->m_resultParam.measure.D2,
+  //  m_efgio->m_resultParam.measure.DM,
+  //  m_efgio->m_resultParam.measure.cur_theta0,
+  //  m_efgio->m_resultParam.measure.cur_phi0,
+  //  m_efgio->m_resultParam.measure.u_g
+  //);
+
+
+  if (m_viewBoard) {
+   // m_viewBoard->Erase();
+   // m_viewBoard->DrawXRayOneShot();
+    CString str;
+
+    //str.Format(L"静态散差:%.3f 静态平均:%.3f",
+    //  std,
+    //  avg);
+
+    //m_viewBoard->SetOutStr(str, 10, 470);
+
+    //str.Format(L"theta0:%.3f phi0:%.3f ug:%.3f",
+    //  m_efgio->m_resultParam.measure.cur_theta0,
+    //  m_efgio->m_resultParam.measure.cur_phi0,
+    //  m_efgio->m_resultParam.measure.u_g);
+
+    //m_viewBoard->SetOutStr(str, 10, 510);
+
+    //str.Format(L"num:%.0f D1:%.3f D2:%.3f DM:%.3f R1:%.3f",
+    //  m_efgio->m_resultParam.measure.pluse_num,//m_counter.index[1]-1,
+    //  m_efgio->m_resultParam.measure.D1,
+    //  m_efgio->m_resultParam.measure.D2,
+    //  m_efgio->m_resultParam.measure.DM,
+    //  m_efgio->m_resultParam.measure.R1);
+
+    //m_viewBoard->SetOutStr(str, 10, 550);
+
+    //str.Format(L"最小转盘脉冲:%.0f 最大转盘脉冲:%.0f 次数:%d",
+    //  m_efgio->m_resultParam.measure.min_pluse_num,
+    //  m_efgio->m_resultParam.measure.max_pluse_num,
+    //  m_efgio->m_resultParam.measure.pluse_cnt);
+
+    //m_viewBoard->SetOutStr(str, 10, 590);
+
+    ////  m_viewBoard->SetOutStr(L"");
+    ////#ifdef  __DEBUG__
+    ////      for (int i = 0; i < XRAY_ONESHOT_NUM; i++)
+    ////      {
+    ////        POINT point;
+    ////        point.x = i;
+    ////        point.y = m_counter.fit[0][i];
+    ////        m_viewBoard->DrawPoint(point);
+    ////      }
+    ////#endif
+    ///TODO：调试拟合
+    double times = 1.0 * (sin_num/*m_counter.index[1]-1*/) / WND_WIDTH;
+    //if(times<1)
+    //	times=1;
+    int num = alg.GetSpikesNumber();
+    if (num < 10)
+    {
+      POINT point;
+      for (int i = 0; i < num; i++)
+      {
+        SPIKE spike;
+        alg.GetSpike(i, spike);
+        point = spike.p;
+        point.x /= times;
+        point.y *= XRAY_Y_TIMES;
+        m_viewBoard->DrawCircle(point, 10);
+        CString str;
+        str.Format(_T("No:%d X:%d Y:%d W:%d"), i, spike.p.x, spike.p.y, spike.w);
+        m_viewBoard->SetOutStr(str, point.x, 250 + 50 * i);
+      }
+    }
+
+    for (int i = 0; i < sin_num/*(m_counter.index[1]-1)*/; i += 1/*3*/)
+    {
+      POINT point;
+      point.x = i / times;
+      point.y = m_counter.fit[0][i] * XRAY_Y_TIMES;
+      m_viewBoard->DrawPoint(point, RGB(100, 100, 0));
+
+    }
+
+
+
+    m_viewBoard->Invalidate();
+  }
+
+  //StopDiInt();
+  return 0;
+}
 ////todo 不完善， ° ″，单位没统一
 //int CDiIntCounterSnap::CalcResult()
 //{

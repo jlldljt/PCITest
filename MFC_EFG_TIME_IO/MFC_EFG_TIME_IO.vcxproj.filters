@@ -13,14 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="PCI1780U">
-      <UniqueIdentifier>{0890ee0e-6467-4f43-beb3-d17c2d6ae52d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="XML">
       <UniqueIdentifier>{f8d6dcce-9283-4561-9dde-7d248845c704}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TMC12A">
-      <UniqueIdentifier>{a264f3d5-5211-4318-bc37-ae7a0be0845e}</UniqueIdentifier>
     </Filter>
     <Filter Include="PCICTRL">
       <UniqueIdentifier>{f4e4f3d0-f20d-4ccc-a176-755d78138007}</UniqueIdentifier>
@@ -172,32 +166,8 @@
     <ClInclude Include="DlgT1.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CtrlBase.h">
-      <Filter>PCI1780U</Filter>
-    </ClInclude>
-    <ClInclude Include="TimerPulse.h">
-      <Filter>PCI1780U</Filter>
-    </ClInclude>
-    <ClInclude Include="PWModulator.h">
-      <Filter>PCI1780U</Filter>
-    </ClInclude>
-    <ClInclude Include="EventCounter.h">
-      <Filter>PCI1780U</Filter>
-    </ClInclude>
-    <ClInclude Include="DIInterrupt.h">
-      <Filter>PCI1780U</Filter>
-    </ClInclude>
-    <ClInclude Include="StaticDI.h">
-      <Filter>PCI1780U</Filter>
-    </ClInclude>
-    <ClInclude Include="OneShot.h">
-      <Filter>PCI1780U</Filter>
-    </ClInclude>
     <ClInclude Include="tinyxml2.h">
       <Filter>XML</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeIOCtrl.h">
-      <Filter>PCI1780U</Filter>
     </ClInclude>
     <ClInclude Include="ParamConfig.h">
       <Filter>头文件</Filter>
@@ -220,35 +190,14 @@
     <ClInclude Include="EfgAlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="StaticDO.h">
-      <Filter>PCI1780U</Filter>
-    </ClInclude>
-    <ClInclude Include="CTMC12A_Ctrl.h">
-      <Filter>TMC12A</Filter>
-    </ClInclude>
     <ClInclude Include="CPCICtrl.h">
       <Filter>PCICTRL</Filter>
     </ClInclude>
     <ClInclude Include="CPCIBase.h">
       <Filter>PCICTRL</Filter>
     </ClInclude>
-    <ClInclude Include="CTMC12A_Base.h">
-      <Filter>TMC12A</Filter>
-    </ClInclude>
-    <ClInclude Include="CTMC12A_DI.h">
-      <Filter>TMC12A</Filter>
-    </ClInclude>
     <ClInclude Include="ComDef.h">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CTMC12A_Counter.h">
-      <Filter>TMC12A</Filter>
-    </ClInclude>
-    <ClInclude Include="CTMC12A_Callback.h">
-      <Filter>TMC12A</Filter>
-    </ClInclude>
-    <ClInclude Include="CTMC12A_DO.h">
-      <Filter>TMC12A</Filter>
     </ClInclude>
     <ClInclude Include="CUserSplitterWnd.h">
       <Filter>头文件</Filter>
@@ -366,9 +315,6 @@
     <ClCompile Include="MFC_EFG_TIME_IOView.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CtrlBase.cpp">
-      <Filter>PCI1780U</Filter>
-    </ClCompile>
     <ClCompile Include="DlgDI.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -381,29 +327,8 @@
     <ClCompile Include="DlgT1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TimerPulse.cpp">
-      <Filter>PCI1780U</Filter>
-    </ClCompile>
-    <ClCompile Include="PWModulator.cpp">
-      <Filter>PCI1780U</Filter>
-    </ClCompile>
-    <ClCompile Include="EventCounter.cpp">
-      <Filter>PCI1780U</Filter>
-    </ClCompile>
-    <ClCompile Include="DIInterrupt.cpp">
-      <Filter>PCI1780U</Filter>
-    </ClCompile>
-    <ClCompile Include="StaticDI.cpp">
-      <Filter>PCI1780U</Filter>
-    </ClCompile>
-    <ClCompile Include="OneShot.cpp">
-      <Filter>PCI1780U</Filter>
-    </ClCompile>
     <ClCompile Include="tinyxml2.cpp">
       <Filter>XML</Filter>
-    </ClCompile>
-    <ClCompile Include="TimeIOCtrl.cpp">
-      <Filter>PCI1780U</Filter>
     </ClCompile>
     <ClCompile Include="ParamConfig.cpp">
       <Filter>源文件</Filter>
@@ -426,35 +351,14 @@
     <ClCompile Include="EfgAlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="StaticDO.cpp">
-      <Filter>PCI1780U</Filter>
-    </ClCompile>
-    <ClCompile Include="CTMC12A_Ctrl.cpp">
-      <Filter>TMC12A</Filter>
-    </ClCompile>
     <ClCompile Include="CPCICtrl.cpp">
       <Filter>PCICTRL</Filter>
     </ClCompile>
     <ClCompile Include="CPCIBase.cpp">
       <Filter>PCICTRL</Filter>
     </ClCompile>
-    <ClCompile Include="CTMC12A_Base.cpp">
-      <Filter>TMC12A</Filter>
-    </ClCompile>
-    <ClCompile Include="CTMC12A_DI.cpp">
-      <Filter>TMC12A</Filter>
-    </ClCompile>
     <ClCompile Include="ComDef.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CTMC12A_Counter.cpp">
-      <Filter>TMC12A</Filter>
-    </ClCompile>
-    <ClCompile Include="CTMC12A_Callback.cpp">
-      <Filter>TMC12A</Filter>
-    </ClCompile>
-    <ClCompile Include="CTMC12A_DO.cpp">
-      <Filter>TMC12A</Filter>
     </ClCompile>
     <ClCompile Include="CUserSplitterWnd.cpp">
       <Filter>源文件</Filter>
