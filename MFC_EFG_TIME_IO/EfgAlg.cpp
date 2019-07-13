@@ -624,7 +624,7 @@ double* GetCoefficent(double* t, double* y, int m, int n)
     for (j = 0; j < n; j++)p[i][j] = 0.;
     q[i] = 0.;
   }
-
+  // 建立矩阵
   for (k = 0; k < m; k++)
   {
     tki = 1.;
@@ -638,13 +638,13 @@ double* GetCoefficent(double* t, double* y, int m, int n)
       tki = tki * t[k];
     }
   }
-
+  // 转换成上三角
   for (k = 0; k < n; k++)for (i = k + 1; i < n; i++)
   {
     q[i] = q[i] * p[k][k] - q[k] * p[i][k];
     for (j = n - 1; j >= k; j--)p[i][j] = (p[i][j] * p[k][k] - p[k][j] * p[i][k]);
   }
-
+  // 计算系数
   for (i = n - 1; i > -1; i--)
   {
     c[i] = q[i];
