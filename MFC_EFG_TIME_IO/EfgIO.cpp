@@ -10,6 +10,7 @@ CEfgIO::CEfgIO()
   m_on = FALSE;
   m_on_card_no = -1;
   m_on_iocard_no = -1;
+  measure_status = 0;
 }
 
 
@@ -753,16 +754,55 @@ int CEfgIO::StartMeasure(int cnt)
   int rlen = 100;
   bool crc = 0;
   int rdlen = 0;
+  measure_status = 0;
+  char status;
 
   rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
   if (rdlen > 0 && crc)
   {
+	  ////
+	 // int wait = 0;
+	 // while(1 != (status=GetMeasureStatus()) && wait++ < 80)//等待直到1或者Xs，大约7s
+	 // {
+		////Sleep(10);
+	 // };
+
+	 // if(wait >= 80)//超时
+		//  return -1;
+	  if(1 != (status=GetMeasureStatus()))//等待直到1或者Xs，大约7s
+	  {
+		return -1;
+	  };
+	  /////
+	  measure_status = status;//2
     return 0;
   }
 
   return -1;
 }
+
+int CEfgIO::StopMeasure()
+{
+  char sbuf[9] = { 0x55, 'E', 'E', 0, 0x00, 0x00 };
+  int slen = sizeof(sbuf);
+  unsigned char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+  char status;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
+
+  if (rdlen > 0 && crc)
+  {
+	  measure_status = 0;//2
+    return 0;
+  }
+
+  return -1;
+}
+
 BOOL CEfgIO::CheckMeasureEnd(void)
 {
   char sbuf[9] = { 0x55,'E', 'Q', 0x00, 0x00 };
@@ -781,7 +821,61 @@ BOOL CEfgIO::CheckMeasureEnd(void)
 
   return FALSE;
 }
+//返回测量到第几圈
+char CEfgIO::GetMeasureStatus(void)
+{
+  char sbuf[9] = { 0x55,'E', 'Q', 0x00, 0x00 };
+  int slen = sizeof(sbuf);
+  unsigned char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
 
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
+
+  if (rdlen > 2 && crc)
+  {
+		return rbuf[3];
+    
+  }
+
+  return -1;
+}
+//返回已经测量好的圈
+char CEfgIO::CheckChangedStatus(void)
+{
+  ////
+
+	  int wait = 0;
+	  char pre;
+	  do//等待直到2或者3s
+	  {
+		  pre=GetMeasureStatus();
+
+		  switch(pre){
+		  case -1:
+			  return -1;
+		  case 0x0E://error
+		  case 0x00:
+			  StartMeasure(1);//重新启动
+			  return -1;
+		  default:
+			  if(measure_status!=pre)
+			  {
+				  measure_status = pre;
+				  return pre-1 == 0?3:pre-1;
+			  }
+		  }
+
+		//Sleep(10);
+	  }while(wait++<80);
+
+	  if(wait >= 80)//超时
+		  return -1;
+	  /////
+
+  return -1;
+}
 // no 0 - 4
 // result in m_resultParam.measure.cnt_num[no]
 // return num>=0 success
@@ -789,6 +883,29 @@ BOOL CEfgIO::CheckMeasureEnd(void)
 int CEfgIO::GetCntDataNum(int no)
 {
   char sbuf[9] = { 0x55, 'C',	'N', no, 0x00 , 0x00 };
+  int slen = sizeof(sbuf);
+  unsigned char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc,1);
+
+  if (rdlen > 5 && crc)
+  {
+    m_resultParam.measure.cnt_num[no] = (rbuf[4] << 8) | (rbuf[5]);
+    return m_resultParam.measure.cnt_num[no];
+  }
+  return -1;
+}
+
+// no 0 - 4
+// result in m_resultParam.measure.cnt_num[no]
+// return num>=0 success
+// return -1 failure
+int CEfgIO::GetCntDataNum(int no, int shift)
+{
+  char sbuf[9] = { 0x55, 'C',	'N', shift, 0x00 , 0x00 };
   int slen = sizeof(sbuf);
   unsigned char rbuf[100] = { 0 };
   int rlen = 100;
@@ -821,9 +938,12 @@ int CEfgIO::GetAllCntData(int no, char* buf, int len)
 
   if (rdlen > 5 && crc)
   {
+	  //if(buf[0] != 0x55)
+		 // buf[0] = 0x54;
+
     return rdlen;
   }
-  ASSERT(1);
+  //ASSERT(0);
   return -1;
 }
 int CEfgIO::SetOut(int out3, int out6)

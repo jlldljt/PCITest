@@ -7,12 +7,12 @@
 #include "MainFrm.h"
 #include "EfgAlg.h"
 
-CWinThread * gTrdMainRun = NULL;
-CWinThread * gTrdXRun = NULL;
-CWinThread * gTrdYRun = NULL;
-CWinThread * gTrdTurntableRun = NULL;
-CWinThread * gTrdStaticMeasure = NULL;
-
+CWinThread* gTrdMainRun = NULL;
+CWinThread* gTrdXRun = NULL;
+CWinThread* gTrdYRun = NULL;
+CWinThread* gTrdTurntableRun = NULL;
+CWinThread* gTrdStaticMeasure = NULL;
+//=====================================================================正常测量========================================================================
 UINT Thread_YRun(LPVOID pParam)
 {
   SetThreadAffinityMask(GetCurrentThread(), 1);
@@ -29,13 +29,14 @@ UINT Thread_YRun(LPVOID pParam)
     case START://拿料
       if (PAUSE == pdlg->m_run.state.turntable)//如果y停止，启动y
       {
-		  Sleep(100);
+        while (-1 == pdlg->m_io->StopMeasure());//停止测量
+        Sleep(100);
         pdlg->m_io->MotoZero(MOTOR_Y);//回零
         pdlg->m_io->WriteDo(Y_NOZZLE, IO_ON);//打开吸嘴
         Sleep(pdlg->m_param->user_config.time.y_on);//延时
         pdlg->m_io->MotoRun(MOTOR_Y, pdlg->m_param->user_config.pos.y_wait);//移动到等待位置
         pdlg->m_run.state.turntable = END;
-		Sleep(100);
+        Sleep(100);
         pdlg->m_io->MotoRun(MOTOR_Y, pdlg->m_result->measure.cur_pos_step);//移动到档位
 
         pdlg->m_run.state.y = END;
@@ -65,28 +66,36 @@ UINT Thread_TurntableRun(LPVOID pParam)
     SetThreadAffinityMask(GetCurrentThread(), 1);
 
   CDlgRun1* pdlg = (CDlgRun1*)pParam;
-  int n = 2,cnt = 0;
+  int n = pdlg->m_io->m_configParam.user_config.measure.cnt;//测量次数
+  int cnt = 0;
+
   while (1)
   {
     switch (pdlg->m_run.state.turntable) {
     case START://测量
       if (GetMainFrame()->StartMeasure(pdlg->m_param->laser.out3, pdlg->m_param->laser.out6)) {
         Sleep(50);
-		  pdlg->m_run.state.turntable = RUNNING;
-	  }
+        pdlg->m_run.state.turntable = RUNNING;
+      }
       break;
     case RUNNING:
-      if (GetMainFrame()->CheckMeasure()){
-		  int ret = pdlg->FitAndUpdate(++cnt);
-		  if(cnt == n){
-              pdlg->m_run.state.turntable = WAIT;
-			  cnt = 0;
-		  }else{
-              pdlg->m_run.state.turntable = START;
-			  if(ret == -1)
-				  cnt = 0;
-		  }
-	  }
+      if (GetMainFrame()->CheckMeasure()) {
+        int ret = pdlg->FitAndUpdate(++cnt);
+
+        if (ret == -1) {//出错，重新测
+          cnt = 0;
+        }
+        //测量多圈逻辑
+        if (cnt == n) {
+          pdlg->m_run.state.turntable = WAIT;
+          cnt = 0;
+        }
+        else {
+          pdlg->m_run.state.turntable = START;
+          //if(ret == -1)
+           // cnt = 0;
+        }
+      }
       break;
     case WAIT:
       if (END == pdlg->m_run.state.y)//如果y停止，启动y
@@ -104,7 +113,7 @@ UINT Thread_TurntableRun(LPVOID pParam)
     case PAUSE:
       break;
     case STOP:
-	  while (!GetMainFrame()->CheckMeasure());
+      while (!GetMainFrame()->CheckMeasure());
       pdlg->m_run.state.turntable = END;
       return 0;
     default:
@@ -168,7 +177,7 @@ UINT Thread_XRun(LPVOID pParam)
 
   return 0;
 }
-
+//============================================================静态测量专属=======================================================================
 UINT Thread_StaticMeasure(LPVOID pParam)
 {
   if (0 == SetThreadAffinityMask(GetCurrentThread(), 1))
@@ -207,6 +216,109 @@ UINT Thread_StaticMeasure(LPVOID pParam)
   return 0;
 }
 
+//============================================================正反专属=======================================================================
+UINT Thread_PNYRun(LPVOID pParam)
+{
+  SetThreadAffinityMask(GetCurrentThread(), 1);
+  CDlgRun1* pdlg = (CDlgRun1*)pParam;
+
+  while (1)
+  {
+    while (PAUSE == pdlg->m_run.state.mainrun)
+    {
+      Sleep(1);
+    }
+
+    switch (pdlg->m_run.state.y) {
+    case START://拿料
+      if (PAUSE == pdlg->m_run.state.turntable)//如果y停止，启动y
+      {
+        while (-1 == pdlg->m_io->StopMeasure());//停止测量
+        Sleep(100);
+        pdlg->m_io->MotoZero(MOTOR_Y);//回零
+        pdlg->m_io->WriteDo(Y_NOZZLE, IO_ON);//打开吸嘴
+        Sleep(pdlg->m_param->user_config.time.y_on);//延时
+        pdlg->m_io->MotoRun(MOTOR_Y, pdlg->m_param->user_config.pos.y_wait);//移动到等待位置
+        pdlg->m_run.state.turntable = END;
+        Sleep(100);
+        // 正反记号和放片
+        switch (pdlg->m_result->measure.pn) {
+        case 1:
+          pdlg->m_io->MotoRun(MOTOR_Y, 6);//移动到档位
+          pdlg->m_io->MotoRun(MOTOR_Y, 16);//移动到档位
+          break;
+        case -1:
+          pdlg->m_io->MotoRun(MOTOR_Y, 7);//移动到档位
+          pdlg->m_io->MotoRun(MOTOR_Y, 17);//移动到档位
+          break;
+        case 0:
+          break;
+        }
+
+
+        pdlg->m_run.state.y = END;
+        pdlg->m_io->WriteDo(Y_NOZZLE, IO_OFF);//关闭吸嘴
+        Sleep(pdlg->m_param->user_config.time.y_off);//延时
+        pdlg->m_io->MotoRun(MOTOR_Y, pdlg->m_param->user_config.pos.y_wait);//移动到等待位置
+      }
+      break;
+    case STOP:
+      pdlg->m_io->MotoRun(MOTOR_Y, pdlg->m_param->user_config.pos.y_wait);//移动到等待位置
+      pdlg->m_io->WriteDo(Y_NOZZLE, IO_OFF);//关闭吸嘴
+      pdlg->m_run.state.y = END;
+      return 0;
+    default:
+      Sleep(1);
+      break;
+      //gTrdYRun->SuspendThread();
+    }
+  }
+
+  return 0;
+}
+
+UINT Thread_PNXRun(LPVOID pParam)
+{
+  SetThreadAffinityMask(GetCurrentThread(), 1);
+  CDlgRun1* pdlg = (CDlgRun1*)pParam;
+
+  while (1)
+  {
+    while (PAUSE == pdlg->m_run.state.mainrun)
+    {
+      Sleep(1);
+    }
+
+    switch (pdlg->m_run.state.x)
+    {
+    case START://等料
+      if (END == pdlg->m_run.state.turntable) {//如果测量完毕
+        Sleep(pdlg->m_param->user_config.time.x_on);//延时
+        pdlg->m_run.state.x = WAIT;
+      }
+      break;
+    case WAIT://等待上料
+      if (1/*END == pdlg->m_run.state.turntable*/)//等待用户按键
+      {
+        Sleep(pdlg->m_param->user_config.time.x_off);//延时
+        pdlg->m_run.state.x = START;
+        pdlg->m_run.state.turntable = START;//启动测量
+      }
+      else
+        Sleep(1);
+      break;
+    case STOP:
+      pdlg->m_run.state.x = END;
+      return 0;
+    default:
+      return 0;
+    }
+  }
+
+  return 0;
+}
+
+// ========================================================================其他===================================================================
 UINT Thread_MainRun(LPVOID pParam)
 {
   SetThreadAffinityMask(GetCurrentThread(), 1);
@@ -218,38 +330,45 @@ UINT Thread_MainRun(LPVOID pParam)
     case START://启动
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("正在启动"));
       //while (END != pdlg->m_run.state.x&&END != pdlg->m_run.state.y&&END != pdlg->m_run.state.turntable);
-	  ASSERT(!gTrdXRun&&!gTrdYRun&&!gTrdTurntableRun);
+      ASSERT(!gTrdXRun && !gTrdYRun && !gTrdTurntableRun);
       pdlg->m_io->InitEfgIO();
       pdlg->m_run.state.x = START;
       pdlg->m_run.state.y = END;
       pdlg->m_run.state.turntable = END;
-	  pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
+      pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
+      if (-1 == pdlg->m_io->StartMeasure(1))//;//启动测量
+      {
+        pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("启动失败"));
+        Sleep(1000);
+        break;
+      }
+
 
       gTrdXRun = AfxBeginThread(Thread_XRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-	  ASSERT (gTrdXRun);
-	  gTrdXRun->m_bAutoDelete = FALSE;
-	  gTrdXRun->ResumeThread();
+      ASSERT(gTrdXRun);
+      gTrdXRun->m_bAutoDelete = FALSE;
+      gTrdXRun->ResumeThread();
 
       //gTrdXRun->m_bAutoDelete = TRUE;
       //gTrdXRun->ResumeThread();
 
       gTrdYRun = AfxBeginThread(Thread_YRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-	  ASSERT (gTrdYRun);
-	  gTrdYRun->m_bAutoDelete = FALSE;
-	  gTrdYRun->ResumeThread();
+      ASSERT(gTrdYRun);
+      gTrdYRun->m_bAutoDelete = FALSE;
+      gTrdYRun->ResumeThread();
       //gTrdYRun->m_bAutoDelete = TRUE;
       //gTrdYRun->ResumeThread();
 
       gTrdTurntableRun = AfxBeginThread(Thread_TurntableRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-	  ASSERT (gTrdTurntableRun);
-	  gTrdTurntableRun->m_bAutoDelete = FALSE;
-	  gTrdTurntableRun->ResumeThread();
+      ASSERT(gTrdTurntableRun);
+      gTrdTurntableRun->m_bAutoDelete = FALSE;
+      gTrdTurntableRun->ResumeThread();
       //gTrdTurntableRun->m_bAutoDelete = TRUE;
       //gTrdTurntableRun->ResumeThread();
 
       pdlg->m_run.state.mainrun = RUNNING;
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("正在运行"));
-	  ((CButton*)pdlg->GetDlgItem(IDC_BTN_CTRL))->EnableWindow(TRUE);
+      ((CButton*)pdlg->GetDlgItem(IDC_BTN_CTRL))->EnableWindow(TRUE);
       break;
     case PAUSE:
       break;
@@ -257,40 +376,40 @@ UINT Thread_MainRun(LPVOID pParam)
       pdlg->m_run.state.x = STOP;
       pdlg->m_run.state.y = STOP;
       pdlg->m_run.state.turntable = STOP;
-	 
-	  while (1)
-	  {
-	    DWORD dwCodeX,dwCodeY,dwCodeTurntable; 
-		GetExitCodeThread(gTrdXRun->m_hThread , &dwCodeX);
-		GetExitCodeThread(gTrdYRun->m_hThread , &dwCodeY);
-		GetExitCodeThread(gTrdTurntableRun->m_hThread , &dwCodeTurntable);
 
-		if(dwCodeTurntable != STILL_ACTIVE &&dwCodeY != STILL_ACTIVE &&dwCodeX != STILL_ACTIVE)
-			break;
+      while (1)
+      {
+        DWORD dwCodeX, dwCodeY, dwCodeTurntable;
+        GetExitCodeThread(gTrdXRun->m_hThread, &dwCodeX);
+        GetExitCodeThread(gTrdYRun->m_hThread, &dwCodeY);
+        GetExitCodeThread(gTrdTurntableRun->m_hThread, &dwCodeTurntable);
 
-	    if (dwCodeX == STILL_ACTIVE && STOP != pdlg->m_run.state.x )
+        if (dwCodeTurntable != STILL_ACTIVE && dwCodeY != STILL_ACTIVE && dwCodeX != STILL_ACTIVE)
+          break;
+
+        if (dwCodeX == STILL_ACTIVE && STOP != pdlg->m_run.state.x)
           pdlg->m_run.state.x = STOP;
 
-	    if (dwCodeY == STILL_ACTIVE && STOP != pdlg->m_run.state.y)
+        if (dwCodeY == STILL_ACTIVE && STOP != pdlg->m_run.state.y)
           pdlg->m_run.state.y = STOP;
 
-	    if (dwCodeTurntable == STILL_ACTIVE && STOP != pdlg->m_run.state.turntable)
+        if (dwCodeTurntable == STILL_ACTIVE && STOP != pdlg->m_run.state.turntable)
           pdlg->m_run.state.turntable = STOP;
-	
-	  };
-      
-	  gTrdXRun->Delete();
-	  gTrdYRun->Delete();
-	  gTrdTurntableRun->Delete();
-	  gTrdXRun = NULL;
-	  gTrdYRun = NULL;
-	  gTrdTurntableRun = NULL;
-			  
-	  pdlg->m_io->WriteDo(XRAY_GATE, IO_OFF);//打开光门
+
+      };
+
+      gTrdXRun->Delete();
+      gTrdYRun->Delete();
+      gTrdTurntableRun->Delete();
+      gTrdXRun = NULL;
+      gTrdYRun = NULL;
+      gTrdTurntableRun = NULL;
+
+      pdlg->m_io->WriteDo(XRAY_GATE, IO_OFF);//打开光门
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T(""));
 
-	  
-	  ((CButton*)pdlg->GetDlgItem(IDC_BTN_CTRL))->EnableWindow(TRUE);
+
+      ((CButton*)pdlg->GetDlgItem(IDC_BTN_CTRL))->EnableWindow(TRUE);
       return 0;
     case RUNNING:
       gTrdMainRun->SuspendThread();
@@ -299,79 +418,173 @@ UINT Thread_MainRun(LPVOID pParam)
       //pdlg->m_io->InitEfgIO();
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("启动静态测量"));
       //while (END != pdlg->m_run.state.staticmeasure&&END != pdlg->m_run.state.turntable);
- ASSERT(!gTrdStaticMeasure&&!gTrdTurntableRun);
-	  memset(&pdlg->m_io->m_resultParam,0,sizeof(pdlg->m_io->m_resultParam));
-	  pdlg->m_io->m_resultParam.measure.min_pluse_num = 100000;
+      ASSERT(!gTrdStaticMeasure && !gTrdTurntableRun);
+      memset(&pdlg->m_io->m_resultParam, 0, sizeof(pdlg->m_io->m_resultParam));
+      pdlg->m_io->m_resultParam.measure.min_pluse_num = 100000;
       pdlg->m_run.state.staticmeasure = START;
       pdlg->m_run.state.y = END;
       pdlg->m_run.state.turntable = END;
 
-	  
-	  pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
+
+      pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
+      if (-1 == pdlg->m_io->StartMeasure(1))//;//启动测量
+      {
+        pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("启动静态测量失败"));
+        Sleep(1000);
+        break;
+      }
+
 
 
       //gTrdStaticMeasure = AfxBeginThread(Thread_StaticMeasure, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
       //gTrdStaticMeasure->m_bAutoDelete = TRUE;
       //gTrdStaticMeasure->ResumeThread();
-	  gTrdStaticMeasure = AfxBeginThread(Thread_StaticMeasure, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-	  ASSERT (gTrdStaticMeasure);
-	  gTrdStaticMeasure->m_bAutoDelete = FALSE;
-	  gTrdStaticMeasure->ResumeThread();
+      gTrdStaticMeasure = AfxBeginThread(Thread_StaticMeasure, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+      ASSERT(gTrdStaticMeasure);
+      gTrdStaticMeasure->m_bAutoDelete = FALSE;
+      gTrdStaticMeasure->ResumeThread();
       //gTrdTurntableRun = AfxBeginThread(Thread_TurntableRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
       //gTrdTurntableRun->m_bAutoDelete = TRUE;
       //gTrdTurntableRun->ResumeThread();
 
       gTrdTurntableRun = AfxBeginThread(Thread_TurntableRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-	  ASSERT (gTrdTurntableRun);
-	  gTrdTurntableRun->m_bAutoDelete = FALSE;
-	  gTrdTurntableRun->ResumeThread();
+      ASSERT(gTrdTurntableRun);
+      gTrdTurntableRun->m_bAutoDelete = FALSE;
+      gTrdTurntableRun->ResumeThread();
 
 
 
       pdlg->m_run.state.mainrun = RUNNING;
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("正在静态测量"));
-	  ((CButton*)pdlg->GetDlgItem(IDC_CHK_STATICMEASURE))->EnableWindow(TRUE);
+      ((CButton*)pdlg->GetDlgItem(IDC_CHK_STATICMEASURE))->EnableWindow(TRUE);
       break;
     case STATIC_MEASURE_STOP:
       //return 0;
-		
+
       pdlg->m_run.state.staticmeasure = STOP;
       pdlg->m_run.state.turntable = STOP;
-	  //Sleep(1000);
-   //   if (END != pdlg->m_run.state.staticmeasure)
-   //   pdlg->m_run.state.staticmeasure = STOP;
-	  //if (END != pdlg->m_run.state.turntable)
-   //   pdlg->m_run.state.turntable = STOP;
-	  //	
-   //   //gTrdTurntableRun->ResumeThread();
-	  //while (!(END == pdlg->m_run.state.staticmeasure&&END == pdlg->m_run.state.turntable));
-	  while (1)
-	  {
-	    DWORD dwCodeStaticMeasure,dwCodeTurntable; 
-		GetExitCodeThread(gTrdStaticMeasure->m_hThread , &dwCodeStaticMeasure);
-		GetExitCodeThread(gTrdTurntableRun->m_hThread , &dwCodeTurntable);
+      //Sleep(1000);
+     //   if (END != pdlg->m_run.state.staticmeasure)
+     //   pdlg->m_run.state.staticmeasure = STOP;
+      //if (END != pdlg->m_run.state.turntable)
+     //   pdlg->m_run.state.turntable = STOP;
+      //	
+     //   //gTrdTurntableRun->ResumeThread();
+      //while (!(END == pdlg->m_run.state.staticmeasure&&END == pdlg->m_run.state.turntable));
+      while (1)
+      {
+        DWORD dwCodeStaticMeasure, dwCodeTurntable;
+        GetExitCodeThread(gTrdStaticMeasure->m_hThread, &dwCodeStaticMeasure);
+        GetExitCodeThread(gTrdTurntableRun->m_hThread, &dwCodeTurntable);
 
-		if(dwCodeTurntable != STILL_ACTIVE &&dwCodeStaticMeasure != STILL_ACTIVE)
-			break;
+        if (dwCodeTurntable != STILL_ACTIVE && dwCodeStaticMeasure != STILL_ACTIVE)
+          break;
 
-	    if (dwCodeStaticMeasure == STILL_ACTIVE && STOP != pdlg->m_run.state.staticmeasure )
+        if (dwCodeStaticMeasure == STILL_ACTIVE && STOP != pdlg->m_run.state.staticmeasure)
           pdlg->m_run.state.staticmeasure = STOP;
 
-	    if (dwCodeTurntable == STILL_ACTIVE && STOP != pdlg->m_run.state.turntable)
+        if (dwCodeTurntable == STILL_ACTIVE && STOP != pdlg->m_run.state.turntable)
           pdlg->m_run.state.turntable = STOP;
-	
-	  };
-      
-	  gTrdStaticMeasure->Delete();
-	  gTrdTurntableRun->Delete();
-	  gTrdStaticMeasure = NULL;
-	  gTrdTurntableRun = NULL;
 
- 
-	  pdlg->m_io->WriteDo(XRAY_GATE, IO_OFF);//关闭光门
+      };
+
+      gTrdStaticMeasure->Delete();
+      gTrdTurntableRun->Delete();
+      gTrdStaticMeasure = NULL;
+      gTrdTurntableRun = NULL;
+
+
+      pdlg->m_io->WriteDo(XRAY_GATE, IO_OFF);//关闭光门
 
       pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T(""));
-	  ((CButton*)pdlg->GetDlgItem(IDC_CHK_STATICMEASURE))->EnableWindow(TRUE);
+      ((CButton*)pdlg->GetDlgItem(IDC_CHK_STATICMEASURE))->EnableWindow(TRUE);
+      return 0;
+    case PN_MEASURE_START:
+      //pdlg->m_io->InitEfgIO();
+      pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("启动正反测量"));
+      //while (END != pdlg->m_run.state.staticmeasure&&END != pdlg->m_run.state.turntable);
+      ASSERT(!gTrdStaticMeasure && !gTrdTurntableRun);
+      memset(&pdlg->m_io->m_resultParam, 0, sizeof(pdlg->m_io->m_resultParam));
+      pdlg->m_io->m_resultParam.measure.min_pluse_num = 100000;
+      pdlg->m_run.state.x = START;
+      pdlg->m_run.state.y = END;
+      pdlg->m_run.state.turntable = END;
+
+
+      pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
+      if (-1 == pdlg->m_io->StartMeasure(1))//;//启动测量
+      {
+        pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("启动正反测量失败"));
+        Sleep(1000);
+        break;
+      }
+
+      gTrdXRun = AfxBeginThread(Thread_PNXRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+      ASSERT(gTrdXRun);
+      gTrdXRun->m_bAutoDelete = FALSE;
+      gTrdXRun->ResumeThread();
+
+      gTrdYRun = AfxBeginThread(Thread_PNYRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+      ASSERT(gTrdYRun);
+      gTrdYRun->m_bAutoDelete = TRUE;
+      gTrdYRun->ResumeThread();
+
+      gTrdTurntableRun = AfxBeginThread(Thread_TurntableRun, pParam, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+      ASSERT(gTrdTurntableRun);
+      gTrdTurntableRun->m_bAutoDelete = FALSE;
+      gTrdTurntableRun->ResumeThread();
+
+      pdlg->m_run.state.mainrun = RUNNING;
+      pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("正在正反测量"));
+      ((CButton*)pdlg->GetDlgItem(IDC_CHK_STATICMEASURE))->EnableWindow(TRUE);
+      break;
+    case PN_MEASURE_STOP:
+      //return 0;
+
+      pdlg->m_run.state.x = STOP;
+      pdlg->m_run.state.y = STOP;
+      pdlg->m_run.state.turntable = STOP;
+      //Sleep(1000);
+     //   if (END != pdlg->m_run.state.staticmeasure)
+     //   pdlg->m_run.state.staticmeasure = STOP;
+      //if (END != pdlg->m_run.state.turntable)
+     //   pdlg->m_run.state.turntable = STOP;
+      //	
+     //   //gTrdTurntableRun->ResumeThread();
+      //while (!(END == pdlg->m_run.state.staticmeasure&&END == pdlg->m_run.state.turntable));
+      while (1)
+      {
+        DWORD dwCodeX, dwCodeY, dwCodeTurntable;
+        GetExitCodeThread(gTrdXRun->m_hThread, &dwCodeX);
+        GetExitCodeThread(gTrdYRun->m_hThread, &dwCodeY);
+        GetExitCodeThread(gTrdTurntableRun->m_hThread, &dwCodeTurntable);
+
+        if (dwCodeTurntable != STILL_ACTIVE && dwCodeX != STILL_ACTIVE && dwCodeY != STILL_ACTIVE)
+          break;
+
+        if (dwCodeX == STILL_ACTIVE && STOP != pdlg->m_run.state.staticmeasure)
+          pdlg->m_run.state.x = STOP;
+
+        if (dwCodeY == STILL_ACTIVE && STOP != pdlg->m_run.state.staticmeasure)
+          pdlg->m_run.state.y = STOP;
+
+        if (dwCodeTurntable == STILL_ACTIVE && STOP != pdlg->m_run.state.turntable)
+          pdlg->m_run.state.turntable = STOP;
+
+      };
+
+      gTrdXRun->Delete();
+      gTrdYRun->Delete();
+      gTrdTurntableRun->Delete();
+      gTrdXRun = NULL;
+      gTrdYRun = NULL;
+      gTrdTurntableRun = NULL;
+
+
+      pdlg->m_io->WriteDo(XRAY_GATE, IO_OFF);//关闭光门
+
+      pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T(""));
+      ((CButton*)pdlg->GetDlgItem(IDC_CHK_STATICMEASURE))->EnableWindow(TRUE);
       return 0;
     default:
       return 0;
@@ -435,6 +648,7 @@ BEGIN_MESSAGE_MAP(CDlgRun1, CFormView)
   ON_BN_CLICKED(IDC_CHK_PAUSE, &CDlgRun1::OnBnClickedChkPause)
   ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_PREVIEW, &CDlgRun1::OnTcnSelchangeTabPreview)
   ON_BN_CLICKED(IDC_CHK_STATICMEASURE, &CDlgRun1::OnBnClickedChkStaticmeasure)
+  ON_BN_CLICKED(IDC_CHK_PNMEASURE, &CDlgRun1::OnBnClickedChkPnmeasure)
 END_MESSAGE_MAP()
 
 
@@ -470,7 +684,7 @@ HBRUSH CDlgRun1::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
   {
     pDC->SetBkMode(TRANSPARENT);
     pDC->SetTextColor(RGB(0, 0, 0));
-    if (pWnd->GetDlgCtrlID() == IDC_STATIC || pWnd->GetDlgCtrlID() == IDC_STATIC_SORT || pWnd->GetDlgCtrlID() == IDC_STATIC_RESULT|| pWnd->GetDlgCtrlID() == IDC_STATIC_MESSAGE)
+    if (pWnd->GetDlgCtrlID() == IDC_STATIC || pWnd->GetDlgCtrlID() == IDC_STATIC_SORT || pWnd->GetDlgCtrlID() == IDC_STATIC_RESULT || pWnd->GetDlgCtrlID() == IDC_STATIC_MESSAGE)
       return (HBRUSH)::GetStockObject(NULL_BRUSH);
   }
   // TODO:  如果默认的不是所需画笔，则返回另一个画笔
@@ -520,7 +734,7 @@ void CDlgRun1::OnInitialUpdate()
   m_preview_rect.right -= 2;
   m_preview_rect.bottom -= 23;
 
-  CDC *pDC = m_tab_preview.GetDC();
+  CDC* pDC = m_tab_preview.GetDC();
   m_laserdc = new CDC;
   m_laserbm = new CBitmap;
   m_laserdc->CreateCompatibleDC(pDC);
@@ -571,9 +785,9 @@ void CDlgRun1::OnInitialUpdate()
   InitGrid();
   UpdateGridWithRecalc();
   //test
-  
-  m_file.Open(_T("test.txt"),CFile::modeCreate | CFile::modeWrite | CFile::shareDenyRead);
-  m_file.Seek(0,CFile::end);
+
+  m_file.Open(_T("test.txt"), CFile::modeCreate | CFile::modeWrite | CFile::shareDenyRead);
+  m_file.Seek(0, CFile::end);
 }
 
 
@@ -831,7 +1045,7 @@ void CDlgRun1::OnBnClickedBtnCtrl()
   // TODO: 在此添加控件通知处理程序代码
   CString str;
   GetDlgItemText(IDC_BTN_CTRL, str);
-	  ((CButton*)GetDlgItem(IDC_BTN_CTRL))->EnableWindow(FALSE);
+  ((CButton*)GetDlgItem(IDC_BTN_CTRL))->EnableWindow(FALSE);
   if ("开始" == str) {
     //SetTimer(0, 100, NULL);
     m_run.state.mainrun = START;
@@ -881,11 +1095,11 @@ void CDlgRun1::ShowResult(BOOL sw)
 
     str_deg.Format(_T("类  别\t当前值\t平均值\t散  差\t测量总数：%d\r\n光轴\t%06d\t%06d\t%06.3f\r\n电轴\t%06d\t%06d\t%06.3f\r\n等效角\t%06d\t%06d\t%06.3f\r\n光轴0\t%06d\t%06d\t%06.3f\r\n电轴0\t%06d\t%06d\t%06.3f\r\n"),
       m_io->m_resultParam.measure.num,
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_theta1), DEG_TO_USER(m_io->m_resultParam.measure.avg_theta1), (m_io->m_resultParam.measure.std_theta1)*3600,
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_phi1), DEG_TO_USER(m_io->m_resultParam.measure.avg_phi1), (m_io->m_resultParam.measure.std_phi1)*3600,
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_equ), DEG_TO_USER(m_io->m_resultParam.measure.avg_equ), (m_io->m_resultParam.measure.std_equ)*3600,
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_theta0), DEG_TO_USER(m_io->m_resultParam.measure.avg_theta0), (m_io->m_resultParam.measure.std_theta0)*3600,
-      DEG_TO_USER(m_io->m_resultParam.measure.cur_phi0), DEG_TO_USER(m_io->m_resultParam.measure.avg_phi0), (m_io->m_resultParam.measure.std_phi0)*3600
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_theta1), DEG_TO_USER(m_io->m_resultParam.measure.avg_theta1), (m_io->m_resultParam.measure.std_theta1) * 3600,
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_phi1), DEG_TO_USER(m_io->m_resultParam.measure.avg_phi1), (m_io->m_resultParam.measure.std_phi1) * 3600,
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_equ), DEG_TO_USER(m_io->m_resultParam.measure.avg_equ), (m_io->m_resultParam.measure.std_equ) * 3600,
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_theta0), DEG_TO_USER(m_io->m_resultParam.measure.avg_theta0), (m_io->m_resultParam.measure.std_theta0) * 3600,
+      DEG_TO_USER(m_io->m_resultParam.measure.cur_phi0), DEG_TO_USER(m_io->m_resultParam.measure.avg_phi0), (m_io->m_resultParam.measure.std_phi0) * 3600
     );
 
     str_pos = m_io->m_resultParam.measure.cur_pos;
@@ -896,27 +1110,27 @@ void CDlgRun1::ShowResult(BOOL sw)
   }
   GetDlgItem(IDC_STATIC_RESULT)->SetWindowText(str_deg);
   /////////////////////////////////////
-   str_deg.Format(_T("类  别\t当前值\t平均值\t散  差\r\nD1\t%06d\t%06d\t%06d\r\nD2\t%06d\t%06d\t%06d\r\nDM\t%06d\t%06d\t%06d\r\nR1\t%06d\t%06d\t%06d\r\n脉冲数\t%.0f\t%.1f\t%.1f\r\nug\t%06d\t%06d\t%06d\r\nA\t%.3f\t%.3f\t%.3f\r\nw\t%.3f\t%.3f\t%.3f\r\nt\t%.3f\t%.3f\t%.3f\r\nk\t%.3f\t%.3f\t%.3f\r\n"),
-      DEG_TO_USER(m_io->m_resultParam.measure.D1), DEG_TO_USER(m_io->m_resultParam.measure.avg_D1), DEG_TO_USER(m_io->m_resultParam.measure.std_D1),
-      DEG_TO_USER(m_io->m_resultParam.measure.D2), DEG_TO_USER(m_io->m_resultParam.measure.avg_D2), DEG_TO_USER(m_io->m_resultParam.measure.std_D2),
-      DEG_TO_USER(m_io->m_resultParam.measure.DM), DEG_TO_USER(m_io->m_resultParam.measure.avg_DM), DEG_TO_USER(m_io->m_resultParam.measure.std_DM),
-      DEG_TO_USER(m_io->m_resultParam.measure.R1), DEG_TO_USER(m_io->m_resultParam.measure.avg_R1), DEG_TO_USER(m_io->m_resultParam.measure.std_R1),
-      (m_io->m_resultParam.measure.pluse_num), (m_io->m_resultParam.measure.avg_pluse_num), (m_io->m_resultParam.measure.std_pluse_num),
-      DEG_TO_USER(m_io->m_resultParam.measure.u_g), DEG_TO_USER(m_io->m_resultParam.measure.avg_u_g), DEG_TO_USER(m_io->m_resultParam.measure.std_u_g),
-      (m_io->m_resultParam.measure.A), (m_io->m_resultParam.measure.avg_A), (m_io->m_resultParam.measure.std_A),
-      (m_io->m_resultParam.measure.w), (m_io->m_resultParam.measure.avg_w), (m_io->m_resultParam.measure.std_w),
-      (m_io->m_resultParam.measure.t), (m_io->m_resultParam.measure.avg_t), (m_io->m_resultParam.measure.std_t),
-      (m_io->m_resultParam.measure.k), (m_io->m_resultParam.measure.avg_k), (m_io->m_resultParam.measure.std_k)
-    );
+  str_deg.Format(_T("类  别\t当前值\t平均值\t散  差\r\nD1\t%06d\t%06d\t%06d\r\nD2\t%06d\t%06d\t%06d\r\nDM\t%06d\t%06d\t%06d\r\nR1\t%06d\t%06d\t%06d\r\n脉冲数\t%.0f\t%.1f\t%.1f\r\nug\t%06d\t%06d\t%06d\r\nA\t%.3f\t%.3f\t%.3f\r\nw\t%.3f\t%.3f\t%.3f\r\nt\t%.3f\t%.3f\t%.3f\r\nk\t%.3f\t%.3f\t%.3f\r\n"),
+    DEG_TO_USER(m_io->m_resultParam.measure.D1), DEG_TO_USER(m_io->m_resultParam.measure.avg_D1), DEG_TO_USER(m_io->m_resultParam.measure.std_D1),
+    DEG_TO_USER(m_io->m_resultParam.measure.D2), DEG_TO_USER(m_io->m_resultParam.measure.avg_D2), DEG_TO_USER(m_io->m_resultParam.measure.std_D2),
+    DEG_TO_USER(m_io->m_resultParam.measure.DM), DEG_TO_USER(m_io->m_resultParam.measure.avg_DM), DEG_TO_USER(m_io->m_resultParam.measure.std_DM),
+    DEG_TO_USER(m_io->m_resultParam.measure.R1), DEG_TO_USER(m_io->m_resultParam.measure.avg_R1), DEG_TO_USER(m_io->m_resultParam.measure.std_R1),
+    (m_io->m_resultParam.measure.pluse_num), (m_io->m_resultParam.measure.avg_pluse_num), (m_io->m_resultParam.measure.std_pluse_num),
+    DEG_TO_USER(m_io->m_resultParam.measure.u_g), DEG_TO_USER(m_io->m_resultParam.measure.avg_u_g), DEG_TO_USER(m_io->m_resultParam.measure.std_u_g),
+    (m_io->m_resultParam.measure.A), (m_io->m_resultParam.measure.avg_A), (m_io->m_resultParam.measure.std_A),
+    (m_io->m_resultParam.measure.w), (m_io->m_resultParam.measure.avg_w), (m_io->m_resultParam.measure.std_w),
+    (m_io->m_resultParam.measure.t), (m_io->m_resultParam.measure.avg_t), (m_io->m_resultParam.measure.std_t),
+    (m_io->m_resultParam.measure.k), (m_io->m_resultParam.measure.avg_k), (m_io->m_resultParam.measure.std_k)
+  );
   SetDlgItemText(IDC_SHOW_DEGREE, str_deg);
 
 
-   str_deg.Format(_T("%06.3f\t%06.3f\t%06.3f\t%06.3f\r\n"),
-      (m_io->m_resultParam.measure.D1), 
-      (m_io->m_resultParam.measure.D2), 
-      (m_io->m_resultParam.measure.DM), 
-      (m_io->m_resultParam.measure.R1));
-  m_file.Write(CStringA(str_deg).GetBuffer(),CStringA(str_deg).GetLength());
+  str_deg.Format(_T("%06.3f\t%06.3f\t%06.3f\t%06.3f\r\n"),
+    (m_io->m_resultParam.measure.D1),
+    (m_io->m_resultParam.measure.D2),
+    (m_io->m_resultParam.measure.DM),
+    (m_io->m_resultParam.measure.R1));
+  m_file.Write(CStringA(str_deg).GetBuffer(), CStringA(str_deg).GetLength());
   CStringA(str_deg).ReleaseBuffer();
 
   //SetDlgItemText(IDC_STATIC_RESULT, str_deg);
@@ -929,7 +1143,7 @@ void CDlgRun1::ShowResult(BOOL sw)
 }
 
 
-void CDlgRun1::OnTcnSelchangeTabPreview(NMHDR *pNMHDR, LRESULT *pResult)
+void CDlgRun1::OnTcnSelchangeTabPreview(NMHDR* pNMHDR, LRESULT* pResult)
 {
   // TODO: 在此添加控件通知处理程序代码
   CRect tabRect;
@@ -938,7 +1152,7 @@ void CDlgRun1::OnTcnSelchangeTabPreview(NMHDR *pNMHDR, LRESULT *pResult)
   tabRect.right -= 1;
   tabRect.top += 22;
   tabRect.bottom -= 1;
-  CDC *pDC = m_tab_preview.GetDC();
+  CDC* pDC = m_tab_preview.GetDC();
   switch (m_tab_preview.GetCurSel())
   {
   case 0:
@@ -952,29 +1166,29 @@ void CDlgRun1::OnTcnSelchangeTabPreview(NMHDR *pNMHDR, LRESULT *pResult)
   ReleaseDC(pDC);
 
   if (pResult)
-    *pResult = 0;
+    * pResult = 0;
 }
 //得到用户最终结果并刷新界面
 int CDlgRun1::FitAndUpdate(int n)
 {
-	ASSERT(n>0);
+  ASSERT(n > 0);
 
-	if (-1 == GetMainFrame()->m_diIntCounterSnap.LaserFit(n)) {
-		return -1;
-	}
+  if (-1 == GetMainFrame()->m_diIntCounterSnap.LaserFit(n)) {
+    return -1;
+  }
 
-	if (GetMainFrame()->m_viewBoard)
-		GetMainFrame()->m_viewBoard->DrawToDC(m_laserdc, m_preview_rect);
+  if (GetMainFrame()->m_viewBoard)
+    GetMainFrame()->m_viewBoard->DrawToDC(m_laserdc, m_preview_rect);
 
-	if (-1 == GetMainFrame()->m_diIntCounterSnap.XrayFit(n)) {
-		return -1;
-	}
+  if (-1 == GetMainFrame()->m_diIntCounterSnap.XrayFit(n)) {
+    return -1;
+  }
 
-	if (GetMainFrame()->m_viewBoard)
-		GetMainFrame()->m_viewBoard->DrawToDC(m_xraydc, m_preview_rect);
+  if (GetMainFrame()->m_viewBoard)
+    GetMainFrame()->m_viewBoard->DrawToDC(m_xraydc, m_preview_rect);
 
-	OnTcnSelchangeTabPreview(NULL, NULL);
-	return 0;
+  OnTcnSelchangeTabPreview(NULL, NULL);
+  return 0;
 }
 //得到用户最终结果并刷新界面
 int CDlgRun1::CalcResult()
@@ -1002,9 +1216,9 @@ int CDlgRun1::CalcResult()
     m_io->m_resultParam.measure.k
   };
   //计算光轴电轴
-  
+
   double AMPL = atan(m_io->m_resultParam.measure.A * m_io->m_configParam.laser.factor_a / m_io->m_configParam.laser.factor_l) / DPI;
-  double PHASE = - m_io->m_resultParam.measure.t / m_io->m_resultParam.measure.w * /*2 * PI*/360 / ( m_io->m_resultParam.measure.l_num);  // 零位到sin的起始位置的角度，注意原始efg的图是上下颠倒的
+  double PHASE = -m_io->m_resultParam.measure.t / m_io->m_resultParam.measure.w * /*2 * PI*/360 / (m_io->m_resultParam.measure.l_num);  // 零位到sin的起始位置的角度，注意原始efg的图是上下颠倒的
 
 
   alg.CalcDegree1(
@@ -1016,11 +1230,11 @@ int CDlgRun1::CalcResult()
     m_io->m_resultParam.measure.cur_phi0,
     m_io->m_resultParam.measure.cur_theta1,
     m_io->m_resultParam.measure.cur_phi1,
-	m_io->m_resultParam.measure.DM
+    m_io->m_resultParam.measure.DM
   );
-  
-  m_io->m_resultParam.measure.cur_theta1 += m_io->m_configParam.laser.theta_offset/3600;
-  m_io->m_resultParam.measure.cur_phi1 += m_io->m_configParam.laser.phi_offset/3600;
+
+  m_io->m_resultParam.measure.cur_theta1 += m_io->m_configParam.laser.theta_offset / 3600;
+  m_io->m_resultParam.measure.cur_phi1 += m_io->m_configParam.laser.phi_offset / 3600;
 
   //计算等效角
   alg.CalcEquAngle(
@@ -1173,6 +1387,28 @@ void CDlgRun1::OnBnClickedChkStaticmeasure()
   else
   {
     m_run.state.mainrun = STATIC_MEASURE_STOP;
+    gTrdMainRun->ResumeThread();
+  }
+}
+
+
+void CDlgRun1::OnBnClickedChkPnmeasure()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_PNMEASURE);
+  int nStat = pChk->GetCheck();
+  pChk->EnableWindow(FALSE);
+  if (nStat)
+  {
+    m_run.state.mainrun = PN_MEASURE_START;
+    gTrdMainRun = AfxBeginThread(Thread_MainRun, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+    gTrdMainRun->m_bAutoDelete = TRUE;
+    gTrdMainRun->ResumeThread();
+
+  }
+  else
+  {
+    m_run.state.mainrun = PN_MEASURE_STOP;
     gTrdMainRun->ResumeThread();
   }
 }

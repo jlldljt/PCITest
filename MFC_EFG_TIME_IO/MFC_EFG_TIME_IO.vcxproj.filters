@@ -28,9 +28,6 @@
     <Filter Include="GridCtrl\Src">
       <UniqueIdentifier>{5a711361-1c72-47f9-968c-e110ea72fc4a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="AC6641">
-      <UniqueIdentifier>{8111f139-2bb6-4fad-b08b-bb53576be522}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EFG_V1">
       <UniqueIdentifier>{5d643b15-759b-4e20-8d8b-b5d1ed5ffabc}</UniqueIdentifier>
     </Filter>
@@ -256,18 +253,6 @@
     <ClInclude Include="DlgLaser.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="AC6641_Base.h">
-      <Filter>AC6641</Filter>
-    </ClInclude>
-    <ClInclude Include="AC6641_Ctrl.h">
-      <Filter>AC6641</Filter>
-    </ClInclude>
-    <ClInclude Include="AC6641_DI.h">
-      <Filter>AC6641</Filter>
-    </ClInclude>
-    <ClInclude Include="AC6641_DO.h">
-      <Filter>AC6641</Filter>
-    </ClInclude>
     <ClInclude Include="DlgXray.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -410,18 +395,6 @@
     </ClCompile>
     <ClCompile Include="DlgLaser.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="AC6641_Base.cpp">
-      <Filter>AC6641</Filter>
-    </ClCompile>
-    <ClCompile Include="AC6641_Ctrl.cpp">
-      <Filter>AC6641</Filter>
-    </ClCompile>
-    <ClCompile Include="AC6641_DI.cpp">
-      <Filter>AC6641</Filter>
-    </ClCompile>
-    <ClCompile Include="AC6641_DO.cpp">
-      <Filter>AC6641</Filter>
     </ClCompile>
     <ClCompile Include="DlgXray.cpp">
       <Filter>源文件</Filter>

@@ -314,3 +314,29 @@ BOOL CSplitFrameWnd::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 
   return CFrameWnd::OnMouseWheel(nFlags, zDelta, pt);
 }
+
+
+//BOOL CSplitFrameWnd::PreTranslateMessage(MSG* pMsg)
+//{
+//	// TODO: 在此添加专用代码和/或调用基类
+//	if (pMsg->message == WM_KEYDOWN)
+//	{
+//		if (WM_KEYFIRST <= pMsg->message && pMsg->message <= WM_KEYLAST)
+//		{
+//			//判断是否按下键盘Enter键
+//			switch (pMsg->wParam)
+//			{
+//				/*case VK_RETURN:
+//				OnBnClickedBtnFit();
+//				return TRUE;*/
+//			case VK_SPACE:
+//				//if (2 == m_tab_debug.GetCurSel())
+//				//m_dlg_xray->OnBnClickedBtnXrayArc();
+//				break;
+//			default:
+//				break;
+//			}
+//		}
+//	}
+//	return CFrameWnd::PreTranslateMessage(pMsg);
+//}

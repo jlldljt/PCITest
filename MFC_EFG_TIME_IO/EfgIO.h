@@ -34,6 +34,8 @@ typedef struct  {
   
   struct {//X光相关
     int threshold;//阈值
+    double auto_threshold;//阈值
+	int sum;
     int confirmNum;//确认数量，宽度超过多少象素
     int ignore;//忽略值，忽略的值
     double factor_h;//纵向因子，平滑次数
@@ -110,7 +112,7 @@ typedef struct  {
         int phi;//等效角电轴参数
         int factor;//等效角因子
       }equivalent_angle;
-     
+     int cnt;//测量次数
     }measure;
   }user_config;//用户输入，使用时，需要转换，
   //位置相关
@@ -148,6 +150,8 @@ typedef struct {
     int cur_pos;//当前片档位
     int cur_pos_step;//当前片档位
     int num;//测量数量
+    //
+    int pn;//正反，1正，-1 反，0未知
 	//测试用
     double avg_D1, avg_D2, avg_DM, avg_R1, avg_pluse_num, avg_u_g, avg_A, avg_w, avg_t, avg_k;
     double std_D1, std_D2, std_DM, std_R1, std_pluse_num, std_u_g, std_A, std_w, std_t, std_k;
@@ -254,6 +258,9 @@ private:
 public:
   EFG_ConfigParam m_configParam;
   EFG_ResultParam m_resultParam;
+
+  
+
   int GetPCINum();//获取pci板卡的数量
   CString GetPCIDesc(int cardNo);//获取某块pci的设备描述
   PCIType GetPCIType(int cardNo);//获取某块pci的类型
@@ -288,8 +295,17 @@ public:
   void InitEfgIO(void);
 
   int StartMeasure(int cnt);
+  int StopMeasure();
   BOOL CheckMeasureEnd(void);
+
+  
+  char measure_status;//记录读到的状态0 1 2 3 E
+
+
+  char GetMeasureStatus(void);
+  char CheckChangedStatus(void);
   int GetCntDataNum(int no);// 获取所有计数值
+  int GetCntDataNum(int no, int shift);
   int GetAllCntData(int no , char* buf, int len);// 获取所有计数值
   int SetOut(int out3, int out6);
 

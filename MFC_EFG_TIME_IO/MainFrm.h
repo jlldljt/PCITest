@@ -159,6 +159,7 @@ public:
   afx_msg void OnUpdateChkAutoRun(CCmdUI *pCmdUI);
   afx_msg void OnButtonHalfpage();
   afx_msg void OnBtnTestCalcDegree1();
+//  virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 
 

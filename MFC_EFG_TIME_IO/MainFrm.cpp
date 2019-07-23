@@ -1246,6 +1246,8 @@ void CMainFrame::EfgParamLoad()
   GetPrivateProfileString(_T("激光"), _T("电轴偏移"), _T(""), ret, sizeof(ret), ini_path);
   m_efgio.m_configParam.laser.phi_offset = _wtof(ret);
 
+  
+  m_efgio.m_configParam.user_config.measure.cnt = GetPrivateProfileInt(_T("测量配置"), _T("测量次数"), 0, ini_path);
   //xray
 
   m_efgio.m_configParam.xray.threshold = GetPrivateProfileInt(_T("X光"), _T("阈值"), 0, ini_path);
@@ -1367,6 +1369,10 @@ void CMainFrame::EfgParamSave()
   WritePrivateProfileString(_T("激光"), _T("光轴偏移"), str, ini_path);
   str.Format(_T("%.3f"), m_efgio.m_configParam.laser.phi_offset);
   WritePrivateProfileString(_T("激光"), _T("电轴偏移"), str, ini_path);
+
+
+  str.Format(_T("%d"), m_efgio.m_configParam.user_config.measure.cnt);
+  WritePrivateProfileString(_T("测量配置"), _T("测量次数"), str, ini_path);
   //xray
   str.Format(_T("%d"), m_efgio.m_configParam.xray.threshold);
   WritePrivateProfileString(_T("X光"), _T("阈值"), str, ini_path);
@@ -1565,3 +1571,29 @@ void CMainFrame::OnBtnTestCalcDegree1()
 
 
 }
+
+
+//BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
+//{
+//	// TODO: 在此添加专用代码和/或调用基类
+//	if (pMsg->message == WM_KEYDOWN)
+//	{
+//		if (WM_KEYFIRST <= pMsg->message && pMsg->message <= WM_KEYLAST)
+//		{
+//			//判断是否按下键盘Enter键
+//			switch (pMsg->wParam)
+//			{
+//				/*case VK_RETURN:
+//				OnBnClickedBtnFit();
+//				return TRUE;*/
+//			case VK_SPACE:
+//				//if (2 == m_tab_debug.GetCurSel())
+//				//m_dlg_xray->OnBnClickedBtnXrayArc();
+//				break;
+//			default:
+//				break;
+//			}
+//		}
+//	}
+//	return CFrameWndEx::PreTranslateMessage(pMsg);
+//}

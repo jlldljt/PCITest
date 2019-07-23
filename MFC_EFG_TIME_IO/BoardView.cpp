@@ -333,6 +333,19 @@ void CBoardView::DrawCircle(POINT point, LONG r)
   //Invalidate();
 }
 
+void CBoardView::DrawRect(POINT point, LONG r)
+{
+  CDC* pDC = m_dc;
+  CBrush brush;
+  CBrush *oldbrush;
+  // brush.CreateSolidBrush(RGB(0xD1, 0xFB, 0xED));
+  // oldbrush = pDC->SelectObject(&brush);
+  oldbrush = pDC->SelectObject(CBrush::FromHandle((HBRUSH)GetStockObject(NULL_BRUSH)));
+  RECT rect = { point.x - r,point.y -r, point.x + r,point.y + r };
+  pDC->Rectangle(&rect);
+  pDC->SelectObject(oldbrush);
+  //Invalidate();
+}
 int CBoardView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
   if (CView::OnCreate(lpCreateStruct) == -1)
@@ -348,24 +361,24 @@ int CBoardView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   m_dc->CreateCompatibleDC(pDC);
   m_bm->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
   m_oldbm = m_dc->SelectObject(m_bm);
-  m_dc->SetStretchBltMode(HALFTONE);
-  SetBrushOrgEx(m_dc->m_hDC, 0, 0, NULL);
+ // m_dc->SetStretchBltMode(HALFTONE);
+ // SetBrushOrgEx(m_dc->m_hDC, 0, 0, NULL);
 
   m_strdc = new CDC;
   m_strbm = new CBitmap;
   m_strdc->CreateCompatibleDC(pDC);
   m_strbm->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
   m_strOldbm = m_strdc->SelectObject(m_strbm);
-  m_strdc->SetStretchBltMode(HALFTONE);
-  SetBrushOrgEx(m_strdc->m_hDC, 0, 0, NULL);
+  //m_strdc->SetStretchBltMode(HALFTONE);
+  //SetBrushOrgEx(m_strdc->m_hDC, 0, 0, NULL);
 
   m_alldc = new CDC;
   m_allbm = new CBitmap;
   m_alldc->CreateCompatibleDC(pDC);
   m_allbm->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
   m_allOldbm = m_alldc->SelectObject(m_allbm);
-  m_alldc->SetStretchBltMode(HALFTONE);
-  SetBrushOrgEx(m_alldc->m_hDC, 0, 0, NULL);
+ // m_alldc->SetStretchBltMode(HALFTONE);
+ // SetBrushOrgEx(m_alldc->m_hDC, 0, 0, NULL);
 
 
   pWnd->ReleaseDC(pDC);
@@ -377,7 +390,7 @@ void CBoardView::Erase(void)
   CDC* pDC = m_dc;
   CRect rect ( 0, 0, WND_WIDTH, WND_HIGHT );;
   //GetClientRect(&rect);
-  pDC->FillSolidRect(&rect, RGB(0, 0, 0));
+  pDC->FillSolidRect(&rect, RGB(199, 237, 204));
   pDC = m_strdc;
   pDC->FillSolidRect(&rect, RGB(0, 0, 0));
   //m_outStr = "";
@@ -391,12 +404,12 @@ void CBoardView::SetOutStr(CString str)
   m_outStr = str;
 }
 
-void CBoardView::SetOutStr(CString str, int x, int y)
+void CBoardView::SetOutStr(CString str, int x, int y, int h, int w,COLORREF crColor)
 {
   CDC* pDC = m_strdc;
   CFont font, *tmp;
-  font.CreateFont(30,                                          //   nHeight     
-    10,                                                   //   nWidth     
+  font.CreateFont(h,                                          //   nHeight     
+    w,                                                   //   nWidth     
     0,                                                   //   nEscapement   
     0,                                                   //   nOrientation     
     FW_NORMAL,                                   //   nWeight     
@@ -413,7 +426,7 @@ void CBoardView::SetOutStr(CString str, int x, int y)
   tmp = pDC->SelectObject(&font);
   pDC->SetBkMode(TRANSPARENT);
 
-  pDC->SetTextColor(RGB(255, 0, 0));
+  pDC->SetTextColor(crColor);
   pDC->TextOut(x, WND_HIGHT - y, str);
 
   pDC->SelectObject(tmp);
@@ -443,10 +456,12 @@ void CBoardView::DrawToDC(CDC * pDC)
   CRect torect;
   //GetClientRect(&rect);
   pDC->GetWindow()->GetClientRect(&torect);
-  pDC->SetStretchBltMode(HALFTONE);
-  SetBrushOrgEx(pDC->m_hDC, 0, 0, NULL);
+  m_alldc->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(m_alldc->m_hDC, 0, 0, NULL);
   m_alldc->StretchBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1 * rect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
   m_alldc->TransparentBlt(rect.left, rect.top, rect.Width(), rect.Height(), m_strdc, 0, 0, rect.Width(), rect.Height(), RGB(0, 0, 0));
+  pDC->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(pDC->m_hDC, 0, 0, NULL);
   pDC->StretchBlt(torect.left, torect.top, torect.Width(), torect.Height(), m_alldc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
   //DrawOutStr(pDC);
 }
@@ -459,11 +474,12 @@ void CBoardView::DrawToDC(CDC * pDC,CRect torect)
   //pDC->GetWindow()->GetClientRect(&torect);
 
 
-
-  pDC->SetStretchBltMode(HALFTONE);
-  SetBrushOrgEx(pDC->m_hDC, 0, 0, NULL);
+  m_alldc->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(m_alldc->m_hDC, 0, 0, NULL);
   m_alldc->StretchBlt(rect.left, rect.top + rect.Height(), rect.Width(), -1 * rect.Height(), m_dc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
   m_alldc->TransparentBlt(rect.left, rect.top, rect.Width(), rect.Height(), m_strdc, 0, 0, rect.Width(), rect.Height(), RGB(0, 0, 0));
+  pDC->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(pDC->m_hDC, 0, 0, NULL);
   pDC->StretchBlt(torect.left, torect.top, torect.Width(), torect.Height(), m_alldc, 0, 0, rect.Width(), rect.Height(), SRCCOPY);
 
   CBrush* oldbrush = pDC->SelectObject(CBrush::FromHandle((HBRUSH)GetStockObject(NULL_BRUSH)));

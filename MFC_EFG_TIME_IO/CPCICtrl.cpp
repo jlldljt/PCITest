@@ -24,8 +24,8 @@ CPCIBase * CPCICtrl::Create(PCIType type)
    // return new CTimeIOCtrl;
   //case TMC12A:
   //  return new CTMC12A_Ctrl;
-  case AC6641:
-    return new CAC6641_Ctrl;
+  //case AC6641:
+  //  return new CAC6641_Ctrl;
   case EFG_V1:
     return new CEFGV1_Ctrl;
   default:

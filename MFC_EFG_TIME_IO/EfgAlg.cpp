@@ -67,8 +67,6 @@ void EfgAlg::KLM(double * yi, int iNum)
 	//KalmanFilter(&klm, yi[0]);
 	//yi[0] = klm.filterValue;
 }
-
-
 //¼ÆËã¹âÖáÆ½¾ùÖµ¼°±ê×¼·½³Ì
 double EfgAlg::Avg(int num, int *th)
 {
@@ -575,7 +573,6 @@ int TransK(double* K)//Ó¦¸ÃÊÇÏûÔª·¨°Ñ×ó¾ØÕó»¯³Éµ¥Î»¾ØÕó£¬ÔòÓÒ¾ØÕó(K 3 7 11)¼´ÊÇ½
         return 0;
 }
 
-//y = ax^2 + b x + c
 /***********************************************************************************
 ***********************************************************************************/
 int Cal(double * yi, int startCur, int endCur, double* ParaA, double* ParaB, double* ParaC)
@@ -690,11 +687,6 @@ double GetMidCur(double * yi, int startCur, int endCur)
 	//Å×ÎïÏß
 	double ParaA,ParaB,ParaC;
 	Cal(yi,startCur,endCur,&ParaA,&ParaB,&ParaC);
-
-  //for (int i = startCur; i < endCur; i++) {
-  //  yi[i] = ParaC + ParaB * (i - startCur) + ParaA * (i - startCur) * (i - startCur);
-  //}
-
 	return -ParaB/(2*ParaA)+startCur;
 	//¿í¶ÈÖĞ¼ä
 	//double mid = (startCur+endCur)/2.0 +0.5;
@@ -922,6 +914,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãĞÖµ*/, int co
 
 		//max =  GetMidCur(yi, limitCur, lastCur);
 		max =  GetMidCur(tmp_yi, 0, point_num);
+#if 1
     // copy to yi
     if (lastCur >= limitCur)
     {
@@ -935,7 +928,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãĞÖµ*/, int co
       memcpy( (char*)yi,(char*)(tmp_yi + iNum - limitCur), (lastCur + 1) * sizeof(double));
       //point_num += lastCur + 1;
     }
-
+#endif
 
 		max+=limitCur;
 		max=max>=iNum?max-iNum:max;
@@ -967,7 +960,11 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãĞÖµ*/, int co
 			
 			m_spikes.Add(spike);
 		}
-      }
+      }else if(lastOne == true)//Ìø³öËÀÑ­»·
+	  {
+		  	lastOne= false;
+			i = iNum;
+	  }
       limitCur = -1;
       outLimitCnt = 0;
 	  ignoreCnt = 0;
@@ -1135,6 +1132,7 @@ BOOL EfgAlg::SortSpike(int pluse_num)
     if (dval[i] > dval[max_i])//SC > ;AT <
       max_i = i;//ÕÒµ½×îĞ¡Òò×ÓµÄÒ»¶ÔµÄÆğÊ¼ĞòºÅ
   }
+  
   //max_i=max_i + 1 > 3 ? 0 : max_i + 1;
   for (int i = 0; i <= max_i; i++)//°ÑÇ°ÃæµÄ¹öµ½ºóÃæ
   {

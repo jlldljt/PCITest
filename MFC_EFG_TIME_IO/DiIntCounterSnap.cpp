@@ -110,7 +110,9 @@ UINT LaserMsg(LPVOID pParam)
 // 修改
 CWinThread * gTrdAll = NULL;
 #ifdef USE_EFGV1
+#pragma pack(1)
 unsigned char g_tmp_counter[6][COUNTER_NUM*2]; // 测量时前4个激光，后两个x光
+#pragma pack(0)
 #endif // USE_EFGV1
 
 UINT AllMsg(LPVOID pParam)
@@ -127,43 +129,57 @@ UINT AllMsg(LPVOID pParam)
 #ifdef USE_EFGV1
 	while (!param->m_counter.start);
 
-  param->m_efgio->StartMeasure(1);
-  while (!param->m_efgio->CheckMeasureEnd());
+	//param->m_efgio->StartMeasure(1);
+	//while (!param->m_efgio->CheckMeasureEnd());
 
-  for (int i = 0; i < 5; i++)// 获取所有计数器数量
-  {
-    param->m_efgio->GetCntDataNum(i);
-  }
+	int status = -1;
+	while (-1 == (status = param->m_efgio->CheckChangedStatus()));
 
-  param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[0];// 激光数量
-
-  for (int i = 0; i < 4; i++)
-  {
-    if(param->m_efgio->m_resultParam.measure.cnt_num[i]+3 < LASER_SIN_NUM)//;// 检验数量是否超标
+	for (int i = 0; i < 5; i++)// 获取所有计数器数量
 	{
-    int rdlen = param->m_efgio->GetAllCntData(i, (char*)(g_tmp_counter[i]), param->m_efgio->m_resultParam.measure.cnt_num[i]*2+6/*命令头4B+crc2B*/);//获取数据
-    //ASSERT(rdlen == param->m_efgio->m_resultParam.measusre.cnt_num[i] * 2 + 6); // 检验接收数量是否一致
-
-    if(param->m_counter.index[0] > param->m_efgio->m_resultParam.measure.cnt_num[i])// 激光数量存最小的
-      param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[i];
+		param->m_efgio->GetCntDataNum(i,i*3+status-1);
 	}
 
-  }
+	param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[0];// 激光数量
 
-  if(param->m_efgio->m_resultParam.measure.cnt_num[4]+3 < XRAY_ONESHOT_NUM)//;// 检验数量是否超标
-  {
-  int rdlen = param->m_efgio->GetAllCntData(4, (char*)(g_tmp_counter[4]), param->m_efgio->m_resultParam.measure.cnt_num[4]*2+6);//获取数据
-  //ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[4] + 6); // 检验接收数量是否一致
-  param->m_counter.index[1] = param->m_efgio->m_resultParam.measure.cnt_num[4];// X光数量
-  }
-  for (int i = 0; i < 5; i++)//复制到原先的计数器数组中
-  {
-    for (int j = 0; j < param->m_efgio->m_resultParam.measure.cnt_num[i];j++)
-		//param->m_counter.counter[i][j] = g_tmp_counter[i][j+4];
-      param->m_counter.counter[i][j] = (g_tmp_counter[i][j*2+4+1]<<8)|(g_tmp_counter[i][j*2+4]);
-  }
+	int rdlen = 0;
 
-  
+	for (int i = 0; i < 4; i++)
+	{
+		if(param->m_efgio->m_resultParam.measure.cnt_num[i]+3 < LASER_SIN_NUM)//;// 检验数量是否超标
+		{
+			rdlen = param->m_efgio->GetAllCntData(i*3+status-1, (char*)(g_tmp_counter[i]), COUNTER_NUM*2/*param->m_efgio->m_resultParam.measure.cnt_num[i]*2+6命令头4B+crc2B*/);//获取数据
+			if(rdlen == -1/*param->m_efgio->m_resultParam.measusre.cnt_num[i] * 2 + 5*/) // 检验接收数量是否一致
+				param->m_counter.index[0] = 0;
+			else if(param->m_counter.index[0] > param->m_efgio->m_resultParam.measure.cnt_num[i])// 激光数量存最小的
+				param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[i];
+			////debug
+			//if(g_tmp_counter[i][0]!=char(0x55))
+			//	param->m_counter.index[0] = param->m_counter.index[0];
+		}
+
+	}
+
+	if(param->m_efgio->m_resultParam.measure.cnt_num[4]+3 < XRAY_ONESHOT_NUM)//;// 检验数量是否超标
+	{
+		rdlen = param->m_efgio->GetAllCntData(4*3+status-1, (char*)(g_tmp_counter[4]), COUNTER_NUM*2/*param->m_efgio->m_resultParam.measure.cnt_num[4]*2+6*/);//获取数据
+		if(rdlen == -1)//ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[4] + 6); // 检验接收数量是否一致
+			param->m_counter.index[1] = 0;
+		else
+			param->m_counter.index[1] = param->m_efgio->m_resultParam.measure.cnt_num[4];// X光数量
+	}
+	for (int i = 0; i < 5; i++)//复制到原先的计数器数组中
+	{
+		for (int j = 0; j < param->m_efgio->m_resultParam.measure.cnt_num[i];j++)
+		{
+			//param->m_counter.counter[i][j] = g_tmp_counter[i][j+4];
+			param->m_counter.counter[i][j] = (g_tmp_counter[i][j*2+4+1]<<8)|(g_tmp_counter[i][j*2+4]);
+			//if(i<4 && j > 2&&j<80 && param->m_counter.counter[i][j] > 1000)
+			//	continue;
+		}
+	}
+
+
 
 #elif USE_AC6641
 	double fparam0=0,tmpfparam0=0, fparam01=0, fparam02=0;
@@ -315,41 +331,41 @@ UINT AllMsgPlus(LPVOID pParam)
 #ifdef USE_EFGV1
 	while (!param->m_counter.start);
 
-  param->m_efgio->StartMeasure(1);
-  while (!param->m_efgio->CheckMeasureEnd());
+	param->m_efgio->StartMeasure(1);
+	while (!param->m_efgio->CheckMeasureEnd());
 
-  for (int i = 0; i < 5; i++)// 获取所有计数器数量
-  {
-    param->m_efgio->GetCntDataNum(i);
-  }
-
-  param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[0];// 激光数量
-
-  for (int i = 0; i < 4; i++)
-  {
-    if(param->m_efgio->m_resultParam.measure.cnt_num[i]+3 < LASER_SIN_NUM)//;// 检验数量是否超标
+	for (int i = 0; i < 5; i++)// 获取所有计数器数量
 	{
-    int rdlen = param->m_efgio->GetAllCntData(i, (char*)(g_tmp_counter[i]), param->m_efgio->m_resultParam.measure.cnt_num[i]*2+6/*命令头4B+crc2B*/);//获取数据
-    //ASSERT(rdlen == param->m_efgio->m_resultParam.measusre.cnt_num[i] * 2 + 6); // 检验接收数量是否一致
-
-    if(param->m_counter.index[0] > param->m_efgio->m_resultParam.measure.cnt_num[i])// 激光数量存最小的
-      param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[i];
+		param->m_efgio->GetCntDataNum(i);
 	}
 
-  }
+	param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[0];// 激光数量
 
-  if(param->m_efgio->m_resultParam.measure.cnt_num[4]+3 < XRAY_ONESHOT_NUM)//;// 检验数量是否超标
-  {
-  int rdlen = param->m_efgio->GetAllCntData(4, (char*)(g_tmp_counter[4]), param->m_efgio->m_resultParam.measure.cnt_num[4]*2+6);//获取数据
-  //ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[4] + 6); // 检验接收数量是否一致
-  param->m_counter.index[1] = param->m_efgio->m_resultParam.measure.cnt_num[4];// X光数量
-  }
-  for (int i = 0; i < 5; i++)//复制到原先的计数器数组中
-  {
-    for (int j = 0; j < param->m_efgio->m_resultParam.measure.cnt_num[i];j++)
-		//param->m_counter.counter[i][j] = g_tmp_counter[i][j+4];
-      param->m_counter.counter[i][j] = (g_tmp_counter[i][j*2+4+1]<<8)|(g_tmp_counter[i][j*2+4]);
-  }
+	for (int i = 0; i < 4; i++)
+	{
+		if(param->m_efgio->m_resultParam.measure.cnt_num[i]+3 < LASER_SIN_NUM)//;// 检验数量是否超标
+		{
+			int rdlen = param->m_efgio->GetAllCntData(i, (char*)(g_tmp_counter[i]), param->m_efgio->m_resultParam.measure.cnt_num[i]*2+6/*命令头4B+crc2B*/);//获取数据
+			//ASSERT(rdlen == param->m_efgio->m_resultParam.measusre.cnt_num[i] * 2 + 6); // 检验接收数量是否一致
+
+			if(param->m_counter.index[0] > param->m_efgio->m_resultParam.measure.cnt_num[i])// 激光数量存最小的
+				param->m_counter.index[0] = param->m_efgio->m_resultParam.measure.cnt_num[i];
+		}
+
+	}
+
+	if(param->m_efgio->m_resultParam.measure.cnt_num[4]+3 < XRAY_ONESHOT_NUM)//;// 检验数量是否超标
+	{
+		int rdlen = param->m_efgio->GetAllCntData(4, (char*)(g_tmp_counter[4]), param->m_efgio->m_resultParam.measure.cnt_num[4]*2+6);//获取数据
+		//ASSERT(rdlen == param->m_efgio->m_resultParam.measure.cnt_num[4] + 6); // 检验接收数量是否一致
+		param->m_counter.index[1] = param->m_efgio->m_resultParam.measure.cnt_num[4];// X光数量
+	}
+	for (int i = 0; i < 5; i++)//复制到原先的计数器数组中
+	{
+		for (int j = 0; j < param->m_efgio->m_resultParam.measure.cnt_num[i];j++)
+			//param->m_counter.counter[i][j] = g_tmp_counter[i][j+4];
+			param->m_counter.counter[i][j] = (g_tmp_counter[i][j*2+4+1]<<8)|(g_tmp_counter[i][j*2+4]);
+	}
 #endif
 	param->m_counter.start=0;
 	param->m_counter.flag = 0;
@@ -1203,9 +1219,9 @@ int CDiIntCounterSnap::LaserFit()
 	for (int i = m_counter.index[0] - 2; i > 0; i--) {
 		for (int j = 0; j < SIN_CNT_NUM; j++) {
 			/*if(m_counter.counter[LASER_CNT_START_INDEX+j][i] >=m_counter.counter[LASER_CNT_START_INDEX+j][i+1])
-				m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = m_counter.counter[LASER_CNT_START_INDEX+j][i] - m_counter.counter[LASER_CNT_START_INDEX+j][i+1];
+			m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = m_counter.counter[LASER_CNT_START_INDEX+j][i] - m_counter.counter[LASER_CNT_START_INDEX+j][i+1];
 			else
-				m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = 65536 - m_counter.counter[LASER_CNT_START_INDEX+j][i+1]+m_counter.counter[LASER_CNT_START_INDEX+j][i];
+			m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = 65536 - m_counter.counter[LASER_CNT_START_INDEX+j][i+1]+m_counter.counter[LASER_CNT_START_INDEX+j][i];
 			*/
 			double dec = m_counter.counter[LASER_CNT_START_INDEX+j][i];//fabs(m_counter.counter[LASER_CNT_START_INDEX+j][i] -m_counter.counter[LASER_CNT_START_INDEX+j][i+1]);
 			m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = dec;//dec > 32768 ? 65536 - dec : dec;
@@ -1221,7 +1237,7 @@ int CDiIntCounterSnap::LaserFit()
 		//}
 		double m1 = (m_counter.tmp_counter[1][i] + m_counter.tmp_counter[0][i]) / 2;
 		double m2 = (m_counter.tmp_counter[3][i] + m_counter.tmp_counter[2][i]) / 2;
-		
+
 		double d1 = (m_counter.tmp_counter[1][i] - m_counter.tmp_counter[0][i]);
 		double d2 = (m_counter.tmp_counter[3][i] - m_counter.tmp_counter[2][i]);
 
@@ -1297,7 +1313,7 @@ int CDiIntCounterSnap::LaserFit()
 
 int CDiIntCounterSnap::LaserFit(int n)
 {
-	if (m_channel < 0 || !m_card || m_counter.start || m_counter.index[0] > LASER_SIN_NUM+1)
+	if (m_channel < 0 || !m_card || m_counter.start || m_counter.index[0]<=0|| m_counter.index[0] > LASER_SIN_NUM+1)
 		return -1;
 
 	memset(m_counter.tmp_counter, 0, sizeof(m_counter.tmp_counter));
@@ -1305,9 +1321,9 @@ int CDiIntCounterSnap::LaserFit(int n)
 	for (int i = m_counter.index[0] - 2; i > 0; i--) {
 		for (int j = 0; j < SIN_CNT_NUM; j++) {
 			/*if(m_counter.counter[LASER_CNT_START_INDEX+j][i] >=m_counter.counter[LASER_CNT_START_INDEX+j][i+1])
-				m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = m_counter.counter[LASER_CNT_START_INDEX+j][i] - m_counter.counter[LASER_CNT_START_INDEX+j][i+1];
+			m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = m_counter.counter[LASER_CNT_START_INDEX+j][i] - m_counter.counter[LASER_CNT_START_INDEX+j][i+1];
 			else
-				m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = 65536 - m_counter.counter[LASER_CNT_START_INDEX+j][i+1]+m_counter.counter[LASER_CNT_START_INDEX+j][i];
+			m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = 65536 - m_counter.counter[LASER_CNT_START_INDEX+j][i+1]+m_counter.counter[LASER_CNT_START_INDEX+j][i];
 			*/
 			double dec = m_counter.counter[LASER_CNT_START_INDEX+j][i];//fabs(m_counter.counter[LASER_CNT_START_INDEX+j][i] -m_counter.counter[LASER_CNT_START_INDEX+j][i+1]);
 			m_counter.tmp_counter[LASER_CNT_START_INDEX+j][i] = dec;//dec > 32768 ? 65536 - dec : dec;
@@ -1323,15 +1339,19 @@ int CDiIntCounterSnap::LaserFit(int n)
 		//}
 		double m1 = (m_counter.tmp_counter[1][i] + m_counter.tmp_counter[0][i]) / 2;
 		double m2 = (m_counter.tmp_counter[3][i] + m_counter.tmp_counter[2][i]) / 2;
-		
+
 		double d1 = (m_counter.tmp_counter[1][i] - m_counter.tmp_counter[0][i]);
 		double d2 = (m_counter.tmp_counter[3][i] - m_counter.tmp_counter[2][i]);
+		
+		if(i>2&&(fabs(d1)>200 || fabs(d2) > 200))
+			m_counter.fit[0][i] = ignore_val;
 
 		if(fabs(m1 -m2)>min(m1,m2)/2 || d1 <= 0 || d2 <= 0||m1>1000||m2>1000)
 			m_counter.fit[0][i] = ignore_val;
 		else
 			m_counter.fit[0][i] = (m_counter.tmp_counter[1][i] + m_counter.tmp_counter[0][i] + m_counter.tmp_counter[3][i] + m_counter.tmp_counter[2][i]) / 4;
 	}
+
 #endif
 
 
@@ -1357,7 +1377,7 @@ int CDiIntCounterSnap::LaserFit(int n)
 		A=param.A;
 		t=param.t;
 		w=param.w;
-		
+
 	}
 	else
 	{//avg = (avg + xi / (n - 1)) / (n / (n - 1));//求平均值
@@ -1568,7 +1588,7 @@ int CDiIntCounterSnap::XrayFit()
 	if(sin_num <=0)
 		return -1;
 	alg.KLM(m_counter.fit[0], sin_num);
-	
+
 	alg.Smooth(m_counter.fit[0], sin_num,m_efgio->m_configParam.xray.factor_w,m_efgio->m_configParam.xray.factor_h);//平滑
 	alg.ExtractSpike(m_counter.fit[0], sin_num,// 100, 3, -1);
 		m_efgio->m_configParam.xray.threshold,
@@ -1688,11 +1708,10 @@ int CDiIntCounterSnap::XrayFit()
 int CDiIntCounterSnap::XrayFit(int n)
 {
 
-
-
+#define HEIGHT_SPIKE 100 //尖峰高度最大阀值
 
 #ifdef USE_EFGV1
-	if (!m_card || m_counter.start || m_counter.index[1] > XRAY_ONESHOT_NUM|| m_counter.index[1] <0)
+	if (!m_card || m_counter.start || m_counter.index[1] > XRAY_ONESHOT_NUM|| m_counter.index[1] <=0)
 		return -1;
 	memcpy(m_counter.tmp_counter[XRAY_CNT_START_INDEX], m_counter.counter[XRAY_CNT_START_INDEX], sizeof(double)*m_counter.index[1]);
 	memcpy(m_counter.fit[0], m_counter.counter[XRAY_CNT_START_INDEX], sizeof(double)*m_counter.index[1]);
@@ -1731,10 +1750,20 @@ int CDiIntCounterSnap::XrayFit(int n)
 	//alg.Correct(m_counter.fit[0], sin_num,3);//平滑
 	if(sin_num <=0)
 		return -1;
-	alg.KLM(m_counter.fit[0], sin_num);
-
+	
+	// 检查尖峰阀值
+	m_counter.fit[0][1] = 0;
+	for (int i = 2; i < sin_num; i++)
+	{
+		if(m_counter.fit[0][i]>HEIGHT_SPIKE)
+		{
+			m_counter.fit[0][i] = 0;//(m_counter.fit[0][i-1 < 0?sin_num-1:i-1] + m_counter.fit[0][i+1 >= sin_num?0:i+1]) / 2;
+		}
+	}
+	
 	//动态确定阀值
-	if(n == 1){
+	//if(n == 1){
+	m_efgio->m_configParam.xray.sum = 0;
 	for (int i = 0; i < sin_num; i++)
 	{
 		alg.SortAvgStd(
@@ -1744,10 +1773,16 @@ int CDiIntCounterSnap::XrayFit(int n)
 			std,
 			std2
 			);
+		m_efgio->m_configParam.xray.sum+=m_counter.fit[0][i];
 	}
-	if(m_efgio->m_configParam.xray.threshold < avg+0.5)
-		m_efgio->m_configParam.xray.threshold = avg/**1.5*/+0.5;
-	}
+	//if(m_efgio->m_configParam.xray.threshold < avg+0.5)
+	m_efgio->m_configParam.xray.auto_threshold = avg/**1.5+0.5*/;
+	//}
+
+	alg.KLM(m_counter.fit[0], sin_num);
+
+
+
 
 	alg.Smooth(m_counter.fit[0], sin_num,m_efgio->m_configParam.xray.factor_w,m_efgio->m_configParam.xray.factor_h);//平滑
 	alg.ExtractSpike(m_counter.fit[0], sin_num,// 100, 3, -1);
@@ -1759,11 +1794,11 @@ int CDiIntCounterSnap::XrayFit(int n)
 	SPIKE cur;
 	int spike_num = 0;
 	static double x[4] = {0};
-	
+
 	spike_num = alg.GetSpikesNumber();
-				
-	if(spike_num > 12)//尖峰数量异常
-		return -1;
+
+	//if(spike_num > 12)//尖峰数量异常
+	//	return -1;
 
 	while(spike_num>4)
 	{
@@ -1773,17 +1808,22 @@ int CDiIntCounterSnap::XrayFit(int n)
 		for(int i = 0; i < spike_num; i++)
 		{
 			alg.GetSpike(i, cur);
+			if(cur.p.y > HEIGHT_SPIKE)//值异常
+			{
+				//return -1;
+				min = i;
+				break;
+			}
+
 			if(min == i || min_val > cur.p.y)
 			{
 				min_val = cur.p.y;
 				min = i;
 			}
 
-			if(cur.p.y > 500)//值异常
-				return -1;
 		}
 		alg.DelSpike(min);
-	    spike_num = alg.GetSpikesNumber();
+		spike_num = alg.GetSpikesNumber();
 	}
 
 	////算尖峰的平均
@@ -1822,8 +1862,8 @@ int CDiIntCounterSnap::XrayFit(int n)
 		);
 	//算D1D2DM平均值并更新
 	static double D1=0, D2=0, DM=0, R1=0;
-	
-	
+
+
 	if(n == 1 ){
 		D1 = m_efgio->m_resultParam.measure.D1;
 		D2 = m_efgio->m_resultParam.measure.D2;
@@ -1841,6 +1881,18 @@ int CDiIntCounterSnap::XrayFit(int n)
 	m_efgio->m_resultParam.measure.DM = DM;
 	m_efgio->m_resultParam.measure.R1 = R1;
 	///////
+  if (DM > 0 && DM < 360) {
+    if (DM > 180) {
+      m_efgio->m_resultParam.measure.pn = 1;
+    }
+    else {
+      m_efgio->m_resultParam.measure.pn = -1;
+    }
+  }
+  else {
+    m_efgio->m_resultParam.measure.pn = 0;
+  }
+  ///////////
 
 	alg.CalcDegree0(
 		m_efgio->m_resultParam.measure.D1,
@@ -1870,21 +1922,40 @@ int CDiIntCounterSnap::XrayFit(int n)
 
 		m_viewBoard->SetOutStr(str,10,510);
 
-		str.Format(L"num:%.0f D1:%.3f D2:%.3f DM:%.3f R1:%.3f", 
+		str.Format(L"num:%.0f D1:%.3f D2:%.3f DM:%.3f R1:%.3f I:%d",// AVG:%.3f", 
 			m_efgio->m_resultParam.measure.pluse_num,//m_counter.index[1]-1,
 			m_efgio->m_resultParam.measure.D1,
 			m_efgio->m_resultParam.measure.D2,
 			m_efgio->m_resultParam.measure.DM,
-			m_efgio->m_resultParam.measure.R1);
+			m_efgio->m_resultParam.measure.R1,
+			m_efgio->m_configParam.xray.sum,
+			m_efgio->m_configParam.xray.auto_threshold);
 
 		m_viewBoard->SetOutStr(str,10,550);
 
-		str.Format(L"最小转盘脉冲:%.0f 最大转盘脉冲:%.0f 次数:%d", 
+		if(DM>0&& DM<360){
+			if(DM>180){
+				str.Format(L"正");
+			m_viewBoard->SetOutStr(str,700,550,60,30,RGB(0,255,0));
+			}else{
+				str.Format(L"反");
+			m_viewBoard->SetOutStr(str,700,550,60,30,RGB(255,0,0));
+			}
+			//m_viewBoard->SetOutStr(str,700,550,60,30);
+			POINT point={728,520};
+			m_viewBoard->DrawRect(point,70);
+		}
+
+		str.Format(L"最小转盘脉冲:%.0f 最大转盘脉冲:%.0f", 
 			m_efgio->m_resultParam.measure.min_pluse_num,
-			m_efgio->m_resultParam.measure.max_pluse_num,
-			m_efgio->m_resultParam.measure.pluse_cnt);
+			m_efgio->m_resultParam.measure.max_pluse_num);
 
 		m_viewBoard->SetOutStr(str,10,590);
+
+		str.Format(L"次数:%d", 
+			m_efgio->m_resultParam.measure.pluse_cnt);
+
+		m_viewBoard->SetOutStr(str,400,590,40,30,RGB(10,10,10));
 
 		//  m_viewBoard->SetOutStr(L"");
 		//#ifdef  __DEBUG__

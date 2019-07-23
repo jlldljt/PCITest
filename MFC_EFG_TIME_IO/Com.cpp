@@ -413,8 +413,8 @@ int CCom::SendAndRecv(const char* sbuf, int slen, char* rbuf, int rlen, bool *cr
     
   ccCriticalSection.Unlock();
 
-  if (flagr)
+  //if (flagr)
     return flagr;
-  else
-    return flagw;
+  //else
+  //  return flagw;
 }

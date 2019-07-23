@@ -94,5 +94,6 @@ public:
   //dianji 
   struct tagMotor m_motor_u;
   int StartURunTrd(double step, double acc, double speed);
+  
 };
 

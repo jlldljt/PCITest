@@ -10,6 +10,8 @@ enum ENUM_STATE
   STOP,
   STATIC_MEASURE_START,
   STATIC_MEASURE_STOP,
+  PN_MEASURE_START,
+  PN_MEASURE_STOP,
   WAIT,
   END,
 };
@@ -93,6 +95,7 @@ public:
   afx_msg void OnBnClickedChkStaticmeasure();
   CStaticEx m_static_sort;
   CStaticEx m_static_message;
+  afx_msg void OnBnClickedChkPnmeasure();
 };
 
 

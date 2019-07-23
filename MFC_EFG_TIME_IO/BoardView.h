@@ -45,10 +45,11 @@ public:
   void DrawPoint(POINT point, COLORREF color = RGB(0, 0, 255));
   void DrawStr(POINT point, const CString &str);
   void DrawCircle(POINT point, LONG r);
+  void DrawRect(POINT point, LONG r);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
   void Erase(void);
   void SetOutStr(CString str);
-  void SetOutStr(CString str, int x, int y);
+  void SetOutStr(CString str, int x, int y, int h=30, int w=10,COLORREF crColor=RGB(255,0,0));
   void SetOutStr(CString str, POINT p);
   //void ClearOutStr(void);
   void DrawToDC(CDC* pDC);
