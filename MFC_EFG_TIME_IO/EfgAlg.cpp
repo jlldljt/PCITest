@@ -834,7 +834,7 @@ int EfgAlg::ExtractSpike(double * yi, int iNum, double threshold/*ãÐÖµ*/, int co
 	  {
 		  ;
 	  }
-	  else if(true == lastOne)
+	  else if(true == lastOne && m_spikes.GetCount() > 2)
 	  {
 		  ;
 	  }
