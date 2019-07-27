@@ -129,7 +129,7 @@ void CDlgCpk::InitGrid_ProcessCardNo(void)
 	m_gridProcessCardNo.SetTextBkColor(RGB(0xFF, 0xFF, 0xCC));//背景
 	m_gridProcessCardNo.SetRowCount(1); //初始为1行
 
-	m_gridProcessCardNo.SetColumnCount(10); //初始化为9列
+	m_gridProcessCardNo.SetColumnCount(11); //初始化为10列
 	m_gridProcessCardNo.SetFixedRowCount(1); //表头为1行
 	m_gridProcessCardNo.SetFixedColumnCount(1); //表头为1列
 	m_gridProcessCardNo.SetRowHeight(0, 30); //设置各行高         
@@ -168,6 +168,9 @@ void CDlgCpk::InitGrid_ProcessCardNo(void)
 	Item.strText.Format(_T("CPK"));
 	Item.col = 9;
 	m_gridProcessCardNo.SetItem(&Item);
+  Item.strText.Format(_T("数量"));
+  Item.col = 10;
+  m_gridProcessCardNo.SetItem(&Item);
 
 	CRect cRect;
 	GetDlgItem(IDC_GRID_PROCESS_CARD_NO)->GetClientRect(&cRect);
@@ -181,6 +184,7 @@ void CDlgCpk::InitGrid_ProcessCardNo(void)
 	m_gridProcessCardNo.SetColumnWidth(7, cRect.Width() / 10 * 2); //设置0列宽 
 	m_gridProcessCardNo.SetColumnWidth(8, cRect.Width() / 10 * 2); //设置0列宽 
 	m_gridProcessCardNo.SetColumnWidth(9, cRect.Width() / 10 * 2); //设置0列宽 
+	m_gridProcessCardNo.SetColumnWidth(10, cRect.Width() / 10 * 2); //设置0列宽 
 
 	m_gridProcessCardNo.ExpandLastColumn();
 	m_gridProcessCardNo.SetColumnResize(FALSE);
@@ -229,6 +233,8 @@ void CDlgCpk::UpdateGrid_ProcessCardNo(void)
 		m_gridProcessCardNo.SetItemText(line, 8, str);
 		str.Format(_T("%.3f"), m_pCpk->m_arrProcessCardNo[i].cpk);
 		m_gridProcessCardNo.SetItemText(line, 9, str);
+    str.Format(_T("%d"), m_pCpk->m_arrProcessCardNo[i].num);
+    m_gridProcessCardNo.SetItemText(line, 10, str);
 	}
 
 	m_gridProcessCardNo.ExpandLastColumn();

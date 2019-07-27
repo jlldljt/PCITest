@@ -221,7 +221,7 @@ void CCpkLib::CloseCsv()
 }
 
 
-BOOL CCpkLib::OpenProcessCard(CString plannedNo, CString ProcessCardNo)
+BOOL CCpkLib::OpenProcessCard(CString plannedNo, CString &ProcessCardNo, BOOL force_new)
 {
 	CString path_plannedNo = m_cpkPath + plannedNo;
 
@@ -237,9 +237,9 @@ BOOL CCpkLib::OpenProcessCard(CString plannedNo, CString ProcessCardNo)
 		}
 	}
 
-	CString path = path_plannedNo + _T("\\") + plannedNo + _T(".csv");
+  CString path = path_plannedNo + _T("\\") + plannedNo + _T(".csv");
 
-	BOOL ifFind = findini.FindFile(path);
+  BOOL ifFind = findini.FindFile(path);
 
 	TRY
 	{
@@ -281,15 +281,34 @@ BOOL CCpkLib::OpenProcessCard(CString plannedNo, CString ProcessCardNo)
 				arr.Add(_T("CP"));
 				arr.Add(_T("CA"));
 				arr.Add(_T("CPK"));
+        arr.Add(_T("数量"));
 				m_csv_plannedNo->WriteData(arr);
 				arr.RemoveAll();
 
 			}
 		}
 
-		path = path_plannedNo + _T("\\") + ProcessCardNo + _T(".csv");
 
-		ifFind = findini.FindFile(path);
+  //如果force new,存在时自动后缀加_no
+
+  CString plannedNoExtstr = _T("");
+  int plannedNoExti = 0;
+  CString planedNoTmp;// 用于更新ProcessCardNo
+  do {
+    path = path_plannedNo + _T("\\") + ProcessCardNo + plannedNoExtstr + _T(".csv");
+
+    planedNoTmp = ProcessCardNo + plannedNoExtstr;
+
+    ifFind = findini.FindFile(path);
+
+    plannedNoExtstr.Format(_T("_%d"), plannedNoExti++);
+  } while (ifFind&& force_new);
+
+  ProcessCardNo = planedNoTmp;
+
+		/*path = path_plannedNo + _T("\\") + ProcessCardNo + _T(".csv");
+
+		ifFind = findini.FindFile(path);*/
 
 
 		TRY
@@ -403,6 +422,8 @@ BOOL CCpkLib::AddCpkToPlannedCsv(CProcessCard processCard)
 		arr.Add(str);
 		str.Format(_T("%.3f"), processCard.cpk);
 		arr.Add(str);
+    str.Format(_T("%d"), processCard.num);
+    arr.Add(str);
 		m_csv_plannedNo->WriteDataWithoutReturn(arr);
 		arr.RemoveAll();
 		return TRUE;
@@ -481,7 +502,7 @@ BOOL CCpkLib::CalcCpk(CString plannedNo, CString ProcessCardNo, CProcessCard & p
 					processCard.cp = 0;//_ttof(arr[PLANNED_CSV_ROW_CP]);
 					processCard.ca = 0;//_ttof(arr[PLANNED_CSV_ROW_CA]);
 					processCard.cpk =0;// _ttof(arr[PLANNED_CSV_ROW_CPK]);
-
+          processCard.num = 0;
 					break;
 				}
 			}
@@ -563,6 +584,8 @@ BOOL CCpkLib::CalcCpk(CString plannedNo, CString ProcessCardNo, CProcessCard & p
 
 		processCard.avg = avg;//_ttof(arr[PLANNED_CSV_ROW_AVG]);
 		processCard.std = std;//_ttof(arr[PLANNED_CSV_ROW_STD]);
+    processCard.num = num;
+
 		if (avg == 0 || std == 0)
 		{
 			processCard.ca = -1;
@@ -613,6 +636,7 @@ BOOL CCpkLib::CalcCpk( CProcessCard & processCard)
 					processCard.cp = 0;//_ttof(arr[PLANNED_CSV_ROW_CP]);
 					processCard.ca = 0;//_ttof(arr[PLANNED_CSV_ROW_CA]);
 					processCard.cpk =0;// _ttof(arr[PLANNED_CSV_ROW_CPK]);
+          processCard.num = 0;
 
 					//break;
 				}

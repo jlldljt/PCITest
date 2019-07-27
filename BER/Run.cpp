@@ -642,7 +642,7 @@ BOOL CRun::RunInit()
 		int ret = dlg.DoModal();
 		if(ret != 101)
 		{
-			if(1==AfxMessageBox(_T("对标准未通过"),MB_OKCANCEL))
+			if(1==AfxMessageBox(_T("对标准未通过，确定退出重新对标，取消强制执行"),MB_OKCANCEL))
 				return FALSE;
 		}
 		gstuSort.needCheck=0;
@@ -702,14 +702,15 @@ BOOL CRun::RunInit()
 	{
 		// 创建cpk计划号、流程卡, 
     // 190327 可以重复创建
-    if (!g_pCpk->OpenProcessCard(planned, process)) {}
+    // 190727 自动加后缀，防止cpk界面不统一
+    if (!g_pCpk->OpenProcessCard(planned, process, TRUE)) {}
 		//{
 		//	AfxMessageBox(_T("创建流程卡有错误，检查是否重复的流程卡"));
 		//	return FALSE;
 		//}
 		//else
 		//{
-			GetDlgItemText(IDC_EDIT_CARD, process);
+			//GetDlgItemText(IDC_EDIT_CARD, process);
 			CProcessCard processCard;
 			processCard.no = process;
 			CString axis;

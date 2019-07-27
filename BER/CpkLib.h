@@ -119,7 +119,7 @@ public:
   
   void CloseCsv();
   // 打开计划号
-  BOOL OpenProcessCard(CString plannedNo, CString ProcessCardNo);
+  BOOL OpenProcessCard(CString plannedNo, CString &ProcessCardNo, BOOL force_new = FALSE);
 
   BOOL AddToPlannedCsv(CProcessCard processCard);
 
