@@ -162,6 +162,7 @@ struct sortchip//分档全局结构
 	long double std2[5];//计算标准偏差中间值
 	int checkout0,nocheckout;//测出0的次数（连续，不能测出
 	bool needCheck;
+  bool needNewProcess;
 };
 
 

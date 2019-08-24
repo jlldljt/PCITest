@@ -1431,8 +1431,21 @@ int CDiIntCounterSnap::LaserFit(int n)
 			point.x = i * time_x+1;
 			point.y = m_counter.fit[1][i];
 			m_viewBoard->DrawPoint(point);
+			//红线
+			point.y = (m_counter.tmp_counter[1][i] + m_counter.tmp_counter[0][i]) / 2;
+			m_viewBoard->DrawPoint(point, RGB(0, 255, 255));
+			//中心1
+			point.y = param.k + 0.5;
+			m_viewBoard->DrawPoint(point, RGB(0, 0, 0));
+
 			point.x += time_x/2;
 			m_viewBoard->DrawPoint(point);
+			//绿线
+			point.y = (m_counter.tmp_counter[3][i] + m_counter.tmp_counter[2][i]) / 2;
+			m_viewBoard->DrawPoint(point, RGB(255, 0, 255));
+			//中心2
+			point.y = param.k + 0.5;
+			m_viewBoard->DrawPoint(point, RGB(0, 0, 0));
 		}
 		m_viewBoard->Invalidate();
 	}
@@ -1781,7 +1794,11 @@ int CDiIntCounterSnap::XrayFit(int n)
 
 	alg.KLM(m_counter.fit[0], sin_num);
 
-
+	
+	if (m_viewBoard) {
+		m_viewBoard->Erase();
+		m_viewBoard->DrawXRayOneShot();
+	}
 
 
 	alg.Smooth(m_counter.fit[0], sin_num,m_efgio->m_configParam.xray.factor_w,m_efgio->m_configParam.xray.factor_h);//平滑
@@ -1905,8 +1922,8 @@ int CDiIntCounterSnap::XrayFit(int n)
 
 
 	if (m_viewBoard) {
-		m_viewBoard->Erase();
-		m_viewBoard->DrawXRayOneShot();
+	/*	m_viewBoard->Erase();
+		m_viewBoard->DrawXRayOneShot();*/
 		CString str;
 
 		str.Format(L"静态散差:%.3f 静态平均:%.3f", 
@@ -1996,9 +2013,11 @@ int CDiIntCounterSnap::XrayFit(int n)
 			point.y=m_efgio->m_configParam.xray.threshold*XRAY_Y_TIMES;
 			m_viewBoard->DrawPoint(point,RGB(100,100,0));
 
+			
+      point.y = m_counter.fit[0][i] * XRAY_Y_TIMES;
+      m_viewBoard->DrawPoint(point, RGB(100, 100, 0));
+
 		}
-
-
 
 		m_viewBoard->Invalidate();
 	}
@@ -2007,7 +2026,7 @@ int CDiIntCounterSnap::XrayFit(int n)
 	return 0;
 }
 
-int CDiIntCounterSnap::XrayFitTest(int n)
+int CDiIntCounterSnap::XrayFitTest(int n,double threshold, int confirmNum, double ignore)
 {
 
 
@@ -2025,7 +2044,7 @@ int CDiIntCounterSnap::XrayFitTest(int n)
   EfgAlg alg;
 #if 1 // 用于记录这些点
   CStdioFile m_file;
-  m_file.Open(_T("xraypoint2.txt"), CFile::modeCreate | CFile::modeRead| CFile::modeNoTruncate);
+  m_file.Open(_T("xraypoint.txt"), CFile::modeCreate | CFile::modeRead| CFile::modeNoTruncate);
   m_file.Seek(0, CFile::begin);
   CString str;
   BOOL ret;
@@ -2087,9 +2106,10 @@ int CDiIntCounterSnap::XrayFitTest(int n)
   //  m_efgio->m_configParam.xray.ignore);
 
   alg.ExtractSpike(m_counter.fit[0], sin_num,// 100, 3, -1);
-    15,
-    30,
-    25);
+	  threshold, confirmNum, ignore);
+    //15,
+    //30,
+    //25);
 
   //算关键参数的平均值并更新
   SPIKE cur;
@@ -2259,6 +2279,9 @@ int CDiIntCounterSnap::XrayFitTest(int n)
     {
       POINT point;
       point.x = i / times;
+			point.y=threshold*XRAY_Y_TIMES;
+			m_viewBoard->DrawPoint(point,RGB(100,100,0));
+
       point.y = m_counter.fit[0][i] * XRAY_Y_TIMES;
       m_viewBoard->DrawPoint(point, RGB(100, 100, 0));
 

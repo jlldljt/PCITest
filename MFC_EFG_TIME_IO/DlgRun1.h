@@ -23,8 +23,10 @@ typedef struct {
     ENUM_STATE y;
     ENUM_STATE turntable;//转盘状态
     ENUM_STATE staticmeasure;//静态测量
+	ENUM_STATE user;
   }state;
   int measure; // 0无测量
+
 }Run_Param;
 
 // CDlgRun1 窗体视图
@@ -96,6 +98,7 @@ public:
   CStaticEx m_static_sort;
   CStaticEx m_static_message;
   afx_msg void OnBnClickedChkPnmeasure();
+  virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 
 

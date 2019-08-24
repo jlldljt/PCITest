@@ -85,7 +85,7 @@ public:
   int LaserFit(int n);//用于多次测量
   int XrayFit();
   int XrayFit(int n);
-  int XrayFitTest(int n);
+  int XrayFitTest(int n,double threshold, int confirmNum, double ignore);
   //用于多次测量
  // int CalcResult();
   //停止中断捕捉

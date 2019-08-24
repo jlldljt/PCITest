@@ -1013,7 +1013,7 @@ void CMainFrame::OnButtonHome()
 void CMainFrame::OnButtonLaserFit()
 {
   // TODO: 在此添加命令处理程序代码
-  if (0 != m_diIntCounterSnap.LaserFit())
+  if (0 != m_diIntCounterSnap.LaserFit(1))
     AfxMessageBox(L"error");
   else
     Switch(VIEW_BOARD);

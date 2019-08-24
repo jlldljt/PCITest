@@ -554,6 +554,8 @@ int CEfgIO::MotoZero(int moto_index)
 
   if (rdlen > 0 && crc)
   {
+	  //Sleep(100);
+	  while (!CheckMotoEnd(moto_index));
     return 0;
   }
  
@@ -1070,6 +1072,20 @@ int CEfgIO::GetCurOffPos(int &pos_num)
   pos_num = m_resultParam.num.y_off[m_resultParam.measure.cur_pos];
   m_resultParam.measure.cur_pos_step = m_configParam.user_config.pos.y_off[sort_type][pos];
   return pos;
+}
+
+//返回档位电机数，pos_第几档，超过档位，取未检出
+int CEfgIO::GetYOffPos(int pos)
+{
+  int sort_type = m_configParam.user_config.type;//晶片类型
+  ASSERT(sort_type < MAX_TYPE_NUM);
+  int sort_num = m_configParam.user_config.type_sort_num[sort_type];//档位数量
+
+  if(pos >= sort_num)
+	  return m_configParam.user_config.pos.not_detected;
+  
+
+  return m_configParam.user_config.pos.y_off[sort_type][pos];
 }
 
 // sec 待判断角度

@@ -661,35 +661,70 @@ double* GetCoefficent(double* t, double* y, int m, int n)
 double GetMidCur(double * yi, int startCur, int endCur)
 {
   //多项式
-  int num = endCur - startCur;
-  double* t = new double[num];
-  for (int i = 0; i < num; i++)t[i] = i;
-  int n = 5;
-  double* c = GetCoefficent(t, yi+ startCur, num, n);
+  //int num = endCur - startCur;
+  //double* t = new double[num];
+  //for (int i = 0; i < num; i++)t[i] = i;
+  //int n = 3;
+  //double* c = GetCoefficent(t, yi+ startCur, num, n);
 
-  double max = 0, max_val = 0;
-  for (int i = startCur; i < endCur; i++) {
-    yi[i] = c[0];
+  //double max = 0, max_val = 0;
+  //for (int i = startCur; i < endCur; i++) {
+  //  yi[i] = c[0];
 
-    for (int j = 1; j < n; j++) {
-      yi[i] += c[j] * pow(t[i - startCur], j);
-    }
-    //yi[i] = c[0] + c[1] * t[i- startCur] + c[2] * t[i- startCur] * t[i- startCur];
+  //  for (int j = 1; j < n; j++) {
+  //    yi[i] += c[j] * pow(t[i - startCur], j);
+  //  }
+  //  //yi[i] = c[0] + c[1] * t[i- startCur] + c[2] * t[i- startCur] * t[i- startCur];
 
-    if (yi[i] > max_val) {
-      max_val = yi[i];
-      max = i;
+  //  if (yi[i] > max_val) {
+  //    max_val = yi[i];
+  //    max = i;
 
-    }
-  }
-  return max;
+  //  }
+  //}
+
+  //double dec = 0.1;
+  //double dir = 1;
+  //double tmpi = max;
+  //double tmpval = 0;
+  //	//  for (int j = 0; j < n; j++) {
+		// // tmpval += c[j] * pow(tmpi, j);
+	 // //}
+  //while(1) {
+	 // tmpi += dir * dec;
+	 // if (tmpi < startCur||tmpi >= endCur)
+		//  break;
+	 // // 计算函数值
+	 // tmpval = 0;
+	 // for (int j = 0; j < n; j++) {
+		//  tmpval += c[j] * pow(tmpi, j);
+	 // }
+
+	 // if(tmpval > max_val)// 变大
+	 // {
+		//  max_val = tmpval;
+  //        max = tmpi;
+	 // }
+	 // else//变小
+	 // {
+		//  tmpi -= dir * dec;
+		//  dir = -dir;
+		//  if(dir<0)
+		//    dec /= 10;
+		//  if(dec < 0.000001)//遍历精度
+		//	break;
+	 // }
+  //}
+
+
+  //return max;
 
 	//抛物线
 	double ParaA,ParaB,ParaC;
 	Cal(yi,startCur,endCur,&ParaA,&ParaB,&ParaC);
 	return -ParaB/(2*ParaA)+startCur;
 	//宽度中间
-	//double mid = (startCur+endCur)/2.0 +0.5;
+	//double mid = (startCur+endCur)/2.0;// +0.5;
 	//return mid;
 	//面积中间
 	double area=0;
@@ -1326,7 +1361,7 @@ void EfgAlg::CalcDegree0(const double D1, const  double D2, const double DM, dou
   //GetDlgItem(IDC_EDIT3)->SetWindowText(str);
   //str.Format(_T("%lf"), tg);
   //GetDlgItem(IDC_EDIT4)->SetWindowText(str);
-  theta0 = theta / DPI;
+  theta0 = theta / DPI - 30.0 / 3600.0;
   phi0 = phi2 / DPI;
   u_g = tg;
 }
@@ -1385,7 +1420,7 @@ LaserOffset	设置的激光相对偏移角度（激光入射光线和零位的夹角）
 dm 》 180 正面
 
 */
-void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset,double theta0, double phi0, double &theta1, double &phi1, double dm)
+void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset,double theta0, double phi0, double &theta1, double &phi1, double dm, double *phase_end)
 {
 	if(theta0==0||phi0==0)
 	{
@@ -1397,7 +1432,9 @@ void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset
   double x2nd_l = CalcX2ndL1(theta0, phi0);
 
   double phase1 = ((dm > 180)?1:-1)*(-90 - laser_offset - phase+ r1) + x2nd_l;
-
+  
+  if(phase_end)
+	  *phase_end = phase1;
   
 
   //转换到弧度
@@ -1443,11 +1480,66 @@ void EfgAlg::CalcDegree1(double amp, double phase,double r1, double laser_offset
 }
 
 //单位必须一致，比如°
-void EfgAlg::CalcEquAngle(double theta0, double phi0, double equ_phi, double equ_factor, double &equ)
+void EfgAlg::CalcEquAngle(double theta, double phi, double equ_phi, double equ_factor, double &equ)
+{
+  // 等效角 = 光轴 + （电轴 - 等效角电轴参数）/等效角因子
+  if (equ_factor&&theta&&phi&&equ_phi) {
+    equ = theta + double(phi - equ_phi) / equ_factor;
+  }
+  else {
+    equ = 0;
+  }
+
+  return;
+}
+
+//int CalcEquAngle()
+//{
+//  for (int i = 0; i < 30; i++) {
+//    if (degree[i] > 60 || degree[i] < 0)
+//      return -1;
+//  }
+//
+//  int angle[5] = { 
+//    (degree[0] * 10 + degree[1]) * 3600 + (degree[2] * 10 + degree[3]) * 60 + (degree[4] * 10 + degree[5]),//光轴
+//    (degree[6] * 10 + degree[7]) * 3600 + (degree[8] * 10 + degree[9]) * 60 + (degree[10] * 10 + degree[11]),//电轴
+//    (degree[12] * 10 + degree[13]) * 3600 + (degree[14] * 10 + degree[15]) * 60 + (degree[16] * 10 + degree[17]),//等效角
+//    (degree[18] * 10 + degree[19]) * 3600 + (degree[20] * 10 + degree[21]) * 60 + (degree[22] * 10 + degree[23]),//原始光轴
+//    (degree[24] * 10 + degree[25]) * 3600 + (degree[26] * 10 + degree[27]) * 60 + (degree[28] * 10 + degree[29]) 
+//  };//原始电轴；保存测定出的角度，转换成秒
+//
+//  int t0 = (degree[0] * 10 + degree[1]) * 3600 + (degree[2] * 10 + degree[3]) * 60 + (degree[4] * 10 + degree[5]) + g_sort.R1t[g_sort.R1Num];//光轴//_0614
+//  int e0 = (degree[6] * 10 + degree[7]) * 3600 + (degree[8] * 10 + degree[9]) * 60 + (degree[10] * 10 + degree[11]) + g_sort.R1e[g_sort.R1Num];//电轴
+//  int equal_angle;
+//    
+//  // 等效角 = 原始光轴 + （原始电轴 - 等效角电轴参数）/等效角因子
+//  if (g_sort.ek) {
+//    equal_angle = t0 + double((e0 - g_sort.et0)* 1000) / double(g_sort.ek) + 0.5 ;
+//  }
+//  else {
+//    equal_angle = 0;
+//  }
+//
+//  degree[12] = equal_angle / 3600 / 10;
+//  degree[13] = equal_angle / 3600 % 10;
+//  degree[14] = equal_angle % 3600 / 60 / 10;
+//  degree[15] = equal_angle % 3600 / 60 % 10;
+//  degree[16] = equal_angle % 60 / 10;
+//  degree[17] = equal_angle % 60 % 10;
+//
+//  return 0;
+//}
+
+//单位必须一致，比如°
+void EfgAlg::CalcEquSec(int theta0, int phi0, int equ_phi, int equ_factor, int &equ)
 {
   // 等效角 = 原始光轴 + （原始电轴 - 等效角电轴参数）/等效角因子
   if (equ_factor&&theta0&&phi0&&equ_phi) {
-    equ = theta0 + double(phi0 - equ_phi)/* * 1000 *// equ_factor + 0.5;
+	  int t0 = USER_TO_SEC(theta0);
+	  int p0 = USER_TO_SEC(phi0);
+	  int ep = USER_TO_SEC(equ_phi);
+    equ = SEC_TO_USER(t0 + double(p0 - ep)*1000 / double(equ_factor) + 0.5);
+	//equal_angle = t0 + double((e0 - g_sort.et0)* 1000) / double(g_sort.ek) + 0.5 ;
   }
   else {
     equ = 0;

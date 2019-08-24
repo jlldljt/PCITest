@@ -49,7 +49,7 @@ public:
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
   void Erase(void);
   void SetOutStr(CString str);
-  void SetOutStr(CString str, int x, int y, int h=30, int w=10,COLORREF crColor=RGB(255,0,0));
+  void SetOutStr(CString str, int x, int y, int h=30, int w=10,COLORREF crColor=RGB(50,50,50));
   void SetOutStr(CString str, POINT p);
   //void ClearOutStr(void);
   void DrawToDC(CDC* pDC);

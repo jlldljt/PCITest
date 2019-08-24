@@ -169,11 +169,27 @@ void CRun::OnBnClickedBtnSortset()
 		AfxMessageBox(_T("无配置文件"));
 	}  
 
+  gstuSort.needNewProcess = 0;
+ 
+  TCHAR tmpbuff[256];
+  CString tmpstr;
+  GetPrivateProfileString(_T("分档设定"), _T("计划号"), NULL, tmpbuff, 80, gstuPathInf.csPathIni);
+  tmpstr = tmpbuff;
 	GetDlgItemText(IDC_EDIT_PLANNED, strValue);
-	WritePrivateProfileString(_T("分档设定"), _T("计划号"), strValue, gstuPathInf.csPathIni);
-	
+  if (tmpstr != strValue)
+  {
+    WritePrivateProfileString(_T("分档设定"), _T("计划号"), strValue, gstuPathInf.csPathIni);
+    gstuSort.needNewProcess++;
+  }
+  GetPrivateProfileString(_T("分档设定"), _T("流程卡"), NULL, tmpbuff, 80, gstuPathInf.csPathIni);
+  tmpstr = tmpbuff;
 	GetDlgItemText(IDC_EDIT_CARD, strValue);
-	WritePrivateProfileString(_T("分档设定"), _T("流程卡"), strValue, gstuPathInf.csPathIni);
+  if (tmpstr != strValue)
+  {
+    WritePrivateProfileString(_T("分档设定"), _T("流程卡"), strValue, gstuPathInf.csPathIni);
+    gstuSort.needNewProcess++;
+  }
+
 	strValue.Format(_T("%d"),gstuSort.sortsel1);
 	WritePrivateProfileString(_T("分档设定"),_T("检测角：编号"),strValue,gstuPathInf.csPathIni); 
 	if(5!=gstuSort.sortsel2)//如果电轴限定，追加判断

@@ -186,6 +186,7 @@ BOOL CBERDlg::SYSInit()
 	gstuSort.sortsn=0;
 	gstuSort.sortsum=0;//1~24档总片数
 	gstuSort.needCheck = 1;
+	gstuSort.needNewProcess = 0;
 	gstuRcgInfo.bChkPN=0;//区分方向标志初始化
 	gstuRun.runCnt = 0;
 	gstuRun.closeShake = 0;

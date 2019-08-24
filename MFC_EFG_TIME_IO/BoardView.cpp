@@ -159,12 +159,12 @@ void CBoardView::DrawLaserSin()
 
   for (int i = 0; i < sin_num; i++)//GetMainFrame()->m_diIntCounterSnap.m_counter.index[0]-1
   {
-    pen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
+    pen.CreatePen(PS_SOLID, 2, RGB(255, 150, 150));
     pDC->SelectObject(&pen);
     pDC->MoveTo(i * time_x, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[0][i]);
     pDC->LineTo(i * time_x, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[1][i]);
     pen.DeleteObject();
-    pen.CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
+    pen.CreatePen(PS_SOLID, 2, RGB(150, 255, 150));
     pDC->SelectObject(&pen);
     pDC->MoveTo((i * time_x) + time_x/2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[2][i]);
     pDC->LineTo((i * time_x) + time_x/2, GetMainFrame()->m_diIntCounterSnap.m_counter.tmp_counter[3][i]);

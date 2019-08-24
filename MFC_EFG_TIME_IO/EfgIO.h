@@ -149,13 +149,14 @@ typedef struct {
     double std2_phi1, std2_phi0, std2_theta1, std2_theta0, std2_equ;   //中间值
     int cur_pos;//当前片档位
     int cur_pos_step;//当前片档位
+	double phase;
     int num;//测量数量
     //
     int pn;//正反，1正，-1 反，0未知
 	//测试用
-    double avg_D1, avg_D2, avg_DM, avg_R1, avg_pluse_num, avg_u_g, avg_A, avg_w, avg_t, avg_k;
-    double std_D1, std_D2, std_DM, std_R1, std_pluse_num, std_u_g, std_A, std_w, std_t, std_k;
-    double std2_D1, std2_D2, std2_DM, std2_R1, std2_pluse_num, std2_u_g, std2_A, std2_w, std2_t, std2_k;
+    double avg_D1, avg_D2, avg_DM, avg_R1, avg_pluse_num, avg_u_g, avg_A, avg_w, avg_t, avg_k,avg_phase;
+    double std_D1, std_D2, std_DM, std_R1, std_pluse_num, std_u_g, std_A, std_w, std_t, std_k,std_phase;
+    double std2_D1, std2_D2, std2_DM, std2_R1, std2_pluse_num, std2_u_g, std2_A, std2_w, std2_t, std2_k,std2_phase;
   //记录计数器数量
     int cnt_num[5];
   }measure;
@@ -173,12 +174,14 @@ enum EFG_IChannel
 enum EFG_OChannel
 {
  // U_DIR = 0,//
-  CLEAN=0,//=1,
-  ALERT,
-  BLOW,
+  AIR_FLAG1=0,//=1,
+  BLOW,//三孔吸
+  Y_NOZZLE,//y吸
   XRAY_GATE,
-  X_NOZZLE,
-  Y_NOZZLE,
+  ALERT,
+  CLEAN,//三孔吹
+  X_NOZZLE,//X吸气
+  AIR_FLAG2,
   U_GATE,//
   U_OUTP,//
   U_OUTN,//
@@ -314,6 +317,7 @@ public:
   CString GetMeasureType(int index);
   // 获取当前角度的下料位置
   int GetCurOffPos(int &pos_num);
+  int GetYOffPos(int pos);
   // 判断主测角的档位 -1 低 ；=档位数 高
   void JudegSortWhich(double sec, int & which);
   void ClearMeasureResult(void);

@@ -2,21 +2,21 @@
 #define PI 3.1415926
 
 
-#define USER_TO_SEC(deg) ((deg)/10000*3600+(deg)%10000/100*60+(deg)%100)
+#define USER_TO_SEC(deg) (((int)(deg))/10000*3600+((int)(deg))%10000/100*60+((int)(deg))%100)
 #define DEG_TO_USER(deg) (SEC_TO_USER(DEG_TO_SEC(deg)))
-#define SEC_TO_USER(sec) ((sec)/3600*10000+(sec)%3600/60*100+(sec)%60)
+#define SEC_TO_USER(sec) (((int)(sec))/3600*10000+((int)(sec))%3600/60*100+((int)(sec))%60)
 
-#define USER_TO_DEG(deg) ((deg)/10000+(deg)%10000/100/60.0+(deg)%100/3600.0)
-#define DEG_TO_SEC(deg) ((int)((deg)*3600))
+#define USER_TO_DEG(deg) (((int)(deg))/10000+((int)(deg))%10000/100/60.0+((int)(deg))%100/3600.0)
+#define DEG_TO_SEC(deg) ((int)((deg)*3600+0.5))
 #define SEC_TO_DEG(sec) ((sec)/3600.0)
 //秒的度分秒
 #define S_DEG(sec) ((sec)/3600)
 #define S_MIN(sec) ((sec)%3600/60)
 #define S_SEC(sec) ((sec)%60)
 //度的度分秒
-#define D_DEG(deg) S_DEG((int)((deg)*3600))
-#define D_MIN(deg) S_MIN((int)((deg)*3600))
-#define D_SEC(deg) S_SEC((int)((deg)*3600))
+#define D_DEG(deg) S_DEG((int)((deg)*3600+0.5))
+#define D_MIN(deg) S_MIN((int)((deg)*3600+0.5))
+#define D_SEC(deg) S_SEC((int)((deg)*3600+0.5))
 //用户输入的度分秒
 #define U_DEG(user) ((user)/10000)
 #define U_MIN(user) ((user)%10000/100)
@@ -113,9 +113,10 @@ public:
   // 计算原始光轴/原始电轴/u轴g，°
   void CalcDegree0(const double D1, const double D2, const double DM, double & theta0, double & phi0, double &u_g);
   // 计算修正光轴/电轴，°
-  void CalcDegree1(double amp, double phase, double r1, double laser_offset, double theta0, double phi0, double &theta1, double &phi1, double dm);
+  void CalcDegree1(double amp, double phase, double r1, double laser_offset, double theta0, double phi0, double &theta1, double &phi1, double dm, double *phase_end = NULL);
   // 计算等效角，°
-  void CalcEquAngle(double theta0, double phi0, double equ_phi, double equ_factor, double & equ);
+  void CalcEquAngle(double theta, double phi, double equ_phi, double equ_factor, double & equ);
+  void CalcEquSec(int theta0, int phi0, int equ_phi, int equ_factor, int &equ);
   // 累计计算avg std， std2时中间值
   void SortAvgStd(const int sum, const double angle, double & avg, double & std, double & std2);
 
