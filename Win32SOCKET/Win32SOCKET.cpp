@@ -420,8 +420,8 @@ test3connect:
     }
     isOta = 1;
 
-    printf("restart and reconnect");
-    getchar();
+    printf("restart and reconnect\n");
+    Sleep(1000);//getchar();
     closesocket(ConnectSocket);
     ConnectSocket = INVALID_SOCKET;
     WSACleanup();
@@ -468,7 +468,7 @@ test3connect:
 
   printf("File(%s) Size: %ld\n", wpath,size);
   delete wpath;
-  getchar();
+  Sleep(500);//getchar();
 	//crc
 	UCHAR uchBuf[20] = { 0xF3, 0x06, 0x6C, 0x81, 0x03, 0x00 };
 	memcpy_s(uchBuf + 2, sizeof(uchBuf), &size, 4);
@@ -484,7 +484,7 @@ test3connect:
 		WSACleanup();
 		return 1;
 	}
-
+  // 等待接收初始化完成
 	iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
   if (iResult > 0) {
     recvbuf[iResult] = 0x00;
@@ -495,7 +495,7 @@ test3connect:
 	else
 		printf("recv failed with error: %d\n", WSAGetLastError());
 
-  getchar();
+  Sleep(500); //getchar();
 	//////////
 	//发送脚本
 	//////////
