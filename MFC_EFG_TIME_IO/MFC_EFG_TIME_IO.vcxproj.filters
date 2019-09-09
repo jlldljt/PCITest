@@ -31,6 +31,9 @@
     <Filter Include="EFG_V1">
       <UniqueIdentifier>{5d643b15-759b-4e20-8d8b-b5d1ed5ffabc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CAMERA">
+      <UniqueIdentifier>{7ede8c12-7e8b-4c62-a358-c5fad46c19c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -283,6 +286,21 @@
     <ClInclude Include="EFGV1_Motor.h">
       <Filter>EFG_V1</Filter>
     </ClInclude>
+    <ClInclude Include="KSJ.h">
+      <Filter>CAMERA</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgCamera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGRecognition.h">
+      <Filter>CAMERA</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgPriview.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgPriview1.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -425,6 +443,21 @@
     </ClCompile>
     <ClCompile Include="EFGV1_Motor.cpp">
       <Filter>EFG_V1</Filter>
+    </ClCompile>
+    <ClCompile Include="KSJ.cpp">
+      <Filter>CAMERA</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgCamera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGRecognition.cpp">
+      <Filter>CAMERA</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgPriview.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgPriview1.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

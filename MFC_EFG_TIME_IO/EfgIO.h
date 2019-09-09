@@ -116,6 +116,27 @@ typedef struct  {
     }measure;
   }user_config;//用户输入，使用时，需要转换，
   //位置相关
+  struct
+  {
+    bool bChkPN;//是否区分正反
+    int nPN;//保存用来匹配的方向
+    int nPToL;//直线点距
+    int nDefectPToL;//缺陷点距
+    //以上用于找直线并确定在直线外的点
+    int nThreshold;//阀值
+    bool bThrdAuto;//自动阈值标识
+    bool bDelNoise;//去噪标识
+    bool bDebug;//指示是否开启DEBUG//速度很慢
+    int nAllowDefect;//特征允许误差，用于判断识别出的长宽是否符合要求
+    int nLength, nWide;//保存特征长宽
+    bool bIsCir;
+    double g_factor[2][3];//保存屏幕坐标转换到机械手坐标的系数。转换公式为X=g_factor[0][0]*x+g_factor[0][1]*y+g_factor[0][2];Y=g_factor[1][0]*x+g_factor[1][1]*y+g_factor[1][2];
+    double Xxy[3][4], Yxy[3][4];//用于坐标校准
+    int Nxy;//用于坐标校准
+    int nClbPosX[3], nClbPosY[3];//用于保存坐标校准的固定位置
+    bool bClbPos;
+    int nSNCHGX, nSNCHGY;//xy轴换吸头位置
+  }camera;
 
   int auto_run;//板卡自动启动
 }EFG_ConfigParam;

@@ -5,6 +5,7 @@
 #include "DlgLaser.h"
 #include "DlgXray.h"
 #include "DlgParam.h"
+#include "DlgCamera.h"
 
 // CDlgDebug1 ¥∞ÃÂ ”Õº
 
@@ -36,6 +37,7 @@ public:
   CDlgLaser * m_dlg_laser;
   CDlgXray *m_dlg_xray;
   CDlgParam *m_dlg_param;
+  CCamera *m_dlg_camera;
   CTabCtrl m_tab_debug;
   afx_msg void OnTcnSelchangeTabDebug(NMHDR *pNMHDR, LRESULT *pResult);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

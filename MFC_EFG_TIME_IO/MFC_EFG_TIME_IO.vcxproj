@@ -145,6 +145,7 @@
     <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.h" />
     <ClInclude Include="..\gridctrl_demo\NewCellTypes\GridURLCell.h" />
     <ClInclude Include="Com.h" />
+    <ClInclude Include="DlgCamera.h" />
     <ClInclude Include="DlgParam.h" />
     <ClInclude Include="ComDef.h" />
     <ClInclude Include="CPCICtrl.h" />
@@ -156,6 +157,8 @@
     <ClInclude Include="DlgDI.h" />
     <ClInclude Include="DlgDO.h" />
     <ClInclude Include="DlgLaser.h" />
+    <ClInclude Include="DlgPriview.h" />
+    <ClInclude Include="DlgPriview1.h" />
     <ClInclude Include="DlgRun1.h" />
     <ClInclude Include="DlgT0.h" />
     <ClInclude Include="DlgT1.h" />
@@ -168,6 +171,8 @@
     <ClInclude Include="EFGV1_DI.h" />
     <ClInclude Include="EFGV1_DO.h" />
     <ClInclude Include="EFGV1_Motor.h" />
+    <ClInclude Include="IMGRecognition.h" />
+    <ClInclude Include="KSJ.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFC_EFG_TIME_IO.h" />
     <ClInclude Include="MFC_EFG_TIME_IODoc.h" />
@@ -196,6 +201,7 @@
     <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridCellNumeric.cpp" />
     <ClCompile Include="..\gridctrl_demo\NewCellTypes\GridURLCell.cpp" />
     <ClCompile Include="Com.cpp" />
+    <ClCompile Include="DlgCamera.cpp" />
     <ClCompile Include="DlgParam.cpp" />
     <ClCompile Include="ComDef.cpp" />
     <ClCompile Include="CPCICtrl.cpp" />
@@ -207,6 +213,8 @@
     <ClCompile Include="DlgDI.cpp" />
     <ClCompile Include="DlgDO.cpp" />
     <ClCompile Include="DlgLaser.cpp" />
+    <ClCompile Include="DlgPriview.cpp" />
+    <ClCompile Include="DlgPriview1.cpp" />
     <ClCompile Include="DlgRun1.cpp" />
     <ClCompile Include="DlgT0.cpp" />
     <ClCompile Include="DlgT1.cpp" />
@@ -219,6 +227,8 @@
     <ClCompile Include="EFGV1_DI.cpp" />
     <ClCompile Include="EFGV1_DO.cpp" />
     <ClCompile Include="EFGV1_Motor.cpp" />
+    <ClCompile Include="IMGRecognition.cpp" />
+    <ClCompile Include="KSJ.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFC_EFG_TIME_IO.cpp" />
     <ClCompile Include="MFC_EFG_TIME_IODoc.cpp" />

@@ -18,6 +18,7 @@ CDlgDebug1::CDlgDebug1()
   m_dlg_laser = NULL;
   m_dlg_xray = NULL;
   m_dlg_param = NULL;
+  m_dlg_camera = NULL;
 }
 
 CDlgDebug1::~CDlgDebug1()
@@ -73,6 +74,7 @@ void CDlgDebug1::OnTcnSelchangeTabDebug(NMHDR *pNMHDR, LRESULT *pResult)
     m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_param->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_camera->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
 
     break;
   case 1:
@@ -80,6 +82,7 @@ void CDlgDebug1::OnTcnSelchangeTabDebug(NMHDR *pNMHDR, LRESULT *pResult)
     m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
     m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_param->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_camera->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
 
     break;
   case 2:
@@ -87,6 +90,7 @@ void CDlgDebug1::OnTcnSelchangeTabDebug(NMHDR *pNMHDR, LRESULT *pResult)
     m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
     m_dlg_param->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_camera->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
 
     break;
   case 3:
@@ -94,6 +98,17 @@ void CDlgDebug1::OnTcnSelchangeTabDebug(NMHDR *pNMHDR, LRESULT *pResult)
     m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_param->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
+    m_dlg_camera->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+
+
+    break;
+  case 4:
+    m_dlg_debug_device->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_param->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_camera->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
+
 
     break;
   default:
@@ -101,6 +116,7 @@ void CDlgDebug1::OnTcnSelchangeTabDebug(NMHDR *pNMHDR, LRESULT *pResult)
     m_dlg_laser->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_xray->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     m_dlg_param->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+    m_dlg_camera->SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
     break;
   }
   *pResult = 0;
@@ -151,6 +167,7 @@ void CDlgDebug1::OnInitialUpdate()
   m_tab_debug.InsertItem(1, _T("激光调试"));
   m_tab_debug.InsertItem(2, _T("X光调试"));
   m_tab_debug.InsertItem(3, _T("参数设置"));
+  m_tab_debug.InsertItem(4, _T("相机调试"));
   m_dlg_debug_device = new CDlgDebugDevice;
   m_dlg_debug_device->Create(IDD_DIALOG_DEVICE, &m_tab_debug);
   m_dlg_laser = new CDlgLaser;
@@ -159,6 +176,8 @@ void CDlgDebug1::OnInitialUpdate()
   m_dlg_xray->Create(IDD_DLG_XRAY, &m_tab_debug);
   m_dlg_param = new CDlgParam;
   m_dlg_param->Create(IDD_DLG_PARAM, &m_tab_debug);
+  m_dlg_camera = new CCamera;
+  m_dlg_camera->Create(IDD_DLG_CAMERA, &m_tab_debug);
   m_tab_debug.GetClientRect(&dbgRect);//tab控件大小
   dbgRect.left += 1;
   dbgRect.right -= 1;
@@ -168,6 +187,7 @@ void CDlgDebug1::OnInitialUpdate()
   m_dlg_laser->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(), SWP_HIDEWINDOW);
   m_dlg_xray->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(), SWP_HIDEWINDOW);
   m_dlg_param->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(), SWP_HIDEWINDOW);
+  m_dlg_camera->SetWindowPos(NULL, dbgRect.left, dbgRect.top, dbgRect.Width(), dbgRect.Height(), SWP_HIDEWINDOW);
   m_tab_debug.SetCurSel(0);
 }
 
