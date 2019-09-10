@@ -19,6 +19,10 @@
 #define MOTOR_X 0
 #define MOTOR_Y 1
 #define MOTOR_U 2
+#define MOTOR_A 3//上料臂1
+#define MOTOR_B 4//上料臂2
+#define MOTOR_C 5//放料
+#define MOTOR_D 6//中转
 // 大部分数据保存到ini
 typedef struct  {
   
@@ -136,6 +140,7 @@ typedef struct  {
     int nClbPosX[3], nClbPosY[3];//用于保存坐标校准的固定位置
     bool bClbPos;
     int nSNCHGX, nSNCHGY;//xy轴换吸头位置
+    int transferx, transfery;//中转位置
   }camera;
 
   int auto_run;//板卡自动启动
@@ -208,6 +213,8 @@ enum EFG_OChannel
   U_OUTN,//
   XRAY_CTRL_GATE,//光门
   U_EN,//
+  AB_CYLINDER,
+  AB_NOZZLE,
 };
 //按序号
 enum AC6641_Channel

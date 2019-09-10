@@ -71,7 +71,7 @@ BOOL CEfgIO::AddPCI(int cardNo, PCIType type)
 
 }
 
-CPCIBase * CEfgIO::GetPCI(int cardNo)
+CPCIBase* CEfgIO::GetPCI(int cardNo)
 {
   return m_multiCardCtrl.m_card[cardNo];
 }
@@ -115,20 +115,20 @@ BOOL CEfgIO::CardOn()
   if (FALSE == RunPCI(index))
     return FALSE;
   //启动ac6641  efgv1不需要额外io板
- int index_io = -1;
- /*  for (int i = 0; i < count; i++) {
-    if (AC6641 == GetPCIType(i)) {//查找tmc12a板卡
-      index_io = i;
-      break;
-    }
-  }
+  int index_io = -1;
+  /*  for (int i = 0; i < count; i++) {
+     if (AC6641 == GetPCIType(i)) {//查找tmc12a板卡
+       index_io = i;
+       break;
+     }
+   }
 
-  if (-1 == index_io) {
-    return FALSE;
-  }
-  if (FALSE == RunPCI(index_io))
-    return FALSE;
-	*/
+   if (-1 == index_io) {
+     return FALSE;
+   }
+   if (FALSE == RunPCI(index_io))
+     return FALSE;
+   */
   m_on = TRUE;
   m_on_card_no = index;
   m_on_iocard_no = index_io;
@@ -246,7 +246,7 @@ double CEfgIO::ReadT0(EFG_T0Channel channel)
 }
 void CEfgIO::WriteT0(EFG_T0Channel channel, double param)
 {
-  double fparam0= param, fparam1;
+  double fparam0 = param, fparam1;
   GetPCI(m_on_card_no)->WriteT0(channel, fparam0, fparam1);
   return;
 }
@@ -255,7 +255,7 @@ void CEfgIO::WriteT0(EFG_T0Channel channel, double param)
 void CEfgIO::MotoRun(int moto_index, double param)
 {
 #ifdef USE_EFGV1
-  MotoRun(moto_index,int(param));
+  MotoRun(moto_index, int(param));
 #elif USE_AC6641
   int sel = moto_index;
   int dst = param;
@@ -396,27 +396,43 @@ void CEfgIO::MotoRun(int moto_index, double param)
 
 char CEfgIO::GetMotoCh(int moto_index)
 {
-	char moto;
-	switch(moto_index)
-	{
-	case 0:
-		moto='X';
-		break;
-		
-	case 1:
-		moto='Y';
-		break;
-		
-	case 2:
-		moto='U';
-		break;
-		
-	default:
-		moto='X';
-		break;
-		
-	}
-	return moto;
+  char moto;
+  switch (moto_index)
+  {
+  case 0:
+    moto = 'X';
+    break;
+
+  case 1:
+    moto = 'Y';
+    break;
+
+  case 2:
+    moto = 'U';
+    break;
+
+  case 3:
+    moto = 'A';
+    break;
+
+  case 4:
+    moto = 'B';
+    break;
+
+  case 5:
+    moto = 'C';
+    break;
+
+  case 6:
+    moto = 'D';
+    break;
+
+  default:
+    moto = 'X';
+    break;
+
+  }
+  return moto;
 }
 
 int CEfgIO::MotoRun(int moto_index, int param)
@@ -513,7 +529,7 @@ void CEfgIO::MotoRunNoWait(int moto_index, double param)
     break;
   default:
     return;
-  }
+}
 
 #endif
 }
@@ -521,7 +537,7 @@ void CEfgIO::MotoRunNoWait(int moto_index, double param)
 int CEfgIO::MotoRunNoWait(int moto_index, int param)
 {
 #ifdef USE_EFGV1
-  char sbuf[9] = { 0x55, 'M', GetMotoCh(moto_index), 'M', param>>24, param >>16, param >> 8, param >> 0,0x00 };
+  char sbuf[9] = { 0x55, 'M', GetMotoCh(moto_index), 'M', param >> 24, param >> 16, param >> 8, param >> 0,0x00 };
   int slen = sizeof(sbuf);
   unsigned char rbuf[100] = { 0 };
   int rlen = 100;
@@ -554,11 +570,11 @@ int CEfgIO::MotoZero(int moto_index)
 
   if (rdlen > 0 && crc)
   {
-	  //Sleep(100);
-	  while (!CheckMotoEnd(moto_index));
+    //Sleep(100);
+    while (!CheckMotoEnd(moto_index));
     return 0;
   }
- 
+
   return -1;
 #elif USE_AC6641
 
@@ -637,7 +653,7 @@ int CEfgIO::MotoZero(int moto_index)
     break;
   default:
     return;
-  }
+}
 
 #endif
 
@@ -645,23 +661,23 @@ int CEfgIO::MotoZero(int moto_index)
 
 void CEfgIO::UAutoRun(double degree)
 {
-	if(USER_TO_DEG(m_configParam.u_auto.degree[1]) < USER_TO_DEG(m_configParam.u_auto.degree[0])||m_configParam.u_auto.step[1] < m_configParam.u_auto.step[0])
-	{
-		AfxMessageBox(_T("u范围设置不正确"));
-		return;
-	}
-	if(degree < USER_TO_DEG(m_configParam.u_auto.degree[0])||degree > USER_TO_DEG(m_configParam.u_auto.degree[1]))
-	{
-		AfxMessageBox(_T("不在范围内"));
-		return;
-	}
-	double stepofdeg = abs(m_configParam.u_auto.step[0]-m_configParam.u_auto.step[1]) /
-		fabs(USER_TO_DEG(m_configParam.u_auto.degree[0])-USER_TO_DEG(m_configParam.u_auto.degree[1]));
-	double steps = (degree - USER_TO_DEG(m_configParam.u_auto.degree[0]))*stepofdeg+m_configParam.u_auto.step[0];
+  if (USER_TO_DEG(m_configParam.u_auto.degree[1]) < USER_TO_DEG(m_configParam.u_auto.degree[0]) || m_configParam.u_auto.step[1] < m_configParam.u_auto.step[0])
+  {
+    AfxMessageBox(_T("u范围设置不正确"));
+    return;
+  }
+  if (degree < USER_TO_DEG(m_configParam.u_auto.degree[0]) || degree > USER_TO_DEG(m_configParam.u_auto.degree[1]))
+  {
+    AfxMessageBox(_T("不在范围内"));
+    return;
+  }
+  double stepofdeg = abs(m_configParam.u_auto.step[0] - m_configParam.u_auto.step[1]) /
+    fabs(USER_TO_DEG(m_configParam.u_auto.degree[0]) - USER_TO_DEG(m_configParam.u_auto.degree[1]));
+  double steps = (degree - USER_TO_DEG(m_configParam.u_auto.degree[0])) * stepofdeg + m_configParam.u_auto.step[0];
 
-	MotoZero(2);
-	Sleep(1000);
-	MotoRun(2, steps);
+  MotoZero(2);
+  Sleep(1000);
+  MotoRun(2, steps);
 }
 
 BOOL CEfgIO::CheckMotoEnd(int moto_index)
@@ -676,7 +692,7 @@ BOOL CEfgIO::CheckMotoEnd(int moto_index)
 
   rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
 
-  if (rdlen > 8 && crc && rbuf[4]==0x00)
+  if (rdlen > 8 && crc && rbuf[4] == 0x00)
   {
     return TRUE;
   }
@@ -737,15 +753,17 @@ void CEfgIO::InitEfgIO(void)
   //WriteDo(Y_FULL_CURRENT, IO_OFF);
   WriteDo(ALERT, IO_OFF);
   WriteDo(CLEAN, IO_OFF);
-  //WriteDo(U_DIR, IO_OFF);
- // WriteDo(U_GO, IO_OFF);
+  WriteDo(AB_CYLINDER, IO_OFF);
+  WriteDo(AB_NOZZLE, IO_OFF);
 
   WriteDo(Y_NOZZLE, IO_ON);
-  MotoRun(0, m_configParam.user_config.pos.x_wait);
-  MotoRun(1, m_configParam.user_config.pos.not_detected);
+  MotoRun(MOTOR_X, m_configParam.user_config.pos.x_wait);
+  MotoRun(MOTOR_Y, m_configParam.user_config.pos.not_detected);
   WriteDo(Y_NOZZLE, IO_OFF);
   Sleep(m_configParam.user_config.time.y_off);//延时
-  MotoRun(1, m_configParam.user_config.pos.y_wait);
+  MotoRun(MOTOR_Y, m_configParam.user_config.pos.y_wait);
+  MotoZero(MOTOR_A);
+  MotoZero(MOTOR_B);
 
 }
 int CEfgIO::StartMeasure(int cnt)
@@ -763,21 +781,21 @@ int CEfgIO::StartMeasure(int cnt)
 
   if (rdlen > 0 && crc)
   {
-	  ////
-	 // int wait = 0;
-	 // while(1 != (status=GetMeasureStatus()) && wait++ < 80)//等待直到1或者Xs，大约7s
-	 // {
-		////Sleep(10);
-	 // };
+    ////
+   // int wait = 0;
+   // while(1 != (status=GetMeasureStatus()) && wait++ < 80)//等待直到1或者Xs，大约7s
+   // {
+    ////Sleep(10);
+   // };
 
-	 // if(wait >= 80)//超时
-		//  return -1;
-	  if(1 != (status=GetMeasureStatus()))//等待直到1或者Xs，大约7s
-	  {
-		return -1;
-	  };
-	  /////
-	  measure_status = status;//2
+   // if(wait >= 80)//超时
+    //  return -1;
+    if (1 != (status = GetMeasureStatus()))//等待直到1或者Xs，大约7s
+    {
+      return -1;
+    };
+    /////
+    measure_status = status;//2
     return 0;
   }
 
@@ -798,7 +816,7 @@ int CEfgIO::StopMeasure()
 
   if (rdlen > 0 && crc)
   {
-	  measure_status = 0;//2
+    measure_status = 0;//2
     return 0;
   }
 
@@ -837,8 +855,8 @@ char CEfgIO::GetMeasureStatus(void)
 
   if (rdlen > 2 && crc)
   {
-		return rbuf[3];
-    
+    return rbuf[3];
+
   }
 
   return -1;
@@ -848,33 +866,33 @@ char CEfgIO::CheckChangedStatus(void)
 {
   ////
 
-	  int wait = 0;
-	  char pre;
-	  do//等待直到2或者3s
-	  {
-		  pre=GetMeasureStatus();
+  int wait = 0;
+  char pre;
+  do//等待直到2或者3s
+  {
+    pre = GetMeasureStatus();
 
-		  switch(pre){
-		  case -1:
-			  return -1;
-		  case 0x0E://error
-		  case 0x00:
-			  StartMeasure(1);//重新启动
-			  return -1;
-		  default:
-			  if(measure_status!=pre)
-			  {
-				  measure_status = pre;
-				  return pre-1 == 0?3:pre-1;
-			  }
-		  }
+    switch (pre) {
+    case -1:
+      return -1;
+    case 0x0E://error
+    case 0x00:
+      StartMeasure(1);//重新启动
+      return -1;
+    default:
+      if (measure_status != pre)
+      {
+        measure_status = pre;
+        return pre - 1 == 0 ? 3 : pre - 1;
+      }
+    }
 
-		//Sleep(10);
-	  }while(wait++<80);
+    //Sleep(10);
+  } while (wait++ < 80);
 
-	  if(wait >= 80)//超时
-		  return -1;
-	  /////
+  if (wait >= 80)//超时
+    return -1;
+  /////
 
   return -1;
 }
@@ -891,7 +909,7 @@ int CEfgIO::GetCntDataNum(int no)
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc,1);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc, 1);
 
   if (rdlen > 5 && crc)
   {
@@ -914,7 +932,7 @@ int CEfgIO::GetCntDataNum(int no, int shift)
   bool crc = 0;
   int rdlen = 0;
 
-  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc,1);
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc, 1);
 
   if (rdlen > 5 && crc)
   {
@@ -940,8 +958,8 @@ int CEfgIO::GetAllCntData(int no, char* buf, int len)
 
   if (rdlen > 5 && crc)
   {
-	  //if(buf[0] != 0x55)
-		 // buf[0] = 0x54;
+    //if(buf[0] != 0x55)
+     // buf[0] = 0x54;
 
     return rdlen;
   }
@@ -967,7 +985,7 @@ int CEfgIO::SetOut(int out3, int out6)
   return -1;
 }
 //返回档位，pos_num返回该档位的计数值，pos_step返回该档位的位置
-int CEfgIO::GetCurOffPos(int &pos_num)
+int CEfgIO::GetCurOffPos(int& pos_num)
 {
   double primary_degree = 0;
   double secondary_degree = 0;
@@ -1081,22 +1099,22 @@ int CEfgIO::GetYOffPos(int pos)
   ASSERT(sort_type < MAX_TYPE_NUM);
   int sort_num = m_configParam.user_config.type_sort_num[sort_type];//档位数量
 
-  if(pos >= sort_num)
-	  return m_configParam.user_config.pos.not_detected;
-  
+  if (pos >= sort_num)
+    return m_configParam.user_config.pos.not_detected;
+
 
   return m_configParam.user_config.pos.y_off[sort_type][pos];
 }
 
 // sec 待判断角度
 //which 结果 档位值
-void CEfgIO::JudegSortWhich(double sec, int &which)
+void CEfgIO::JudegSortWhich(double sec, int& which)
 {
   int sort_type = m_configParam.user_config.type;//晶片类型
   ASSERT(sort_type < MAX_TYPE_NUM);
   int sort_num = m_configParam.user_config.type_sort_num[sort_type];//档位数量
 
-  int *sort_sec = m_resultParam.degree.sort_sec;//各档位中间值
+  int* sort_sec = m_resultParam.degree.sort_sec;//各档位中间值
   int step_sec = m_configParam.user_config.measure.primary.step_degree;
 
   double d_sec = double(step_sec) / 2;

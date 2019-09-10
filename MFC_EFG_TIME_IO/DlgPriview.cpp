@@ -33,6 +33,7 @@ void CDlgPriview::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CDlgPriview, CDialogEx)
   ON_WM_LBUTTONDOWN()
 //  ON_WM_SETCURSOR()
+ON_WM_PAINT()
 END_MESSAGE_MAP()
 
 
@@ -264,7 +265,6 @@ BOOL CDlgPriview::OnInitDialog()
   CDialogEx::OnInitDialog();
 
   // TODO:  在此添加额外的初始化
-  
 
   return TRUE;  // return TRUE unless you set the focus to a control
                 // 异常: OCX 属性页应返回 FALSE
@@ -277,3 +277,16 @@ BOOL CDlgPriview::OnInitDialog()
 //
 //  return CDialogEx::OnSetCursor(pWnd, nHitTest, message);
 //}
+
+
+void CDlgPriview::OnPaint()
+{
+  CPaintDC dc(this); // device context for painting
+                     // TODO: 在此处添加消息处理程序代码
+                     // 不为绘图消息调用 CDialogEx::OnPaint()
+  CRect wnd_rc, rect_camera;
+  GetClientRect(&wnd_rc);
+  m_p->GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect_camera);
+  dc.TransparentBlt/*BitBlt*/(wnd_rc.left, wnd_rc.top, wnd_rc.Width(), wnd_rc.Height(), m_p->mDCMem, 0, 0, rect_camera.Width(), rect_camera.Height(), SRCCOPY);
+
+}

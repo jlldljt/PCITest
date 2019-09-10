@@ -16,14 +16,14 @@ typedef struct tagNpcInf
 {
   int var_x1, var_x2, var_x3;
   int var_y1, var_y2, var_y3;
-  int var_sortup, var_sortin, var_sortout, var_sortdown;
+  int var_sortup, steps360, offset360, var_sortdown;
 
   int left, top, right, bottom;
 }NpcInf;
 
-#define Z_P m_npc_inf.var_sortin  //z轴一圈的脉冲数
+#define Z_P m_npc_inf.steps360  //z轴一圈的脉冲数
 #define Z_P_PER_DEG (Z_P/360.0)   //z轴一°的脉冲数
-#define Z_S m_npc_inf.var_sortout //z轴偏移脉冲数
+#define Z_S m_npc_inf.offset360 //z轴偏移脉冲数
 
 // CCamera 对话框
 
@@ -54,11 +54,12 @@ public:
   //int m_clked_degree;//电机的片的角度
   NpcParm m_par;
   NpcInf m_npc_inf;
-  BOOL bOverRcg;
+ // BOOL bOverRcg;
   int m_ch;
   CKSJ m_ksj;
   BOOL gb_PlayOrNot[2];
   CIMGRecognition m_rcg;
+  CEfgIO* m_io;
 
 	afx_msg void OnBnClickedBtnTest();
 	afx_msg void OnBnClickedBtnCamset();
@@ -93,6 +94,11 @@ public:
   afx_msg void OnEnChangeEdtClbpos3x();
   afx_msg void OnEnChangeEdtClbpos2y();
   afx_msg void OnEnChangeEdtClbpos3y();
+  afx_msg void OnEnChangeEdtTransferx();
+  afx_msg void OnEnChangeEdtTransfery();
+  afx_msg void OnBnClickedBtnClbpos1test();
+  afx_msg void OnBnClickedBtnTransfertest();
+  afx_msg void OnBnClickedBtnClbpos3test();
 };
 
 void calparameter(double(*xy)[4], double* factor);//计算坐标转换参数

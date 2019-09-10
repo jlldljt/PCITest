@@ -23,4 +23,5 @@ public:
   afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
   virtual BOOL OnInitDialog();
 //  afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
+  afx_msg void OnPaint();
 };

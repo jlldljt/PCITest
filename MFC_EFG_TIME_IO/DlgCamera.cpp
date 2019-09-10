@@ -179,9 +179,10 @@ void calparameter(double(*xy)[4], double* factor)
 IMPLEMENT_DYNAMIC(CCamera, CDialogEx)
 
 CCamera::CCamera(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CCamera::IDD, pParent)
+  : CDialogEx(CCamera::IDD, pParent)
 {
   m_param = &GetMainFrame()->m_efgio.m_configParam;
+  m_io = &GetMainFrame()->m_efgio;
   m_ch = -1;
   gb_PlayOrNot[0] = 0;
   gb_PlayOrNot[1] = 0;
@@ -190,34 +191,34 @@ CCamera::CCamera(CWnd* pParent /*=NULL*/)
 
 CCamera::~CCamera()
 {
-	mDCMem->SelectObject(mBMPOld);
-	mBMPMem->DeleteObject();
-	mDCMem->DeleteDC();
+  mDCMem->SelectObject(mBMPOld);
+  mBMPMem->DeleteObject();
+  mDCMem->DeleteDC();
 }
 
 void CCamera::DoDataExchange(CDataExchange* pDX)
 {
-	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_CMB_AWB, m_cmbAWB);
-	DDX_Control(pDX, IDC_CMB_BACKLIGHT, m_cmbBl);
+  CDialogEx::DoDataExchange(pDX);
+  DDX_Control(pDX, IDC_CMB_AWB, m_cmbAWB);
+  DDX_Control(pDX, IDC_CMB_BACKLIGHT, m_cmbBl);
 }
 
 
 BEGIN_MESSAGE_MAP(CCamera, CDialogEx)
-	ON_BN_CLICKED(IDC_BTN_SNAP, &CCamera::OnBnClickedBtnSnap)
-	ON_BN_CLICKED(IDC_BTN_TEST, &CCamera::OnBnClickedBtnTest)
-	ON_BN_CLICKED(IDC_BTN_CAMSET, &CCamera::OnBnClickedBtnCamset)
-	ON_STN_CLICKED(IDC_PREVIEW, &CCamera::OnStnClickedPreview)
-	ON_BN_CLICKED(IDC_BTN_CALIBRATION, &CCamera::OnBnClickedBtnCalibration)
-	ON_BN_CLICKED(IDC_BTN_VIDEO, &CCamera::OnBnClickedBtnVideo)
-	ON_WM_PAINT()
-	ON_EN_CHANGE(IDC_EDT_OUTPALLOWL, &CCamera::OnEnChangeEdtOutpallowl)
-	ON_EN_CHANGE(IDC_EDT_DEFECTALLOWL, &CCamera::OnEnChangeEdtDefectallowl)
-	ON_EN_CHANGE(IDC_EDT_THRESHOLD2, &CCamera::OnEnChangeEdtThreshold)
-	ON_EN_CHANGE(IDC_EDT_FTOUTPOINT, &CCamera::OnEnChangeEdtFtoutpoint)
-	ON_BN_CLICKED(IDC_BTN_GETSET, &CCamera::OnBnClickedBtnGetset)
-	ON_BN_CLICKED(IDC_CHK_AUTOTHRD, &CCamera::OnBnClickedChkAutothrd)
-	ON_BN_CLICKED(IDC_CHK_DELNOISE, &CCamera::OnBnClickedChkDelnoise)
+  ON_BN_CLICKED(IDC_BTN_SNAP, &CCamera::OnBnClickedBtnSnap)
+  ON_BN_CLICKED(IDC_BTN_TEST, &CCamera::OnBnClickedBtnTest)
+  ON_BN_CLICKED(IDC_BTN_CAMSET, &CCamera::OnBnClickedBtnCamset)
+  ON_STN_CLICKED(IDC_PREVIEW, &CCamera::OnStnClickedPreview)
+  ON_BN_CLICKED(IDC_BTN_CALIBRATION, &CCamera::OnBnClickedBtnCalibration)
+  ON_BN_CLICKED(IDC_BTN_VIDEO, &CCamera::OnBnClickedBtnVideo)
+  ON_WM_PAINT()
+  ON_EN_CHANGE(IDC_EDT_OUTPALLOWL, &CCamera::OnEnChangeEdtOutpallowl)
+  ON_EN_CHANGE(IDC_EDT_DEFECTALLOWL, &CCamera::OnEnChangeEdtDefectallowl)
+  ON_EN_CHANGE(IDC_EDT_THRESHOLD2, &CCamera::OnEnChangeEdtThreshold)
+  ON_EN_CHANGE(IDC_EDT_FTOUTPOINT, &CCamera::OnEnChangeEdtFtoutpoint)
+  ON_BN_CLICKED(IDC_BTN_GETSET, &CCamera::OnBnClickedBtnGetset)
+  ON_BN_CLICKED(IDC_CHK_AUTOTHRD, &CCamera::OnBnClickedChkAutothrd)
+  ON_BN_CLICKED(IDC_CHK_DELNOISE, &CCamera::OnBnClickedChkDelnoise)
   //	ON_BN_CLICKED(IDC_CHECK3, &CCamera::OnBnClickedCheck3)
   ON_BN_CLICKED(IDC_CHK_DEBUG, &CCamera::OnBnClickedChkDebug)
   ON_BN_CLICKED(IDC_BTN_SPLIT, &CCamera::OnBnClickedBtnSplit)
@@ -236,6 +237,11 @@ BEGIN_MESSAGE_MAP(CCamera, CDialogEx)
   ON_EN_CHANGE(IDC_EDT_CLBPOS3X, &CCamera::OnEnChangeEdtClbpos3x)
   ON_EN_CHANGE(IDC_EDT_CLBPOS2Y, &CCamera::OnEnChangeEdtClbpos2y)
   ON_EN_CHANGE(IDC_EDT_CLBPOS3Y, &CCamera::OnEnChangeEdtClbpos3y)
+  ON_EN_CHANGE(IDC_EDT_TRANSFERX, &CCamera::OnEnChangeEdtTransferx)
+  ON_EN_CHANGE(IDC_EDT_TRANSFERY, &CCamera::OnEnChangeEdtTransfery)
+  ON_BN_CLICKED(IDC_BTN_CLBPOS1TEST, &CCamera::OnBnClickedBtnClbpos1test)
+  ON_BN_CLICKED(IDC_BTN_TRANSFERTEST, &CCamera::OnBnClickedBtnTransfertest)
+  ON_BN_CLICKED(IDC_BTN_CLBPOS3TEST, &CCamera::OnBnClickedBtnClbpos3test)
 END_MESSAGE_MAP()
 
 
@@ -244,93 +250,95 @@ END_MESSAGE_MAP()
 
 void CCamera::OnBnClickedBtnSnap()
 {
-	
-	///////////////////////////////////ksj///////////////////////////
-	LARGE_INTEGER l_lgint_start, l_lgint_end;
-	LARGE_INTEGER l_lgint_freq;
-	QueryPerformanceFrequency(&l_lgint_freq);
-	QueryPerformanceCounter(&l_lgint_start);
-	char l_AnsiStr[MAX_PATH];
-	WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, GetMainFrame()->m_exe_path + _T("\\PIC\\原图0.bmp"), -1, l_AnsiStr, sizeof(l_AnsiStr), NULL, NULL);
 
-	int nWidth, nHeight;
-	int nBitCount;
-	int nBitsPerSample;
-	unsigned char *pData = m_ksj.SnapEx(m_ch, &nWidth, &nHeight, &nBitCount, &nBitsPerSample, l_AnsiStr, GetDlgItem(IDC_PREVIEW));
-	
-	QueryPerformanceCounter(&l_lgint_end);
-	double dTmpRT = double(l_lgint_end.QuadPart - l_lgint_start.QuadPart) / double(l_lgint_freq.QuadPart);
-	CString csTmp;
-	csTmp.Format(_T("%.2f秒"), dTmpRT);
-	SetDlgItemText(IDC_SELECT_RESULT, csTmp);
+  ///////////////////////////////////ksj///////////////////////////
+  LARGE_INTEGER l_lgint_start, l_lgint_end;
+  LARGE_INTEGER l_lgint_freq;
+  QueryPerformanceFrequency(&l_lgint_freq);
+  QueryPerformanceCounter(&l_lgint_start);
+  char l_AnsiStr[MAX_PATH];
+  WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, GetMainFrame()->m_exe_path + _T("\\PIC\\原图0.bmp"), -1, l_AnsiStr, sizeof(l_AnsiStr), NULL, NULL);
 
-	bOverRcg=1;
+  int nWidth, nHeight;
+  int nBitCount;
+  int nBitsPerSample;
+  unsigned char* pData = m_ksj.SnapEx(m_ch, &nWidth, &nHeight, &nBitCount, &nBitsPerSample, l_AnsiStr, GetDlgItem(IDC_PREVIEW));
+
+  QueryPerformanceCounter(&l_lgint_end);
+  double dTmpRT = double(l_lgint_end.QuadPart - l_lgint_start.QuadPart) / double(l_lgint_freq.QuadPart);
+  CString csTmp;
+  csTmp.Format(_T("%.2f秒"), dTmpRT);
+  SetDlgItemText(IDC_SELECT_RESULT, csTmp);
+
+  //	bOverRcg=1;
 }
 
 
 void CCamera::OnBnClickedBtnTest()
 {
-	// TODO: 在此添加控件通知处理程序代码
+  // TODO: 在此添加控件通知处理程序代码
 
-	CString m_bmp_file=GetMainFrame()->m_exe_path + _T("\\PIC\\原图0.bmp");
-	
-	CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
-	BOOL ifFind = findini.FindFile(m_bmp_file);  
-	if( !ifFind )  
-		return;
-	CBitmap m_bmp;//创建类成员
-	BITMAP bm;//存放位图信息的结构
-	HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL,m_bmp_file,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);//创建bitmap指针
-	m_bmp.Attach(hBitmap1);//关联句柄和cbitmap关联
-	m_bmp.GetBitmap(&bm);
-	CWnd * pWnd = GetDlgItem(IDC_PREVIEW);
-	CDC* pDC = pWnd->GetDC();
-	CRect rect;
-	GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
-	CDC memDC;        //定义一个设备
-	CClientDC dc1(this);      //获取客户
-	memDC.CreateCompatibleDC( &dc1 );
-	memDC.SelectObject( m_bmp );  //为设备选择对象
+  CString m_bmp_file = GetMainFrame()->m_exe_path + _T("\\PIC\\原图0.bmp");
 
-	mDCMem->StretchBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+  CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
+  BOOL ifFind = findini.FindFile(m_bmp_file);
 
-	pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
-	memDC.DeleteDC();
-	m_bmp.DeleteObject();	
-	DeleteObject(hBitmap1);//记得删除	
-	
-	CPen PenRed;
-	CGdiObject *o = NULL;
-	PenRed.CreatePen(PS_SOLID,1,RGB(255,0,0));//创建一支红色的画笔.
+  if (!ifFind)
+    return;
 
-	//pWnd = GetDlgItem(IDC_image1); //IDC_STATIC是picture control的ID.这句是得到picture的句柄.
-	//pDC = pWnd->GetDC();//然后得到设备环境.
-	//RECT rect;//声明一个rect
-	//pWnd->GetClientRect(&rect);//并把picture控件的坐标用rect接收.
-	mDCMem->SelectObject(PenRed);//选中画笔.
+  CBitmap m_bmp;//创建类成员
+  BITMAP bm;//存放位图信息的结构
+  HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL, m_bmp_file, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);//创建bitmap指针
+  m_bmp.Attach(hBitmap1);//关联句柄和cbitmap关联
+  m_bmp.GetBitmap(&bm);
+  CWnd* pWnd = GetDlgItem(IDC_PREVIEW);
+  CDC* pDC = pWnd->GetDC();
+  CRect rect;
+  GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
+  CDC memDC;        //定义一个设备
+  CClientDC dc1(this);      //获取客户
+  memDC.CreateCompatibleDC(&dc1);
+  memDC.SelectObject(m_bmp);  //为设备选择对象
 
-	/*m_param->camera.nPToL=2;//直线点距
-	m_param->camera.nDefectPToL=10;//缺陷点距
-	m_param->camera.nThreshold=30;//阀值*/
-	//char * chPath = (LPSTR)(LPCTSTR)m_bmp_file;
-	char chPath[MAX_PATH];
-	//WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,readPath,CStringA(m_bmp_file).GetLength(),NULL,NULL); 
-	WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,chPath,sizeof(chPath),NULL,NULL); 
-	//
-	LARGE_INTEGER l_lgint_start, l_lgint_end;
-	LARGE_INTEGER l_lgint_freq;
-	QueryPerformanceFrequency(&l_lgint_freq);  
-	QueryPerformanceCounter(&l_lgint_start);
-	//
-	m_rcg.RCGBMP(mDCMem,rect,chPath, m_param->camera.nPToL,m_param->camera.nDefectPToL,m_param->camera.nThreshold,m_param->camera.bDebug,m_param->camera.bIsCir,m_param->camera.bThrdAuto,m_param->camera.bDelNoise);
-	//
-	QueryPerformanceCounter(&l_lgint_end);
-	double dTmpRT=double(l_lgint_end.QuadPart-l_lgint_start.QuadPart)/double(l_lgint_freq.QuadPart);	
-	CString csTmp;
-	csTmp.Format(_T("%.2f秒"),dTmpRT);
-	SetDlgItemText(IDC_SELECT_RESULT,csTmp);
-		//
-	pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
+  mDCMem->StretchBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+
+  pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
+  memDC.DeleteDC();
+  m_bmp.DeleteObject();
+  DeleteObject(hBitmap1);//记得删除	
+
+  CPen PenRed;
+  CGdiObject* o = NULL;
+  PenRed.CreatePen(PS_SOLID, 1, RGB(255, 0, 0));//创建一支红色的画笔.
+
+  //pWnd = GetDlgItem(IDC_image1); //IDC_STATIC是picture control的ID.这句是得到picture的句柄.
+  //pDC = pWnd->GetDC();//然后得到设备环境.
+  //RECT rect;//声明一个rect
+  //pWnd->GetClientRect(&rect);//并把picture控件的坐标用rect接收.
+  mDCMem->SelectObject(PenRed);//选中画笔.
+
+  /*m_param->camera.nPToL=2;//直线点距
+  m_param->camera.nDefectPToL=10;//缺陷点距
+  m_param->camera.nThreshold=30;//阀值*/
+  //char * chPath = (LPSTR)(LPCTSTR)m_bmp_file;
+  char chPath[MAX_PATH];
+  //WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,readPath,CStringA(m_bmp_file).GetLength(),NULL,NULL); 
+  WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, m_bmp_file, -1, chPath, sizeof(chPath), NULL, NULL);
+  //
+  LARGE_INTEGER l_lgint_start, l_lgint_end;
+  LARGE_INTEGER l_lgint_freq;
+  QueryPerformanceFrequency(&l_lgint_freq);
+  QueryPerformanceCounter(&l_lgint_start);
+  //
+  m_rcg.RCGBMP(mDCMem, rect, chPath, m_param->camera.nPToL, m_param->camera.nDefectPToL, m_param->camera.nThreshold, m_param->camera.bDebug, m_param->camera.bIsCir, m_param->camera.bThrdAuto, m_param->camera.bDelNoise);
+  //
+  QueryPerformanceCounter(&l_lgint_end);
+  double dTmpRT = double(l_lgint_end.QuadPart - l_lgint_start.QuadPart) / double(l_lgint_freq.QuadPart);
+  CString csTmp;
+  csTmp.Format(_T("%.2f秒"), dTmpRT);
+  SetDlgItemText(IDC_SELECT_RESULT, csTmp);
+  //
+  pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
 
 
   CBrush br;
@@ -342,51 +350,51 @@ void CCamera::OnBnClickedBtnTest()
     , m_npc_inf.bottom * rect.Height() / m_rcg.g_stu_square.nBMPH);
 
 
-	pWnd->ReleaseDC(pDC);
-	m_param->camera.bClbPos=1;
-/*	g_tmp_path=_T(".\\PIC\\temp1.bmp");
-	CString l_cstr_tmp;
-	l_cstr_tmp.Format(_T("%d、%d"),g_class_img_recognition.g_stu_square.crests,g_class_img_recognition.g_stu_square.sags);
-	GetDlgItem(IDC_EDIT_BROKEN_RAW)->SetWindowText(l_cstr_tmp);
-	l_cstr_tmp.Format(_T("%.2lf、%.2lf、%.2lf、%.2lf"),g_class_img_recognition.g_stu_square.d_len[0],g_class_img_recognition.g_stu_square.d_len[1],g_class_img_recognition.g_stu_square.d_len[2],g_class_img_recognition.g_stu_square.d_len[3]);
-	GetDlgItem(IDC_EDIT_SIZE_RAW)->SetWindowText(l_cstr_tmp);*/
+  pWnd->ReleaseDC(pDC);
+  m_param->camera.bClbPos = 1;
+  /*	g_tmp_path=_T(".\\PIC\\temp1.bmp");
+    CString l_cstr_tmp;
+    l_cstr_tmp.Format(_T("%d、%d"),g_class_img_recognition.g_stu_square.crests,g_class_img_recognition.g_stu_square.sags);
+    GetDlgItem(IDC_EDIT_BROKEN_RAW)->SetWindowText(l_cstr_tmp);
+    l_cstr_tmp.Format(_T("%.2lf、%.2lf、%.2lf、%.2lf"),g_class_img_recognition.g_stu_square.d_len[0],g_class_img_recognition.g_stu_square.d_len[1],g_class_img_recognition.g_stu_square.d_len[2],g_class_img_recognition.g_stu_square.d_len[3]);
+    GetDlgItem(IDC_EDIT_SIZE_RAW)->SetWindowText(l_cstr_tmp);*/
 }
 
 
 void CCamera::OnBnClickedBtnCamset()
 {
-	// TODO: 在此添加控件通知处理程序代码
+  // TODO: 在此添加控件通知处理程序代码
 
-	
-	m_ksj.SetParam(m_ch, KSJ_EXPOSURE, GetDlgItemInt(IDC_EDT_EV));//
-	m_ksj.SetParam(m_ch, KSJ_RED, GetDlgItemInt(IDC_EDT_GAIN));//
-	m_ksj.SetParam(m_ch, KSJ_BRIGHTNESS, GetDlgItemInt(IDC_EDT_BRIGHT));//
-	m_ksj.SetParam(m_ch, KSJ_CONTRAST, GetDlgItemInt(IDC_EDT_CONTRAST));//
+
+  m_ksj.SetParam(m_ch, KSJ_EXPOSURE, GetDlgItemInt(IDC_EDT_EV));//
+  m_ksj.SetParam(m_ch, KSJ_RED, GetDlgItemInt(IDC_EDT_GAIN));//
+  m_ksj.SetParam(m_ch, KSJ_BRIGHTNESS, GetDlgItemInt(IDC_EDT_BRIGHT));//
+  m_ksj.SetParam(m_ch, KSJ_CONTRAST, GetDlgItemInt(IDC_EDT_CONTRAST));//
 }
 
 
 BOOL CCamera::OnInitDialog()
 {
-	CDialogEx::OnInitDialog();
+  CDialogEx::OnInitDialog();
 
-	// TODO:  在此添加额外的初始化
-	//CWnd * pWnd = GetDlgItem(IDC_PREVIEW);
-	//CDC* pDC = pWnd->GetDC();
-	//mDCMem= new CDC;
-	//CClientDC dc1(GetDlgItem(IDC_PREVIEW)->GetDC());      //获取客户
-	CWnd * pWnd = GetDlgItem(IDC_PREVIEW);
-	CDC* pDC = pWnd->GetDC();
-	CRect rect;
-	GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
-	mDCMem= new CDC;
-	mBMPMem=new CBitmap;
-	mDCMem->CreateCompatibleDC(pDC);
-	mBMPMem->CreateCompatibleBitmap(pDC,rect.Width(),rect.Height());
-	mBMPOld=mDCMem->SelectObject(mBMPMem);//无这句和上句，对mdcmen操作无效
-	mDCMem->SetStretchBltMode (HALFTONE);
-	SetBrushOrgEx(mDCMem->m_hDC, 0, 0, NULL);
-	pWnd->ReleaseDC(pDC);
-	//mDCMem->CreateCompatibleDC(GetDlgItem(IDC_PREVIEW)->GetDC());
+  // TODO:  在此添加额外的初始化
+  //CWnd * pWnd = GetDlgItem(IDC_PREVIEW);
+  //CDC* pDC = pWnd->GetDC();
+  //mDCMem= new CDC;
+  //CClientDC dc1(GetDlgItem(IDC_PREVIEW)->GetDC());      //获取客户
+  CWnd* pWnd = GetDlgItem(IDC_PREVIEW);
+  CDC* pDC = pWnd->GetDC();
+  CRect rect;
+  GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
+  mDCMem = new CDC;
+  mBMPMem = new CBitmap;
+  mDCMem->CreateCompatibleDC(pDC);
+  mBMPMem->CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
+  mBMPOld = mDCMem->SelectObject(mBMPMem);//无这句和上句，对mdcmen操作无效
+  mDCMem->SetStretchBltMode(HALFTONE);
+  SetBrushOrgEx(mDCMem->m_hDC, 0, 0, NULL);
+  pWnd->ReleaseDC(pDC);
+  //mDCMem->CreateCompatibleDC(GetDlgItem(IDC_PREVIEW)->GetDC());
 
   //=====================CAMERA===========================
   //combobox必须放在tab控件之后
@@ -465,55 +473,61 @@ BOOL CCamera::OnInitDialog()
     iniint = GetPrivateProfileInt(_T("取片校准点"), _T("3Y"), 0, g_ini_path);
     SetDlgItemInt(IDC_EDT_CLBPOS3Y, iniint);
     m_param->camera.nClbPosY[2] = iniint;
+    // 中转点
+    iniint = GetPrivateProfileInt(_T("中转点"), _T("X"), 0, g_ini_path);
+    SetDlgItemInt(IDC_EDT_TRANSFERX, iniint);
+    m_param->camera.transferx = iniint;
+    iniint = GetPrivateProfileInt(_T("中转点"), _T("Y"), 0, g_ini_path);
+    SetDlgItemInt(IDC_EDT_TRANSFERY, iniint);
+    m_param->camera.transfery = iniint;
+    //读取ini
+    TCHAR strbuff[256];
+    CString strValue;
+    GetPrivateProfileString(_T("校准系数"), _T("00"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_param->camera.g_factor[0][0] = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
+    GetPrivateProfileString(_T("校准系数"), _T("01"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_param->camera.g_factor[0][1] = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
+    GetPrivateProfileString(_T("校准系数"), _T("02"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_param->camera.g_factor[0][2] = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
+    GetPrivateProfileString(_T("校准系数"), _T("10"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_param->camera.g_factor[1][0] = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
+    GetPrivateProfileString(_T("校准系数"), _T("11"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_param->camera.g_factor[1][1] = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
+    GetPrivateProfileString(_T("校准系数"), _T("12"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_param->camera.g_factor[1][2] = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
 
-  //读取ini
-  TCHAR strbuff[256];
-  CString strValue;
-  GetPrivateProfileString(_T("校准系数"), _T("00"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_param->camera.g_factor[0][0] = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
-  GetPrivateProfileString(_T("校准系数"), _T("01"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_param->camera.g_factor[0][1] = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
-  GetPrivateProfileString(_T("校准系数"), _T("02"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_param->camera.g_factor[0][2] = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
-  GetPrivateProfileString(_T("校准系数"), _T("10"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_param->camera.g_factor[1][0] = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
-  GetPrivateProfileString(_T("校准系数"), _T("11"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_param->camera.g_factor[1][1] = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
-  GetPrivateProfileString(_T("校准系数"), _T("12"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_param->camera.g_factor[1][2] = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
 
+    GetPrivateProfileString(_T("范围设置"), _T("left"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_npc_inf.left = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
 
-  GetPrivateProfileString(_T("范围设置"), _T("left"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_npc_inf.left = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
+    GetPrivateProfileString(_T("范围设置"), _T("top"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_npc_inf.top = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
 
-  GetPrivateProfileString(_T("范围设置"), _T("top"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_npc_inf.top = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
+    GetPrivateProfileString(_T("范围设置"), _T("right"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_npc_inf.right = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
 
-  GetPrivateProfileString(_T("范围设置"), _T("right"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_npc_inf.right = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
-
-  GetPrivateProfileString(_T("范围设置"), _T("bottom"), NULL, strbuff, 80, g_ini_path);
-  strValue = strbuff;
-  m_npc_inf.bottom = _wtof(strValue.GetBuffer(strValue.GetLength()));
-  strValue.ReleaseBuffer();
+    GetPrivateProfileString(_T("范围设置"), _T("bottom"), NULL, strbuff, 80, g_ini_path);
+    strValue = strbuff;
+    m_npc_inf.bottom = _wtof(strValue.GetBuffer(strValue.GetLength()));
+    strValue.ReleaseBuffer();
   }
   else
     AfxMessageBox(_T("ini没有创建"));
@@ -522,14 +536,14 @@ BOOL CCamera::OnInitDialog()
   m_param->camera.bDelNoise = 0;
   m_param->camera.bDebug = 0;
 
-	return TRUE;  // return TRUE unless you set the focus to a control
-	// 异常: OCX 属性页应返回 FALSE
+  return TRUE;  // return TRUE unless you set the focus to a control
+  // 异常: OCX 属性页应返回 FALSE
 }
 
 
 void CCamera::TranNpcParam(NpcParm* parm)
 {
- 
+
   parm->x = m_param->camera.g_factor[0][0] * parm->x0 + m_param->camera.g_factor[0][1] * parm->y0 + m_param->camera.g_factor[0][2] + 0.5;
   parm->y = m_param->camera.g_factor[1][0] * parm->x0 + m_param->camera.g_factor[1][1] * parm->y0 + m_param->camera.g_factor[1][2] + 0.5;
   parm->deg = parm->deg0 * Z_P_PER_DEG + Z_S + 0.5;
@@ -539,80 +553,80 @@ void CCamera::TranNpcParam(NpcParm* parm)
 
 void CCamera::OnStnClickedPreview()
 {
-	// TODO: 在此添加控件通知处理程序代码
+  // TODO: 在此添加控件通知处理程序代码
   //NpcParm par = { 0 };
 
-	if (0==m_rcg.g_stu_square.nN)
-	{
-		//return;
-	}
-  double xt,yt;
-	POINT pt;//定义点
-	GetCursorPos(&pt);//取得当前坐标
-	CRect lRect;
-	GetDlgItem(IDC_PREVIEW)->GetWindowRect(&lRect);
-	double temp_x=pt.x-lRect.left;
-  double temp_y=pt.y-lRect.top;
-	xt=/*(int)*/(temp_x*m_rcg.g_stu_square.nBMPW/(lRect.Width()));//点击的坐标对应在图像上的x点
-	yt=/*(int)*/(temp_y*m_rcg.g_stu_square.nBMPH/(lRect.Height()));//点击的坐标对应在图像上的y点
-	//if(!m_RadioCircle && m_RadioSquare)
-	{
-		//if(avg1.empty()){AfxMessageBox(_T("没有定位坐标，请定位"));return;}
+  if (0 == m_rcg.g_stu_square.nN)
+  {
+    //return;
+  }
+  double xt, yt;
+  POINT pt;//定义点
+  GetCursorPos(&pt);//取得当前坐标
+  CRect lRect;
+  GetDlgItem(IDC_PREVIEW)->GetWindowRect(&lRect);
+  double temp_x = pt.x - lRect.left;
+  double temp_y = pt.y - lRect.top;
+  xt =/*(int)*/(temp_x * m_rcg.g_stu_square.nBMPW / (lRect.Width()));//点击的坐标对应在图像上的x点
+  yt =/*(int)*/(temp_y * m_rcg.g_stu_square.nBMPH / (lRect.Height()));//点击的坐标对应在图像上的y点
+  //if(!m_RadioCircle && m_RadioSquare)
+  {
+    //if(avg1.empty()){AfxMessageBox(_T("没有定位坐标，请定位"));return;}
 
-		int temp=0;
+    int temp = 0;
     int i;
 
-		for(i=0;i<m_rcg.g_stu_square.nN;i++)
-		{
+    for (i = 0; i < m_rcg.g_stu_square.nN; i++)
+    {
 
-			if(sqrt(pow(double(m_rcg.g_stu_square.pnZPX[i]-xt),2)+pow(double(m_rcg.g_stu_square.pnZPY[i]-yt),2))<((m_rcg.g_stu_square.pnWth[i])>>1)) //点击位置离片的粗略中心相距小于s_sort.allowable_devision，这么做主要可以当点不准时设置调节
-			{
-				//DrawPicToHDC(line_img, IDC_PREVIEW);//在图片控件上显示
-				CWnd * pWnd = GetDlgItem(IDC_PREVIEW);
-				CDC* pDC = pWnd->GetDC();
-				CRect rect;
-				GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
-				CPen PenRed,PenGreen;
-				PenRed.CreatePen(PS_SOLID,1,RGB(255,0,0));//创建一支红色的画笔.
-        PenGreen.CreatePen(PS_SOLID,1,RGB(0,255,0));//创建一支红色的画笔.
-				pDC->SelectObject(PenRed);//选中画笔.
-				pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
-				if(m_param->camera.bIsCir)
-				{
-					CString csTmp;
-					csTmp.Format(_T("半径%d"),m_rcg.g_stu_square.pnWth[i]);
-					GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
-					pDC->Ellipse
-					(m_rcg.g_stu_square.pnZPX[i]*rect.Width()/m_rcg.g_stu_square.nBMPW - m_rcg.g_stu_square.pnWth[i]*rect.Width()/m_rcg.g_stu_square.nBMPW
-					,m_rcg.g_stu_square.pnZPY[i]*rect.Height()/m_rcg.g_stu_square.nBMPH - m_rcg.g_stu_square.pnWth[i]*rect.Width()/m_rcg.g_stu_square.nBMPW
-					,m_rcg.g_stu_square.pnZPX[i]*rect.Width()/m_rcg.g_stu_square.nBMPW + m_rcg.g_stu_square.pnWth[i]*rect.Width()/m_rcg.g_stu_square.nBMPW
-					,m_rcg.g_stu_square.pnZPY[i]*rect.Height()/m_rcg.g_stu_square.nBMPH + m_rcg.g_stu_square.pnWth[i]*rect.Width()/m_rcg.g_stu_square.nBMPW
-					);
-					//保存到特征变量
-					m_rcg.stuRef.Rad=m_rcg.g_stu_square.pnWth[i];	
-				}
-				else
-				{
-					pt.x=m_rcg.g_stu_square.pnPX[i][3]*rect.Width()/m_rcg.g_stu_square.nBMPW;
-					pt.y=m_rcg.g_stu_square.pnPY[i][3]*rect.Height()/m_rcg.g_stu_square.nBMPH;
-					pDC->MoveTo(pt);
+      if (sqrt(pow(double(m_rcg.g_stu_square.pnZPX[i] - xt), 2) + pow(double(m_rcg.g_stu_square.pnZPY[i] - yt), 2)) < ((m_rcg.g_stu_square.pnWth[i]) >> 1)) //点击位置离片的粗略中心相距小于s_sort.allowable_devision，这么做主要可以当点不准时设置调节
+      {
+        //DrawPicToHDC(line_img, IDC_PREVIEW);//在图片控件上显示
+        CWnd* pWnd = GetDlgItem(IDC_PREVIEW);
+        CDC* pDC = pWnd->GetDC();
+        CRect rect;
+        GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
+        CPen PenRed, PenGreen;
+        PenRed.CreatePen(PS_SOLID, 1, RGB(255, 0, 0));//创建一支红色的画笔.
+        PenGreen.CreatePen(PS_SOLID, 1, RGB(0, 255, 0));//创建一支红色的画笔.
+        pDC->SelectObject(PenRed);//选中画笔.
+        pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
+        if (m_param->camera.bIsCir)
+        {
+          CString csTmp;
+          csTmp.Format(_T("半径%d"), m_rcg.g_stu_square.pnWth[i]);
+          GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
+          pDC->Ellipse
+          (m_rcg.g_stu_square.pnZPX[i] * rect.Width() / m_rcg.g_stu_square.nBMPW - m_rcg.g_stu_square.pnWth[i] * rect.Width() / m_rcg.g_stu_square.nBMPW
+            , m_rcg.g_stu_square.pnZPY[i] * rect.Height() / m_rcg.g_stu_square.nBMPH - m_rcg.g_stu_square.pnWth[i] * rect.Width() / m_rcg.g_stu_square.nBMPW
+            , m_rcg.g_stu_square.pnZPX[i] * rect.Width() / m_rcg.g_stu_square.nBMPW + m_rcg.g_stu_square.pnWth[i] * rect.Width() / m_rcg.g_stu_square.nBMPW
+            , m_rcg.g_stu_square.pnZPY[i] * rect.Height() / m_rcg.g_stu_square.nBMPH + m_rcg.g_stu_square.pnWth[i] * rect.Width() / m_rcg.g_stu_square.nBMPW
+          );
+          //保存到特征变量
+          m_rcg.stuRef.Rad = m_rcg.g_stu_square.pnWth[i];
+        }
+        else
+        {
+          pt.x = m_rcg.g_stu_square.pnPX[i][3] * rect.Width() / m_rcg.g_stu_square.nBMPW;
+          pt.y = m_rcg.g_stu_square.pnPY[i][3] * rect.Height() / m_rcg.g_stu_square.nBMPH;
+          pDC->MoveTo(pt);
           //
-					POINT pPoint[5];
-					for(int j=0;j<4;j++)
-					{
-						pPoint[j].x = m_rcg.g_stu_square.pnPX[i][j]*rect.Width()/m_rcg.g_stu_square.nBMPW;
-						pPoint[j].y = m_rcg.g_stu_square.pnPY[i][j]*rect.Height()/m_rcg.g_stu_square.nBMPH;
-					}
-					pPoint[4].x = m_rcg.g_stu_square.pnPX[i][0]*rect.Width()/m_rcg.g_stu_square.nBMPW;
-					pPoint[4].y = m_rcg.g_stu_square.pnPY[i][0]*rect.Height()/m_rcg.g_stu_square.nBMPH;
+          POINT pPoint[5];
+          for (int j = 0; j < 4; j++)
+          {
+            pPoint[j].x = m_rcg.g_stu_square.pnPX[i][j] * rect.Width() / m_rcg.g_stu_square.nBMPW;
+            pPoint[j].y = m_rcg.g_stu_square.pnPY[i][j] * rect.Height() / m_rcg.g_stu_square.nBMPH;
+          }
+          pPoint[4].x = m_rcg.g_stu_square.pnPX[i][0] * rect.Width() / m_rcg.g_stu_square.nBMPW;
+          pPoint[4].y = m_rcg.g_stu_square.pnPY[i][0] * rect.Height() / m_rcg.g_stu_square.nBMPH;
 
-					pDC->Polygon(pPoint,4);
+          pDC->Polygon(pPoint, 4);
           //test
           //double angle_test = m_rcg.CalculateVectorAngle(pPoint[1].x-pPoint[0].x,
           //  pPoint[1].y-pPoint[0].y, 1, 0);
           int nLenNo = m_rcg.g_stu_square.lenNo1PN[i];
           int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
-          
+
           /*int nLenNo = 0;
           int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);*/
 
@@ -620,9 +634,9 @@ void CCamera::OnStnClickedPreview()
           pDC->Ellipse(pPoint[nLenNoNext].x - 4, pPoint[nLenNoNext].y - 4, pPoint[nLenNoNext].x + 4, pPoint[nLenNoNext].y + 4);
 
           ////保存到特征变量
-					m_rcg.stuRef.Len=m_rcg.g_stu_square.pnLen[i];
-					m_rcg.stuRef.Wth=m_rcg.g_stu_square.pnWth[i];
-					m_param->camera.nPN=m_rcg.g_stu_square.bPN[i];
+          m_rcg.stuRef.Len = m_rcg.g_stu_square.pnLen[i];
+          m_rcg.stuRef.Wth = m_rcg.g_stu_square.pnWth[i];
+          m_param->camera.nPN = m_rcg.g_stu_square.bPN[i];
 
           m_par.deg0 = m_rcg.g_stu_square.angreePN[i];// angle_test;
           int X = m_rcg.g_stu_square.pnZPX[i];
@@ -633,10 +647,10 @@ void CCamera::OnStnClickedPreview()
           CString csTmp;
           //csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"), m_rcg.g_stu_square.pnLen[i],m_rcg.g_stu_square.pnWth[i], (int)(m_par.pn0), (angle_test), X, Y);
 
-          csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"),m_rcg.g_stu_square.pnLen[i],m_rcg.g_stu_square.pnWth[i], (int)(m_par.pn0), (m_par.deg0), (int)(m_par.x0), (int)(m_par.y0));
+          csTmp.Format(_T("长%d 宽%d 方向 %d 角度%.1f X:%d Y:%d"), m_rcg.g_stu_square.pnLen[i], m_rcg.g_stu_square.pnWth[i], (int)(m_par.pn0), (m_par.deg0), (int)(m_par.x0), (int)(m_par.y0));
           GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
           //AfxMessageBox(csTmp);
-				}
+        }
         if (
           m_rcg.g_stu_square.pnZPX[i] < m_npc_inf.left ||
           m_rcg.g_stu_square.pnZPX[i] > m_npc_inf.right ||
@@ -655,10 +669,10 @@ void CCamera::OnStnClickedPreview()
           , m_npc_inf.right * rect.Width() / m_rcg.g_stu_square.nBMPW
           , m_npc_inf.bottom * rect.Height() / m_rcg.g_stu_square.nBMPH);
 
-				pWnd->ReleaseDC(pDC);
-				m_rcg.stuRef.Dev=m_param->camera.nAllowDefect;
-				m_param->camera.Xxy[m_param->camera.Nxy][0]=m_rcg.g_stu_square.pnZPX[i]; m_param->camera.Xxy[m_param->camera.Nxy][1]=m_rcg.g_stu_square.pnZPY[i];//xy保存的是一样的东西，相同位置，相同xy，是否可以用一个？不可以，0,1是图像x，y；2是固定1；3是电机步数
-				m_param->camera.Yxy[m_param->camera.Nxy][0]=m_rcg.g_stu_square.pnZPX[i]; m_param->camera.Yxy[m_param->camera.Nxy][1]=m_rcg.g_stu_square.pnZPY[i];
+        pWnd->ReleaseDC(pDC);
+        m_rcg.stuRef.Dev = m_param->camera.nAllowDefect;
+        m_param->camera.Xxy[m_param->camera.Nxy][0] = m_rcg.g_stu_square.pnZPX[i]; m_param->camera.Xxy[m_param->camera.Nxy][1] = m_rcg.g_stu_square.pnZPY[i];//xy保存的是一样的东西，相同位置，相同xy，是否可以用一个？不可以，0,1是图像x，y；2是固定1；3是电机步数
+        m_param->camera.Yxy[m_param->camera.Nxy][0] = m_rcg.g_stu_square.pnZPX[i]; m_param->camera.Yxy[m_param->camera.Nxy][1] = m_rcg.g_stu_square.pnZPY[i];
 
 
         //int X = m_param->camera.g_factor[0][0] * (double)m_rcg.g_stu_square.pnZPX[i] + m_param->camera.g_factor[0][1] * (double)m_rcg.g_stu_square.pnZPY[i] + m_param->camera.g_factor[0][2]+0.5;
@@ -667,17 +681,17 @@ void CCamera::OnStnClickedPreview()
 
         //m_clked_pos_x = par.x;
         //m_clked_pos_y = par.y;
-        
+
         CString csTmp;
-				csTmp.Format(_T("No%d 方向 %d 角度%d X:%d Y:%d"),i, m_par.pn, m_par.deg, m_par.x, m_par.y);
-				GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
-				m_param->camera.bClbPos=1;
-				break;
+        csTmp.Format(_T("No%d 方向 %d 角度%d X:%d Y:%d"), i, m_par.pn, m_par.deg, m_par.x, m_par.y);
+        GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
+        m_param->camera.bClbPos = 1;
+        break;
       }
 
-		}
+    }
     //没有点到片上
-      if(i == m_rcg.g_stu_square.nN) {
+    if (i == m_rcg.g_stu_square.nN) {
       CWnd* pWnd = GetDlgItem(IDC_PREVIEW);
       CDC* pDC = pWnd->GetDC();
       CRect rect;
@@ -713,10 +727,10 @@ void CCamera::OnStnClickedPreview()
       CBrush br;
       br.CreateStockObject(NULL_BRUSH);
       pDC->SelectObject(&br);
-      pDC->Rectangle(m_npc_inf.left* rect.Width() / m_rcg.g_stu_square.nBMPW
-        , m_npc_inf.top* rect.Height() / m_rcg.g_stu_square.nBMPH
-        , m_npc_inf.right* rect.Width() / m_rcg.g_stu_square.nBMPW
-        , m_npc_inf.bottom* rect.Height() / m_rcg.g_stu_square.nBMPH);
+      pDC->Rectangle(m_npc_inf.left * rect.Width() / m_rcg.g_stu_square.nBMPW
+        , m_npc_inf.top * rect.Height() / m_rcg.g_stu_square.nBMPH
+        , m_npc_inf.right * rect.Width() / m_rcg.g_stu_square.nBMPW
+        , m_npc_inf.bottom * rect.Height() / m_rcg.g_stu_square.nBMPH);
       pWnd->ReleaseDC(pDC);
       /////////////////////
       int X = xt + 0.5;
@@ -741,15 +755,15 @@ void CCamera::OnStnClickedPreview()
 
       csTmp.Format(_T("X:%d Y:%d"), m_par.x, m_par.y);
       GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
-      }
-		return;
-	}
+    }
+    return;
+  }
 }
 
 #include "DlgPriview.h"
 void CCamera::OnBnClickedBtnCalibration()
 {
-	// TODO: 在此添加控件通知处理程序代码
+  // TODO: 在此添加控件通知处理程序代码
   CDlgPriview dlg(this);
   dlg.DoModal();
 }
@@ -759,257 +773,257 @@ void CCamera::OnBnClickedBtnCalibration()
 
 void CCamera::OnBnClickedBtnVideo()
 {
-	// TODO: 在此添加控件通知处理程序代码
+  // TODO: 在此添加控件通知处理程序代码
 
-	if(!gb_PlayOrNot[1])
-	{
-		gb_PlayOrNot[1]=1;
-		m_ksj.Preview(m_ch, GetDlgItem(IDC_PREVIEW));
-		/*stuTrd->pWnd= GetDlgItem(IDC_PREVIEW);
-	gclsIiic.Show(1);*/
+  if (!gb_PlayOrNot[1])
+  {
+    gb_PlayOrNot[1] = 1;
+    m_ksj.Preview(m_ch, GetDlgItem(IDC_PREVIEW));
+    /*stuTrd->pWnd= GetDlgItem(IDC_PREVIEW);
+  gclsIiic.Show(1);*/
     SetDlgItemText(IDC_BTN_VIDEO, _T("视频预览关"));
-	}
-	else
-	{
-		gb_PlayOrNot[1]=0;
-		//gclsIiic.Show(0);
-		m_ksj.StopPreview(m_ch);  //停止预览
+  }
+  else
+  {
+    gb_PlayOrNot[1] = 0;
+    //gclsIiic.Show(0);
+    m_ksj.StopPreview(m_ch);  //停止预览
     SetDlgItemText(IDC_BTN_VIDEO, _T("视频预览"));
 
-	}
-	
+  }
+
 
 }
 
 
 void CCamera::OnPaint()
 {
-	CRect rect,rcUpdate;
-	GetUpdateRect(&rcUpdate);
-	
-	CPaintDC dc(this); // device context for painting
-	// TODO: 在此处添加消息处理程序代码
-	// 不为绘图消息调用 CDialogEx::OnPaint()
-	CRect rcWindow;
-	GetDlgItem(IDC_PREVIEW)->GetWindowRect(rcWindow);
-	ScreenToClient(rcWindow);
-	
-	if (rcWindow.left<rcUpdate.right && rcWindow.right>rcUpdate.left &&
-		rcWindow.top<rcUpdate.bottom && rcWindow.bottom>rcUpdate.top )
-	{
-		GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
-		GetDlgItem(IDC_PREVIEW)->RedrawWindow(&rect,NULL,RDW_INVALIDATE|RDW_ALLCHILDREN);//RDW_VALIDATE|RDW_UPDATENOW
-	}
+  CRect rect, rcUpdate;
+  GetUpdateRect(&rcUpdate);
+
+  CPaintDC dc(this); // device context for painting
+  // TODO: 在此处添加消息处理程序代码
+  // 不为绘图消息调用 CDialogEx::OnPaint()
+  CRect rcWindow;
+  GetDlgItem(IDC_PREVIEW)->GetWindowRect(rcWindow);
+  ScreenToClient(rcWindow);
+
+  if (rcWindow.left<rcUpdate.right && rcWindow.right>rcUpdate.left &&
+    rcWindow.top<rcUpdate.bottom && rcWindow.bottom>rcUpdate.top)
+  {
+    GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
+    GetDlgItem(IDC_PREVIEW)->RedrawWindow(&rect, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);//RDW_VALIDATE|RDW_UPDATENOW
+  }
 }
 
 
 void CCamera::OnEnChangeEdtOutpallowl()
 {
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
-	// TODO:  在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_OUTPALLOWL,&bFlag,0);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error number"));
-		return;
-	}
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_OUTPALLOWL, &bFlag, 0);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
 
-	CString strValue = _T("");
-	CFileFind findini;
-	BOOL ifFind = findini.FindFile(g_ini_path);  
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(g_ini_path);
 
-	if( !ifFind )  
-	{  
-		AfxMessageBox(_T("无配置文件"));
-		return;
-	}  
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
 
-	strValue.Format(_T("%d"),nValue);
-	WritePrivateProfileString(_T("识别参数"),_T("直线点距"),strValue,g_ini_path);
-	m_param->camera.nPToL = nValue;
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("识别参数"), _T("直线点距"), strValue, g_ini_path);
+  m_param->camera.nPToL = nValue;
 }
 
 
 void CCamera::OnEnChangeEdtDefectallowl()
 {
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
-	// TODO:  在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_DEFECTALLOWL,&bFlag,0);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error number"));
-		return;
-	}
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_DEFECTALLOWL, &bFlag, 0);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
 
-	CString strValue = _T("");
-	CFileFind findini;
-	BOOL ifFind = findini.FindFile(g_ini_path);  
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(g_ini_path);
 
-	if( !ifFind )  
-	{  
-		AfxMessageBox(_T("无配置文件"));
-		return;
-	}  
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
 
-	strValue.Format(_T("%d"),nValue);
-	WritePrivateProfileString(_T("识别参数"),_T("缺陷点距"),strValue,g_ini_path);
-	m_param->camera.nDefectPToL = nValue;
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("识别参数"), _T("缺陷点距"), strValue, g_ini_path);
+  m_param->camera.nDefectPToL = nValue;
 }
 
 
 void CCamera::OnEnChangeEdtThreshold()
 {
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
-	// TODO:  在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_THRESHOLD2,&bFlag,0);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error number"));
-		return;
-	}
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_THRESHOLD2, &bFlag, 0);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
 
-	CString strValue = _T("");
-	CFileFind findini;
-	BOOL ifFind = findini.FindFile(g_ini_path);  
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(g_ini_path);
 
-	if( !ifFind )  
-	{  
-		AfxMessageBox(_T("无配置文件"));
-		return;
-	}  
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
 
-	strValue.Format(_T("%d"),nValue);
-	WritePrivateProfileString(_T("识别参数"),_T("阈值"),strValue,g_ini_path);
-	m_param->camera.nThreshold = nValue;
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("识别参数"), _T("阈值"), strValue, g_ini_path);
+  m_param->camera.nThreshold = nValue;
 }
 
 
 void CCamera::OnEnChangeEdtFtoutpoint()
 {
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
-	// TODO:  在此添加控件通知处理程序代码
-	BOOL bFlag=0;
-	int nValue = GetDlgItemInt(IDC_EDT_FTOUTPOINT,&bFlag,0);
-	if(0 == bFlag)
-	{
-		AfxMessageBox(_T("error number"));
-		return;
-	}
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_FTOUTPOINT, &bFlag, 0);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
 
-	CString strValue = _T("");
-	CFileFind findini;
-	BOOL ifFind = findini.FindFile(g_ini_path);  
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(g_ini_path);
 
-	if( !ifFind )  
-	{  
-		AfxMessageBox(_T("无配置文件"));
-		return;
-	}  
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
 
-	strValue.Format(_T("%d"),nValue);
-	WritePrivateProfileString(_T("识别参数"),_T("特征允许误差"),strValue,g_ini_path);
-	m_param->camera.nAllowDefect = nValue;
-	m_rcg.stuRef.Dev=m_param->camera.nAllowDefect;
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("识别参数"), _T("特征允许误差"), strValue, g_ini_path);
+  m_param->camera.nAllowDefect = nValue;
+  m_rcg.stuRef.Dev = m_param->camera.nAllowDefect;
 }
 
 
 void CCamera::OnBnClickedBtnGetset()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	//char szLan[128] = {0};
-	//char szTemp[256] = {0};  
-	//char szErrorMsg[256] = {0};
-	//DWORD dwReturn;
-	//if(!NET_GetConfig(glCamID,IPC_GET_SETTINGS_CAMERA_PARAM,&gstuCamParam, sizeof(gstuCamParam),&dwReturn))
-	//{
-	//	NET_GetErrorMsg(NET_GetLastError(), szErrorMsg);
-	//	sprintf(szTemp, "%s %s", szLan, szErrorMsg);
-	//	AfxMessageBox((CString)szTemp);
-	//	return;
-	//}
-	////
-	//SetDlgItemInt(IDC_EDT_EV,gstuCamParam.maxexposuretime);
-	//SetDlgItemInt(IDC_EDT_GAIN,gstuCamParam.maxgain);
-	//SetDlgItemInt(IDC_EDT_BRIGHT,gstuCamParam.Brightness);
-	//SetDlgItemInt(IDC_EDT_CONTRAST,gstuCamParam.Contrast);
-	//SetDlgItemInt(IDC_EDT_SATURATION,gstuCamParam.Saturation);
-	//SetDlgItemInt(IDC_EDT_SHARPNESS,gstuCamParam.Sharpness);
-	//m_cmbAWB.SetCurSel(gstuCamParam.awb);
-	//m_cmbBl.SetCurSel(gstuCamParam.BackLight);
-	int    val;
-	CString s1;
+  // TODO: 在此添加控件通知处理程序代码
+  //char szLan[128] = {0};
+  //char szTemp[256] = {0};  
+  //char szErrorMsg[256] = {0};
+  //DWORD dwReturn;
+  //if(!NET_GetConfig(glCamID,IPC_GET_SETTINGS_CAMERA_PARAM,&gstuCamParam, sizeof(gstuCamParam),&dwReturn))
+  //{
+  //	NET_GetErrorMsg(NET_GetLastError(), szErrorMsg);
+  //	sprintf(szTemp, "%s %s", szLan, szErrorMsg);
+  //	AfxMessageBox((CString)szTemp);
+  //	return;
+  //}
+  ////
+  //SetDlgItemInt(IDC_EDT_EV,gstuCamParam.maxexposuretime);
+  //SetDlgItemInt(IDC_EDT_GAIN,gstuCamParam.maxgain);
+  //SetDlgItemInt(IDC_EDT_BRIGHT,gstuCamParam.Brightness);
+  //SetDlgItemInt(IDC_EDT_CONTRAST,gstuCamParam.Contrast);
+  //SetDlgItemInt(IDC_EDT_SATURATION,gstuCamParam.Saturation);
+  //SetDlgItemInt(IDC_EDT_SHARPNESS,gstuCamParam.Sharpness);
+  //m_cmbAWB.SetCurSel(gstuCamParam.awb);
+  //m_cmbBl.SetCurSel(gstuCamParam.BackLight);
+  int    val;
+  CString s1;
 
-	m_ksj.GetParam(m_ch, KSJ_EXPOSURE, &val);
-	s1.Format(_T("%d"), val);
-	((CEdit*)GetDlgItem(IDC_EDT_EV))->SetWindowText(s1);
-
-
-	m_ksj.GetParam(m_ch, KSJ_RED, &val);
-	s1.Format(_T("%d"), val);
-	((CEdit*)GetDlgItem(IDC_EDT_GAIN))->SetWindowText(s1);
+  m_ksj.GetParam(m_ch, KSJ_EXPOSURE, &val);
+  s1.Format(_T("%d"), val);
+  ((CEdit*)GetDlgItem(IDC_EDT_EV))->SetWindowText(s1);
 
 
-	m_ksj.GetParam(m_ch, KSJ_BRIGHTNESS, &val);
-	s1.Format(_T("%d"), val);
-	((CEdit*)GetDlgItem(IDC_EDT_BRIGHT))->SetWindowText(s1);
+  m_ksj.GetParam(m_ch, KSJ_RED, &val);
+  s1.Format(_T("%d"), val);
+  ((CEdit*)GetDlgItem(IDC_EDT_GAIN))->SetWindowText(s1);
 
 
-	m_ksj.GetParam(m_ch, KSJ_CONTRAST, &val);
-	s1.Format(_T("%d"), val);
-	((CEdit*)GetDlgItem(IDC_EDT_CONTRAST))->SetWindowText(s1);
+  m_ksj.GetParam(m_ch, KSJ_BRIGHTNESS, &val);
+  s1.Format(_T("%d"), val);
+  ((CEdit*)GetDlgItem(IDC_EDT_BRIGHT))->SetWindowText(s1);
 
-	return;
+
+  m_ksj.GetParam(m_ch, KSJ_CONTRAST, &val);
+  s1.Format(_T("%d"), val);
+  ((CEdit*)GetDlgItem(IDC_EDT_CONTRAST))->SetWindowText(s1);
+
+  return;
 }
 
 
 void CCamera::OnBnClickedChkAutothrd()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_AUTOTHRD);
-	int nStat = pChk->GetCheck();
-	if (nStat)
-	{
-		m_param->camera.bThrdAuto = 1;
-	} 
-	else
-	{
-		m_param->camera.bThrdAuto = 0;
-	}
+  // TODO: 在此添加控件通知处理程序代码
+  CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_AUTOTHRD);
+  int nStat = pChk->GetCheck();
+  if (nStat)
+  {
+    m_param->camera.bThrdAuto = 1;
+  }
+  else
+  {
+    m_param->camera.bThrdAuto = 0;
+  }
 }
 
 
 void CCamera::OnBnClickedChkDelnoise()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_DELNOISE);
-	int nStat = pChk->GetCheck();
-	if (nStat)
-	{
-		m_param->camera.bDelNoise = 1;
-	} 
-	else
-	{
-		m_param->camera.bDelNoise = 0;
-	}
+  // TODO: 在此添加控件通知处理程序代码
+  CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_DELNOISE);
+  int nStat = pChk->GetCheck();
+  if (nStat)
+  {
+    m_param->camera.bDelNoise = 1;
+  }
+  else
+  {
+    m_param->camera.bDelNoise = 0;
+  }
 }
 
 
@@ -1021,100 +1035,100 @@ void CCamera::OnBnClickedChkDelnoise()
 
 void CCamera::OnBnClickedChkDebug()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_DEBUG);
-	int nStat = pChk->GetCheck();
-	if (nStat)
-	{
-		m_param->camera.bDebug = 1;
-	} 
-	else
-	{
-		m_param->camera.bDebug = 0;
-	}
+  // TODO: 在此添加控件通知处理程序代码
+  CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_DEBUG);
+  int nStat = pChk->GetCheck();
+  if (nStat)
+  {
+    m_param->camera.bDebug = 1;
+  }
+  else
+  {
+    m_param->camera.bDebug = 0;
+  }
 }
 
 #include "DlgPriview1.h"
 void CCamera::OnBnClickedBtnSplit()
 {
-	// TODO: 在此添加控件通知处理程序代码
+  // TODO: 在此添加控件通知处理程序代码
 
   CDlgPriview1 dlg(this);
   dlg.DoModal();
 
 
-	//
-	//CString m_bmp_file=GetMainFrame()->m_exe_path + _T("\\PIC\\原图0.bmp");
-	//
-	//CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
-	//BOOL ifFind = findini.FindFile(m_bmp_file);  
-	//if( !ifFind )  
-	//	return;
-	//CBitmap m_bmp;//创建类成员
-	//BITMAP bm;//存放位图信息的结构
-	//HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL,m_bmp_file,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);//创建bitmap指针
-	//m_bmp.Attach(hBitmap1);//关联句柄和cbitmap关联
-	//m_bmp.GetBitmap(&bm);
-	//CWnd * pWnd = GetDlgItem(IDC_PREVIEW);
-	//CDC* pDC = pWnd->GetDC();
-	//CRect rect;
-	//GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
-	//CDC memDC;        //定义一个设备
-	//CClientDC dc1(this);      //获取客户
-	//memDC.CreateCompatibleDC( &dc1 );
-	//memDC.SelectObject( m_bmp );  //为设备选择对象
+  //
+  //CString m_bmp_file=GetMainFrame()->m_exe_path + _T("\\PIC\\原图0.bmp");
+  //
+  //CFileFind findini;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用   
+  //BOOL ifFind = findini.FindFile(m_bmp_file);  
+  //if( !ifFind )  
+  //	return;
+  //CBitmap m_bmp;//创建类成员
+  //BITMAP bm;//存放位图信息的结构
+  //HBITMAP hBitmap1 = (HBITMAP)LoadImage(NULL,m_bmp_file,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);//创建bitmap指针
+  //m_bmp.Attach(hBitmap1);//关联句柄和cbitmap关联
+  //m_bmp.GetBitmap(&bm);
+  //CWnd * pWnd = GetDlgItem(IDC_PREVIEW);
+  //CDC* pDC = pWnd->GetDC();
+  //CRect rect;
+  //GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect);
+  //CDC memDC;        //定义一个设备
+  //CClientDC dc1(this);      //获取客户
+  //memDC.CreateCompatibleDC( &dc1 );
+  //memDC.SelectObject( m_bmp );  //为设备选择对象
 
-	//mDCMem->StretchBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+  //mDCMem->StretchBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
 
-	//pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
-	//memDC.DeleteDC();
-	//m_bmp.DeleteObject();	
-	//DeleteObject(hBitmap1);//记得删除	
-	//
-	//CPen PenRed;
-	//CGdiObject *o = NULL;
-	//PenRed.CreatePen(PS_SOLID,1,RGB(255,0,0));//创建一支红色的画笔.
-	////pWnd = GetDlgItem(IDC_image1); //IDC_STATIC是picture control的ID.这句是得到picture的句柄.
-	////pDC = pWnd->GetDC();//然后得到设备环境.
-	////RECT rect;//声明一个rect
-	////pWnd->GetClientRect(&rect);//并把picture控件的坐标用rect接收.
-	//mDCMem->SelectObject(PenRed);//选中画笔.
+  //pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
+  //memDC.DeleteDC();
+  //m_bmp.DeleteObject();	
+  //DeleteObject(hBitmap1);//记得删除	
+  //
+  //CPen PenRed;
+  //CGdiObject *o = NULL;
+  //PenRed.CreatePen(PS_SOLID,1,RGB(255,0,0));//创建一支红色的画笔.
+  ////pWnd = GetDlgItem(IDC_image1); //IDC_STATIC是picture control的ID.这句是得到picture的句柄.
+  ////pDC = pWnd->GetDC();//然后得到设备环境.
+  ////RECT rect;//声明一个rect
+  ////pWnd->GetClientRect(&rect);//并把picture控件的坐标用rect接收.
+  //mDCMem->SelectObject(PenRed);//选中画笔.
 
-	///*m_param->camera.nPToL=2;//直线点距
-	//m_param->camera.nDefectPToL=10;//缺陷点距
-	//m_param->camera.nThreshold=30;//阀值*/
-	////char * chPath = (LPSTR)(LPCTSTR)m_bmp_file;
-	//char chPath[MAX_PATH];
-	////WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,readPath,CStringA(m_bmp_file).GetLength(),NULL,NULL); 
-	//WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,chPath,sizeof(chPath),NULL,NULL); 
-	////
-	//LARGE_INTEGER l_lgint_start, l_lgint_end;
-	//LARGE_INTEGER l_lgint_freq;
-	//QueryPerformanceFrequency(&l_lgint_freq);  
-	//QueryPerformanceCounter(&l_lgint_start);
-	////
-	//m_rcg.RCGBMPSPLIT(mDCMem,rect,chPath,m_param->camera.nPToL,m_param->camera.nDefectPToL,m_param->camera.nThreshold,m_param->camera.bDebug,m_param->camera.bIsCir,m_param->camera.bThrdAuto,m_param->camera.bDelNoise);
-	////
-	//QueryPerformanceCounter(&l_lgint_end);
-	//double dTmpRT=double(l_lgint_end.QuadPart-l_lgint_start.QuadPart)/double(l_lgint_freq.QuadPart);	
-	//CString csTmp;
-	//csTmp.Format(_T("%.2f秒"),dTmpRT);
-	//SetDlgItemText(IDC_SELECT_RESULT,csTmp);
-	//	//
-	//pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
-	//pWnd->ReleaseDC(pDC);
-	//m_param->camera.bClbPos=1;
+  ///*m_param->camera.nPToL=2;//直线点距
+  //m_param->camera.nDefectPToL=10;//缺陷点距
+  //m_param->camera.nThreshold=30;//阀值*/
+  ////char * chPath = (LPSTR)(LPCTSTR)m_bmp_file;
+  //char chPath[MAX_PATH];
+  ////WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,readPath,CStringA(m_bmp_file).GetLength(),NULL,NULL); 
+  //WideCharToMultiByte(CP_ACP,WC_COMPOSITECHECK,m_bmp_file,-1,chPath,sizeof(chPath),NULL,NULL); 
+  ////
+  //LARGE_INTEGER l_lgint_start, l_lgint_end;
+  //LARGE_INTEGER l_lgint_freq;
+  //QueryPerformanceFrequency(&l_lgint_freq);  
+  //QueryPerformanceCounter(&l_lgint_start);
+  ////
+  //m_rcg.RCGBMPSPLIT(mDCMem,rect,chPath,m_param->camera.nPToL,m_param->camera.nDefectPToL,m_param->camera.nThreshold,m_param->camera.bDebug,m_param->camera.bIsCir,m_param->camera.bThrdAuto,m_param->camera.bDelNoise);
+  ////
+  //QueryPerformanceCounter(&l_lgint_end);
+  //double dTmpRT=double(l_lgint_end.QuadPart-l_lgint_start.QuadPart)/double(l_lgint_freq.QuadPart);	
+  //CString csTmp;
+  //csTmp.Format(_T("%.2f秒"),dTmpRT);
+  //SetDlgItemText(IDC_SELECT_RESULT,csTmp);
+  //	//
+  //pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
+  //pWnd->ReleaseDC(pDC);
+  //m_param->camera.bClbPos=1;
 }
 
 
 void CCamera::OnBnClickedBtnReconnect()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	//IIICStartConnect();201608
-	m_ch = m_ksj.GetKsj(KSJ_UC500M_MRYY);
-	if (0 > m_ch)
-		AfxMessageBox(_T("KSJ_UC500M_MRYY 相机打开失败	,请检查是否连接该相机"));
-	
+  // TODO: 在此添加控件通知处理程序代码
+  //IIICStartConnect();201608
+  m_ch = m_ksj.GetKsj(KSJ_UC500M_MRYY);
+  if (0 > m_ch)
+    AfxMessageBox(_T("KSJ_UC500M_MRYY 相机打开失败	,请检查是否连接该相机"));
+
 }
 //
 //void CCamera::IIICStartConnect()
@@ -1417,6 +1431,18 @@ void CCamera::OnEnChangeEdtThreshold2()
 }
 
 
+void CCamera::OnBnClickedBtnClbpos2test()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  int x = GetDlgItemInt(IDC_EDT_CLBPOS2X);
+  int y = GetDlgItemInt(IDC_EDT_CLBPOS2Y);
+  m_io->MotoRunNoWait(MOTOR_A, x);
+  m_io->MotoRunNoWait(MOTOR_B, y);
+  while (!m_io->CheckMotoEnd(MOTOR_A)) { Sleep(100); };
+  while (!m_io->CheckMotoEnd(MOTOR_B)) { Sleep(100); };
+}
+
+
 void CCamera::OnEnChangeEdtClbpos1x()
 {
   // TODO:  如果该控件是 RICHEDIT 控件，它将不
@@ -1432,8 +1458,8 @@ void CCamera::OnEnChangeEdtClbpos1x()
     AfxMessageBox(_T("error number"));
     return;
   }
- 
-//  SetDlgItemInt(IDC_EDT_CLBPOS1X, nValue, 1);
+
+  //  SetDlgItemInt(IDC_EDT_CLBPOS1X, nValue, 1);
   CString strValue = _T("");
   CFileFind findini;
   BOOL ifFind = findini.FindFile(g_ini_path);
@@ -1450,44 +1476,6 @@ void CCamera::OnEnChangeEdtClbpos1x()
 
 }
 
-
-void CCamera::OnEnChangeEdtClbpos1y()
-{
-  // TODO:  如果该控件是 RICHEDIT 控件，它将不
-  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
-  // 函数并调用 CRichEditCtrl().SetEventMask()，
-  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-  // TODO:  在此添加控件通知处理程序代码
-  BOOL bFlag = 0;
-  int nValue = GetDlgItemInt(IDC_EDT_CLBPOS1Y, &bFlag, 1);
-  if (0 == bFlag)
-  {
-    AfxMessageBox(_T("error number"));
-    return;
-  }
-
-  //SetDlgItemInt(IDC_EDT_CLBPOS1Y, nValue, 1);
-  CString strValue = _T("");
-  CFileFind findini;
-  BOOL ifFind = findini.FindFile(g_ini_path);
-
-  if (!ifFind)
-  {
-    AfxMessageBox(_T("无配置文件"));
-    return;
-  }
-
-  strValue.Format(_T("%d"), nValue);
-  WritePrivateProfileString(_T("取片校准点"), _T("1Y"), strValue, g_ini_path);
-  m_param->camera.nClbPosY[0] = nValue;
-}
-
-
-void CCamera::OnBnClickedBtnClbpos2test()
-{
-  // TODO: 在此添加控件通知处理程序代码
-}
 
 
 void CCamera::OnEnChangeEdtClbpos2x()
@@ -1556,6 +1544,38 @@ void CCamera::OnEnChangeEdtClbpos3x()
 }
 
 
+void CCamera::OnEnChangeEdtClbpos1y()
+{
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_CLBPOS1Y, &bFlag, 1);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+
+  //SetDlgItemInt(IDC_EDT_CLBPOS1Y, nValue, 1);
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(g_ini_path);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("取片校准点"), _T("1Y"), strValue, g_ini_path);
+  m_param->camera.nClbPosY[0] = nValue;
+}
+
 void CCamera::OnEnChangeEdtClbpos2y()
 {
   // TODO:  如果该控件是 RICHEDIT 控件，它将不
@@ -1605,7 +1625,7 @@ void CCamera::OnEnChangeEdtClbpos3y()
     return;
   }
 
- // SetDlgItemInt(IDC_EDT_CLBPOS3Y, nValue, 1);
+  // SetDlgItemInt(IDC_EDT_CLBPOS3Y, nValue, 1);
   CString strValue = _T("");
   CFileFind findini;
   BOOL ifFind = findini.FindFile(g_ini_path);
@@ -1619,4 +1639,107 @@ void CCamera::OnEnChangeEdtClbpos3y()
   strValue.Format(_T("%d"), nValue);
   WritePrivateProfileString(_T("取片校准点"), _T("3Y"), strValue, g_ini_path);
   m_param->camera.nClbPosY[2] = nValue;
+}
+
+
+void CCamera::OnEnChangeEdtTransferx()
+{
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_TRANSFERX, &bFlag, 1);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+
+  //  SetDlgItemInt(IDC_EDT_CLBPOS1X, nValue, 1);
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(g_ini_path);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("中转点"), _T("X"), strValue, g_ini_path);
+  m_param->camera.transferx = nValue;
+}
+
+
+void CCamera::OnEnChangeEdtTransfery()
+{
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+  // TODO:  在此添加控件通知处理程序代码
+  BOOL bFlag = 0;
+  int nValue = GetDlgItemInt(IDC_EDT_TRANSFERY, &bFlag, 1);
+  if (0 == bFlag)
+  {
+    AfxMessageBox(_T("error number"));
+    return;
+  }
+
+  //  SetDlgItemInt(IDC_EDT_CLBPOS1X, nValue, 1);
+  CString strValue = _T("");
+  CFileFind findini;
+  BOOL ifFind = findini.FindFile(g_ini_path);
+
+  if (!ifFind)
+  {
+    AfxMessageBox(_T("无配置文件"));
+    return;
+  }
+
+  strValue.Format(_T("%d"), nValue);
+  WritePrivateProfileString(_T("中转点"), _T("Y"), strValue, g_ini_path);
+  m_param->camera.transfery = nValue;
+}
+
+
+void CCamera::OnBnClickedBtnClbpos1test()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  int x = GetDlgItemInt(IDC_EDT_CLBPOS1X);
+  int y = GetDlgItemInt(IDC_EDT_CLBPOS1Y);
+  m_io->MotoRunNoWait(MOTOR_A, x);
+  m_io->MotoRunNoWait(MOTOR_B, y);
+  while (!m_io->CheckMotoEnd(MOTOR_A)) { Sleep(100); };
+  while (!m_io->CheckMotoEnd(MOTOR_B)) { Sleep(100); };
+}
+
+
+
+void CCamera::OnBnClickedBtnClbpos3test()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  int x = GetDlgItemInt(IDC_EDT_CLBPOS3X);
+  int y = GetDlgItemInt(IDC_EDT_CLBPOS3Y);
+  m_io->MotoRunNoWait(MOTOR_A, x);
+  m_io->MotoRunNoWait(MOTOR_B, y);
+  while (!m_io->CheckMotoEnd(MOTOR_A)) { Sleep(100); };
+  while (!m_io->CheckMotoEnd(MOTOR_B)) { Sleep(100); };
+}
+
+
+void CCamera::OnBnClickedBtnTransfertest()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  int x = GetDlgItemInt(IDC_EDT_TRANSFERX);
+  int y = GetDlgItemInt(IDC_EDT_TRANSFERY);
+  m_io->MotoRunNoWait(MOTOR_A, x);
+  m_io->MotoRunNoWait(MOTOR_B, y);
+  while (!m_io->CheckMotoEnd(MOTOR_A)) { Sleep(100); };
+  while (!m_io->CheckMotoEnd(MOTOR_B)) { Sleep(100); };
 }

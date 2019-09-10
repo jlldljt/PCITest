@@ -23,12 +23,14 @@ typedef struct {
     ENUM_STATE y;
     ENUM_STATE turntable;//转盘状态
     ENUM_STATE staticmeasure;//静态测量
-	ENUM_STATE user;
+	  ENUM_STATE user;
+	  ENUM_STATE camera;//相机上料
+	  ENUM_STATE transfer;//中转
   }state;
-  int measure; // 0无测量
-
+  //int measure; // 0无测量
+  int transfer[6];//中转盘情况
 }Run_Param;
-
+#define TRANSFER_TAKE 2
 // CDlgRun1 窗体视图
 
 class CDlgRun1 : public CFormView
@@ -99,6 +101,7 @@ public:
   CStaticEx m_static_message;
   afx_msg void OnBnClickedChkPnmeasure();
   virtual BOOL PreTranslateMessage(MSG* pMsg);
+  afx_msg void OnBnClickedChkCamera();
 };
 
 
