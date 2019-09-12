@@ -16,6 +16,8 @@
 //采集卡
 #include"CapControl.h"
 #include "DlgView.h"
+//usb相机
+#include "CvCam.h"
 class CMainFrame : public CFrameWndEx
 {
 	
@@ -27,6 +29,8 @@ protected: // 仅从序列化创建
 public:
   CSplitterWnd m_splitwnd;
   CapControl m_capControl;
+
+  CCvCam m_cam;
 // 操作
 public:
 
@@ -74,6 +78,7 @@ public:
   void MeasureAperture(int mode);
   CDlgView* m_pview;
   BOOL m_bMeasureApertureThread_State;
+  afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 

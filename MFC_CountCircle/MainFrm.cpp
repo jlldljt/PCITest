@@ -23,7 +23,7 @@
 #include "StreamView.h"
 #include "DlgView.h"
 
-
+#define SHOW_TIMER  1000
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -45,7 +45,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
   ON_COMMAND(ID_BTN_STOP, &CMainFrame::OnBtnStop)
   ON_COMMAND(ID_BTN_SNAP, &CMainFrame::OnBtnSnap)
   ON_COMMAND(ID_COMBO_CAPNAME, &CMainFrame::OnComboCapname)
+  ON_WM_TIMER()
 END_MESSAGE_MAP()
+
 
 // CMainFrame 构造/析构
 
@@ -99,11 +101,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     int nIndex = pComboBox->AddItem(m_capControl.m_capName);
     pComboBox->SetEditText(m_capControl.m_capName);
   }
+  m_cam.init(hwnd);
+
 
   CDlgView* pdlg = (CDlgView*)m_splitwnd.GetPane(0, 1);
   pdlg->GetDlgItem(IDC_STA_NUMBER_OF_APERTURE)->SetFont(&pdlg->m_fontResult);
 
-
+  SetTimer(SHOW_TIMER, 33, NULL);
 	return 0;
 }
 
@@ -263,6 +267,10 @@ void CMainFrame::OnBtnStop()
 void CMainFrame::OnBtnSnap()
 {
   // TODO: 在此添加命令处理程序代码
+  m_cam.captureBmp("img.bmp");
+  
+  return;
+
   CDlgView* pview = (CDlgView*)m_splitwnd.GetPane(0, 1);
   //m_capControl.CaptureSingle(L"cap.bmp");
   m_capControl.CaptureSingleBuffer();
@@ -378,4 +386,11 @@ void CMainFrame::MeasureAperture(int mode)
 	cvSaveImage("./result.bmp", m_image.GetImage());
 	m_pview->m_bmp = _T("./result.bmp");
 	ShowLocalPicture(L"result.bmp", m_pview->GetDlgItem(IDC_PICTURE_SHOW));
+}
+
+void CMainFrame::OnTimer(UINT_PTR nIDEvent)
+{
+  // TODO: 在此添加消息处理程序代码和/或调用默认值
+  m_cam.snap();
+  CFrameWndEx::OnTimer(nIDEvent);
 }

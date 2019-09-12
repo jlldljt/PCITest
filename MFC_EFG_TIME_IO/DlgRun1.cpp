@@ -654,6 +654,7 @@ UINT Thread_Camera(LPVOID pParam)
     case START://Æô¶¯
       WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, GetMainFrame()->m_exe_path + _T("\\PIC\\Ô­Í¼0.bmp"), -1, l_AnsiStr, sizeof(l_AnsiStr), NULL, NULL);
       if (nullptr == pdlg_cam->m_ksj.SnapEx(pdlg_cam->m_ch, &nWidth, &nHeight, &nBitCount, &nBitsPerSample, l_AnsiStr, NULL))
+      if (-1 == pdlg_cam->m_cam.captureBmp(l_AnsiStr))
       {
         Sleep(500);
 

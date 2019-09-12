@@ -7,7 +7,7 @@
 #include "afxdialogex.h"
 #include "MainFrm.h"
 
-
+#define TIMER_VIDEO  1001
 //UINT Thread_Auto(LPVOID pParam)
 //{
 //  SetThreadAffinityMask(GetCurrentThread(), 1);
@@ -242,6 +242,7 @@ BEGIN_MESSAGE_MAP(CCamera, CDialogEx)
   ON_BN_CLICKED(IDC_BTN_CLBPOS1TEST, &CCamera::OnBnClickedBtnClbpos1test)
   ON_BN_CLICKED(IDC_BTN_TRANSFERTEST, &CCamera::OnBnClickedBtnTransfertest)
   ON_BN_CLICKED(IDC_BTN_CLBPOS3TEST, &CCamera::OnBnClickedBtnClbpos3test)
+  ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -262,8 +263,8 @@ void CCamera::OnBnClickedBtnSnap()
   int nWidth, nHeight;
   int nBitCount;
   int nBitsPerSample;
-  unsigned char* pData = m_ksj.SnapEx(m_ch, &nWidth, &nHeight, &nBitCount, &nBitsPerSample, l_AnsiStr, GetDlgItem(IDC_PREVIEW));
-
+  //unsigned char* pData = m_ksj.SnapEx(m_ch, &nWidth, &nHeight, &nBitCount, &nBitsPerSample, l_AnsiStr, GetDlgItem(IDC_PREVIEW));
+  m_cam.captureBmp(l_AnsiStr);
   QueryPerformanceCounter(&l_lgint_end);
   double dTmpRT = double(l_lgint_end.QuadPart - l_lgint_start.QuadPart) / double(l_lgint_freq.QuadPart);
   CString csTmp;
@@ -536,6 +537,8 @@ BOOL CCamera::OnInitDialog()
   m_param->camera.bDelNoise = 0;
   m_param->camera.bDebug = 0;
 
+  m_cam.init(GetDlgItem(IDC_PREVIEW)->m_hWnd);
+  
   return TRUE;  // return TRUE unless you set the focus to a control
   // 异常: OCX 属性页应返回 FALSE
 }
@@ -778,16 +781,16 @@ void CCamera::OnBnClickedBtnVideo()
   if (!gb_PlayOrNot[1])
   {
     gb_PlayOrNot[1] = 1;
-    m_ksj.Preview(m_ch, GetDlgItem(IDC_PREVIEW));
-    /*stuTrd->pWnd= GetDlgItem(IDC_PREVIEW);
-  gclsIiic.Show(1);*/
+    //m_ksj.Preview(m_ch, GetDlgItem(IDC_PREVIEW));
+    SetTimer(TIMER_VIDEO, 33, NULL);
     SetDlgItemText(IDC_BTN_VIDEO, _T("视频预览关"));
   }
   else
   {
     gb_PlayOrNot[1] = 0;
-    //gclsIiic.Show(0);
-    m_ksj.StopPreview(m_ch);  //停止预览
+
+    //m_ksj.StopPreview(m_ch);  //停止预览
+    KillTimer(TIMER_VIDEO);
     SetDlgItemText(IDC_BTN_VIDEO, _T("视频预览"));
 
   }
@@ -1124,10 +1127,10 @@ void CCamera::OnBnClickedBtnSplit()
 void CCamera::OnBnClickedBtnReconnect()
 {
   // TODO: 在此添加控件通知处理程序代码
-  //IIICStartConnect();201608
-  m_ch = m_ksj.GetKsj(KSJ_UC500M_MRYY);
+  /*m_ch = m_ksj.GetKsj(KSJ_UC500M_MRYY);
   if (0 > m_ch)
-    AfxMessageBox(_T("KSJ_UC500M_MRYY 相机打开失败	,请检查是否连接该相机"));
+    AfxMessageBox(_T("KSJ_UC500M_MRYY 相机打开失败	,请检查是否连接该相机"));*/
+  m_cam.init(GetDlgItem(IDC_PREVIEW)->m_hWnd);
 
 }
 //
@@ -1742,4 +1745,12 @@ void CCamera::OnBnClickedBtnTransfertest()
   m_io->MotoRunNoWait(MOTOR_B, y);
   while (!m_io->CheckMotoEnd(MOTOR_A)) { Sleep(100); };
   while (!m_io->CheckMotoEnd(MOTOR_B)) { Sleep(100); };
+}
+
+
+void CCamera::OnTimer(UINT_PTR nIDEvent)
+{
+  // TODO: 在此添加消息处理程序代码和/或调用默认值
+  m_cam.snap();
+  CDialogEx::OnTimer(nIDEvent);
 }

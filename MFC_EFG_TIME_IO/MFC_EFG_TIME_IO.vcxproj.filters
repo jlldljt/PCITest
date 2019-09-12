@@ -301,6 +301,9 @@
     <ClInclude Include="DlgPriview1.h">
       <Filter>源文件</Filter>
     </ClInclude>
+    <ClInclude Include="CvCam.h">
+      <Filter>CAMERA</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_EFG_TIME_IO.cpp">
@@ -458,6 +461,9 @@
     </ClCompile>
     <ClCompile Include="DlgPriview1.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CvCam.cpp">
+      <Filter>CAMERA</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

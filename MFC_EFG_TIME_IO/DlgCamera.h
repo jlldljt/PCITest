@@ -2,6 +2,7 @@
 #include "EfgIO.h"
 #include "KSJ.h"
 #include "IMGRecognition.h"
+#include "CvCam.h"
 
 using namespace KSJ_NAME_SPACE;
 
@@ -60,6 +61,7 @@ public:
   BOOL gb_PlayOrNot[2];
   CIMGRecognition m_rcg;
   CEfgIO* m_io;
+  CCvCam m_cam;
 
 	afx_msg void OnBnClickedBtnTest();
 	afx_msg void OnBnClickedBtnCamset();
@@ -99,6 +101,7 @@ public:
   afx_msg void OnBnClickedBtnClbpos1test();
   afx_msg void OnBnClickedBtnTransfertest();
   afx_msg void OnBnClickedBtnClbpos3test();
+  afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 void calparameter(double(*xy)[4], double* factor);//计算坐标转换参数

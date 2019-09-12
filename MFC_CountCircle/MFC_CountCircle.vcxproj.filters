@@ -57,6 +57,9 @@
     <ClInclude Include="DlgDO.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CvCam.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFC_CountCircle.cpp">
@@ -90,6 +93,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DlgDO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CvCam.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

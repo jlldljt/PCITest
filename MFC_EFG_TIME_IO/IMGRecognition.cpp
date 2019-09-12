@@ -49,6 +49,10 @@ int CIMGRecognition::readBmp(char* bmpName, unsigned char*& pBmpBuf, int& bmpWid
     fread(pColorTable1, sizeof(RGBQUAD), 256, fp);
     //delete[]  pColorTable1;
   }
+  else
+  {
+    pColorTable1 = NULL;
+  }
   //申请位图数据所需要的空间，读位图数据进内存 
   pBmpBuf = new unsigned char[lineByte * bmpHeight];
   fread(pBmpBuf, 1, lineByte * bmpHeight, fp);
