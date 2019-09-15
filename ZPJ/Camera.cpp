@@ -1330,3 +1330,22 @@ void CCamera::OnEnChangeEdtPnMaxdeg()
   WritePrivateProfileString(_T("方向参数"), _T("最大角"), strValue, gstuPathInf.csPathIni);
   gclsImgRcg.stuRef.PN_bag = nValue;
 }
+
+
+BOOL CCamera::PreTranslateMessage(MSG* pMsg)
+{
+  // TODO: 在此添加专用代码和/或调用基类
+  if (pMsg->message == WM_KEYDOWN)
+  {
+    //判断是否按下键盘Enter键
+    switch (pMsg->wParam)
+    {
+    case VK_RETURN:
+    case VK_ESCAPE:
+      return TRUE;
+    default:
+      break;
+    }
+  }
+  return CDialogEx::PreTranslateMessage(pMsg);
+}

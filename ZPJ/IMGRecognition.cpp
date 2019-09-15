@@ -1916,7 +1916,7 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
       }
       else//一个缺陷结束
       {
-        if (nUnceasNo > unceasallownum)
+        if (nUnceasNo > unceasallownum/2)
         {
           ///////////////////////////////////////////////////////匹配判断方向的折线START////////////////////////////////////////////////////////////////////////////////////////
           int startno, endno, totalouts = 0, outs = 0;//,totalouts总的不在当前线段上的点数
@@ -2097,7 +2097,7 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
 
     //如果最后一个循环，判断是否有折角，防止下一次退出后，该折角不处理
     if (j == outs - 1)
-      if (nUnceasNo > unceasallownum)
+      if (nUnceasNo > unceasallownum/2)
       {
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         int startno, endno, totalouts = 0, outs = 0;//,totalouts总的不在当前线段上的点数

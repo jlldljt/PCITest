@@ -1300,11 +1300,10 @@ BOOL CBERDlg::PreTranslateMessage(MSG* pMsg)
 		//ÅÐ¶ÏÊÇ·ñ°´ÏÂ¼üÅÌEnter¼ü
 		switch(pMsg->wParam)
 		{
-		case VK_RETURN:
-			break;
     case VK_SPACE:
-      g_dlgDevice->EFGCtrl(true);
+      //g_dlgDevice->EFGCtrl(true);
       break;
+		case VK_RETURN:
 		case VK_ESCAPE:
 			//OnCancel();
 			return TRUE;

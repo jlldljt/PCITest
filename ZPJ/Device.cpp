@@ -95,6 +95,8 @@ BEGIN_MESSAGE_MAP(CDevice, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_SNCHGTEST, &CDevice::OnBnClickedBtnSnchgtest)
 	ON_BN_CLICKED(IDC_BTN_SNCHGM, &CDevice::OnBnClickedBtnSnchgm)
   ON_EN_CHANGE(IDC_EDT_SNCHGX, &CDevice::OnEnChangeEdtSnchgx)
+  ON_EN_CHANGE(IDC_EDT_XY2Y, &CDevice::OnEnChangeEdtXy2y)
+//  ON_BN_CLICKED(IDC_BTN_POSSET, &CDevice::OnBnClickedBtnPosset)
 END_MESSAGE_MAP()
 
 
@@ -1480,11 +1482,15 @@ void CDevice::OnBnClickedBtnCom()
 	int l_int=GetDlgItemInt(IDC_EDT_COM,0,0);
 	l_str.Format(_T("%d"),l_int);
 	gclsCom.OpenCom(l_int);
-	if (gclsCom.stuInf.bComOpen)
+	if (true == gclsCom.stuInf.bComOpen)
 	{
 		AfxMessageBox(_T("打开COM，请重启"));
-		WritePrivateProfileString(_T("COM"),_T("口号"),l_str,gstuPathInf.csPathIni);  
 	}
+  else
+  {
+    AfxMessageBox(_T("打开COM失败"));
+  }
+	WritePrivateProfileString(_T("COM"),_T("口号"),l_str,gstuPathInf.csPathIni);  
 	
 }
 
@@ -1733,3 +1739,62 @@ void CDevice::OnEnChangeEdtSnchgx()
 
   // TODO:  在此添加控件通知处理程序代码
 }
+
+
+BOOL CDevice::PreTranslateMessage(MSG* pMsg)
+{
+  // TODO: 在此添加专用代码和/或调用基类
+  if (pMsg->message == WM_KEYDOWN)
+  {
+    //判断是否按下键盘Enter键
+    switch (pMsg->wParam)
+    {
+    case VK_RETURN:
+    case VK_ESCAPE:
+      return TRUE;
+    default:
+      break;
+    }
+  }
+  return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+
+void CDevice::OnEnChangeEdtXy2y()
+{
+  // TODO:  如果该控件是 RICHEDIT 控件，它将不
+  // 发送此通知，除非重写 CDialogEx::OnInitDialog()
+  // 函数并调用 CRichEditCtrl().SetEventMask()，
+  // 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+  // TODO:  在此添加控件通知处理程序代码
+}
+
+
+//void CDevice::OnBnClickedBtnPosset()
+//{
+//  // TODO: 在此添加控件通知处理程序代码
+//  CFileFind findini;
+//  BOOL ifFind = findini.FindFile(gstuPathInf.csPathIni);
+//
+//  if (!ifFind)
+//  {
+//    AfxMessageBox(_T("无配置文件"));
+//    return;
+//  }
+//  
+//  BOOL bFlag = 0;
+//  int nValue = 0;
+//  CString strValue = _T("");
+//  // IDC_EDT_X_TURN1
+//  nValue = GetDlgItemInt(IDC_EDT_X_TURN1, &bFlag, 1);
+//  if (0 == bFlag)
+//  {
+//    AfxMessageBox(_T("error number"));
+//    return;
+//  }
+//  
+//  strValue.Format(_T("%d"), nValue);
+//  WritePrivateProfileString(_T("固定点"), _T("X"), strValue, gstuPathInf.csPathIni);
+//
+//}

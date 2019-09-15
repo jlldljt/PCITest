@@ -109,5 +109,8 @@ public:
 	afx_msg void OnBnClickedBtnSnchgtest();
 	afx_msg void OnBnClickedBtnSnchgm();
   afx_msg void OnEnChangeEdtSnchgx();
+  virtual BOOL PreTranslateMessage(MSG* pMsg);
+  afx_msg void OnEnChangeEdtXy2y();
+//  afx_msg void OnBnClickedBtnPosset();
 };
 extern CDevice *g_dlgDevice;

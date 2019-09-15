@@ -111,7 +111,7 @@ BOOL CBERApp::InitInstance()
 	// 更改用于存储设置的注册表项
 	// TODO: 应适当修改该字符串，
 	// 例如修改为公司或组织名
-	SetRegistryKey(_T("海盛BER"));
+	SetRegistryKey(_T("海盛ZPJ"));
 
 	CBERDlg dlg;
 	m_pMainWnd = &dlg;
