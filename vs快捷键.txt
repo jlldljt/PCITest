@@ -9,3 +9,7 @@ Ctrl+tab：　　　在VS中切换打开的窗口，即切换各个文件
 Ctrl+M, Ctrl+M：展开或关闭当前的代码
 
 F12进入函数定义，CTRL - 回退
+
+选中单词 Ctrl w
+
+选中括号内容 shift alt ]

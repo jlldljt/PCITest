@@ -1761,7 +1761,7 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
 
 
     }
-    else////////////////////////pi_point_no[nexti]<pi_point_no[i]
+    else////////////////////////pi_point_no[nexti]<=pi_point_no[i]
     {
 
       startno = pi_point_no[i] + ((pi_point_no[nexti] + bj_num - pi_point_no[i]) >> 1);//右移优先级低
@@ -1901,6 +1901,7 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
 
     bool in = InOrOut(*(bj_l + i_out_no[j]), *(bj_h + i_out_no[j]), pd_line_a, pd_line_b, pd_line_c);
     if (j > 0)
+    {
       if (i_out_no[j] == i_out_no[j - 1] + 1)//编号延续上一编号，同一缺陷
       {
         if (i_out_len[j] > defectallowlen && i_out_len[j - 1] > defectallowlen)
@@ -1914,9 +1915,10 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
         nEndj = j;
         bIn = in;
       }
-      else//一个缺陷结束
+     // else//一个缺陷结束
+      if(j == outs - 1 || i_out_no[j] != i_out_no[j - 1] + 1)
       {
-        if (nUnceasNo > unceasallownum/2)
+        if (nUnceasNo > unceasallownum / 2)
         {
           ///////////////////////////////////////////////////////匹配判断方向的折线START////////////////////////////////////////////////////////////////////////////////////////
           int startno, endno, totalouts = 0, outs = 0;//,totalouts总的不在当前线段上的点数
@@ -2042,23 +2044,23 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
               break;
             case 0:
               g_stu_square.bPN[g_stu_square.nN] = -1;
-            //计算第一条边与x轴正向的夹角
-            if(g_stu_square.bPN[g_stu_square.nN] != 0)
-              g_stu_square.angreePN[g_stu_square.nN] = CalculateVectorAngle(g_stu_square.pnPX[g_stu_square.nN][nLenNo2]- g_stu_square.pnPX[g_stu_square.nN][nLenNo1],
-                g_stu_square.pnPY[g_stu_square.nN][nLenNo2] - g_stu_square.pnPY[g_stu_square.nN][nLenNo1],
-                1,0);
-            g_stu_square.lenNo1PN[g_stu_square.nN] = nLenNo1;
-            //
+              //计算第一条边与x轴正向的夹角
+              if (g_stu_square.bPN[g_stu_square.nN] != 0)
+                g_stu_square.angreePN[g_stu_square.nN] = CalculateVectorAngle(g_stu_square.pnPX[g_stu_square.nN][nLenNo2] - g_stu_square.pnPX[g_stu_square.nN][nLenNo1],
+                  g_stu_square.pnPY[g_stu_square.nN][nLenNo2] - g_stu_square.pnPY[g_stu_square.nN][nLenNo1],
+                  1, 0);
+              g_stu_square.lenNo1PN[g_stu_square.nN] = nLenNo1;
+              //
               break;
             case 1:
               g_stu_square.bPN[g_stu_square.nN] = 1;
-            //计算第一条边与x轴正向的夹角
-            if(g_stu_square.bPN[g_stu_square.nN] != 0)
-              g_stu_square.angreePN[g_stu_square.nN] = CalculateVectorAngle(g_stu_square.pnPX[g_stu_square.nN][nLenNo2]- g_stu_square.pnPX[g_stu_square.nN][nLenNo1],
-                g_stu_square.pnPY[g_stu_square.nN][nLenNo2] - g_stu_square.pnPY[g_stu_square.nN][nLenNo1],
-                1,0);
-            g_stu_square.lenNo1PN[g_stu_square.nN] = nLenNo1;
-            //
+              //计算第一条边与x轴正向的夹角
+              if (g_stu_square.bPN[g_stu_square.nN] != 0)
+                g_stu_square.angreePN[g_stu_square.nN] = CalculateVectorAngle(g_stu_square.pnPX[g_stu_square.nN][nLenNo2] - g_stu_square.pnPX[g_stu_square.nN][nLenNo1],
+                  g_stu_square.pnPY[g_stu_square.nN][nLenNo2] - g_stu_square.pnPY[g_stu_square.nN][nLenNo1],
+                  1, 0);
+              g_stu_square.lenNo1PN[g_stu_square.nN] = nLenNo1;
+              //
               break;
             default:
               break;
@@ -2086,6 +2088,8 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
         nEndj = j;
         bIn = 0;
       }
+    }
+
     if (unceasouts == unceasallownum)
     {
       if (in)//是方向角，尝试直线拟合
@@ -2096,169 +2100,169 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
     }
 
     //如果最后一个循环，判断是否有折角，防止下一次退出后，该折角不处理
-    if (j == outs - 1)
-      if (nUnceasNo > unceasallownum/2)
-      {
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        int startno, endno, totalouts = 0, outs = 0;//,totalouts总的不在当前线段上的点数
-        double a, b, c, lens;//ax+by+c=0,lens点到直线距离的累加
-        bool bSuccess = 0;
-        if (i_out_no[nEndj] > i_out_no[nBeginj])//
-        {
-          startno = (i_out_no[nEndj] + i_out_no[nBeginj]) >> 1;
-          endno = i_out_no[nEndj] - 1;
-          for (; startno > i_out_no[nBeginj] && endno < i_out_no[nEndj]; startno--, endno--)//找符合直线
-          {
-            if (!CalcEquationABC(bj_l[startno], bj_h[startno], bj_l[endno], bj_h[endno], a, b, c))
-              continue;
-            outs -= totalouts;
-            totalouts = 0;
-            lens = 0;
-            for (int j = i_out_no[nBeginj]; j < i_out_no[nEndj]; j++)//边界点与该直线匹配
-            {
-              double templen = LenFromPtoL(bj_l[j], bj_h[j], a, b, c);
-              if (templen > outpointallowlen)
-              {
-                outs++;
-                totalouts++;
-              }
-              else
-              {
-                lens += templen;
-              }
-              if (outs > bj_num || totalouts > (i_out_no[nEndj] - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
-                break;
-            }
-            if (outs > bj_num)
-              break;
-            if (totalouts > (i_out_no[nEndj] - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
-              continue;
-            else
-            {
-              bSuccess = 1;
-              break;
-            }
-          }
+    //if (j == outs - 1)
+      //if (nUnceasNo > unceasallownum/2)
+      //{
+      //  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //  int startno, endno, totalouts = 0, outs = 0;//,totalouts总的不在当前线段上的点数
+      //  double a, b, c, lens;//ax+by+c=0,lens点到直线距离的累加
+      //  bool bSuccess = 0;
+      //  if (i_out_no[nEndj] > i_out_no[nBeginj])//
+      //  {
+      //    startno = (i_out_no[nEndj] + i_out_no[nBeginj]) >> 1;
+      //    endno = i_out_no[nEndj] - 1;
+      //    for (; startno > i_out_no[nBeginj] && endno < i_out_no[nEndj]; startno--, endno--)//找符合直线
+      //    {
+      //      if (!CalcEquationABC(bj_l[startno], bj_h[startno], bj_l[endno], bj_h[endno], a, b, c))
+      //        continue;
+      //      outs -= totalouts;
+      //      totalouts = 0;
+      //      lens = 0;
+      //      for (int j = i_out_no[nBeginj]; j < i_out_no[nEndj]; j++)//边界点与该直线匹配
+      //      {
+      //        double templen = LenFromPtoL(bj_l[j], bj_h[j], a, b, c);
+      //        if (templen > outpointallowlen)
+      //        {
+      //          outs++;
+      //          totalouts++;
+      //        }
+      //        else
+      //        {
+      //          lens += templen;
+      //        }
+      //        if (outs > bj_num || totalouts > (i_out_no[nEndj] - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
+      //          break;
+      //      }
+      //      if (outs > bj_num)
+      //        break;
+      //      if (totalouts > (i_out_no[nEndj] - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
+      //        continue;
+      //      else
+      //      {
+      //        bSuccess = 1;
+      //        break;
+      //      }
+      //    }
 
 
-        }
-        else//i_out_no[nEndj]<i_out_no[nBeginj]
-        {
+      //  }
+      //  else//i_out_no[nEndj]<i_out_no[nBeginj]
+      //  {
 
-          startno = i_out_no[nBeginj] + ((i_out_no[nEndj] + bj_num - i_out_no[nBeginj]) >> 1);//右移优先级低
-          endno = i_out_no[nEndj] - 1;
-          if (startno >= bj_num)
-            startno = startno - bj_num;
-          if (endno < 0)
-            endno = bj_num + endno;
-          for (; (startno > i_out_no[nBeginj] || startno < i_out_no[nEndj]) && (endno > i_out_no[nBeginj] || endno < i_out_no[nEndj]);
-            startno = (0 == startno) ? bj_num - 1 : (startno - 1), endno = (0 == endno) ? bj_num - 1 : (endno - 1))//找符合直线
-          {
-            if (!CalcEquationABC(bj_l[startno], bj_h[startno], bj_l[endno], bj_h[endno], a, b, c))
-              continue;
-            outs -= totalouts;
-            totalouts = 0;
-            lens = 0;
-            for (int j = i_out_no[nBeginj];
-              j < bj_num && j >= i_out_no[nBeginj] || j <= i_out_no[nEndj];
-              j = (bj_num == j + 1) ? 0 : (j + 1))//边界点与该直线匹配
-            {
-              double templen = LenFromPtoL(bj_l[j], bj_h[j], a, b, c);
-              if (templen > outpointallowlen)//是否超过规定的距离
-              {
-                outs++;
-                totalouts++;
-              }
-              else
-              {
-                lens += templen;
-              }
-              if (outs > bj_num || totalouts > (i_out_no[nEndj] + bj_num - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] + bj_num - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] + bj_num - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
-                break;
-            }
-            if (outs > bj_num)
-              break;
-            if (totalouts > (i_out_no[nEndj] + bj_num - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] + bj_num - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] + bj_num - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
-              continue;
-            else
-            {
-              bSuccess = 1;
-              break;
-            }
-          }
-        }
-        //找所属角
-        if (bSuccess)
-        {
-          int nLenNo1, nLenNo2;//保存折线所在边的编号
-          if (pnOutLnNo[nBeginj] == pnOutLnNo[nEndj])
-          {
-            int nLenNo = pnOutLnNo[nBeginj];//保存第几条线段0~3
-            int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
-            int nDstnBegin = i_out_no[nBeginj] >= pi_point_no[nLenNo] ? i_out_no[nBeginj] - pi_point_no[nLenNo] : i_out_no[nBeginj] + bj_num - pi_point_no[nLenNo];//这条折线开始点到该折线所在线段的开始点之间的距离
-            int nDstnEnd = pi_point_no[nLenNoNext] >= i_out_no[nEndj] ? pi_point_no[nLenNoNext] - i_out_no[nEndj] : pi_point_no[nLenNoNext] + bj_num - i_out_no[nEndj];//这条折线结束点到该折线所在线段的结束点之间的距离
-            if (nDstnBegin > nDstnEnd)
-            {
-              nLenNo1 = nLenNo;
-              nLenNo2 = nLenNoNext;
-            }
-            else
-            {
-              nLenNo2 = nLenNo;
-              nLenNo1 = (0 == nLenNo) ? 3 : (nLenNo - 1);
-            }
-          }
-          else
-          {
-            nLenNo1 = pnOutLnNo[nBeginj];
-            nLenNo2 = pnOutLnNo[nEndj];
-          }
+      //    startno = i_out_no[nBeginj] + ((i_out_no[nEndj] + bj_num - i_out_no[nBeginj]) >> 1);//右移优先级低
+      //    endno = i_out_no[nEndj] - 1;
+      //    if (startno >= bj_num)
+      //      startno = startno - bj_num;
+      //    if (endno < 0)
+      //      endno = bj_num + endno;
+      //    for (; (startno > i_out_no[nBeginj] || startno < i_out_no[nEndj]) && (endno > i_out_no[nBeginj] || endno < i_out_no[nEndj]);
+      //      startno = (0 == startno) ? bj_num - 1 : (startno - 1), endno = (0 == endno) ? bj_num - 1 : (endno - 1))//找符合直线
+      //    {
+      //      if (!CalcEquationABC(bj_l[startno], bj_h[startno], bj_l[endno], bj_h[endno], a, b, c))
+      //        continue;
+      //      outs -= totalouts;
+      //      totalouts = 0;
+      //      lens = 0;
+      //      for (int j = i_out_no[nBeginj];
+      //        j < bj_num && j >= i_out_no[nBeginj] || j <= i_out_no[nEndj];
+      //        j = (bj_num == j + 1) ? 0 : (j + 1))//边界点与该直线匹配
+      //      {
+      //        double templen = LenFromPtoL(bj_l[j], bj_h[j], a, b, c);
+      //        if (templen > outpointallowlen)//是否超过规定的距离
+      //        {
+      //          outs++;
+      //          totalouts++;
+      //        }
+      //        else
+      //        {
+      //          lens += templen;
+      //        }
+      //        if (outs > bj_num || totalouts > (i_out_no[nEndj] + bj_num - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] + bj_num - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] + bj_num - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
+      //          break;
+      //      }
+      //      if (outs > bj_num)
+      //        break;
+      //      if (totalouts > (i_out_no[nEndj] + bj_num - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] + bj_num - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] + bj_num - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
+      //        continue;
+      //      else
+      //      {
+      //        bSuccess = 1;
+      //        break;
+      //      }
+      //    }
+      //  }
+      //  //找所属角
+      //  if (bSuccess)
+      //  {
+      //    int nLenNo1, nLenNo2;//保存折线所在边的编号
+      //    if (pnOutLnNo[nBeginj] == pnOutLnNo[nEndj])
+      //    {
+      //      int nLenNo = pnOutLnNo[nBeginj];//保存第几条线段0~3
+      //      int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
+      //      int nDstnBegin = i_out_no[nBeginj] >= pi_point_no[nLenNo] ? i_out_no[nBeginj] - pi_point_no[nLenNo] : i_out_no[nBeginj] + bj_num - pi_point_no[nLenNo];//这条折线开始点到该折线所在线段的开始点之间的距离
+      //      int nDstnEnd = pi_point_no[nLenNoNext] >= i_out_no[nEndj] ? pi_point_no[nLenNoNext] - i_out_no[nEndj] : pi_point_no[nLenNoNext] + bj_num - i_out_no[nEndj];//这条折线结束点到该折线所在线段的结束点之间的距离
+      //      if (nDstnBegin > nDstnEnd)
+      //      {
+      //        nLenNo1 = nLenNo;
+      //        nLenNo2 = nLenNoNext;
+      //      }
+      //      else
+      //      {
+      //        nLenNo2 = nLenNo;
+      //        nLenNo1 = (0 == nLenNo) ? 3 : (nLenNo - 1);
+      //      }
+      //    }
+      //    else
+      //    {
+      //      nLenNo1 = pnOutLnNo[nBeginj];
+      //      nLenNo2 = pnOutLnNo[nEndj];
+      //    }
 
-          switch (IsPositiveOrNegative(a, b, c, nLenNo1, nLenNo2))
-          {
-          case -1:
-            //g_stu_square.bPN[g_stu_square.nN]=0;
-            break;
-          case 0:
-            g_stu_square.bPN[g_stu_square.nN] = -1;
-          //计算第一条边与x轴正向的夹角
-          if (g_stu_square.bPN[g_stu_square.nN] != 0)
-            g_stu_square.angreePN[g_stu_square.nN] = CalculateVectorAngle(g_stu_square.pnPX[g_stu_square.nN][nLenNo2] - g_stu_square.pnPX[g_stu_square.nN][nLenNo1],
-              g_stu_square.pnPY[g_stu_square.nN][nLenNo2] - g_stu_square.pnPY[g_stu_square.nN][nLenNo1],
-              1, 0);
-          g_stu_square.lenNo1PN[g_stu_square.nN] = nLenNo1;
-          //
-            break;
-          case 1:
-            g_stu_square.bPN[g_stu_square.nN] = 1;
-          //计算第一条边与x轴正向的夹角
-          if (g_stu_square.bPN[g_stu_square.nN] != 0)
-            g_stu_square.angreePN[g_stu_square.nN] = CalculateVectorAngle(g_stu_square.pnPX[g_stu_square.nN][nLenNo2] - g_stu_square.pnPX[g_stu_square.nN][nLenNo1],
-              g_stu_square.pnPY[g_stu_square.nN][nLenNo2] - g_stu_square.pnPY[g_stu_square.nN][nLenNo1],
-              1, 0);
-          g_stu_square.lenNo1PN[g_stu_square.nN] = nLenNo1;
-          //
-            break;
-          default:
-            break;
-          }
-          if (g_stu_square.debug)
-          {
-            for (int j = 1; j < bmpWidth - 2; j++)//特征之一：边的线x
-            {
-              if (fabs(a) < fabs(b))//用于图像上显示
-                data_bmp_set_color(pBmpBuf, biBitCount, bmpWidth, bmpHeight, 0 == b ? 0 : int(-(a * j + c) / b), 0 == b ? int(-c / a) : j, 255, 255, 0);
-            }
+      //    switch (IsPositiveOrNegative(a, b, c, nLenNo1, nLenNo2))
+      //    {
+      //    case -1:
+      //      //g_stu_square.bPN[g_stu_square.nN]=0;
+      //      break;
+      //    case 0:
+      //      g_stu_square.bPN[g_stu_square.nN] = -1;
+      //    //计算第一条边与x轴正向的夹角
+      //    if (g_stu_square.bPN[g_stu_square.nN] != 0)
+      //      g_stu_square.angreePN[g_stu_square.nN] = CalculateVectorAngle(g_stu_square.pnPX[g_stu_square.nN][nLenNo2] - g_stu_square.pnPX[g_stu_square.nN][nLenNo1],
+      //        g_stu_square.pnPY[g_stu_square.nN][nLenNo2] - g_stu_square.pnPY[g_stu_square.nN][nLenNo1],
+      //        1, 0);
+      //    g_stu_square.lenNo1PN[g_stu_square.nN] = nLenNo1;
+      //    //
+      //      break;
+      //    case 1:
+      //      g_stu_square.bPN[g_stu_square.nN] = 1;
+      //    //计算第一条边与x轴正向的夹角
+      //    if (g_stu_square.bPN[g_stu_square.nN] != 0)
+      //      g_stu_square.angreePN[g_stu_square.nN] = CalculateVectorAngle(g_stu_square.pnPX[g_stu_square.nN][nLenNo2] - g_stu_square.pnPX[g_stu_square.nN][nLenNo1],
+      //        g_stu_square.pnPY[g_stu_square.nN][nLenNo2] - g_stu_square.pnPY[g_stu_square.nN][nLenNo1],
+      //        1, 0);
+      //    g_stu_square.lenNo1PN[g_stu_square.nN] = nLenNo1;
+      //    //
+      //      break;
+      //    default:
+      //      break;
+      //    }
+      //    if (g_stu_square.debug)
+      //    {
+      //      for (int j = 1; j < bmpWidth - 2; j++)//特征之一：边的线x
+      //      {
+      //        if (fabs(a) < fabs(b))//用于图像上显示
+      //          data_bmp_set_color(pBmpBuf, biBitCount, bmpWidth, bmpHeight, 0 == b ? 0 : int(-(a * j + c) / b), 0 == b ? int(-c / a) : j, 255, 255, 0);
+      //      }
 
-            for (int j = 1; j < bmpHeight - 2; j++)//特征之一：边的线y
-            {
-              if (fabs(a) >= fabs(b))
-                data_bmp_set_color(pBmpBuf, biBitCount, bmpWidth, bmpHeight, 0 == a ? int(-c / b) : j, 0 == a ? 0 : int(-(b * j + c) / a), 255, 255, 0);
-            }
-          }
-        }
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      }
+      //      for (int j = 1; j < bmpHeight - 2; j++)//特征之一：边的线y
+      //      {
+      //        if (fabs(a) >= fabs(b))
+      //          data_bmp_set_color(pBmpBuf, biBitCount, bmpWidth, bmpHeight, 0 == a ? int(-c / b) : j, 0 == a ? 0 : int(-(b * j + c) / a), 255, 255, 0);
+      //      }
+      //    }
+      //  }
+      //  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //}
 
   }
   //保存到结构
