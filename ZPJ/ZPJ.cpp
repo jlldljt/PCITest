@@ -1212,7 +1212,8 @@ void TranNpcParam(NpcParm* parm)
   parm->x = gstuRcgInfo.g_factor[0][0] * parm->x0 + gstuRcgInfo.g_factor[0][1] * parm->y0 + gstuRcgInfo.g_factor[0][2] + 0.5;
   parm->y = gstuRcgInfo.g_factor[1][0] * parm->x0 + gstuRcgInfo.g_factor[1][1] * parm->y0 + gstuRcgInfo.g_factor[1][2] + 0.5;
   parm->deg = parm->deg0 * Z_P_PER_DEG + Z_S+0.5;
-  parm->pn = parm->pn0+0.5;
+  parm->deg = parm->deg - (parm->deg / Z_P) * Z_P;
+  parm->pn = parm->pn0;
 
 }
 //计算光轴平均值及标准方程
