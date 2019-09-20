@@ -49,6 +49,11 @@
 #define VAR_STATUS g_npc_inf.var_x3
 #define VAR_DEG g_npc_inf.var_y1
 #define VAR_PN g_npc_inf.var_y2
+#define VAR_BELT g_npc_inf.var7
+#define VAR_DEFPN g_npc_inf.var8
+#define VAR_CUT g_npc_inf.var9
+
+#define VAR_TURNTABLE g_npc_inf.var_y3//规定PN的筛选值
 
 #define NPC_ID g_npc_inf.var_sortup
 #define Z_P g_npc_inf.var_sortin  //z轴一圈的脉冲数
@@ -57,8 +62,7 @@
 
 #define VAR_NUM g_npc_inf.var_sortdown
 
-#define PN_DEF g_npc_inf.var_y3//规定PN的筛选值
-
+//#define PN_DEF g_npc_inf.var_y3//规定PN的筛选值
 
 class CBERApp : public CWinApp
 {

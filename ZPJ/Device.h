@@ -31,11 +31,20 @@ public:
   int DegPNSend(int degree, int pn);
   int StatusGet(int& status);
   int StatusSet(int status);
+  int TurnTableStatGet(int& status);
+  int TurnTableStatSet(int status);
+  int BeltGet(int& status);
+  int BeltSet(int status);
+  int DefPNGet(int& status);
+  int DefPNSet(int status);
+  int CutGet(int& status);
+  int CutSet(int status);
 	void SortSend(char num);
 	bool EasyPosSet();
 	void EFGStaSel(char nN);
 	int nListSel;//标记点中的list中的编号
 
+  CToolTipCtrl m_tt;
 
 // 对话框数据
 	enum { IDD = IDD_DIALOG_DEVICE };
@@ -112,5 +121,13 @@ public:
   virtual BOOL PreTranslateMessage(MSG* pMsg);
   afx_msg void OnEnChangeEdtXy2y();
 //  afx_msg void OnBnClickedBtnPosset();
+//  afx_msg void OnBnClickedBtnPosset();
+  afx_msg void OnBnClickedBtnXOffsetSet();
+//  afx_msg void OnBnClickedBtnYOffsetSet();
+  virtual BOOL OnInitDialog();
+  afx_msg void OnBnClickedBtnVar7();
+  afx_msg void OnBnClickedBtnVar8();
+  afx_msg void OnBnClickedBtnVar9();
+  afx_msg void OnBnClickedBtnVar10();
 };
 extern CDevice *g_dlgDevice;

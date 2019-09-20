@@ -169,9 +169,13 @@ typedef struct tagNpcInf
 {
   int var_x1, var_x2, var_x3;
   int var_y1, var_y2, var_y3;
+  int var7, var8, var9, var10;
   int var_sortup, var_sortin, var_sortout, var_sortdown;
 
-  int left, top, right, bottom;
+  int offset_x1, offset_y1;//xyµç»úÆ«ÒÆ²¹³¥<°ëÈ¦
+  int offset_x2, offset_y2;//xyµç»úÆ«ÒÆ²¹³¥>°ëÈ¦
+  int offset_p, offset_n;//
+  int left, top, right, bottom;//¿ÉÑ¡·¶Î§
 }NpcInf;
 
 typedef struct tagNpcParm

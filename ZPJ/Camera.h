@@ -55,5 +55,8 @@ public:
   afx_msg void OnEnChangeEdtPnMindeg();
   afx_msg void OnEnChangeEdtPnMaxdeg();
   virtual BOOL PreTranslateMessage(MSG* pMsg);
+  afx_msg void OnBnClickedChkBelt();
+  afx_msg void OnBnClickedChkDefpn();
+  afx_msg void OnBnClickedChkCut();
 };
 extern CCamera *g_dlgCamera;

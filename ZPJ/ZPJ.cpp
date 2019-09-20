@@ -911,7 +911,9 @@ UINT Thread_Auto(LPVOID pParam)
   int nWidth, nHeight;
   int nBitCount;
   int nBitsPerSample;
-  int takeCnt = 0;
+  int takeCnt = 0; 
+  int turnTableCnt = 0;
+  int status = -1;
 
   pdlg->GetDlgItem(IDC_BTN_AUTO)->EnableWindow(TRUE);
 
@@ -949,10 +951,36 @@ UINT Thread_Auto(LPVOID pParam)
     TimeRecord(3, 0);//识别结束，计时结束
     //=====================================================传输开始===============================================================
 
-    for (int i = 0; i < gclsImgRcg.g_stu_square.nN; i++)
+    //if (0 == gclsImgRcg.g_stu_square.nN)
+    //{
+    //  // 指示plc转圈圈
+    //  turnTableCnt++;
+    //  g_dlgDevice->TurnTableStatSet(turnTableCnt);
+
+    //  CString csTmp;
+    //  csTmp.Format(_T("无"));
+    //  pdlg->GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
+
+    //  csTmp.Format(_T("等待plc转圈"));
+    //  pdlg->GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
+
+    //  do {
+    //    g_dlgDevice->TurnTableStatGet(status);
+    //  } while (status && RUN_STAT_RUN == gstuRun.unStatRun);
+
+    //  continue;
+    //}
+
+    //turnTableCnt = 0;
+    int i;
+
+    for (i = 0; i < gclsImgRcg.g_stu_square.nN; i++)
     {
       /*if (PN_DEF != gclsImgRcg.g_stu_square.bPN[i])
         continue;*/
+      if (0 == gclsImgRcg.g_stu_square.bPN[i])
+          continue;
+
       if (
         gclsImgRcg.g_stu_square.pnZPX[i] < g_npc_inf.left ||
         gclsImgRcg.g_stu_square.pnZPX[i] > g_npc_inf.right ||
@@ -971,9 +999,10 @@ UINT Thread_Auto(LPVOID pParam)
         continue;
       }
 
+
+      turnTableCnt = 0;
+
       NpcParm par;
-
-
       //
       POINT pPoint[5];
       for (int j = 0; j < 4; j++)
@@ -1005,12 +1034,47 @@ UINT Thread_Auto(LPVOID pParam)
       pdlg->GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
 
       //发送参数
-      while (0 != g_dlgDevice->ParamMove(par.x, par.y, par.deg, par.pn))
+      while (0 != g_dlgDevice->ParamMove(par.x, par.y, par.deg, par.pn) && RUN_STAT_RUN == gstuRun.unStatRun)
       {
         Sleep(1000);
       }
 
+      csTmp.Format(_T("发送坐标完成"));
+      pdlg->GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
+      // 等待电机作业回零完成
+     
+      do {
+        status = -1;
+        g_dlgDevice->StatusGet(status);
+        Sleep(500);
+      } while (0 != status && RUN_STAT_RUN == gstuRun.unStatRun);
+
+      csTmp.Format(_T("等待取片作业完成"));
+      pdlg->GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
+
+      break;//取了片之后盘面会抖，重新拍照
     }//for (int i = 0; i < gclsImgRcg.g_stu_square.nN; i++)
+
+    if (i >= gclsImgRcg.g_stu_square.nN)
+    {
+      // 指示plc转圈圈
+      turnTableCnt++;
+      g_dlgDevice->TurnTableStatSet(turnTableCnt);
+
+      CString csTmp;
+      csTmp.Format(_T("无"));
+      pdlg->GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
+
+      csTmp.Format(_T("等待plc转圈"));
+      pdlg->GetDlgItem(IDC_SELECT_XY)->SetWindowText(csTmp);
+
+      do {
+        g_dlgDevice->TurnTableStatGet(status);
+      } while (status && RUN_STAT_RUN == gstuRun.unStatRun);
+
+      continue;
+    }
+
 
   }//while (gstuRun.unStatRun == RUN_STAT_RUN)
   pdlg->GetDlgItem(IDC_BTN_AUTO)->EnableWindow(TRUE);
@@ -1211,9 +1275,34 @@ void TranNpcParam(NpcParm* parm)
 
   parm->x = gstuRcgInfo.g_factor[0][0] * parm->x0 + gstuRcgInfo.g_factor[0][1] * parm->y0 + gstuRcgInfo.g_factor[0][2] + 0.5;
   parm->y = gstuRcgInfo.g_factor[1][0] * parm->x0 + gstuRcgInfo.g_factor[1][1] * parm->y0 + gstuRcgInfo.g_factor[1][2] + 0.5;
+
+
   parm->deg = parm->deg0 * Z_P_PER_DEG + Z_S+0.5;
+
+  parm->pn = -parm->pn0;
+
+  if (parm->pn > 0)
+  {
+    parm->deg += g_npc_inf.offset_p;
+  }
+  else if (parm->pn < 0)
+  {
+    parm->deg += g_npc_inf.offset_n;
+  }
+
   parm->deg = parm->deg - (parm->deg / Z_P) * Z_P;
-  parm->pn = parm->pn0;
+
+  if (parm->deg < Z_P)
+  {
+    parm->x += g_npc_inf.offset_x1;
+    parm->y += g_npc_inf.offset_y1;
+  }
+  else
+  {
+    parm->x += g_npc_inf.offset_x2;
+    parm->y += g_npc_inf.offset_y2;
+  }
+
 
 }
 //计算光轴平均值及标准方程

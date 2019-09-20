@@ -621,6 +621,7 @@ BOOL CBERDlg::DBGInit()
 	//com初始化
 	int l_int=GetPrivateProfileInt(_T("COM"),_T("口号"),0,gstuPathInf.csPathIni);
 	gclsCom.OpenCom(l_int);
+
 	if(gclsCom.stuInf.bComOpen)
 	{
 		//SetTimer(READ_COM, 10, NULL);
@@ -631,6 +632,10 @@ BOOL CBERDlg::DBGInit()
     //gTrdCom->m_bAutoDelete = TRUE;
     //gTrdCom->ResumeThread();
 	}
+  else
+  {
+    AfxMessageBox(_T("打开COM失败"));
+  }
 	//ini文件初始化或读取
 	CString strValue;
 	///////////////
@@ -701,6 +706,24 @@ BOOL CBERDlg::DBGInit()
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_XY3Y,iniint);
     g_npc_inf.var_y3 = iniint;
 
+
+    iniint = GetPrivateProfileInt(_T("变量设置"), _T("VAR7"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_VAR7, iniint);
+    g_npc_inf.var7 = iniint;
+
+
+    iniint = GetPrivateProfileInt(_T("变量设置"), _T("VAR8"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_VAR8, iniint);
+    g_npc_inf.var8 = iniint;
+
+    iniint = GetPrivateProfileInt(_T("变量设置"), _T("VAR9"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_VAR9, iniint);
+    g_npc_inf.var9 = iniint;
+
+    iniint = GetPrivateProfileInt(_T("变量设置"), _T("VAR10"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_VAR10, iniint);
+    g_npc_inf.var10 = iniint;
+
 		iniint=GetPrivateProfileInt(_T("换片位置"),_T("上料中转"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_SORTUP,iniint);
     g_npc_inf.var_sortup = iniint;
@@ -716,6 +739,35 @@ BOOL CBERDlg::DBGInit()
 		iniint=GetPrivateProfileInt(_T("换片位置"),_T("下料中转"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_SORTDOWN,iniint);
     g_npc_inf.var_sortdown = iniint;
+
+
+    iniint = GetPrivateProfileInt(_T("偏移补偿"), _T("X"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_X_OFFSET, iniint);
+    g_npc_inf.offset_x1 = iniint;
+
+
+    iniint = GetPrivateProfileInt(_T("偏移补偿"), _T("Y"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_Y_OFFSET, iniint);
+    g_npc_inf.offset_y1 = iniint;
+
+
+    iniint = GetPrivateProfileInt(_T("偏移补偿"), _T("X2"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_X_OFFSET2, iniint);
+    g_npc_inf.offset_x2 = iniint;
+
+
+    iniint = GetPrivateProfileInt(_T("偏移补偿"), _T("Y2"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_Y_OFFSET2, iniint);
+    g_npc_inf.offset_y2 = iniint;
+
+    iniint = GetPrivateProfileInt(_T("偏移补偿"), _T("P"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_P_OFFSET, iniint);
+    g_npc_inf.offset_p = iniint;
+
+    iniint = GetPrivateProfileInt(_T("偏移补偿"), _T("N"), 0, gstuPathInf.csPathIni);
+    g_dlgDevice->SetDlgItemInt(IDC_EDT_N_OFFSET, iniint);
+    g_npc_inf.offset_n = iniint;
+
 
 
 		iniint=GetPrivateProfileInt(_T("取片校准点"),_T("1X"),0,gstuPathInf.csPathIni);
@@ -738,7 +790,7 @@ BOOL CBERDlg::DBGInit()
 		gstuRcgInfo.nClbPosY[2] = iniint;
 
 		iniint=GetPrivateProfileInt(_T("换吸头点"),_T("X"),0,gstuPathInf.csPathIni);
-		g_dlgDevice->SetDlgItemInt(IDC_EDT_SNCHGX,iniint);
+		//g_dlgDevice->SetDlgItemInt(IDC_EDT_SNCHGX,iniint);
 		gstuRcgInfo.nSNCHGX = iniint;
 		iniint=GetPrivateProfileInt(_T("换吸头点"),_T("Y"),0,gstuPathInf.csPathIni);
 		g_dlgDevice->SetDlgItemInt(IDC_EDT_SNCHGY,iniint);

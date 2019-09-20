@@ -80,6 +80,9 @@ ON_EN_CHANGE(IDC_EDT_SQU_MINDEG, &CCamera::OnEnChangeEdtSquMindeg)
 ON_EN_CHANGE(IDC_EDT_SQU_MAXDEG, &CCamera::OnEnChangeEdtSquMaxdeg)
 ON_EN_CHANGE(IDC_EDT_PN_MINDEG, &CCamera::OnEnChangeEdtPnMindeg)
 ON_EN_CHANGE(IDC_EDT_PN_MAXDEG, &CCamera::OnEnChangeEdtPnMaxdeg)
+ON_BN_CLICKED(IDC_CHK_BELT, &CCamera::OnBnClickedChkBelt)
+ON_BN_CLICKED(IDC_CHK_DEFPN, &CCamera::OnBnClickedChkDefpn)
+ON_BN_CLICKED(IDC_CHK_CUT, &CCamera::OnBnClickedChkCut)
 END_MESSAGE_MAP()
 
 
@@ -395,6 +398,25 @@ BOOL CCamera::OnInitDialog()
 	SetBrushOrgEx(mDCMem->m_hDC, 0, 0, NULL);
 	pWnd->ReleaseDC(pDC);
 	//mDCMem->CreateCompatibleDC(GetDlgItem(IDC_PREVIEW)->GetDC());
+
+
+  // 界面初始化
+  GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
+  GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(FALSE);
+  GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(FALSE);
+  GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(FALSE);
+  GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
+  GetDlgItem(IDC_BTN_CALIBRATION)->EnableWindow(FALSE);
+  GetDlgItem(IDC_EDT_OUTPALLOWL)->EnableWindow(FALSE);
+  GetDlgItem(IDC_EDT_THRESHOLD)->EnableWindow(FALSE);
+  GetDlgItem(IDC_EDT_FTOUTPOINT)->EnableWindow(FALSE);
+  GetDlgItem(IDC_EDT_SQU_MINDEG)->EnableWindow(FALSE);
+  GetDlgItem(IDC_EDT_SQU_MAXDEG)->EnableWindow(FALSE);
+  GetDlgItem(IDC_EDT_PN_MINDEG)->EnableWindow(FALSE);
+  GetDlgItem(IDC_EDT_PN_MAXDEG)->EnableWindow(FALSE);
+  CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_DEFPN);
+  pChk->SetCheck(1);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -973,11 +995,37 @@ void CCamera::OnBnClickedChkDebug()
 	int nStat = pChk->GetCheck();
 	if (nStat)
 	{
-		gstuRcgInfo.bDebug = 1;
+		//gstuRcgInfo.bDebug = 1;
+    GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(TRUE);
+    GetDlgItem(IDC_BTN_CALIBRATION)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDT_OUTPALLOWL)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDT_THRESHOLD)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDT_FTOUTPOINT)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDT_SQU_MINDEG)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDT_SQU_MAXDEG)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDT_PN_MINDEG)->EnableWindow(TRUE);
+    GetDlgItem(IDC_EDT_PN_MAXDEG)->EnableWindow(TRUE);
 	} 
 	else
 	{
-		gstuRcgInfo.bDebug = 0;
+		//gstuRcgInfo.bDebug = 0;
+    GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
+    GetDlgItem(IDC_BTN_CALIBRATION)->EnableWindow(FALSE);
+    GetDlgItem(IDC_EDT_OUTPALLOWL)->EnableWindow(FALSE);
+    GetDlgItem(IDC_EDT_THRESHOLD)->EnableWindow(FALSE);
+    GetDlgItem(IDC_EDT_FTOUTPOINT)->EnableWindow(FALSE);
+    GetDlgItem(IDC_EDT_SQU_MINDEG)->EnableWindow(FALSE);
+    GetDlgItem(IDC_EDT_SQU_MAXDEG)->EnableWindow(FALSE);
+    GetDlgItem(IDC_EDT_PN_MINDEG)->EnableWindow(FALSE);
+    GetDlgItem(IDC_EDT_PN_MAXDEG)->EnableWindow(FALSE);
 	}
 }
 
@@ -1135,6 +1183,11 @@ void CCamera::OnBnClickedBtnParmsend()
 
   //m_clked_pos_x = X;
   //m_clked_pos_y = Y;m_par
+  if (m_par.pn == 0)
+  {
+    AfxMessageBox(_T("方向是0，请选择方向是±1的片"));
+    return;
+  }
   if (0 == g_dlgDevice->ParamMove(m_par.x, m_par.y, m_par.deg, m_par.pn))
   {
     AfxMessageBox(_T("发送成功"));
@@ -1156,6 +1209,14 @@ void CCamera::OnBnClickedBtnAuto()
   ((CButton*)GetDlgItem(IDC_BTN_AUTO))->EnableWindow(FALSE);
   if ("自动" == str)
   {
+    if (gclsImgRcg.stuRef.Len == 0 || gclsImgRcg.stuRef.Wth == 0)
+    {
+      AfxMessageBox(_T("请在识别完成后，选择一个片作为标准片"));
+      ((CButton*)GetDlgItem(IDC_BTN_AUTO))->EnableWindow(TRUE);
+      return;
+    }
+
+
     if (!gb_PlayOrNot[1])
     {
       gb_PlayOrNot[1] = 1;
@@ -1348,4 +1409,52 @@ BOOL CCamera::PreTranslateMessage(MSG* pMsg)
     }
   }
   return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+
+void CCamera::OnBnClickedChkBelt()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_BELT);
+  int nStat = pChk->GetCheck();
+  if (nStat)
+  {
+    SetDlgItemText(IDC_CHK_BELT, _T("拉胶带"));
+    g_dlgDevice->BeltSet(1);
+  }
+  else
+  {
+    SetDlgItemText(IDC_CHK_BELT, _T("不拉胶"));
+    g_dlgDevice->BeltSet(0);
+  }
+}
+
+
+void CCamera::OnBnClickedChkDefpn()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_DEFPN);
+  int nStat = pChk->GetCheck();
+  if (nStat)
+  {
+    SetDlgItemText(IDC_CHK_DEFPN,_T("测正"));
+    g_dlgDevice->DefPNSet(1);
+  }
+  else
+  {
+    SetDlgItemText(IDC_CHK_DEFPN, _T("测反"));
+    g_dlgDevice->DefPNSet(-1);
+  }
+}
+
+
+void CCamera::OnBnClickedChkCut()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_CUT);
+
+  g_dlgDevice->CutSet(1);
+
+  pChk->SetCheck(0);
+  
 }
