@@ -1059,7 +1059,7 @@ UINT Thread_Auto(LPVOID pParam)
     {
       // 指示plc转圈圈
       turnTableCnt++;
-      g_dlgDevice->TurnTableStatSet(turnTableCnt);
+      g_dlgDevice->TurnTableStatSet(1/*turnTableCnt*/);
 
       CString csTmp;
       csTmp.Format(_T("无"));

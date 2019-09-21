@@ -995,7 +995,7 @@ void CCamera::OnBnClickedChkDebug()
 	int nStat = pChk->GetCheck();
 	if (nStat)
 	{
-		//gstuRcgInfo.bDebug = 1;
+		gstuRcgInfo.bDebug = 1;
     GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(TRUE);
     GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(TRUE);
     GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(TRUE);
@@ -1012,7 +1012,7 @@ void CCamera::OnBnClickedChkDebug()
 	} 
 	else
 	{
-		//gstuRcgInfo.bDebug = 0;
+		gstuRcgInfo.bDebug = 0;
     GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
     GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(FALSE);
     GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(FALSE);

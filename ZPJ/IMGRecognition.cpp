@@ -1686,10 +1686,12 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
   if (g_stu_square.debug)
     for (int i = 0; i < i_point_num; i++)//特征之一：顶点
       data_bmp_set_color(pBmpBuf, biBitCount, bmpWidth, bmpHeight, pi_point_h[i], pi_point_l[i], 0, 255, 0);
+
   if (i_point_num != 4)
   {
     return 1;//形状有问题
   }
+
   double* pd_line_a, * pd_line_b, * pd_line_c;
   int successequationnum = 0, outs = 0, * i_out_no = NULL, * pnOutLnNo = NULL;//outs总的不在线段上的点数
   double* i_out_len = NULL;
@@ -1699,6 +1701,7 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
   pd_line_a = new double[4];
   pd_line_b = new double[4];
   pd_line_c = new double[4];
+
   for (int i = 0; i < 4; i++)//拟合线段
   {
     //g_stu_square.i_maxlen_defect=0;
@@ -1710,13 +1713,16 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
     {
       startno = (pi_point_no[nexti] + pi_point_no[i]) >> 1;
       endno = pi_point_no[nexti] - 1;
+
       for (; startno > pi_point_no[i] && endno < pi_point_no[nexti]; startno--, endno--)//找符合直线
       {
         if (!CalcEquationABC(bj_l[startno], bj_h[startno], bj_l[endno], bj_h[endno], a, b, c))
           continue;
+
         outs -= totalouts;
         totalouts = 0;
         lens = 0;
+
         for (int j = pi_point_no[i]; j < pi_point_no[nexti]; j++)//边界点与该直线匹配
         {
           double templen = LenFromPtoL(bj_l[j], bj_h[j], a, b, c);
@@ -1737,8 +1743,10 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
           if (outs > bj_num || totalouts > (pi_point_no[nexti] - pi_point_no[i]) >> 1 || (int)lens > (((pi_point_no[nexti] - pi_point_no[i] + 1 - totalouts) * (outpointallowlen) >> 2) + ((pi_point_no[nexti] - pi_point_no[i] + 1 - totalouts) >> 6)))
             break;
         }
+
         if (outs > bj_num)
           break;
+
         if (totalouts > (pi_point_no[nexti] - pi_point_no[i]) >> 1 || (int)lens > (((pi_point_no[nexti] - pi_point_no[i] + 1 - totalouts) * (outpointallowlen) >> 2) + ((pi_point_no[nexti] - pi_point_no[i] + 1 - totalouts) >> 6)))
           continue;
         else
@@ -1763,26 +1771,31 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
     }
     else////////////////////////pi_point_no[nexti]<=pi_point_no[i]
     {
-
       startno = pi_point_no[i] + ((pi_point_no[nexti] + bj_num - pi_point_no[i]) >> 1);//右移优先级低
       endno = pi_point_no[nexti] - 1;
+
       if (startno >= bj_num)
         startno = startno - bj_num;
+
       if (endno < 0)
         endno = bj_num + endno;
+
       for (; (startno > pi_point_no[i] || startno < pi_point_no[nexti]) && (endno > pi_point_no[i] || endno < pi_point_no[nexti]);
         startno = (0 == startno) ? bj_num - 1 : (startno - 1), endno = (0 == endno) ? bj_num - 1 : (endno - 1))//找符合直线
       {
         if (!CalcEquationABC(bj_l[startno], bj_h[startno], bj_l[endno], bj_h[endno], a, b, c))
           continue;
+
         outs -= totalouts;
         totalouts = 0;
         lens = 0;
+
         for (int j = pi_point_no[i];
           j < bj_num && j >= pi_point_no[i] || j <= pi_point_no[nexti];
           j = (bj_num == j + 1) ? 0 : (j + 1))//边界点与该直线匹配
         {
           double templen = LenFromPtoL(bj_l[j], bj_h[j], a, b, c);
+
           if (templen > outpointallowlen)//是否超过规定的距离
           {
             i_out_no[outs] = j;
@@ -1800,8 +1813,10 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
           if (outs > bj_num || totalouts > (pi_point_no[nexti] + bj_num - pi_point_no[i]) >> 1 || (int)lens > (((pi_point_no[nexti] + bj_num - pi_point_no[i] + 1 - totalouts) * (outpointallowlen) >> 2) + ((pi_point_no[nexti] + bj_num - pi_point_no[i] + 1 - totalouts) >> 6) + ((pi_point_no[nexti] + bj_num - pi_point_no[i] + 1 - totalouts) >> 8)))//如果不考虑识别率最后一个+去掉
             break;
         }
+
         if (outs > bj_num)
           break;
+
         if (totalouts > (pi_point_no[nexti] + bj_num - pi_point_no[i]) >> 1 || (int)lens > (((pi_point_no[nexti] + bj_num - pi_point_no[i] + 1 - totalouts) * (outpointallowlen) >> 2) + ((pi_point_no[nexti] + bj_num - pi_point_no[i] + 1 - totalouts) >> 6) + ((pi_point_no[nexti] + bj_num - pi_point_no[i] + 1 - totalouts) >> 8)))
           continue;
         else
@@ -1834,6 +1849,7 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
 
   g_stu_square.rcglineok = 1;
   int nSquare = IsSquare(stuRef.SAg, stuRef.BAg);
+
   if (0 != nSquare)
   {
 
@@ -1924,17 +1940,21 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
           int startno, endno, totalouts = 0, outs = 0;//,totalouts总的不在当前线段上的点数
           double a, b, c, lens;//ax+by+c=0,lens点到直线距离的累加
           bool bSuccess = 0;
+
           if (i_out_no[nEndj] > i_out_no[nBeginj])//
           {
             startno = (i_out_no[nEndj] + i_out_no[nBeginj]) >> 1;
             endno = i_out_no[nEndj] - 1;
+
             for (; startno > i_out_no[nBeginj] && endno < i_out_no[nEndj]; startno--, endno--)//找符合直线
             {
               if (!CalcEquationABC(bj_l[startno], bj_h[startno], bj_l[endno], bj_h[endno], a, b, c))
                 continue;
+
               outs -= totalouts;
               totalouts = 0;
               lens = 0;
+
               for (int j = i_out_no[nBeginj]; j < i_out_no[nEndj]; j++)//边界点与该直线匹配
               {
                 double templen = LenFromPtoL(bj_l[j], bj_h[j], a, b, c);
@@ -3152,6 +3172,7 @@ int  CIMGRecognition::IsPositiveOrNegative(double a, double b, double c, int beg
       g_stu_square.d_point_y[beginLineNo] = -(a * g_stu_square.d_point_x[beginLineNo] + c) / (b);
     }
     dAngle1 = abs(atan(-a / b) - atan(-g_stu_square.d_a[beginLineNo] / g_stu_square.d_b[beginLineNo])) / gd_PI * 180;
+
     if (dAngle1 > 90)//由于前面保证了是矩形，这里必须可以是《90°的
       dAngle1 = 180 - dAngle1;
   }
@@ -3181,15 +3202,18 @@ int  CIMGRecognition::IsPositiveOrNegative(double a, double b, double c, int beg
       g_stu_square.d_point_y[endLineNo] = -(g_stu_square.d_a[endLineNo] * g_stu_square.d_point_x[endLineNo] + g_stu_square.d_c[endLineNo]) / (g_stu_square.d_b[endLineNo]);
     }
     dAngle2 = abs(atan(-g_stu_square.d_a[endLineNo] / g_stu_square.d_b[endLineNo]) - atan(-a / b)) / gd_PI * 180;
+
     if (dAngle2 > 90)
       dAngle2 = 180 - dAngle2;
   }
+
   if (dAngle1 < dAngle2 && dAngle1>min_deg/*15*/ && dAngle1 < max_deg/*25*/)
     bPositive = 1;
   else if (dAngle1 > dAngle2 && dAngle2 > min_deg && dAngle2 < max_deg)
     bPositive = 0;
   else
     bPositive = -1;
+
   return bPositive;
 }
 
