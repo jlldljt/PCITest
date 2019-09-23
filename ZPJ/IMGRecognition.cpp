@@ -1967,6 +1967,7 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
                 {
                   lens += templen;
                 }
+                //totalouts > (i_out_no[nEndj] - i_out_no[nBeginj]) >> 1这里用边的判定标准，其实这里判定标准可以提高，用2/3,or 3/4
                 if (outs > bj_num || totalouts > (i_out_no[nEndj] - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
                   break;
               }
@@ -3142,78 +3143,169 @@ int  CIMGRecognition::IsPositiveOrNegative(double a, double b, double c, int beg
 {
   if (!g_stu_square.rcglineok)
     return -1;
+
   double dAngle1 = 0, dAngle2 = 0;
   double min_deg = stuRef.PN_sag, max_deg = stuRef.PN_bag;
 
-  int bPositive = 0;
+  int bPositive = -1;
+  ////第一个角
+  //{
+  //  if (g_stu_square.d_a[beginLineNo] == 0 && a == 0 || g_stu_square.d_b[beginLineNo] == 0 && b == 0)
+  //    return -1;
+  //  else if (g_stu_square.d_a[beginLineNo] == 0 && b == 0)
+  //  {
+  //    g_stu_square.d_point_y[beginLineNo] = -g_stu_square.d_c[beginLineNo] / g_stu_square.d_b[beginLineNo];
+  //    g_stu_square.d_point_x[beginLineNo] = -c / a;
+  //  }
+  //  else if (g_stu_square.d_a[beginLineNo] == 0)
+  //  {
+  //    g_stu_square.d_point_y[beginLineNo] = -g_stu_square.d_c[beginLineNo] / g_stu_square.d_b[beginLineNo];
+  //    g_stu_square.d_point_x[beginLineNo] = -(b * g_stu_square.d_point_y[beginLineNo] + c) / (a);
+  //  }
+  //  else if (b == 0)
+  //  {
+  //    g_stu_square.d_point_x[beginLineNo] = -c / a;
+  //    g_stu_square.d_point_y[beginLineNo] = -(g_stu_square.d_a[beginLineNo] * g_stu_square.d_point_x[beginLineNo] + g_stu_square.d_c[beginLineNo]) / (g_stu_square.d_b[beginLineNo]);
+
+  //  }
+  //  else if (g_stu_square.d_a[beginLineNo] != 0 && b != 0)
+  //  {
+  //    g_stu_square.d_point_x[beginLineNo] = ((g_stu_square.d_b[beginLineNo] * c) / (b * g_stu_square.d_a[beginLineNo]) - g_stu_square.d_c[beginLineNo] / g_stu_square.d_a[beginLineNo]) / (1 - (g_stu_square.d_b[beginLineNo] * a) / (b * g_stu_square.d_a[beginLineNo]));
+  //    g_stu_square.d_point_y[beginLineNo] = -(a * g_stu_square.d_point_x[beginLineNo] + c) / (b);
+  //  }
+  //  dAngle1 = abs(atan(-a / b) - atan(-g_stu_square.d_a[beginLineNo] / g_stu_square.d_b[beginLineNo])) / gd_PI * 180;
+
+  //  if (dAngle1 > 90)//由于前面保证了是矩形，这里必须可以是《90°的
+  //    dAngle1 = 180 - dAngle1;
+  //}
+  ////第二个角
+  //{
+  //  if (a == 0 && g_stu_square.d_a[endLineNo] == 0 || b == 0 && g_stu_square.d_b[endLineNo] == 0)
+  //    return -1;
+  //  else if (a == 0 && g_stu_square.d_b[endLineNo] == 0)
+  //  {
+  //    g_stu_square.d_point_y[endLineNo] = -c / b;
+  //    g_stu_square.d_point_x[endLineNo] = -g_stu_square.d_c[endLineNo] / g_stu_square.d_a[endLineNo];
+  //  }
+  //  else if (a == 0)
+  //  {
+  //    g_stu_square.d_point_y[endLineNo] = -c / b;
+  //    g_stu_square.d_point_x[endLineNo] = -(g_stu_square.d_b[endLineNo] * g_stu_square.d_point_y[endLineNo] + g_stu_square.d_c[endLineNo]) / (g_stu_square.d_a[endLineNo]);
+  //  }
+  //  else if (g_stu_square.d_b[endLineNo] == 0)
+  //  {
+  //    g_stu_square.d_point_x[endLineNo] = -g_stu_square.d_c[endLineNo] / g_stu_square.d_a[endLineNo];
+  //    g_stu_square.d_point_y[endLineNo] = -(a * g_stu_square.d_point_x[endLineNo] + c) / (b);
+
+  //  }
+  //  else if (a != 0 && g_stu_square.d_b[endLineNo] != 0)
+  //  {
+  //    g_stu_square.d_point_x[endLineNo] = ((b * g_stu_square.d_c[endLineNo]) / (g_stu_square.d_b[endLineNo] * a) - c / a) / (1 - (b * g_stu_square.d_a[endLineNo]) / (g_stu_square.d_b[endLineNo] * a));
+  //    g_stu_square.d_point_y[endLineNo] = -(g_stu_square.d_a[endLineNo] * g_stu_square.d_point_x[endLineNo] + g_stu_square.d_c[endLineNo]) / (g_stu_square.d_b[endLineNo]);
+  //  }
+  //  dAngle2 = abs(atan(-g_stu_square.d_a[endLineNo] / g_stu_square.d_b[endLineNo]) - atan(-a / b)) / gd_PI * 180;
+
+  //  if (dAngle2 > 90)
+  //    dAngle2 = 180 - dAngle2;
+  //}
+
+  //算两个线的交点(issquare那边拷过来的，似乎不需要，并且dAngle的计算里并没有去除除0的问题
+  //atan的范围是[-pi/2,+pi/2] 
   //第一个角
-  {
-    if (g_stu_square.d_a[beginLineNo] == 0 && a == 0 || g_stu_square.d_b[beginLineNo] == 0 && b == 0)
+  
+    if (a == 0 && b == 0 )//不是直线
       return -1;
-    else if (g_stu_square.d_a[beginLineNo] == 0 && b == 0)
-    {
-      g_stu_square.d_point_y[beginLineNo] = -g_stu_square.d_c[beginLineNo] / g_stu_square.d_b[beginLineNo];
-      g_stu_square.d_point_x[beginLineNo] = -c / a;
-    }
-    else if (g_stu_square.d_a[beginLineNo] == 0)
-    {
-      g_stu_square.d_point_y[beginLineNo] = -g_stu_square.d_c[beginLineNo] / g_stu_square.d_b[beginLineNo];
-      g_stu_square.d_point_x[beginLineNo] = -(b * g_stu_square.d_point_y[beginLineNo] + c) / (a);
-    }
-    else if (b == 0)
-    {
-      g_stu_square.d_point_x[beginLineNo] = -c / a;
-      g_stu_square.d_point_y[beginLineNo] = -(g_stu_square.d_a[beginLineNo] * g_stu_square.d_point_x[beginLineNo] + g_stu_square.d_c[beginLineNo]) / (g_stu_square.d_b[beginLineNo]);
+    if (g_stu_square.d_a[beginLineNo] == 0 && g_stu_square.d_b[beginLineNo] == 0)
+      return -1;
+    if (g_stu_square.d_a[endLineNo] == 0 && g_stu_square.d_b[endLineNo] == 0)
+      return -1;
 
-    }
-    else if (g_stu_square.d_a[beginLineNo] != 0 && b != 0)
-    {
-      g_stu_square.d_point_x[beginLineNo] = ((g_stu_square.d_b[beginLineNo] * c) / (b * g_stu_square.d_a[beginLineNo]) - g_stu_square.d_c[beginLineNo] / g_stu_square.d_a[beginLineNo]) / (1 - (g_stu_square.d_b[beginLineNo] * a) / (b * g_stu_square.d_a[beginLineNo]));
-      g_stu_square.d_point_y[beginLineNo] = -(a * g_stu_square.d_point_x[beginLineNo] + c) / (b);
-    }
-    dAngle1 = abs(atan(-a / b) - atan(-g_stu_square.d_a[beginLineNo] / g_stu_square.d_b[beginLineNo])) / gd_PI * 180;
+    if (g_stu_square.d_a[beginLineNo] == 0 && a == 0 || g_stu_square.d_b[beginLineNo] == 0 && b == 0)
+      return -1;// 平行
 
-    if (dAngle1 > 90)//由于前面保证了是矩形，这里必须可以是《90°的
-      dAngle1 = 180 - dAngle1;
-  }
-  //第二个角
-  {
+    if (g_stu_square.d_b[beginLineNo] != 0 && b != 0 
+      && -a / b == -g_stu_square.d_a[beginLineNo] / g_stu_square.d_b[beginLineNo])
+      return -1;// 平行
+
     if (a == 0 && g_stu_square.d_a[endLineNo] == 0 || b == 0 && g_stu_square.d_b[endLineNo] == 0)
       return -1;
-    else if (a == 0 && g_stu_square.d_b[endLineNo] == 0)
-    {
-      g_stu_square.d_point_y[endLineNo] = -c / b;
-      g_stu_square.d_point_x[endLineNo] = -g_stu_square.d_c[endLineNo] / g_stu_square.d_a[endLineNo];
-    }
-    else if (a == 0)
-    {
-      g_stu_square.d_point_y[endLineNo] = -c / b;
-      g_stu_square.d_point_x[endLineNo] = -(g_stu_square.d_b[endLineNo] * g_stu_square.d_point_y[endLineNo] + g_stu_square.d_c[endLineNo]) / (g_stu_square.d_a[endLineNo]);
-    }
-    else if (g_stu_square.d_b[endLineNo] == 0)
-    {
-      g_stu_square.d_point_x[endLineNo] = -g_stu_square.d_c[endLineNo] / g_stu_square.d_a[endLineNo];
-      g_stu_square.d_point_y[endLineNo] = -(a * g_stu_square.d_point_x[endLineNo] + c) / (b);
 
-    }
-    else if (a != 0 && g_stu_square.d_b[endLineNo] != 0)
+    if (g_stu_square.d_b[endLineNo] != 0 && b != 0
+      && -a / b == -g_stu_square.d_a[endLineNo] / g_stu_square.d_b[endLineNo])
+      return -1;// 平行
+
+    double angle, angle_begin, angle_end;
+
+    if (0 == a)
     {
-      g_stu_square.d_point_x[endLineNo] = ((b * g_stu_square.d_c[endLineNo]) / (g_stu_square.d_b[endLineNo] * a) - c / a) / (1 - (b * g_stu_square.d_a[endLineNo]) / (g_stu_square.d_b[endLineNo] * a));
-      g_stu_square.d_point_y[endLineNo] = -(g_stu_square.d_a[endLineNo] * g_stu_square.d_point_x[endLineNo] + g_stu_square.d_c[endLineNo]) / (g_stu_square.d_b[endLineNo]);
+      angle = 0;
     }
-    dAngle2 = abs(atan(-g_stu_square.d_a[endLineNo] / g_stu_square.d_b[endLineNo]) - atan(-a / b)) / gd_PI * 180;
+    else if(0 == b)
+    {
+      angle = 90;
+    }
+    else
+    {
+      angle = atan(-a / b) * 180 / gd_PI;
+    }
 
-    if (dAngle2 > 90)
-      dAngle2 = 180 - dAngle2;
-  }
+    if (0 == g_stu_square.d_a[beginLineNo])
+    {
+      angle_begin = 0;
+    }
+    else if (0 == g_stu_square.d_b[beginLineNo])
+    {
+      angle_begin = 90;
+    }
+    else
+    {
+      angle_begin = atan(-g_stu_square.d_a[beginLineNo] / g_stu_square.d_b[beginLineNo]) * 180 / gd_PI;
+    }
 
-  if (dAngle1 < dAngle2 && dAngle1>min_deg/*15*/ && dAngle1 < max_deg/*25*/)
-    bPositive = 1;
-  else if (dAngle1 > dAngle2 && dAngle2 > min_deg && dAngle2 < max_deg)
-    bPositive = 0;
-  else
-    bPositive = -1;
+    if (0 == g_stu_square.d_a[endLineNo])
+    {
+      angle_end = 0;
+    }
+    else if (0 == g_stu_square.d_b[endLineNo])
+    {
+      angle_end = 90;
+    }
+    else
+    {
+      angle_end = atan(-g_stu_square.d_a[endLineNo] / g_stu_square.d_b[endLineNo]) * 180 / gd_PI;
+    }
+    //正常角度 angle begin 》 angle 》 angle end，以angle end 为0，则其他角度应该是90° 》 angle 》 0°
+    // 由于bmp的数据和显示是上下颠倒的，故数据顺时针，bmp显示上应该是逆时针
+    // 故angle begin 《 angle 《 angle end
+    angle_end -= angle_begin;
+    angle -= angle_begin;
+    angle_begin -= angle_begin;
 
+    if (angle_end < 0)
+      angle_end += 360;
+
+    if (angle < 0)
+      angle += 360;
+
+
+    if (angle_end >= 180)
+      angle_end -= 180;
+
+    if (angle >= 180)
+      angle -= 180;
+
+    if (angle_begin < angle && angle < angle_end)
+    {
+      dAngle1 = angle - angle_begin;
+      dAngle2 = angle_end - angle;
+
+      if (dAngle1 < dAngle2 && dAngle1>min_deg/*15*/ && dAngle1 < max_deg/*25*/)
+        bPositive = 1;
+      else if (dAngle1 > dAngle2 && dAngle2 > min_deg && dAngle2 < max_deg)
+        bPositive = 0;
+      else
+        bPositive = -1;
+    }
   return bPositive;
 }
 
