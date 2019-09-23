@@ -73,7 +73,7 @@ bool CIMGRecognition::saveBmp(char* bmpName, unsigned char* imgBuf, int width, i
   //待存储图像数据每行字节数为4的倍数 
   int lineByte = (width * biBitCount / 8 + 3) / 4 * 4;
   //以二进制写的方式打开文件 
-  FILE * fp;
+  FILE* fp;
   fopen_s(&fp, bmpName, "wb");
 
   // FILE *fp=fopen(bmpName,"wb"); 
@@ -1693,7 +1693,7 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
   }
 
   double* pd_line_a, * pd_line_b, * pd_line_c;
-  int successequationnum = 0, outs = 0, * i_out_no = NULL, * pnOutLnNo = NULL;//outs总的不在线段上的点数
+  int successequationnum = 0, outs = 0, *i_out_no = NULL, *pnOutLnNo = NULL;//outs总的不在线段上的点数
   double* i_out_len = NULL;
   i_out_no = new int[bj_num]; //最后是边界的凹凸区域的位置编号，当片重叠时，所有点都有可能在边界外，所有该数组不能比bjnum小
   pnOutLnNo = new int[bj_num];//保存每个out点是在哪条线段上
@@ -1931,8 +1931,8 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
         nEndj = j;
         bIn = in;
       }
-     // else//一个缺陷结束
-      if(j == outs - 1 || i_out_no[j] != i_out_no[j - 1] + 1)
+      // else//一个缺陷结束
+      if (j == outs - 1 || i_out_no[j] != i_out_no[j - 1] + 1)
       {
         if (nUnceasNo > unceasallownum / 2)
         {
@@ -1968,7 +1968,7 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
                   lens += templen;
                 }
                 //totalouts > (i_out_no[nEndj] - i_out_no[nBeginj]) >> 1这里用边的判定标准，其实这里判定标准可以提高，用2/3,or 3/4
-                if (outs > bj_num || totalouts > (i_out_no[nEndj] - i_out_no[nBeginj]) >> 1 || (int)lens > (((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
+                if (outs > bj_num || totalouts > (i_out_no[nEndj] - i_out_no[nBeginj])  >> 1 || (int)lens > (((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) * (outpointallowlen) >> 2) + ((i_out_no[nEndj] - i_out_no[nBeginj] + 1 - totalouts) >> 6)))
                   break;
               }
               if (outs > bj_num)
@@ -1978,6 +1978,10 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
               else
               {
                 bSuccess = 1;
+
+                //附加判断切角 防止异形角
+                if (totalouts >= (i_out_no[nEndj] - i_out_no[nBeginj]) / 5)
+                  bSuccess = 0;
                 break;
               }
             }
@@ -2025,11 +2029,14 @@ int CIMGRecognition::data_check_feature(unsigned char*& pBmpBuf, int biBitCount,
               else
               {
                 bSuccess = 1;
+                //附加判断切角 防止异形角
+                if (totalouts >= (i_out_no[nEndj] + bj_num - i_out_no[nBeginj]) / 5)
+                  bSuccess = 0;
                 break;
               }
             }
           }
-
+          
           //找所属角
           if (bSuccess)
           {
@@ -3208,104 +3215,110 @@ int  CIMGRecognition::IsPositiveOrNegative(double a, double b, double c, int beg
   //  if (dAngle2 > 90)
   //    dAngle2 = 180 - dAngle2;
   //}
-
+  //if (dAngle1 < dAngle2 && dAngle1>min_deg/*15*/ && dAngle1 < max_deg/*25*/)
+  //  bPositive = 1;
+  //else if (dAngle1 > dAngle2 && dAngle2 > min_deg && dAngle2 < max_deg)
+  //  bPositive = 0;
+  //else
+  //  bPositive = -1;
+  //return bPositive;
   //算两个线的交点(issquare那边拷过来的，似乎不需要，并且dAngle的计算里并没有去除除0的问题
   //atan的范围是[-pi/2,+pi/2] 
   //第一个角
-  
-    if (a == 0 && b == 0 )//不是直线
-      return -1;
-    if (g_stu_square.d_a[beginLineNo] == 0 && g_stu_square.d_b[beginLineNo] == 0)
-      return -1;
-    if (g_stu_square.d_a[endLineNo] == 0 && g_stu_square.d_b[endLineNo] == 0)
-      return -1;
 
-    if (g_stu_square.d_a[beginLineNo] == 0 && a == 0 || g_stu_square.d_b[beginLineNo] == 0 && b == 0)
-      return -1;// 平行
+  if (a == 0 && b == 0)//不是直线
+    return -1;
+  if (g_stu_square.d_a[beginLineNo] == 0 && g_stu_square.d_b[beginLineNo] == 0)
+    return -1;
+  if (g_stu_square.d_a[endLineNo] == 0 && g_stu_square.d_b[endLineNo] == 0)
+    return -1;
 
-    if (g_stu_square.d_b[beginLineNo] != 0 && b != 0 
-      && -a / b == -g_stu_square.d_a[beginLineNo] / g_stu_square.d_b[beginLineNo])
-      return -1;// 平行
+  if (g_stu_square.d_a[beginLineNo] == 0 && a == 0 || g_stu_square.d_b[beginLineNo] == 0 && b == 0)
+    return -1;// 平行
 
-    if (a == 0 && g_stu_square.d_a[endLineNo] == 0 || b == 0 && g_stu_square.d_b[endLineNo] == 0)
-      return -1;
+  if (g_stu_square.d_b[beginLineNo] != 0 && b != 0
+    && -a / b == -g_stu_square.d_a[beginLineNo] / g_stu_square.d_b[beginLineNo])
+    return -1;// 平行
 
-    if (g_stu_square.d_b[endLineNo] != 0 && b != 0
-      && -a / b == -g_stu_square.d_a[endLineNo] / g_stu_square.d_b[endLineNo])
-      return -1;// 平行
+  if (a == 0 && g_stu_square.d_a[endLineNo] == 0 || b == 0 && g_stu_square.d_b[endLineNo] == 0)
+    return -1;
 
-    double angle, angle_begin, angle_end;
+  if (g_stu_square.d_b[endLineNo] != 0 && b != 0
+    && -a / b == -g_stu_square.d_a[endLineNo] / g_stu_square.d_b[endLineNo])
+    return -1;// 平行
 
-    if (0 == a)
-    {
-      angle = 0;
-    }
-    else if(0 == b)
-    {
-      angle = 90;
-    }
+  double angle, angle_begin, angle_end;
+
+  if (0 == a)
+  {
+    angle = 0;
+  }
+  else if (0 == b)
+  {
+    angle = 90;
+  }
+  else
+  {
+    angle = atan(-a / b) * 180 / gd_PI;
+  }
+
+  if (0 == g_stu_square.d_a[beginLineNo])
+  {
+    angle_begin = 0;
+  }
+  else if (0 == g_stu_square.d_b[beginLineNo])
+  {
+    angle_begin = 90;
+  }
+  else
+  {
+    angle_begin = atan(-g_stu_square.d_a[beginLineNo] / g_stu_square.d_b[beginLineNo]) * 180 / gd_PI;
+  }
+
+  if (0 == g_stu_square.d_a[endLineNo])
+  {
+    angle_end = 0;
+  }
+  else if (0 == g_stu_square.d_b[endLineNo])
+  {
+    angle_end = 90;
+  }
+  else
+  {
+    angle_end = atan(-g_stu_square.d_a[endLineNo] / g_stu_square.d_b[endLineNo]) * 180 / gd_PI;
+  }
+  //正常角度 angle begin 》 angle 》 angle end，以angle end 为0，则其他角度应该是90° 》 angle 》 0°
+  // 由于bmp的数据和显示是上下颠倒的，故数据顺时针，bmp显示上应该是逆时针
+  // 故angle begin 《 angle 《 angle end
+  angle_end -= angle_begin;
+  angle -= angle_begin;
+  angle_begin -= angle_begin;
+
+  if (angle_end < 0)
+    angle_end += 360;
+
+  if (angle < 0)
+    angle += 360;
+
+
+  if (angle_end >= 180)
+    angle_end -= 180;
+
+  if (angle >= 180)
+    angle -= 180;
+
+  if (angle_begin < angle && angle < angle_end)
+  {
+    dAngle1 = angle - angle_begin;
+    dAngle2 = angle_end - angle;
+
+    if (dAngle1 < dAngle2 && dAngle1>min_deg/*15*/ && dAngle1 < max_deg/*25*/)
+      bPositive = 1;
+    else if (dAngle1 > dAngle2 && dAngle2 > min_deg && dAngle2 < max_deg)
+      bPositive = 0;
     else
-    {
-      angle = atan(-a / b) * 180 / gd_PI;
-    }
-
-    if (0 == g_stu_square.d_a[beginLineNo])
-    {
-      angle_begin = 0;
-    }
-    else if (0 == g_stu_square.d_b[beginLineNo])
-    {
-      angle_begin = 90;
-    }
-    else
-    {
-      angle_begin = atan(-g_stu_square.d_a[beginLineNo] / g_stu_square.d_b[beginLineNo]) * 180 / gd_PI;
-    }
-
-    if (0 == g_stu_square.d_a[endLineNo])
-    {
-      angle_end = 0;
-    }
-    else if (0 == g_stu_square.d_b[endLineNo])
-    {
-      angle_end = 90;
-    }
-    else
-    {
-      angle_end = atan(-g_stu_square.d_a[endLineNo] / g_stu_square.d_b[endLineNo]) * 180 / gd_PI;
-    }
-    //正常角度 angle begin 》 angle 》 angle end，以angle end 为0，则其他角度应该是90° 》 angle 》 0°
-    // 由于bmp的数据和显示是上下颠倒的，故数据顺时针，bmp显示上应该是逆时针
-    // 故angle begin 《 angle 《 angle end
-    angle_end -= angle_begin;
-    angle -= angle_begin;
-    angle_begin -= angle_begin;
-
-    if (angle_end < 0)
-      angle_end += 360;
-
-    if (angle < 0)
-      angle += 360;
-
-
-    if (angle_end >= 180)
-      angle_end -= 180;
-
-    if (angle >= 180)
-      angle -= 180;
-
-    if (angle_begin < angle && angle < angle_end)
-    {
-      dAngle1 = angle - angle_begin;
-      dAngle2 = angle_end - angle;
-
-      if (dAngle1 < dAngle2 && dAngle1>min_deg/*15*/ && dAngle1 < max_deg/*25*/)
-        bPositive = 1;
-      else if (dAngle1 > dAngle2 && dAngle2 > min_deg && dAngle2 < max_deg)
-        bPositive = 0;
-      else
-        bPositive = -1;
-    }
+      bPositive = -1;
+  }
   return bPositive;
 }
 
@@ -3321,8 +3334,8 @@ double CIMGRecognition::CalculateVectorAngle(double x1, double y1, double x2, do
 
   angle = VectorAngle(v1, v2);
   cw = VectorCW(v1, v2);
-   //return angle*cw;
-  return cw < 0 ? angle : 360-angle;
+  //return angle*cw;
+  return cw < 0 ? angle : 360 - angle;
 }
 //-1未识别
 //debug识别中生成可查看的bmp图，以及完整识别
@@ -3330,7 +3343,7 @@ double CIMGRecognition::CalculateVectorAngle(double x1, double y1, double x2, do
 //
 //
 //识别函数，外部唯一调用函数
-int CIMGRecognition::RCGBMP(CDC * pDC, CRect rect, char* bmpName, int outpointallowlen = 2, int defectallowlen = 2, int threshold = 120, bool debug = 0, bool circle = 0, bool bAutoThrd = 0, bool delNoise = 0)
+int CIMGRecognition::RCGBMP(CDC* pDC, CRect rect, char* bmpName, int outpointallowlen = 2, int defectallowlen = 2, int threshold = 120, bool debug = 0, bool circle = 0, bool bAutoThrd = 0, bool delNoise = 0)
 {
   if (pDC != NULL)
   {
@@ -3535,7 +3548,7 @@ int CIMGRecognition::RCGBMP(CDC * pDC, CRect rect, char* bmpName, int outpointal
               pDC->TextOutW(0, 0, _T("有接触区域"));
             //AfxMessageBox(_T("有接触区域"));
             int nTmpN = 0;								//保存退回边界点数
-            int* pnTmpH, *pnTmpL, *pnTmpFx;
+            int* pnTmpH, * pnTmpL, * pnTmpFx;
             pnTmpH = new int[temp_bj_num];						//保存封闭曲线边界点的行坐标
             pnTmpL = new int[temp_bj_num];						//保存封闭曲线边界点的列坐标
             pnTmpFx = new int[temp_bj_num];						//方向
@@ -4054,7 +4067,7 @@ int CIMGRecognition::RCGBMP(CDC * pDC, CRect rect, char* bmpName, int outpointal
   return type;
 }
 //与RCGBMP一样，当修改时同步修改，只在调用圆正方形特征识别时不一样
-int CIMGRecognition::RCGBMPSPLIT(CDC * pDC, CRect rect, char* bmpName, int outpointallowlen = 2, int defectallowlen = 2, int threshold = 120, bool debug = 0, bool circle = 0, bool bAutoThrd = 0, bool delNoise = 0)
+int CIMGRecognition::RCGBMPSPLIT(CDC* pDC, CRect rect, char* bmpName, int outpointallowlen = 2, int defectallowlen = 2, int threshold = 120, bool debug = 0, bool circle = 0, bool bAutoThrd = 0, bool delNoise = 0)
 {
   CBrush* pOldBrush = NULL;
   if (pDC != NULL)
@@ -4262,7 +4275,7 @@ int CIMGRecognition::RCGBMPSPLIT(CDC * pDC, CRect rect, char* bmpName, int outpo
               pDC->TextOutW(0, 0, _T("有接触区域"));
             //AfxMessageBox(_T("有接触区域"));
             int nTmpN = 0;								//保存退回边界点数
-            int* pnTmpH, *pnTmpL, *pnTmpFx;
+            int* pnTmpH, * pnTmpL, * pnTmpFx;
             pnTmpH = new int[temp_bj_num];						//保存封闭曲线边界点的行坐标
             pnTmpL = new int[temp_bj_num];						//保存封闭曲线边界点的列坐标
             pnTmpFx = new int[temp_bj_num];						//方向
@@ -4822,7 +4835,7 @@ int CIMGRecognition::RCGBMPSPLIT(CDC * pDC, CRect rect, char* bmpName, int outpo
   return type;
 }
 //与RCGBMPSPLIT一样，只是不是调用文件名，而是数据内存
-int CIMGRecognition::RCGBMPDATASPLIT(CDC * pDC, CRect rect, unsigned char*& pBmpBuf, int outpointallowlen = 2, int defectallowlen = 2, int threshold = 120, bool debug = 0, bool circle = 0, bool bAutoThrd = 0, bool delNoise = 0)
+int CIMGRecognition::RCGBMPDATASPLIT(CDC* pDC, CRect rect, unsigned char*& pBmpBuf, int outpointallowlen = 2, int defectallowlen = 2, int threshold = 120, bool debug = 0, bool circle = 0, bool bAutoThrd = 0, bool delNoise = 0)
 {
   CBrush* pOldBrush = NULL;
   if (pDC != NULL)
@@ -5033,7 +5046,7 @@ int CIMGRecognition::RCGBMPDATASPLIT(CDC * pDC, CRect rect, unsigned char*& pBmp
               pDC->TextOutW(0, 0, _T("有接触区域"));
             //AfxMessageBox(_T("有接触区域"));
             int nTmpN = 0;								//保存退回边界点数
-            int* pnTmpH, *pnTmpL, *pnTmpFx;
+            int* pnTmpH, * pnTmpL, * pnTmpFx;
             pnTmpH = new int[temp_bj_num];						//保存封闭曲线边界点的行坐标
             pnTmpL = new int[temp_bj_num];						//保存封闭曲线边界点的列坐标
             pnTmpFx = new int[temp_bj_num];						//方向
@@ -5613,7 +5626,7 @@ int CIMGRecognition::RCGBMPDATASPLIT(CDC * pDC, CRect rect, unsigned char*& pBmp
 double CIMGRecognition::VectorAngle(vector v1, vector v2)
 {
   //acos return radian,we should transform it into degree  
-  double angle =  acos((v1.x * v2.x + v1.y * v2.y) / sqrt((v1.x * v1.x + v1.y * v1.y) * (v2.x * v2.x + v2.y * v2.y))) * 180 / gd_PI;//计算角度
+  double angle = acos((v1.x * v2.x + v1.y * v2.y) / sqrt((v1.x * v1.x + v1.y * v1.y) * (v2.x * v2.x + v2.y * v2.y))) * 180 / gd_PI;//计算角度
   //if (angle == 0) {
   //  double pn = v1.x / v2.x;
   //  if (pn < 0) {

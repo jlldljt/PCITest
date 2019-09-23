@@ -32,6 +32,7 @@ void CDlgPriview::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CDlgPriview, CDialogEx)
   ON_WM_LBUTTONDOWN()
 //  ON_WM_SETCURSOR()
+ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -264,7 +265,9 @@ BOOL CDlgPriview::OnInitDialog()
   CDialogEx::OnInitDialog();
 
   // TODO:  在此添加额外的初始化
-  
+  SetClassLong(this->GetSafeHwnd(),
+    GCL_HCURSOR,
+    (LONG)LoadCursor(NULL, IDC_CROSS));
 
   return TRUE;  // return TRUE unless you set the focus to a control
                 // 异常: OCX 属性页应返回 FALSE
@@ -277,3 +280,15 @@ BOOL CDlgPriview::OnInitDialog()
 //
 //  return CDialogEx::OnSetCursor(pWnd, nHitTest, message);
 //}
+
+
+void CDlgPriview::OnDestroy()
+{
+  CDialogEx::OnDestroy();
+
+  // TODO: 在此处添加消息处理程序代码
+
+  SetClassLong(this->GetSafeHwnd(),
+    GCL_HCURSOR,
+    (LONG)LoadCursor(NULL, IDC_ARROW));
+}
