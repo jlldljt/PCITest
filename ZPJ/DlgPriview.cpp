@@ -33,6 +33,7 @@ BEGIN_MESSAGE_MAP(CDlgPriview, CDialogEx)
   ON_WM_LBUTTONDOWN()
 //  ON_WM_SETCURSOR()
 ON_WM_DESTROY()
+ON_WM_PAINT()
 END_MESSAGE_MAP()
 
 
@@ -68,6 +69,8 @@ void CDlgPriview::OnLButtonDown(UINT nFlags, CPoint point)
   double temp_y = pt.y -lRect.top;
   xt =/*(int)*/(temp_x * gclsImgRcg.g_stu_square.nBMPW / (lRect.Width()));//点击的坐标对应在图像上的x点
   yt =/*(int)*/(temp_y * gclsImgRcg.g_stu_square.nBMPH / (lRect.Height()));//点击的坐标对应在图像上的y点
+  m_x = temp_x;
+  m_y = temp_y;
   //if(!m_RadioCircle && m_RadioSquare)
   {
     //if(avg1.empty()){AfxMessageBox(_T("没有定位坐标，请定位"));return;}
@@ -269,6 +272,9 @@ BOOL CDlgPriview::OnInitDialog()
     GCL_HCURSOR,
     (LONG)LoadCursor(NULL, IDC_CROSS));
 
+  m_x = -10;
+  m_y = -10;
+
   return TRUE;  // return TRUE unless you set the focus to a control
                 // 异常: OCX 属性页应返回 FALSE
 }
@@ -291,4 +297,38 @@ void CDlgPriview::OnDestroy()
   SetClassLong(this->GetSafeHwnd(),
     GCL_HCURSOR,
     (LONG)LoadCursor(NULL, IDC_ARROW));
+}
+
+
+void CDlgPriview::OnPaint()
+{
+  CPaintDC dc(this); // device context for painting
+                     // TODO: 在此处添加消息处理程序代码
+                     // 不为绘图消息调用 CDialogEx::OnPaint()
+
+  CWnd* pWnd = this;
+  CDC* pDC = pWnd->GetDC();
+  CRect rect, rect_camera;
+  GetClientRect(&rect);
+  g_dlgCamera->GetDlgItem(IDC_PREVIEW)->GetClientRect(&rect_camera);
+  CPen PenRed;
+  PenRed.CreatePen(PS_SOLID, 1, RGB(0, 255, 0));//创建一支的画笔.
+  pDC->SelectObject(PenRed);//选中画笔.
+  //pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), g_dlgCamera->mDCMem, 0, 0, SRCCOPY);
+  pDC->TransparentBlt/*BitBlt*/(rect.left, rect.top, rect.Width(), rect.Height(), g_dlgCamera->mDCMem, 0, 0, rect_camera.Width(), rect_camera.Height(), SRCCOPY);
+  POINT point;//定义点
+  point.x = m_x - 10 + 0.5;
+  point.y = m_y + 0.5;
+  pDC->MoveTo(point);
+  point.x = m_x + 10 + 0.5;
+  pDC->LineTo(point);
+  //
+  point.x = m_x + 0.5;
+  point.y = m_y - 10 + 0.5;
+  pDC->MoveTo(point);
+  point.y = m_y + 10 + 0.5;
+  pDC->LineTo(point);
+
+  pWnd->ReleaseDC(pDC);
+
 }

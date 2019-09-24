@@ -237,6 +237,30 @@ int KSJ_NAME_SPACE::CKSJ::StopPreview(int nChannel)
 	return 0;
 }
 
+int KSJ_NAME_SPACE::CKSJ::ReInit()
+{
+  for (int i = 0; i < m_nDeviceCount; i++)
+  {
+    KSJ_PreviewStart(i, FALSE);
+  }
+
+  KSJ_UnInit();
+  if (nullptr != m_pData) {
+    delete[] m_pData;
+    m_pData = nullptr;
+  }
+  //
+
+  m_nDeviceCount = 0;
+  m_pData = nullptr;
+
+  int nRet = KSJ_Init();
+  TCHAR    szBuf[256] = { '\0' };
+  KSJ_GetErrorInfo(nRet, szBuf);
+
+  return 0;
+}
+
 int KSJ_NAME_SPACE::CKSJ::DrawBMP(CWnd * pWnd, const char * fileName)
 {
 	CFileFind findini;   //查找是否存在jpg文件
@@ -311,3 +335,4 @@ void read_reversal(unsigned char * pBmpBuf, unsigned char * &pBmpBuf_temp, int b
 	}
 
 }
+

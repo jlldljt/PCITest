@@ -43,6 +43,7 @@ namespace KSJ_NAME_SPACE {
 		int SaveToBmp(unsigned char *pData, int nWidth, int nHeight, int nBitCount, const TCHAR *pszFileName);
 		int Preview(int nChannel, CWnd *pWnd);
 		int StopPreview(int nChannel);
+    int ReInit();
 
 	private:
 		int  DrawBMP(CWnd * pWnd, const char *fileName);

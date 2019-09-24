@@ -18,9 +18,13 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 
 	DECLARE_MESSAGE_MAP()
+
+private:
+  double m_x, m_y;
 public:
   afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
   virtual BOOL OnInitDialog();
 //  afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
   afx_msg void OnDestroy();
+  afx_msg void OnPaint();
 };

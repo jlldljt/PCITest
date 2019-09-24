@@ -402,7 +402,7 @@ BOOL CCamera::OnInitDialog()
 
   // 界面初始化
   GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
-  GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(FALSE);
+  //GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(FALSE);
   GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(FALSE);
   GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(FALSE);
   GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
@@ -992,12 +992,13 @@ void CCamera::OnBnClickedChkDebug()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_DEBUG);
+  GetDlgItem(IDC_CHK_DEBUG)->EnableWindow(FALSE);
 	int nStat = pChk->GetCheck();
 	if (nStat)
 	{
-		gstuRcgInfo.bDebug = 1;
+		//gstuRcgInfo.bDebug = 1;
     GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(TRUE);
-    GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(TRUE);
+    //GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(TRUE);
     GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(TRUE);
     GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(TRUE);
     GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(TRUE);
@@ -1012,9 +1013,9 @@ void CCamera::OnBnClickedChkDebug()
 	} 
 	else
 	{
-		gstuRcgInfo.bDebug = 0;
+		//gstuRcgInfo.bDebug = 0;
     GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
-    GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(FALSE);
+    //GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(FALSE);
     GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(FALSE);
     GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(FALSE);
     GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
@@ -1027,6 +1028,7 @@ void CCamera::OnBnClickedChkDebug()
     GetDlgItem(IDC_EDT_PN_MINDEG)->EnableWindow(FALSE);
     GetDlgItem(IDC_EDT_PN_MAXDEG)->EnableWindow(FALSE);
 	}
+  GetDlgItem(IDC_CHK_DEBUG)->EnableWindow(TRUE);
 }
 
 #include "DlgPriview1.h"
@@ -1106,6 +1108,8 @@ void CCamera::OnBnClickedBtnReconnect()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//IIICStartConnect();201608
+  gclsCamera.ReInit();
+
 	gnChannel = gclsCamera.GetKsj(KSJ_UC500M_MRYY);
 	if (0 > gnChannel)
 		AfxMessageBox(_T("KSJ_UC500M_MRYY 相机打开失败	,请检查是否连接该相机"));
@@ -1233,10 +1237,6 @@ void CCamera::OnBnClickedBtnAuto()
     GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(FALSE);
     GetDlgItem(IDC_BTN_SNAP)->EnableWindow(FALSE);
     GetDlgItem(IDC_BTN_TEST)->EnableWindow(FALSE);
-    GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(FALSE);
-    GetDlgItem(IDC_BTN_CALIBRATION)->EnableWindow(FALSE);
-    GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(FALSE);
-    GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(FALSE);
     //
   }
   else
@@ -1254,10 +1254,6 @@ void CCamera::OnBnClickedBtnAuto()
     GetDlgItem(IDC_BTN_VIDEO)->EnableWindow(TRUE);
     GetDlgItem(IDC_BTN_SNAP)->EnableWindow(TRUE);
     GetDlgItem(IDC_BTN_TEST)->EnableWindow(TRUE);
-    GetDlgItem(IDC_BTN_PARMSEND)->EnableWindow(TRUE);
-    GetDlgItem(IDC_BTN_CALIBRATION)->EnableWindow(TRUE);
-    GetDlgItem(IDC_BTN_RECONNECT)->EnableWindow(TRUE);
-    GetDlgItem(IDC_BTN_SPLIT)->EnableWindow(TRUE);
 
     //
 
@@ -1416,6 +1412,7 @@ void CCamera::OnBnClickedChkBelt()
 {
   // TODO: 在此添加控件通知处理程序代码
   CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_BELT);
+  GetDlgItem(IDC_CHK_BELT)->EnableWindow(FALSE);
   int nStat = pChk->GetCheck();
   if (nStat)
   {
@@ -1427,6 +1424,7 @@ void CCamera::OnBnClickedChkBelt()
     SetDlgItemText(IDC_CHK_BELT, _T("不拉胶"));
     g_dlgDevice->BeltSet(0);
   }
+  GetDlgItem(IDC_CHK_BELT)->EnableWindow(TRUE);
 }
 
 
@@ -1434,6 +1432,7 @@ void CCamera::OnBnClickedChkDefpn()
 {
   // TODO: 在此添加控件通知处理程序代码
   CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_DEFPN);
+  GetDlgItem(IDC_CHK_DEFPN)->EnableWindow(FALSE);
   int nStat = pChk->GetCheck();
   if (nStat)
   {
@@ -1445,6 +1444,7 @@ void CCamera::OnBnClickedChkDefpn()
     SetDlgItemText(IDC_CHK_DEFPN, _T("测反"));
     g_dlgDevice->DefPNSet(-1);
   }
+  GetDlgItem(IDC_CHK_DEFPN)->EnableWindow(TRUE);
 }
 
 

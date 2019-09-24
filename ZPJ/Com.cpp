@@ -502,6 +502,8 @@ INT32 CCom::WriteVar(UINT32 no , INT32 val) {
     return 0;
   }
   else {
+
+    AfxMessageBox(_T("NPC通讯异常"));
     return -1;
   }
 
@@ -581,6 +583,8 @@ INT32 CCom::ReadVar(UINT32 no, INT32 &val) {
       return -1;
   }
   else {
+
+    AfxMessageBox(_T("通讯异常"));
     return -1;
   }
 

@@ -599,6 +599,11 @@ BOOL CBERDlg::DBGInit()
 		iniint=GetPrivateProfileInt(_T("识别参数"),_T("特征允许误差"),0,gstuPathInf.csPathIni);
 		g_dlgCamera->SetDlgItemInt(IDC_EDT_FTOUTPOINT,iniint);gstuRcgInfo.nAllowDefect = iniint;
 
+
+    iniint = GetPrivateProfileInt(_T("识别参数"), _T("调试模式"), 0, gstuPathInf.csPathIni);
+    gstuRcgInfo.bDebug = iniint;
+
+
     //识别
 
     iniint = GetPrivateProfileInt(_T("方片参数"), _T("最小角"), 0, gstuPathInf.csPathIni);
@@ -616,7 +621,7 @@ BOOL CBERDlg::DBGInit()
 
 	gstuRcgInfo.bThrdAuto = 0;//自动阈值标识0
 	gstuRcgInfo.bDelNoise = 0;
-	gstuRcgInfo.bDebug = 0;
+	//gstuRcgInfo.bDebug = 0;
 	//=======================DEVICE============================
 	//com初始化
 	int l_int=GetPrivateProfileInt(_T("COM"),_T("口号"),0,gstuPathInf.csPathIni);
