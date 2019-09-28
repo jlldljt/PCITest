@@ -52,6 +52,7 @@
 #define VAR_BELT g_npc_inf.var7
 #define VAR_DEFPN g_npc_inf.var8
 #define VAR_CUT g_npc_inf.var9
+#define VAR_SIZE g_npc_inf.var10
 
 #define VAR_TURNTABLE g_npc_inf.var_y3//规定PN的筛选值
 

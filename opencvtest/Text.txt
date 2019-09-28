@@ -1,0 +1,2 @@
+平滑处理也称模糊处理“blurring”,常用于减少噪声、失真，降低图像分辨率
+https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html?highlight=cvsmooth#smooth

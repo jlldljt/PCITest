@@ -83,6 +83,8 @@ ON_EN_CHANGE(IDC_EDT_PN_MAXDEG, &CCamera::OnEnChangeEdtPnMaxdeg)
 ON_BN_CLICKED(IDC_CHK_BELT, &CCamera::OnBnClickedChkBelt)
 ON_BN_CLICKED(IDC_CHK_DEFPN, &CCamera::OnBnClickedChkDefpn)
 ON_BN_CLICKED(IDC_CHK_CUT, &CCamera::OnBnClickedChkCut)
+ON_STN_CLICKED(IDC_SELECT_XY, &CCamera::OnStnClickedSelectXy)
+ON_CBN_SELCHANGE(IDC_COMBO_SIZE, &CCamera::OnCbnSelchangeComboSize)
 END_MESSAGE_MAP()
 
 
@@ -417,6 +419,13 @@ BOOL CCamera::OnInitDialog()
   CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_DEFPN);
   pChk->SetCheck(1);
 
+  ((CComboBox*)GetDlgItem(IDC_COMBO_SIZE))->AddString(_T("8"));
+  ((CComboBox*)GetDlgItem(IDC_COMBO_SIZE))->AddString(_T("10"));
+  ((CComboBox*)GetDlgItem(IDC_COMBO_SIZE))->AddString(_T("12"));
+  ((CComboBox*)GetDlgItem(IDC_COMBO_SIZE))->SetItemData(0, 8);
+  ((CComboBox*)GetDlgItem(IDC_COMBO_SIZE))->SetItemData(1, 10);
+  ((CComboBox*)GetDlgItem(IDC_COMBO_SIZE))->SetItemData(2, 12);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -426,7 +435,6 @@ void CCamera::OnStnClickedPreview()
 {
 	// TODO: 在此添加控件通知处理程序代码
   //NpcParm par = { 0 };
-
 	if (0==gclsImgRcg.g_stu_square.nN)
 	{
 		//return;
@@ -563,6 +571,12 @@ void CCamera::OnStnClickedPreview()
 		}
     //没有点到片上
       if(i == gclsImgRcg.g_stu_square.nN) {
+
+        if (0 == gclsImgRcg.g_stu_square.nBMPW || 0 == gclsImgRcg.g_stu_square.nBMPH) {
+         // AfxMessageBox(_T("先点击识别测试"));
+          return;
+        }
+
       CWnd* pWnd = GetDlgItem(IDC_PREVIEW);
       CDC* pDC = pWnd->GetDC();
       CRect rect;
@@ -1457,4 +1471,24 @@ void CCamera::OnBnClickedChkCut()
 
   pChk->SetCheck(0);
   
+}
+
+
+void CCamera::OnStnClickedSelectXy()
+{
+  // TODO: 在此添加控件通知处理程序代码
+
+
+}
+
+
+void CCamera::OnCbnSelchangeComboSize()
+{
+  // TODO: 在此添加控件通知处理程序代码
+  int sel = ((CComboBox*)GetDlgItem(IDC_COMBO_SIZE))->GetCurSel();
+
+  int data = ((CComboBox*)GetDlgItem(IDC_COMBO_SIZE))->GetItemData(sel);
+
+  g_dlgDevice->SizeSet(data);
+
 }

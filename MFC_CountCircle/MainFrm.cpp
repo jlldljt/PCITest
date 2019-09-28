@@ -264,32 +264,60 @@ void CMainFrame::OnBtnStop()
   MeasureApertureThreadSuspend();
 }
 
+//void CMainFrame::OnBtnSnap()
+//{
+//  // TODO: 在此添加命令处理程序代码
+//  m_cam.captureBmp("img.bmp");
+//  
+//  return;
+//
+//  CDlgView* pview = (CDlgView*)m_splitwnd.GetPane(0, 1);
+//  //m_capControl.CaptureSingle(L"cap.bmp");
+//  m_capControl.CaptureSingleBuffer();
+//
+//  CTime tm; 
+//	tm=CTime::GetCurrentTime();
+//	CStringA csSavePathName;
+//	static int Number = 0;
+//	csSavePathName.Format("../TestPicture/%d%02d%02d%02d%02d%02d_%d.jpg",tm.GetYear(),tm.GetMonth(),tm.GetDay(),tm.GetHour(),tm.GetMinute(),tm.GetSecond(),Number++);
+//  m_capControl.SaveImageData((CString)csSavePathName);
+// // ShowLocalPicture(L"cap.bmp", pview->GetDlgItem(IDC_PICTURE_SHOW));  
+// // m_capControl.SaveImageData(csSavePathName);
+//
+//  //m_image.Load("./cap3.jpg");
+//  //m_pview = pview;
+//  //pview->OnBnClickedUpdataBtn();
+// /// MeasureAperture(1);
+// 
+//}
+
 void CMainFrame::OnBtnSnap()
 {
   // TODO: 在此添加命令处理程序代码
-  m_cam.captureBmp("img.bmp");
-  
-  return;
+  //m_cam.captureBmp("img.bmp");
+
+  //return;
 
   CDlgView* pview = (CDlgView*)m_splitwnd.GetPane(0, 1);
   //m_capControl.CaptureSingle(L"cap.bmp");
-  m_capControl.CaptureSingleBuffer();
+ // m_capControl.CaptureSingleBuffer();
 
-  CTime tm; 
-	tm=CTime::GetCurrentTime();
-	CStringA csSavePathName;
-	static int Number = 0;
-	csSavePathName.Format("../TestPicture/%d%02d%02d%02d%02d%02d_%d.jpg",tm.GetYear(),tm.GetMonth(),tm.GetDay(),tm.GetHour(),tm.GetMinute(),tm.GetSecond(),Number++);
+  CTime tm;
+  tm = CTime::GetCurrentTime();
+  CStringA csSavePathName;
+  static int Number = 0;
+  csSavePathName.Format("../TestPicture/%d%02d%02d%02d%02d%02d_%d.jpg", tm.GetYear(), tm.GetMonth(), tm.GetDay(), tm.GetHour(), tm.GetMinute(), tm.GetSecond(), Number++);
   m_capControl.SaveImageData((CString)csSavePathName);
- // ShowLocalPicture(L"cap.bmp", pview->GetDlgItem(IDC_PICTURE_SHOW));  
- // m_capControl.SaveImageData(csSavePathName);
+   ShowLocalPicture(L"cap.bmp", pview->GetDlgItem(IDC_PICTURE_SHOW));  
+   m_capControl.SaveImageData(csSavePathName);
 
-  //m_image.Load("./cap3.jpg");
-  //m_pview = pview;
-  //pview->OnBnClickedUpdataBtn();
- /// MeasureAperture(1);
- 
+   m_image.Load("./cap3.jpg");
+   m_pview = pview;
+   pview->OnBnClickedUpdataBtn();
+   MeasureAperture(1);
+
 }
+
 
 
 BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)

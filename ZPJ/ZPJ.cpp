@@ -1052,7 +1052,8 @@ UINT Thread_Auto(LPVOID pParam)
       csTmp.Format(_T("等待取片作业完成"));
       pdlg->GetDlgItem(IDC_SELECT_RESULT)->SetWindowText(csTmp);
 
-      break;//取了片之后盘面会抖，重新拍照
+      if(gstuRcgInfo.bOnce)
+        break;//取了片之后盘面会抖，重新拍照
     }//for (int i = 0; i < gclsImgRcg.g_stu_square.nN; i++)
 
     if (i >= gclsImgRcg.g_stu_square.nN)

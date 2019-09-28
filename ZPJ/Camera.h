@@ -58,5 +58,7 @@ public:
   afx_msg void OnBnClickedChkBelt();
   afx_msg void OnBnClickedChkDefpn();
   afx_msg void OnBnClickedChkCut();
+  afx_msg void OnStnClickedSelectXy();
+  afx_msg void OnCbnSelchangeComboSize();
 };
 extern CCamera *g_dlgCamera;

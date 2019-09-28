@@ -603,6 +603,8 @@ BOOL CBERDlg::DBGInit()
     iniint = GetPrivateProfileInt(_T("识别参数"), _T("调试模式"), 0, gstuPathInf.csPathIni);
     gstuRcgInfo.bDebug = iniint;
 
+    iniint = GetPrivateProfileInt(_T("识别参数"), _T("只取一片"), 0, gstuPathInf.csPathIni);
+    gstuRcgInfo.bOnce = iniint;
 
     //识别
 

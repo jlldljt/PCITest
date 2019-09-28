@@ -39,6 +39,8 @@ public:
   int DefPNSet(int status);
   int CutGet(int& status);
   int CutSet(int status);
+  int SizeGet(int& status);
+  int SizeSet(int status);
 	void SortSend(char num);
 	bool EasyPosSet();
 	void EFGStaSel(char nN);

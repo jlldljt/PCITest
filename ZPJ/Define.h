@@ -128,6 +128,7 @@ typedef struct RecognitionInfo
 	bool bThrdAuto;//自动阈值标识
 	bool bDelNoise;//去噪标识
 	bool bDebug;//指示是否开启DEBUG//速度很慢
+  bool bOnce;// 只取一片
 	int nAllowDefect;//特征允许误差，用于判断识别出的长宽是否符合要求
 	int nLength,nWide;//保存特征长宽
 	bool bIsCir;

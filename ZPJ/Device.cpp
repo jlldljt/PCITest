@@ -608,6 +608,14 @@ int CDevice::CutSet(int status)
 {
   return gclsCom.WriteVar(VAR_CUT, status);
 }
+int  CDevice::SizeGet(int& status)
+{
+  return gclsCom.ReadVar(VAR_SIZE, status);
+}
+int CDevice::SizeSet(int status)
+{
+  return gclsCom.WriteVar(VAR_SIZE, status);
+}
 //档位发送；
 void CDevice::SortSend(char num)
 {
@@ -2019,6 +2027,8 @@ BOOL CDevice::OnInitDialog()
   m_tt.AddTool(pW, L"所需正反变量号");//为此控件添加tip
   pW = GetDlgItem(IDC_EDT_VAR9);//得到控件的指针
   m_tt.AddTool(pW, L"提前切断变量号");//为此控件添加tip
+  pW = GetDlgItem(IDC_EDT_VAR10);//得到控件的指针
+  m_tt.AddTool(pW, L"尺寸变量号");//为此控件添加tip
 
   //CWnd* pW = GetDlgItem(IDC_CHECK1);//得到已添加tip控件
   //m_tt.UpdateTipText(L"asdflasdf", pW);//更新tip的内容
