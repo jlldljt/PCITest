@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opencvtest", "opencvtest\op
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "vb com", "vb com\vb com.vbproj", "{A03D9B54-5789-479C-AF4A-E2BEAAD82A20}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BICALDebug", "BICALDebug\BICALDebug.vcxproj", "{0848D283-AEF7-45F6-A3C6-D686DE9E1416}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,6 +164,18 @@ Global
 		{A03D9B54-5789-479C-AF4A-E2BEAAD82A20}.Release|x64.ActiveCfg = Release|x86
 		{A03D9B54-5789-479C-AF4A-E2BEAAD82A20}.Release|x86.ActiveCfg = Release|x86
 		{A03D9B54-5789-479C-AF4A-E2BEAAD82A20}.Release|x86.Build.0 = Release|x86
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Debug|Win32.Build.0 = Debug|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Debug|x64.ActiveCfg = Debug|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Debug|x86.ActiveCfg = Debug|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Debug|x86.Build.0 = Debug|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Release|Any CPU.ActiveCfg = Release|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Release|Win32.ActiveCfg = Release|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Release|Win32.Build.0 = Release|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Release|x64.ActiveCfg = Release|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Release|x86.ActiveCfg = Release|Win32
+		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
