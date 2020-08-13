@@ -1,4 +1,5 @@
 #include "serial.h"
+#include <process.h>
 
 // global function
 wchar_t* CharToWchar(const char* c, size_t m_encode = CP_ACP)
@@ -10,17 +11,21 @@ wchar_t* CharToWchar(const char* c, size_t m_encode = CP_ACP)
 	return m_wchar;
 }
 
-serial::serial()
+serialsyn::serialsyn()
 {
 	_hser = INVALID_HANDLE_VALUE;
 	_error = NO_ERROR;
+	_dcb = { 0 };
+	_timeout = { 0 };
+	_stat = { 0 };
 }
 
-serial::~serial()
+serialsyn::~serialsyn()
 {
 }
 
-int serial::OpenSerial(char* serial)
+
+int serialsyn::OpenSerial(char* serial, DWORD baud_rate, BYTE byte_size, BYTE parity, BYTE stop_bits)
 {
 	char path[32] = { 0 };
 	wchar_t* wpath = NULL;
@@ -49,15 +54,22 @@ int serial::OpenSerial(char* serial)
 	}
 	else
 	{
-		SetupComm(_hser, 2048, 2048);//分配缓冲区
+		SetupComm(_hser, 4096, 4096);//分配缓冲区
+
 		GetCommState(_hser, &_dcb);//读取DCB结构
-		_dcb.BaudRate = 115200;//波特率为9600
-		_dcb.ByteSize = 8;//数据位为8位
+		//_dcb.DCBlength = sizeof(_dcb);
+		_dcb.BaudRate = baud_rate;//波特率为9600
+		_dcb.ByteSize = byte_size;//数据位为8位
 		_dcb.fParity = 1;//奇偶校验
-		_dcb.Parity = NOPARITY;//ODDPARITY;
-		_dcb.StopBits = 0;//一位停止位
+		_dcb.Parity = parity;//ODDPARITY;
+		_dcb.StopBits = stop_bits;//一位停止位
 		SetCommState(_hser, &_dcb);
+
 		_timeout.ReadIntervalTimeout = 0;
+		_timeout.ReadTotalTimeoutConstant = 1000;
+		//_timeout.ReadTotalTimeoutMultiplier = 500;
+		//_timeout.WriteTotalTimeoutMultiplier = 500;
+		_timeout.WriteTotalTimeoutConstant = 1000;
 		SetCommTimeouts(_hser, &_timeout);
 		PurgeComm(_hser, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 		return true;
@@ -67,7 +79,7 @@ int serial::OpenSerial(char* serial)
 	return 0;
 }
 
-void serial::CloseSerial(void)
+void serialsyn::CloseSerial(void)
 {
 	if (_hser != INVALID_HANDLE_VALUE)
 	{
@@ -75,7 +87,7 @@ void serial::CloseSerial(void)
 	}
 }
 
-int serial::Write(char* buf, int buf_len)
+int serialsyn::Write(char* buf, int buf_len)
 {
 	DWORD write_len = 0;//发送出去的字符长度
 	ClearCommError(_hser, &_error, &_stat);
@@ -88,7 +100,7 @@ int serial::Write(char* buf, int buf_len)
 	return 0;
 }
 /* return the len read */
-int serial::Read(char* buf, int buf_len)
+int serialsyn::Read(char* buf, int buf_len)
 {
 	DWORD exist_len = 0;
 	DWORD read_len = 0;
@@ -118,4 +130,222 @@ int serial::Read(char* buf, int buf_len)
 	}
 
 	return 0;
+}
+
+
+/********************************************************************/
+//unsigned int __stdcall serialasy::RecvThread(void* LPParam)// 配合ReadIntervalTimeout = 2
+//{
+//	serialasy* obj = static_cast<serialasy*>(LPParam);
+//
+//	DWORD Bytes = 0;
+//	BOOL Status = FALSE;
+//	BYTE ReadBuf[4096];
+//	DWORD Error;
+//	COMSTAT cs = { 0 };
+//
+//	while (obj->_hser != INVALID_HANDLE_VALUE)
+//	{
+//
+//		ClearCommError(obj->_hser, &Error, &cs);
+//
+//		Bytes = 0;
+//		obj->_ov_read.Offset = 0;
+//		memset(ReadBuf, 0, sizeof(ReadBuf));
+//		Status = ReadFile(obj->_hser, ReadBuf, sizeof(ReadBuf), &Bytes, &obj->_ov_read);
+//		//数据已经到达缓存区，读取会立即返回，并返回True， 否则返回False
+//		if (Status == FALSE && GetLastError() == ERROR_IO_PENDING)
+//		{
+//			//如果有数据到达 且 时间超过ReadIntervalTimeout则会返回，否则会一直等待
+//			Status = GetOverlappedResult(obj->_hser, &obj->_ov_read, &Bytes, TRUE);
+//		}
+//		if (FALSE != Status && Bytes > 0)
+//		{
+//			//cout << "Read:" << (LPCSTR)ReadBuf << "   Len:" << Bytes << endl;
+//		}
+//		PurgeComm(obj->_hser, PURGE_RXCLEAR | PURGE_RXABORT);
+//
+//	}
+//
+//	return 0;
+//}
+
+unsigned int __stdcall serialasy::RecvThread(void* param) // 配合_timeout.ReadIntervalTimeout = MAXDWORD
+{
+	serialasy* obj = static_cast<serialasy*>(param);
+
+	DWORD WaitEvent = 0, Bytes = 0;
+	BOOL Status = FALSE;
+	BYTE ReadBuf[4096];
+	DWORD Error;
+	COMSTAT cs = { 0 };
+
+	while (obj->_hser != INVALID_HANDLE_VALUE)
+	{
+		WaitEvent = 0;
+		obj->_ov_wait.Offset = 0;
+		Status = WaitCommEvent(obj->_hser, &WaitEvent, &obj->_ov_wait);
+		//WaitCommEvent也是一个异步命令，所以需要等待
+		if (FALSE == Status && GetLastError() == ERROR_IO_PENDING)//
+		{
+			//如果缓存中无数据线程会停在此，如果_hser关闭会立即返回False
+			Status = GetOverlappedResult(obj->_hser, &obj->_ov_wait, &Bytes, TRUE);
+		}
+		ClearCommError(obj->_hser, &Error, &cs);
+		if (TRUE == Status //等待事件成功
+			&& WaitEvent & EV_RXCHAR//缓存中有数据到达
+			&& cs.cbInQue > 0)//有数据
+		{
+			Bytes = 0;
+			obj->_ov_read.Offset = 0;
+			memset(ReadBuf, 0, sizeof(ReadBuf));
+			//数据已经到达缓存区，ReadFile不会当成异步命令，而是立即读取并返回True
+			Status = ReadFile(obj->_hser, ReadBuf, sizeof(ReadBuf), &Bytes, &obj->_ov_read);
+			if (Status != FALSE)
+			{
+				//cout << "Read:" << (LPCSTR)ReadBuf << "   Len:" << Bytes << endl;
+			}
+			PurgeComm(obj->_hser, PURGE_RXCLEAR | PURGE_RXABORT);
+		}
+
+	}
+	return 0;
+}
+
+serialasy::serialasy()
+{
+	_hser = INVALID_HANDLE_VALUE;
+	_error = NO_ERROR;
+	_dcb = { 0 };
+	_timeout = { 0 };
+	_stat = { 0 };
+	memset(&_ov_write, 0, sizeof(_ov_write));
+	memset(&_ov_read, 0, sizeof(_ov_read));
+	memset(&_ov_wait, 0, sizeof(_ov_wait));
+	_thread = NULL;
+}
+
+serialasy::~serialasy()
+{
+}
+
+int serialasy::OpenSerial(char* serial, DWORD baud_rate, BYTE byte_size, BYTE parity, BYTE stop_bits)
+{
+	char path[32] = { 0 };
+	wchar_t* wpath = NULL;
+
+	if (strlen(serial) > 4) // com10以上
+	{
+		strcpy(path, "\\\\.\\");
+		strcat(path, serial);
+		wpath = CharToWchar(path);
+	}
+	else
+	{
+		wpath = CharToWchar(serial);
+	}
+
+	_hser = CreateFile(wpath, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_ATTRIBUTE_NORMAL, NULL);
+
+	delete wpath;
+
+	if (_hser == INVALID_HANDLE_VALUE)
+	{
+		_error = GetLastError();
+		if (_error == 5)
+			printf("没有发现串口或串口已被占用");
+		return false;
+
+	}
+	else
+	{
+		SetupComm(_hser, 4096, 4096);//分配缓冲区
+
+		GetCommState(_hser, &_dcb);//读取DCB结构
+		//_dcb.DCBlength = sizeof(_dcb);
+		_dcb.BaudRate = baud_rate;//波特率为9600
+		_dcb.ByteSize = byte_size;//数据位为8位
+		_dcb.fParity = 1;//奇偶校验
+		_dcb.Parity = parity;//ODDPARITY;
+		_dcb.StopBits = stop_bits;//一位停止位
+		SetCommState(_hser, &_dcb);
+
+		//读取延时设为2ms，这样ReadFile异步读取时，会返回FALSE，并且GetLastError() == ERROR_IO_PENDING。
+		//如果设为MAXDWORD，ReadFile异步读取时，会返回TRUE
+		//然后调用GetOverlappedResult等待数据到达，如果有数据到达且时间超过2ms则会返回，否则会一直等待。
+		//_timeout.ReadIntervalTimeout = 2;
+		_timeout.ReadIntervalTimeout = MAXDWORD;//读取无延时，因为有WaitCommEvent等待数据
+		_timeout.ReadTotalTimeoutConstant = 0;  //
+		_timeout.ReadTotalTimeoutMultiplier = 0;//
+
+		_timeout.WriteTotalTimeoutMultiplier = 500;
+		_timeout.WriteTotalTimeoutConstant = 5000;
+		PurgeComm(_hser, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
+
+		//创建事件对象
+		_ov_write.hEvent = CreateEvent(NULL, false, false, NULL);
+		_ov_read.hEvent = CreateEvent(NULL, false, false, NULL);
+		_ov_wait.hEvent = CreateEvent(NULL, false, false, NULL);
+
+		SetCommMask(_hser, EV_ERR | EV_RXCHAR);//设置接受事件
+
+		//创建读取线程
+		_thread = (HANDLE)_beginthreadex(NULL, 0, &serialasy::RecvThread, this, 0, NULL);
+
+
+		return true;
+
+	}
+
+	return 0;
+}
+
+void serialasy::CloseSerial(void)
+{
+	if (INVALID_HANDLE_VALUE != _hser)
+	{
+		CloseHandle(_hser);
+		_hser = INVALID_HANDLE_VALUE;
+	}
+	if (NULL != _ov_write.hEvent)
+	{
+		CloseHandle(_ov_write.hEvent);
+		_ov_write.hEvent = NULL;
+	}
+	if (NULL != _ov_read.hEvent)
+	{
+		CloseHandle(_ov_read.hEvent);
+		_ov_read.hEvent = NULL;
+	}
+	if (NULL != _ov_wait.hEvent)
+	{
+		CloseHandle(_ov_wait.hEvent);
+		_ov_wait.hEvent = NULL;
+	}
+	if (NULL != _thread)
+	{
+		WaitForSingleObject(_thread, 5000);//等待线程结束
+		CloseHandle(_thread);
+		_thread = NULL;
+	}
+}
+
+int serialasy::Write(char* buf, int buf_len)
+{
+	BOOL ret = FALSE;
+	DWORD write_len = 0;//发送出去的字符长度
+	ClearCommError(_hser, &_error, &_stat);
+	ret = WriteFile(_hser, buf, buf_len, &write_len, &_ov_write);//发送
+
+	if (FALSE == ret && GetLastError() == ERROR_IO_PENDING)//后台读取
+	{
+		//等待数据写入完成
+		if (FALSE == ::GetOverlappedResult(_hser, &_ov_write, &write_len, TRUE))
+		{
+			return -1;
+		}
+	}
+
+
+	return write_len;
 }
