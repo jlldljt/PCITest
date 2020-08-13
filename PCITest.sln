@@ -25,6 +25,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "vb com", "vb com\vb com.vbp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BICALDebug", "BICALDebug\BICALDebug.vcxproj", "{0848D283-AEF7-45F6-A3C6-D686DE9E1416}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleSerial", "ConsoleSerial\ConsoleSerial.vcxproj", "{98F6A5F2-4630-4625-AC00-3F1509201DB6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,6 +178,20 @@ Global
 		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Release|x64.ActiveCfg = Release|Win32
 		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Release|x86.ActiveCfg = Release|Win32
 		{0848D283-AEF7-45F6-A3C6-D686DE9E1416}.Release|x86.Build.0 = Release|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Debug|Win32.Build.0 = Debug|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Debug|x64.ActiveCfg = Debug|x64
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Debug|x64.Build.0 = Debug|x64
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Debug|x86.ActiveCfg = Debug|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Debug|x86.Build.0 = Debug|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Release|Any CPU.ActiveCfg = Release|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Release|Win32.ActiveCfg = Release|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Release|Win32.Build.0 = Release|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Release|x64.ActiveCfg = Release|x64
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Release|x64.Build.0 = Release|x64
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Release|x86.ActiveCfg = Release|Win32
+		{98F6A5F2-4630-4625-AC00-3F1509201DB6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
