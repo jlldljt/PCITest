@@ -290,6 +290,7 @@ int serialasy::OpenSerial(char* serial, DWORD baud_rate, BYTE byte_size, BYTE pa
 
 		_timeout.WriteTotalTimeoutMultiplier = 500;
 		_timeout.WriteTotalTimeoutConstant = 5000;
+		SetCommTimeouts(_hser, &_timeout);
 
 		PurgeComm(_hser, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 
