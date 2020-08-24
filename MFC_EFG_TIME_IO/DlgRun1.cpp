@@ -147,7 +147,8 @@ UINT Thread_XRun(LPVOID pParam)
     switch (pdlg->m_run.state.x)
     {
     case START://等料
-      if (START == pdlg->m_run.state.user/*pdlg->m_io->ReadDi(READY)*/) {//如果有料
+     // if (START == pdlg->m_run.state.user/*pdlg->m_io->ReadDi(READY)*/) {//如果有料
+	  if (pdlg->m_run.transfer[TRANSFER_TAKE]==1) {
         pdlg->m_run.state.user = END;//取料标记清零
         pdlg->m_io->MotoZero(MOTOR_X);//回零
         pdlg->m_io->WriteDo(X_NOZZLE, IO_ON);//打开吸嘴
@@ -375,6 +376,8 @@ UINT Thread_MainRun(LPVOID pParam)
       pdlg->m_run.state.y = END;
       pdlg->m_run.state.turntable = END;
       pdlg->m_io->WriteDo(XRAY_GATE, IO_ON);//打开光门
+	  memset(pdlg->m_run.transfer, 0, sizeof(int) * 6);
+
       if (-1 == pdlg->m_io->StartMeasure(1))//;//启动测量
       {
         pdlg->SetDlgItemText(IDC_STATIC_MESSAGE, _T("启动失败"));
@@ -633,27 +636,53 @@ UINT Thread_MainRun(LPVOID pParam)
 
   return 0;
 }
-
+CCamera* pdlg_cam = NULL;
 // ========================================================================相机上料===================================================================
 UINT Thread_Camera(LPVOID pParam)
 {
   SetThreadAffinityMask(GetCurrentThread(), 1);
   CDlgRun1* pdlg = (CDlgRun1*)pParam;
-  CCamera* pdlg_cam = ((CDlgDebug1*)(GetMainFrame()->m_userFrame->m_splitUser.GetPane(0, 0)))->m_dlg_camera;
+  //CCamera* pdlg_cam = ((CDlgDebug1*)(GetMainFrame()->m_userFrame->m_splitUser.GetPane(0, 1)))->m_dlg_camera;
   char l_AnsiStr[MAX_PATH];
   int nWidth, nHeight;
   int nBitCount;
   int nBitsPerSample;
   int i = 0;
+  BOOL shake = FALSE;
   NpcParm par;
   //POINT pPoint[5];
+  Sleep(1000);
+  // 两次回零
+  pdlg->m_io->MotoZeroNoWait(MOTOR_A);
+  pdlg->m_io->MotoZeroNoWait(MOTOR_B);
+  while (!pdlg->m_io->CheckMotoEnd(MOTOR_A)) { Sleep(100); };
+  while (!pdlg->m_io->CheckMotoEnd(MOTOR_B)) { Sleep(100); };
+
+	  
+  pdlg->m_io->MotoZeroNoWait(MOTOR_A);
+  pdlg->m_io->MotoZeroNoWait(MOTOR_B);
+  while (!pdlg->m_io->CheckMotoEnd(MOTOR_A)) { Sleep(100); };
+  while (!pdlg->m_io->CheckMotoEnd(MOTOR_B)) { Sleep(100); };
+
+  pdlg_cam->m_rcg.g_stu_square.nN = 0;
 
   while (1)
   {
     switch (pdlg->m_run.state.camera) {
     case START://启动
+
+	  if(shake == TRUE){
+		pdlg->m_io->MotoShakeNoWait(MOTOR_D, 300);
+        while (!pdlg->m_io->CheckMotoEnd(MOTOR_D)) { Sleep(1); };
+		/*pdlg->m_io->MotoRunNoWait(MOTOR_D, 300);
+        while (!pdlg->m_io->CheckMotoEnd(MOTOR_D)) { Sleep(1); };*/
+		//break;
+	  }
+	  Sleep(500);
+	  shake = TRUE;
+
       WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, GetMainFrame()->m_exe_path + _T("\\PIC\\原图0.bmp"), -1, l_AnsiStr, sizeof(l_AnsiStr), NULL, NULL);
-      if (nullptr == pdlg_cam->m_ksj.SnapEx(pdlg_cam->m_ch, &nWidth, &nHeight, &nBitCount, &nBitsPerSample, l_AnsiStr, NULL))
+ //     if (nullptr == pdlg_cam->m_ksj.SnapEx(pdlg_cam->m_ch, &nWidth, &nHeight, &nBitCount, &nBitsPerSample, l_AnsiStr, NULL))
       if (-1 == pdlg_cam->m_cam.captureBmp(l_AnsiStr))
       {
         Sleep(500);
@@ -668,7 +697,17 @@ UINT Thread_Camera(LPVOID pParam)
       //m_rcg.RCGBMPSPLIT(NULL, NULL, l_AnsiStr, m_param->camera.nPToL, m_param->camera.nDefectPToL, m_param->camera.nThreshold, 0, m_param->camera.bIsCir, m_param->camera.bThrdAuto, m_param->camera.bDelNoise);
       pdlg_cam->m_rcg.RCGBMP(NULL, NULL, l_AnsiStr, pdlg_cam->m_param->camera.nPToL, pdlg_cam->m_param->camera.nDefectPToL, pdlg_cam->m_param->camera.nThreshold, 0, pdlg_cam->m_param->camera.bIsCir, pdlg_cam->m_param->camera.bThrdAuto, pdlg_cam->m_param->camera.bDelNoise);
       //
-      pdlg->m_run.state.camera = RUNNING;
+	  if(pdlg_cam->m_rcg.g_stu_square.nN > 0) {
+        pdlg->m_run.state.camera = RUNNING;
+	  } 
+	  else {
+		/*pdlg->m_io->MotoShakeNoWait(MOTOR_D, 300);
+        while (!pdlg->m_io->CheckMotoEnd(MOTOR_D)) { Sleep(1); };
+		pdlg->m_io->MotoRunNoWait(MOTOR_D, 300);
+        while (!pdlg->m_io->CheckMotoEnd(MOTOR_D)) { Sleep(1); };*/
+		break;
+	  }
+
       i = -1;
       break;
     case RUNNING:
@@ -699,6 +738,8 @@ UINT Thread_Camera(LPVOID pParam)
       }
 
 
+
+	  shake = FALSE;
       //for (int j = 0; j < 4; j++)
       //{
       //  pPoint[j].x = pdlg_cam->m_rcg.g_stu_square.pnPX[i][j];
@@ -759,8 +800,16 @@ UINT Thread_Camera(LPVOID pParam)
         pdlg->m_io->WriteDo(AB_NOZZLE, IO_OFF);//关闭吸嘴
 
         Sleep(pdlg->m_param->user_config.time.x_off);//延时
-
+		pdlg->m_run.transfer[0]=1;
         pdlg->m_run.state.camera = RUNNING;
+
+		//pdlg->m_io->MotoZero(MOTOR_A);
+		//	pdlg->m_io->MotoZero(MOTOR_B);
+		     pdlg->m_io->MotoZeroNoWait(MOTOR_A);
+      pdlg->m_io->MotoZeroNoWait(MOTOR_B);
+      while (!pdlg->m_io->CheckMotoEnd(MOTOR_A)) { Sleep(100); };
+      while (!pdlg->m_io->CheckMotoEnd(MOTOR_B)) { Sleep(100); };
+
       }
       break;
     default:
@@ -776,6 +825,7 @@ UINT Thread_Transfer(LPVOID pParam)
   SetThreadAffinityMask(GetCurrentThread(), 1);
   CDlgRun1* pdlg = (CDlgRun1*)pParam;
   const int tmp[6] = { 0 };
+  pdlg->m_io->MotoZero(MOTOR_C);
 
   while (1)
   {
@@ -785,8 +835,9 @@ UINT Thread_Transfer(LPVOID pParam)
       pdlg->m_run.state.transfer = PAUSE;
       break;
     case RUNNING://转60°
-      pdlg->m_io->MotoZero(MOTOR_D);
-      memcpy(pdlg->m_run.transfer, pdlg->m_run.transfer + 1, sizeof(int) * 5);
+      pdlg->m_io->MotoZero(MOTOR_C);
+		//pdlg->m_io->MotoRun(MOTOR_C, 500);
+      memcpy(pdlg->m_run.transfer + 1, pdlg->m_run.transfer, sizeof(int) * 5);
       pdlg->m_run.transfer[0] = 0;
 
       if (1 == pdlg->m_run.transfer[TRANSFER_TAKE])
@@ -1678,6 +1729,9 @@ BOOL CDlgRun1::PreTranslateMessage(MSG* pMsg)
           m_run.state.user = START;
         }
         break;
+	  case VK_CONTROL:
+        m_run.transfer[TRANSFER_TAKE]=0;
+        break;
       default:
         break;
       }
@@ -1691,11 +1745,14 @@ void CDlgRun1::OnBnClickedChkCamera()
 {
   // TODO: 在此添加控件通知处理程序代码
   CButton* pChk = (CButton*)GetDlgItem(IDC_CHK_CAMERA);
+  /*CCamera*/ pdlg_cam = ((CDlgDebug1*)(GetMainFrame()->m_userFrame->m_splitUser.GetPane(0, 1)))->m_dlg_camera;
   int nStat = pChk->GetCheck();
   pChk->EnableWindow(FALSE);
 
   if (nStat)
   {
+	  pdlg_cam->VideoOnOff(TRUE);
+	  Sleep(1000);
     m_run.state.camera = START;
     m_run.state.transfer = START;
 
@@ -1735,5 +1792,8 @@ void CDlgRun1::OnBnClickedChkCamera()
     gTrdTransfer->Delete();
     gTrdCamera = NULL;
     gTrdTransfer = NULL;
+	pdlg_cam->VideoOnOff(FALSE);
   }
+
+  pChk->EnableWindow(TRUE);
 }

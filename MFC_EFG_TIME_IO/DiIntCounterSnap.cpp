@@ -1177,8 +1177,8 @@ int CDiIntCounterSnap::TestS()
 	float fre[LEN] = { 0 };
 	unsigned short period[LEN] = { 0 };
 	float fre_max = 500;
-	float fre_min = 200;
-	float flexible = 9;
+	float fre_min = 152;
+	float flexible = 8;
 
 	CalculateSModelLine(fre, period, LEN, fre_max, fre_min, flexible);
 

@@ -661,63 +661,63 @@ double* GetCoefficent(double* t, double* y, int m, int n)
 double GetMidCur(double * yi, int startCur, int endCur)
 {
   //多项式
-  //int num = endCur - startCur;
-  //double* t = new double[num];
-  //for (int i = 0; i < num; i++)t[i] = i;
-  //int n = 3;
-  //double* c = GetCoefficent(t, yi+ startCur, num, n);
+  int num = endCur - startCur;
+  double* t = new double[num];
+  for (int i = 0; i < num; i++)t[i] = i;
+  int n = 4;
+  double* c = GetCoefficent(t, yi+ startCur, num, n);
 
-  //double max = 0, max_val = 0;
-  //for (int i = startCur; i < endCur; i++) {
-  //  yi[i] = c[0];
+  double max = 0, max_val = 0;
+  for (int i = startCur; i < endCur; i++) {
+    yi[i] = c[0];
 
-  //  for (int j = 1; j < n; j++) {
-  //    yi[i] += c[j] * pow(t[i - startCur], j);
-  //  }
-  //  //yi[i] = c[0] + c[1] * t[i- startCur] + c[2] * t[i- startCur] * t[i- startCur];
+    for (int j = 1; j < n; j++) {
+      yi[i] += c[j] * pow(t[i - startCur], j);
+    }
+    //yi[i] = c[0] + c[1] * t[i- startCur] + c[2] * t[i- startCur] * t[i- startCur];
 
-  //  if (yi[i] > max_val) {
-  //    max_val = yi[i];
-  //    max = i;
+    if (yi[i] > max_val) {
+      max_val = yi[i];
+      max = i;
 
-  //  }
-  //}
+    }
+  }
 
-  //double dec = 0.1;
-  //double dir = 1;
-  //double tmpi = max;
-  //double tmpval = 0;
-  //	//  for (int j = 0; j < n; j++) {
-		// // tmpval += c[j] * pow(tmpi, j);
-	 // //}
-  //while(1) {
-	 // tmpi += dir * dec;
-	 // if (tmpi < startCur||tmpi >= endCur)
-		//  break;
-	 // // 计算函数值
-	 // tmpval = 0;
-	 // for (int j = 0; j < n; j++) {
-		//  tmpval += c[j] * pow(tmpi, j);
-	 // }
+  double dec = 0.1;
+  double dir = 1;
+  double tmpi = max;
+  double tmpval = 0;
+  	//  for (int j = 0; j < n; j++) {
+		 // tmpval += c[j] * pow(tmpi, j);
+	  //}
+  while(1) {
+	  tmpi += dir * dec;
+	  if (tmpi < startCur||tmpi >= endCur)
+		  break;
+	  // 计算函数值
+	  tmpval = 0;
+	  for (int j = 0; j < n; j++) {
+		  tmpval += c[j] * pow(tmpi, j);
+	  }
 
-	 // if(tmpval > max_val)// 变大
-	 // {
-		//  max_val = tmpval;
-  //        max = tmpi;
-	 // }
-	 // else//变小
-	 // {
-		//  tmpi -= dir * dec;
-		//  dir = -dir;
-		//  if(dir<0)
-		//    dec /= 10;
-		//  if(dec < 0.000001)//遍历精度
-		//	break;
-	 // }
-  //}
+	  if(tmpval > max_val)// 变大
+	  {
+		  max_val = tmpval;
+          max = tmpi;
+	  }
+	  else//变小
+	  {
+		  tmpi -= dir * dec;
+		  dir = -dir;
+		  if(dir<0)
+		    dec /= 10;
+		  if(dec < 0.000001)//遍历精度
+			break;
+	  }
+  }
 
 
-  //return max;
+  return max;
 
 	//抛物线
 	double ParaA,ParaB,ParaC;

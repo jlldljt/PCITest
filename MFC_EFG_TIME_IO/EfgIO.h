@@ -73,6 +73,34 @@ typedef struct  {
       float min_freq;
       float flexible;
     }u;
+    struct {
+      int pos;
+      int dst_pos;
+      float max_freq;
+      float min_freq;
+      float flexible;
+    }a;
+    struct {
+      int pos;
+      int dst_pos;
+      float max_freq;
+      float min_freq;
+      float flexible;
+    }b;
+    struct {
+      int pos;
+      int dst_pos;
+      float max_freq;
+      float min_freq;
+      float flexible;
+    }c;
+    struct {
+      int pos;
+      int dst_pos;
+      float max_freq;
+      float min_freq;
+      float flexible;
+    }d;
   }motor;
   
   struct//用户配置
@@ -208,13 +236,13 @@ enum EFG_OChannel
   CLEAN,//三孔吹
   X_NOZZLE,//X吸气
   AIR_FLAG2,
+  AB_NOZZLE,
+  AB_CYLINDER,
   U_GATE,//
   U_OUTP,//
   U_OUTN,//
   XRAY_CTRL_GATE,//光门
   U_EN,//
-  AB_CYLINDER,
-  AB_NOZZLE,
 };
 //按序号
 enum AC6641_Channel
@@ -318,8 +346,11 @@ public:
   char GetMotoCh(int moto_index);
   void MotoRun(int moto_index, double param);
   int MotoRun(int moto_index, int param);
+  int MotoShake(int moto_index, int param);
+  int MotoShakeNoWait(int moto_index, int param);
   void MotoRunNoWait(int moto_index, double param);
   int MotoRunNoWait(int moto_index, int param);
+  int MotoZeroNoWait(int moto_index);
   int MotoZero(int moto_index);
   void UAutoRun(double degree);
   BOOL CheckMotoEnd(int moto_index);

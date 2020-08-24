@@ -19,11 +19,11 @@ public:
   CCvCam(void);   // 标准构造函数
   virtual ~CCvCam();
 
-  void init(HWND wnd);
+  int init(HWND wnd);
   void unInit();
   int drawPicToHDC(IplImage* pImg);
   int savePic(const char* path, IplImage* pImg);
-  void snap(void);
+  int snap(void);
   int captureBmp(const char* path);
 
 };

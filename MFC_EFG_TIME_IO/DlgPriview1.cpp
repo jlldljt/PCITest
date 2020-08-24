@@ -228,7 +228,7 @@ BOOL CDlgPriview1::OnInitDialog()
   CDialogEx::OnInitDialog();
 
   // TODO:  在此添加额外的初始化
-  if (0 == m_p->m_rcg.g_stu_square.nBMPW || 0 == m_p->m_rcg.g_stu_square.nBMPH) {
+  if (0 >= m_p->m_rcg.g_stu_square.nBMPW || 0 >= m_p->m_rcg.g_stu_square.nBMPH) {
     AfxMessageBox(_T("先点击识别测试"));
     //DestroyWindow();
     return FALSE;
@@ -300,7 +300,7 @@ void CDlgPriview1::OnDestroy()
 
   // TODO: 在此处添加消息处理程序代码
     // TODO:  在此添加额外的初始化
-  if (0 == m_p->m_rcg.g_stu_square.nBMPW || 0 == m_p->m_rcg.g_stu_square.nBMPH) {
+  if (0 >= m_p->m_rcg.g_stu_square.nBMPW || 0 >= m_p->m_rcg.g_stu_square.nBMPH) {
     return;
   }
 

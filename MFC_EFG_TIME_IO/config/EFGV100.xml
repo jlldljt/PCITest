@@ -265,10 +265,10 @@
 
 <DO8>
     <Device>0</Device>
-    <ComboData>-1</ComboData>
-    <Param0>0</Param0>
-    <Param1>0</Param1>
-    <Start>false</Start>
+    <ComboData>6</ComboData>
+    <Param0>1</Param0>
+    <Param1>1</Param1>
+    <Start>true</Start>
 </DO8>
 
 <T08>
@@ -297,10 +297,10 @@
 
 <DO9>
     <Device>0</Device>
-    <ComboData>-1</ComboData>
-    <Param0>0</Param0>
+    <ComboData>6</ComboData>
+    <Param0>1</Param0>
     <Param1>0</Param1>
-    <Start>false</Start>
+    <Start>true</Start>
 </DO9>
 
 <T09>

@@ -533,6 +533,48 @@ void CEfgIO::MotoRunNoWait(int moto_index, double param)
 
 #endif
 }
+int CEfgIO::MotoShake(int moto_index, int param)
+{
+#ifdef USE_EFGV1
+  char sbuf[9] = { 0x55, 'M', GetMotoCh(moto_index), 'S', param >> 24, param >> 16, param >> 8, param >> 0,0x00 };
+  int slen = sizeof(sbuf);
+  unsigned char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
+
+ if (rdlen > 0 && crc)
+  {
+    //Sleep(100);
+    while (!CheckMotoEnd(moto_index));
+    return 0;
+  }
+
+  return -1;
+#endif
+}
+int CEfgIO::MotoShakeNoWait(int moto_index, int param)
+{
+#ifdef USE_EFGV1
+  char sbuf[9] = { 0x55, 'M', GetMotoCh(moto_index), 'S', param >> 24, param >> 16, param >> 8, param >> 0,0x00 };
+  int slen = sizeof(sbuf);
+  unsigned char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
+
+  if (rdlen > 0 && crc)
+  {
+    return 0;
+  }
+
+  return -1;
+#endif
+}
 
 int CEfgIO::MotoRunNoWait(int moto_index, int param)
 {
@@ -555,6 +597,20 @@ int CEfgIO::MotoRunNoWait(int moto_index, int param)
 #endif
 }
 
+int CEfgIO::MotoZeroNoWait(int moto_index)
+{
+
+  char sbuf[9] = { 0x55,'M', GetMotoCh(moto_index), 'Z',0x00,0x00 };
+  int slen = sizeof(sbuf);
+  unsigned char rbuf[100] = { 0 };
+  int rlen = 100;
+  bool crc = 0;
+  int rdlen = 0;
+
+  rdlen = m_com.SendAndRecv(sbuf, slen, (char*)rbuf, rlen, &crc);
+
+  return 0;
+}
 int CEfgIO::MotoZero(int moto_index)
 {
 #ifdef USE_EFGV1

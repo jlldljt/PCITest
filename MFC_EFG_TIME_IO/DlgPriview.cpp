@@ -43,7 +43,7 @@ END_MESSAGE_MAP()
 void CDlgPriview::OnLButtonDown(UINT nFlags, CPoint point)
 {
   // TODO: 在此添加消息处理程序代码和/或调用默认值
-  if (0 == m_p->m_rcg.g_stu_square.nBMPW || 0 == m_p->m_rcg.g_stu_square.nBMPH) {
+  if (0 >= m_p->m_rcg.g_stu_square.nBMPW || 0 >= m_p->m_rcg.g_stu_square.nBMPH) {
     AfxMessageBox(_T("先点击识别测试"));
     return;
   }

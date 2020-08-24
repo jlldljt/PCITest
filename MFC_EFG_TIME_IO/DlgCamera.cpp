@@ -243,6 +243,8 @@ BEGIN_MESSAGE_MAP(CCamera, CDialogEx)
   ON_BN_CLICKED(IDC_BTN_TRANSFERTEST, &CCamera::OnBnClickedBtnTransfertest)
   ON_BN_CLICKED(IDC_BTN_CLBPOS3TEST, &CCamera::OnBnClickedBtnClbpos3test)
   ON_WM_TIMER()
+  ON_WM_DESTROY()
+  ON_BN_CLICKED(IDC_BTN_TESTZERO, &CCamera::OnBnClickedBtnTestzero)
 END_MESSAGE_MAP()
 
 
@@ -264,6 +266,7 @@ void CCamera::OnBnClickedBtnSnap()
   int nBitCount;
   int nBitsPerSample;
   //unsigned char* pData = m_ksj.SnapEx(m_ch, &nWidth, &nHeight, &nBitCount, &nBitsPerSample, l_AnsiStr, GetDlgItem(IDC_PREVIEW));
+  m_cam.snap();
   m_cam.captureBmp(l_AnsiStr);
   QueryPerformanceCounter(&l_lgint_end);
   double dTmpRT = double(l_lgint_end.QuadPart - l_lgint_start.QuadPart) / double(l_lgint_freq.QuadPart);
@@ -341,7 +344,7 @@ void CCamera::OnBnClickedBtnTest()
   //
   pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(), mDCMem, 0, 0, SRCCOPY);
 
-
+  pDC->SelectObject(PenRed);//选中画笔.
   CBrush br;
   br.CreateStockObject(NULL_BRUSH);
   pDC->SelectObject(&br);
@@ -537,7 +540,11 @@ BOOL CCamera::OnInitDialog()
   m_param->camera.bDelNoise = 0;
   m_param->camera.bDebug = 0;
 
-  m_cam.init(GetDlgItem(IDC_PREVIEW)->m_hWnd);
+  //m_ch = m_ksj.GetKsj(KSJ_UD205M_SGYY);
+  //if (0 > m_ch)
+  //  AfxMessageBox(_T("KSJ_UD205M_SGYY 相机打开失败	,请检查是否连接该相机"));
+  //if(-1==m_cam.init(GetDlgItem(IDC_PREVIEW)->m_hWnd))
+//	  AfxMessageBox(_T("usb相机启动失败"));
   
   return TRUE;  // return TRUE unless you set the focus to a control
   // 异常: OCX 属性页应返回 FALSE
@@ -627,7 +634,9 @@ void CCamera::OnStnClickedPreview()
           //test
           //double angle_test = m_rcg.CalculateVectorAngle(pPoint[1].x-pPoint[0].x,
           //  pPoint[1].y-pPoint[0].y, 1, 0);
-          int nLenNo = m_rcg.g_stu_square.lenNo1PN[i];
+		  if(0!=m_rcg.g_stu_square.bPN[i])
+          
+			  {int nLenNo = m_rcg.g_stu_square.lenNo1PN[i];
           int nLenNoNext = (3 == nLenNo) ? 0 : (nLenNo + 1);
 
           /*int nLenNo = 0;
@@ -635,7 +644,7 @@ void CCamera::OnStnClickedPreview()
 
           pDC->Ellipse(pPoint[nLenNo].x - 2, pPoint[nLenNo].y - 2, pPoint[nLenNo].x + 2, pPoint[nLenNo].y + 2);
           pDC->Ellipse(pPoint[nLenNoNext].x - 4, pPoint[nLenNoNext].y - 4, pPoint[nLenNoNext].x + 4, pPoint[nLenNoNext].y + 4);
-
+		  }
           ////保存到特征变量
           m_rcg.stuRef.Len = m_rcg.g_stu_square.pnLen[i];
           m_rcg.stuRef.Wth = m_rcg.g_stu_square.pnWth[i];
@@ -782,14 +791,14 @@ void CCamera::OnBnClickedBtnVideo()
   {
     gb_PlayOrNot[1] = 1;
     //m_ksj.Preview(m_ch, GetDlgItem(IDC_PREVIEW));
-    SetTimer(TIMER_VIDEO, 33, NULL);
+    SetTimer(TIMER_VIDEO, 200, NULL);
     SetDlgItemText(IDC_BTN_VIDEO, _T("视频预览关"));
   }
   else
   {
     gb_PlayOrNot[1] = 0;
 
-    //m_ksj.StopPreview(m_ch);  //停止预览
+  //  m_ksj.StopPreview(m_ch);  //停止预览
     KillTimer(TIMER_VIDEO);
     SetDlgItemText(IDC_BTN_VIDEO, _T("视频预览"));
 
@@ -1127,9 +1136,9 @@ void CCamera::OnBnClickedBtnSplit()
 void CCamera::OnBnClickedBtnReconnect()
 {
   // TODO: 在此添加控件通知处理程序代码
-  /*m_ch = m_ksj.GetKsj(KSJ_UC500M_MRYY);
-  if (0 > m_ch)
-    AfxMessageBox(_T("KSJ_UC500M_MRYY 相机打开失败	,请检查是否连接该相机"));*/
+  //m_ch = m_ksj.GetKsj(KSJ_UD205M_SGYY);
+  //if (0 > m_ch)
+  //  AfxMessageBox(_T("KSJ_UD205M_SGYY 相机打开失败	,请检查是否连接该相机"));
   m_cam.init(GetDlgItem(IDC_PREVIEW)->m_hWnd);
 
 }
@@ -1751,6 +1760,40 @@ void CCamera::OnBnClickedBtnTransfertest()
 void CCamera::OnTimer(UINT_PTR nIDEvent)
 {
   // TODO: 在此添加消息处理程序代码和/或调用默认值
-  m_cam.snap();
+  if(-1 == m_cam.snap())
+	  m_cam.init(GetDlgItem(IDC_PREVIEW)->m_hWnd);
   CDialogEx::OnTimer(nIDEvent);
+}
+
+
+void CCamera::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	// TODO: 在此处添加消息处理程序代码
+	m_cam.unInit();// 不执行，程序假死，退出不了
+}
+void CCamera::VideoOnOff(BOOL on)
+{
+  // TODO: 在此添加控件通知处理程序代码
+
+  if (on)
+  {
+    SetTimer(TIMER_VIDEO, 200, NULL);
+  }
+  else
+  {
+    KillTimer(TIMER_VIDEO);
+  }
+
+
+}
+
+void CCamera::OnBnClickedBtnTestzero()
+{
+	// TODO: 在此添加控件通知处理程序代码
+  m_io->MotoZeroNoWait(MOTOR_A);
+  m_io->MotoZeroNoWait(MOTOR_B);
+  while (!m_io->CheckMotoEnd(MOTOR_A)) { Sleep(100); };
+  while (!m_io->CheckMotoEnd(MOTOR_B)) { Sleep(100); };
 }

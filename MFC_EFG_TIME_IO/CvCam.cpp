@@ -9,7 +9,7 @@ CCvCam::~CCvCam()
 {
 }
 
-void CCvCam::init(HWND wnd)
+int CCvCam::init(HWND wnd)
 {
 
   if (!m_cvCap.isOpened())
@@ -19,13 +19,13 @@ void CCvCam::init(HWND wnd)
 
     if (!m_cvCap.isOpened())
     {
-      return;
+      return -1;
     }
     //opencv ©ирт   4-3 8-6  16-12  32-24  320-240  640-480  960-720 1280-960
 
     m_cvCap.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
 
-    m_cvCap.set(CV_CAP_PROP_FRAME_HEIGHT, 960);
+    m_cvCap.set(CV_CAP_PROP_FRAME_HEIGHT, 1024);
     double width = m_cvCap.get(CV_CAP_PROP_FRAME_WIDTH);
 
     double height = m_cvCap.get(CV_CAP_PROP_FRAME_HEIGHT);
@@ -39,6 +39,7 @@ void CCvCam::init(HWND wnd)
       GetClientRect(wnd, &m_rect);
     }
   }
+  return 0;
 }
 
 void CCvCam::unInit()
@@ -104,11 +105,11 @@ int CCvCam::savePic(const char* path,IplImage* pImg)
   return 0;
 }
 
-void CCvCam::snap(void)
+int CCvCam::snap(void)
 {
   if (!m_cvCap.isOpened())
   {
-    return;
+    return -1;
   }
 
   cv::Mat frame;
@@ -126,7 +127,7 @@ void CCvCam::snap(void)
     OutputDebugString(_T("queryFrame is Null!\n"));
   }
 
-  return;
+  return 0;
 }
 //
 int CCvCam::captureBmp(const char* path)
