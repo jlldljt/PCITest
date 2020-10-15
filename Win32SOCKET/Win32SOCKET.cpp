@@ -1325,6 +1325,11 @@ int  test3_2_all(std::list<string>& arr)
 	memset(ip, 0, 20);
 	memset(port, 0, 10);
 
+
+	char version[20];
+	printf("输入硬件版本\n");
+	gets_s(version, 20);
+
 	char function = 0;
 	printf("输入功能码：\n");
 	printf("0————下载脚本\n");
@@ -1402,9 +1407,10 @@ test3_3next:
 		char* idPos = strstr(buf, "ID:") + 3;
 		char* ipPos = strstr(buf, "IP:") + 3;
 		char* portPos = strstr(buf, "PORT:") + 5;
+		char* verPos = strstr(buf, "VER:") + 4;
 
 
-		if (0 == strncmp(buf, "yes", 3))
+		if (0 == strncmp(buf, "yes", 3) && 0 == strncmp(verPos, version, 5))
 		{
 
 			int idLen = strstr(idPos, "\r\n") - idPos;
@@ -1416,6 +1422,8 @@ test3_3next:
 			memcpy(port, portPos, portLen);
 			goto test3_3connect;
 		}
+		it++;
+		goto test3_3next;
 	}
 
 	CloseHandle(hFile);
@@ -1637,7 +1645,8 @@ test3_3connect:
 
 	// Receive until the peer closes the connection
 	//do {
-
+	int timeout = 2000; //2s
+	ret = setsockopt(ConnectSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 	iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 	if (iResult > 0) {
 		/*recvbuf[iResult] = 0x00;
