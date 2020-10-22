@@ -1335,6 +1335,7 @@ int  test3_2_all(std::list<string>& arr)
 	printf("0————下载脚本\n");
 	printf("1————下载固件\n");
 	printf("A————更新BT\n");
+	printf("C————更新COP\n");
 	printf("其他————退出\n");
 	int ret = getchar();
 	if (ret == '0')
@@ -1343,6 +1344,8 @@ int  test3_2_all(std::list<string>& arr)
 		function = 0x20;
 	else if (ret == 'A')
 		function = 0xA0;
+	else if (ret == 'C')
+		function = 0xC0;
 	else
 		exit(0);
 
