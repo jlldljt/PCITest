@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 	sprintf(WriteTestData, "am host A B C D E F GA B C D E F GA B C D E F GA B C D E F GA B C D E F GA B C D E F G\r\n");
 	//端点1写入数据
 	int ret;
-	ret = usb_bulk_write(m_dev_handle, EP_OUT, WriteTestData, EP1_OUT_SIZE, 500);
+	ret = usb_bulk_write(m_dev_handle, EP_OUT, WriteTestData, EP1_OUT_SIZE, 500);// 
 	if (ret != EP1_OUT_SIZE)
 	{
 		printf("端点1写入数据失败! %d\n", ret);
@@ -103,8 +103,8 @@ int main(int argc, char* argv[])
 
 	//端点1读取数据
 	memset(ReadTestData, 0, 2048);
-	ret = usb_interrupt_read(m_dev_handle, 0X81, ReadTestData, 64, 500);
-	//ret = usb_bulk_read(m_dev_handle, EP_IN, ReadTestData, EP1_IN_SIZE, 500);
+	//ret = usb_interrupt_read(m_dev_handle, 0X82, ReadTestData, 64, 500);
+	ret = usb_bulk_read(m_dev_handle, 0X82/*EP_IN*/, ReadTestData, EP1_IN_SIZE, 500);
 	//if (ret  != EP1_IN_SIZE)
 	if (ret <0)
 	{
