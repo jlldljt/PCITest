@@ -65,18 +65,18 @@ int main(int argc, char* argv[])
 	struct usb_endpoint_descriptor* endpoint = m_dev->config->interface->altsetting->endpoint;
 	//int ep = m_dev->config->interface->altsetting->endpoint->bEndpointAddress;
 	int ep = endpoint[2].bEndpointAddress;
-	int EP_IN = 0;
-	int EP_OUT = 0;
-	if (ep > 0x0f)
-	{
-		EP_IN = ep;
-		EP_OUT = ep - 0x80;
-	}
-	else
-	{
-		EP_OUT = ep;
-		EP_IN = ep + 0x80;
-	}
+	int EP_IN = 0x81;
+	int EP_OUT = 0x02;
+	//if (ep > 0x0f)
+	//{
+	//	EP_IN = ep;
+	//	EP_OUT = ep - 0x80;
+	//}
+	//else
+	//{
+	//	EP_OUT = ep;
+	//	EP_IN = ep + 0x80;
+	//}
 
 	printf("EP_IN: 0x%02x , EP_OUT: 0x%02x \n", EP_IN, EP_OUT);
 	//------------------------------------------------------------
@@ -87,11 +87,13 @@ int main(int argc, char* argv[])
 	//{
 	//	WriteTestData[i] = i;
 	//}
-	sprintf(WriteTestData, "am host A B C D E F GA B C D E F GA B C D E F GA B C D E F GA B C D E F GA B C D E F G\r\n");
+	sprintf(WriteTestData, "am host A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G\r\n");
 	//端点1写入数据
 	int ret;
-	ret = usb_bulk_write(m_dev_handle, EP_OUT, WriteTestData, EP1_OUT_SIZE, 500);// 
-	if (ret != EP1_OUT_SIZE)
+	int wr_size = 299;
+	// usblib的bulk int可互换
+	ret = usb_interrupt_write(m_dev_handle, EP_OUT, WriteTestData, wr_size/*EP1_OUT_SIZE*/, 500);// 
+	if (ret != wr_size/*EP1_OUT_SIZE*/)
 	{
 		printf("端点1写入数据失败! %d\n", ret);
 		return 1;
@@ -101,10 +103,10 @@ int main(int argc, char* argv[])
 		printf("端点1写入数据成功!\n");
 	}
 
-	//端点1读取数据
+	//端点1读取数据 // 只能读取下面prepare大小相同的长度，或者超时返回错误，垃圾函数
 	memset(ReadTestData, 0, 2048);
 	//ret = usb_interrupt_read(m_dev_handle, 0X82, ReadTestData, 64, 500);
-	ret = usb_bulk_read(m_dev_handle, 0X82/*EP_IN*/, ReadTestData, EP1_IN_SIZE, 500);
+	ret = usb_bulk_read/*usb_bulk_read*/(m_dev_handle, EP_IN, ReadTestData, wr_size/*EP1_IN_SIZE*/, 500);
 	//if (ret  != EP1_IN_SIZE)
 	if (ret <0)
 	{
