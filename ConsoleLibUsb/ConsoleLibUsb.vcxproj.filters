@@ -18,9 +18,18 @@
     <ClCompile Include="ConsoleLibUsb.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\Common\common.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="usb.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libusb.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="usb.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -82,51 +82,83 @@ int main(int argc, char* argv[])
 	//------------------------------------------------------------
 
 	char WriteTestData[2048] = { 0 };
-	char ReadTestData[2048] = { 0 };
+	char ReadTestData[4096] = { 0 };
 	//for (int i = 0; i < 2048; i++)
 	//{
 	//	WriteTestData[i] = i;
 	//}
-	sprintf(WriteTestData, "am host A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G\r\n");
+	printf("输入发送字符串：\n");
+	gets_s(WriteTestData, 2048);
+
+	//sprintf(WriteTestData, "am host A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G A B C D E F G\r\n");
 	//端点1写入数据
 	int ret;
 	int wr_size = 299;
 	// usblib的bulk int可互换
-	ret = usb_interrupt_write(m_dev_handle, EP_OUT, WriteTestData, wr_size/*EP1_OUT_SIZE*/, 500);// 
-	if (ret != wr_size/*EP1_OUT_SIZE*/)
+	ret = usb_bulk_write(m_dev_handle, EP_OUT, WriteTestData, strlen(WriteTestData)/*EP1_OUT_SIZE*/, 500);// 
+	if (ret != strlen(WriteTestData)/*EP1_OUT_SIZE*/)
 	{
 		printf("端点1写入数据失败! %d\n", ret);
-		return 1;
+		//return 1;
 	}
 	else
 	{
 		printf("端点1写入数据成功!\n");
 	}
-
+	system("pause");
 	//端点1读取数据 // 只能读取下面prepare大小相同的长度，或者超时返回错误，垃圾函数
-	memset(ReadTestData, 0, 2048);
-	//ret = usb_interrupt_read(m_dev_handle, 0X82, ReadTestData, 64, 500);
-	ret = usb_bulk_read/*usb_bulk_read*/(m_dev_handle, EP_IN, ReadTestData, wr_size/*EP1_IN_SIZE*/, 500);
-	//if (ret  != EP1_IN_SIZE)
-	if (ret <0)
+	memset(ReadTestData, 0, 4096);
+
+	int shift = 0;
+	int timeout = 500;
+
+	while (shift < 4096)
 	{
-		printf("端点1读取数据失败! %d\n", ret);
-		return 1;
+
+		ret = usb_interrupt_read/*usb_bulk_read*/(m_dev_handle, EP_IN, ReadTestData + shift, 4096 - shift/*EP1_IN_SIZE*/, timeout);
+		if (ret < 0)
+		{
+			break;
+		}
+		else
+		{
+			shift+= ret;
+			timeout = 10;
+		}
+	}
+
+	if (shift)
+	{
+		printf("端点1读取数据成功! %d\n", shift);
+		printf("%s ", ReadTestData);
+		printf("\n");
 	}
 	else
 	{
-		printf("端点1读取数据成功! %d\n", ret);
-			printf("%s ", ReadTestData);
-		//for (int i = 0; i < EP1_IN_SIZE; i++)
-		//{
-		//	//printf("%02X ", ReadTestData[i]);
-		//	//if (((i + 1) % 16) == 0)
-		//	//{
-		//	//	printf("\n");
-		//	//}
-		//}
-		printf("\n");
+		printf("端点1读取数据失败!\n");
 	}
+
+	//ret = usb_interrupt_read/*usb_bulk_read*/(m_dev_handle, EP_IN, ReadTestData, wr_size/*EP1_IN_SIZE*/, 500);
+	////if (ret  != EP1_IN_SIZE)
+	//if (ret <0)
+	//{
+	//	printf("端点1读取数据失败! %d\n", ret);
+	//	return 1;
+	//}
+	//else
+	//{
+	//	printf("端点1读取数据成功! %d\n", ret);
+	//		printf("%s ", ReadTestData);
+	//	//for (int i = 0; i < EP1_IN_SIZE; i++)
+	//	//{
+	//	//	//printf("%02X ", ReadTestData[i]);
+	//	//	//if (((i + 1) % 16) == 0)
+	//	//	//{
+	//	//	//	printf("\n");
+	//	//	//}
+	//	//}
+	//	printf("\n");
+	//}
 
 
 	/**************************************************************************/
