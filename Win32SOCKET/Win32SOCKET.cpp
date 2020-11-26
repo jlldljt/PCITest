@@ -1407,23 +1407,31 @@ test3_3next:
 	if (it != arr.end())
 	{
 		char* buf = (char*)it->c_str();
-		char* idPos = strstr(buf, "ID:") + 3;
-		char* ipPos = strstr(buf, "IP:") + 3;
-		char* portPos = strstr(buf, "PORT:") + 5;
-		char* verPos = strstr(buf, "VER:") + 4;
+		char* idPos = strstr(buf, "ID:");
+		char* ipPos = strstr(buf, "IP:");
+		char* portPos = strstr(buf, "PORT:");
+		char* verPos = strstr(buf, "VER:");
 
-
-		if (0 == strncmp(buf, "yes", 3) && 0 == strncmp(verPos, version, 5))
+		if (buf && idPos && ipPos && portPos && verPos)
 		{
 
-			int idLen = strstr(idPos, "\r\n") - idPos;
-			int ipLen = strstr(ipPos, "\r\n") - ipPos;
-			int portLen = strstr(portPos, "\r\n") - portPos;
+			idPos += 3;
+			ipPos += 3;
+			portPos += 5;
+			verPos += 4;
+
+			if (0 == strncmp(buf, "yes", 3) && 0 == strncmp(verPos, version, 5))
+			{
+
+				int idLen = strstr(idPos, "\r\n") - idPos;
+				int ipLen = strstr(ipPos, "\r\n") - ipPos;
+				int portLen = strstr(portPos, "\r\n") - portPos;
 
 
-			memcpy(ip, ipPos, ipLen);
-			memcpy(port, portPos, portLen);
-			goto test3_3connect;
+				memcpy(ip, ipPos, ipLen);
+				memcpy(port, portPos, portLen);
+				goto test3_3connect;
+			}
 		}
 		it++;
 		goto test3_3next;
