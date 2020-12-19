@@ -1,5 +1,6 @@
 ﻿// ConsoleLibUsb.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
+// 注意本项目要x64
 
 #include <iostream>
 #include <stdio.h>
@@ -508,10 +509,81 @@ test3connect:
 	return;
 }
 
+//测试收发
+void test1(void)
+{
+	char sendbuf[] = "this is a test";
+	char recvbuf[DEFAULT_BUFLEN];
+	int iResult;
+	int recvbuflen = DEFAULT_BUFLEN;
+
+	usb usb;
+
+	//UCHAR uchBuf[] = "CDV INF";
+	UCHAR uchBuf[8] = { 0x01, 0x03 , 0x00 , 0x0F , 0x00 , 0x6F , 0x35 , 0xE5 };
+	// Send an initial buffer
+	DWORD t1, t2;
+	//char com[20];
+	//printf("输入串口，比如“COM1”\n");
+	//gets_s(com, 20);
+	//int isOta = 0;
+
+test1_start:
+	// Initialize
+	if (usb.Open(VID, PID))
+		exit(0);
+
+	printf("Successed connect to VID %x PID %x!\n", VID, PID);
+
+	//////////
+	//发送命令
+	//////////
+	Sleep(500);//getchar();
+	  //crc
+	//UCHAR uchBuf[20] = { 0xF3, 0x06, 0x6C, 0x81, 0x03, 0x00 };
+
+test1_next:
+	t1 = GetTickCount();
+	iResult = usb.Write((char*)uchBuf, sizeof(uchBuf));
+
+	if (iResult != sizeof(uchBuf))
+	{
+		printf("send failed\n");
+		return;
+	}
+	Sleep(50);
+	memset(recvbuf, 0, recvbuflen);
+	// 等待接收初始化完成
+	iResult = usb.Read(recvbuf, recvbuflen, 50);
+
+	if (iResult > 0) {
+		//printf("%s ", recvbuf);
+		for (int i = 0; i < iResult; i++) {
+			printf("%02x ", (UINT8)recvbuf[i]);
+		}
+		printf("\n");
+	}
+	else if (iResult == 0)
+		printf("recv nothing\n");
+	else
+	{
+		printf("recv failed\n");
+		usb.Close();
+		goto test1_start;
+		return;
+	}
+	t2 = GetTickCount();
+	printf("Use Time:%d ms\n", (t2 - t1));
+	//Sleep(300); //getchar();
+	goto test1_next;
+	usb.Close();
+	return;
+}
+// 注意本项目要x64
 int main()
 {
-	//NPC_INF();// update_with_serial();
-	update_with_usb();
+	test1();
+	//update_with_usb();
 	printf("over");
 	getchar();
 	return 1;

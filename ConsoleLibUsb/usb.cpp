@@ -143,6 +143,8 @@ int usb::Read(char* buf, int buf_len, int timeout, unsigned char ep)
 		ret = libusb_bulk_transfer(handle, ep, (unsigned char*)buf + shift, buf_len - shift, &actual_len, timeout);
 		if (ret < 0)
 		{
+			if (!shift)
+				shift = ret;
 			break;
 		}
 		else
